@@ -1,0 +1,17 @@
+se busca este código:
+
+ <Directory "C:/xampp/phpMyAdmin">
+        AllowOverride AuthConfig
+        Require local
+       # ErrorDocument 403 /error/XAMPP_FORBIDDEN.html.var
+    </Directory>
+-------------------------------
+y solo se remplazan dos lineas:
+
+ AllowOverride AuthConfig
+ Require local
+--------------------------------
+Por estas otras dos:
+
+Allow from all
+Require all granted.
