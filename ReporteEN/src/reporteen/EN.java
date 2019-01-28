@@ -383,9 +383,7 @@ public class EN extends javax.swing.JFrame implements Runnable {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        IP = JOptionPane.showInputDialog(this, "Cual es la dirección del servidor", IP);
-        user = JOptionPane.showInputDialog(this, "Cual el usuario del servidor", user);
-        pass = JOptionPane.showInputDialog(this, "Cual es la contraseña del usuario", pass);
+       
     }//GEN-LAST:event_jButton1ActionPerformed
 
     public static void main(String args[]) {
