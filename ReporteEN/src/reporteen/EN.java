@@ -10,37 +10,39 @@ import javax.swing.table.DefaultTableModel;
 
 public class EN extends javax.swing.JFrame implements Runnable {
 
-    public EN() {
-        //...
-        if (soloUnaVez == 0) {
-            initComponents();
-            this.setExtendedState(EN.MAXIMIZED_BOTH);
-            this.setTitle("Informe de Ensamble");
-            this.setIconImage(new ImageIcon(getClass().getResource("/img/EN.png")).getImage());
-            jTReporte.getTableHeader().setReorderingAllowed(false);
-            hilo = new Thread(this);
-            hilo.start();//Hilo de consulta de la información
-            //...
-            DisponibilidadConexion conexion = new DisponibilidadConexion();
-            Thread conec = new Thread(conexion);
-            conec.start();//Hilo de validación de linea al servidor.
-        }
-        soloUnaVez = 1;
-    }
 //Variables
     CachedRowSet crs = null;
     String names[] = null;
     static String namesBeta[] = null, nombreProcesos[] = null;
     String beta = "N°Orden;Cant;Lider de proyecto", betaNames = "";
-    Modelo obj = new Modelo();
+    Modelo modelo;
     Object row[];//Proyectos
-    int cantTerminada=0;
+    int cantTerminada = 0;
     static int posProceso = 0, rep = 0, canColumnas = 0, soloUnaVez = 0;
     Thread hilo = null;
 //Variables staticas
     public static String IP = "192.168.4.1:3306";
     public static String user = "juanDavidM";
     public static String pass = "123";
+    
+    public EN() {
+        //...
+        if (soloUnaVez == 0) {
+            initComponents();
+            this.setExtendedState(EN.MAXIMIZED_BOTH);
+//          this.setTitle("Informe de Ensamble");
+            this.setIconImage(new ImageIcon(getClass().getResource("/img/EN.png")).getImage());
+            jTReporte.getTableHeader().setReorderingAllowed(false);
+            hilo = new Thread(this);
+            hilo.start();//Hilo de consulta de la información
+            //...
+            DisponibilidadConexion conexion = new DisponibilidadConexion(this);
+            Thread conec = new Thread(conexion);
+            conec.start();//Hilo de validación de linea al servidor.
+            soloUnaVez = 1;
+            modelo = new Modelo(this);
+        }
+    }
     //Metodos
     @Override
     public void run() {
@@ -49,10 +51,10 @@ public class EN extends javax.swing.JFrame implements Runnable {
                 consultarProcesosEncabezados();
                 jPanel1.updateUI();
                 System.gc();//Garbaje collector
-                Thread.sleep(500);//5 segundos
+//                Thread.sleep(5000);//5 segundos
             }
         } catch (Exception e) {
-//            JOptionPane.showMessageDialog(null, "Error: " + e);
+            JOptionPane.showMessageDialog(null, "1-Error: " + e);
         }
     }
 
@@ -61,7 +63,8 @@ public class EN extends javax.swing.JFrame implements Runnable {
             String nuevaCadena = "";
             betaNames="";
             int count = 0;
-            crs = obj.consultarProcesosM(3);//Ensamble=3
+            Thread.sleep(5);
+            crs = modelo.consultarProcesosM(3);//Ensamble=3
             while (crs.next()) {
                 betaNames += count == 0 ? crs.getString(2) : ";" + crs.getString(2);//Columna numero 2
                 count = 1;
@@ -83,7 +86,7 @@ public class EN extends javax.swing.JFrame implements Runnable {
             nuevaCadena = "";
             consultarInformacionEnsamble(df);//Cuerpo del modelo...
         } catch (Exception e) {
-//            JOptionPane.showMessageDialog(null, "Error: " + e);
+            JOptionPane.showMessageDialog(null, "2-Error: " + e);
         }
     }
 
@@ -91,7 +94,7 @@ public class EN extends javax.swing.JFrame implements Runnable {
         try {
             int totalProyectos = 0, cantidadTotatlUnidades = 0;
             row = null;
-            crs = obj.consultarInformacionEnsambleM();
+            crs = modelo.consultarInformacionEnsambleM();
             row = new Object[names.length];
             inicializarVector();//Vector en estado inicial
             while (crs.next()) {
@@ -155,7 +158,7 @@ public class EN extends javax.swing.JFrame implements Runnable {
             nombreProcesos = null;
             betaNames = "";
         } catch (Exception e) {
-//            JOptionPane.showMessageDialog(null, "Error: " + e);
+            JOptionPane.showMessageDialog(null, "3-Error: " + e);
         }
     }
     
@@ -166,7 +169,7 @@ public class EN extends javax.swing.JFrame implements Runnable {
             row[pos] = crs.getString(9);//Cantidades terminadas del proceso
             cantTerminada+=crs.getInt(9);
         } catch (Exception e) {
-//            JOptionPane.showMessageDialog(null,e);
+            JOptionPane.showMessageDialog(null,"4-Error: " + e);
         }
     }
 
@@ -195,10 +198,9 @@ public class EN extends javax.swing.JFrame implements Runnable {
     private String consultarNombreEmpleadoLider(String doc){
         String name="";
         try {
-            Modelo obj=new Modelo();
-            name= obj.consultarNombreLiderProyectoM(doc);
+            name= modelo.consultarNombreLiderProyectoM(doc);
         } catch (Exception e) {
-//            JOptionPane.showMessageDialog(null,e);
+            JOptionPane.showMessageDialog(null,"5-Error:"+e);
         }
         return name;
     }
@@ -244,6 +246,7 @@ public class EN extends javax.swing.JFrame implements Runnable {
         jButton1 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Informe de ensamble");
 
         jPanel1.setBackground(new java.awt.Color(204, 220, 226));
 

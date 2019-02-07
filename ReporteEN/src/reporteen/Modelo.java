@@ -16,15 +16,16 @@ public class Modelo {
     PreparedStatement ps = null;
     Connection con = null;
     String Query = "";
+    EN objEN;
 
-    public Modelo() {
-
+    public Modelo(EN objEN) {
+        this.objEN=objEN;
     }
 
     public CachedRowSet consultarProcesosM(int area) {
         try {
             //Establecer la conexión
-            conexion=new Conexion(1);//Base de datos de SGN
+            conexion=new Conexion(1,objEN);//Base de datos de SGN
             conexion.establecerConexion();
             con=conexion.getConexion();
             //Preparar la consulata
@@ -40,7 +41,7 @@ public class Modelo {
             ps.close();
             con.close();
         } catch (Exception e) {
-//            JOptionPane.showMessageDialog(null, "Erro: " + e);
+            JOptionPane.showMessageDialog(null, "Erro: " + e);
         }
         return crs;
     }
@@ -48,7 +49,7 @@ public class Modelo {
     public CachedRowSet consultarInformacionEnsambleM() {
         try {
             //Establecer la conexión
-            conexion=new Conexion(1);//Base de datos de SGN
+            conexion=new Conexion(1,objEN);//Base de datos de SGN
             conexion.establecerConexion();
             con=conexion.getConexion();
             //Preparar la consulata
@@ -71,7 +72,7 @@ public class Modelo {
         public String consultarNombreLiderProyectoM(String doc){
         String empleado="";
         try {
-            conexion=new Conexion(2);//Base de datos de SGN
+            conexion=new Conexion(2,objEN);//Base de datos de SGN
             conexion.establecerConexion();
             con=conexion.getConexion();
             //...

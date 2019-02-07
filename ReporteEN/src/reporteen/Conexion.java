@@ -10,14 +10,15 @@ public class Conexion {
     static String user = "juanDavidM";
     static String password = "123";
     static String server;
+    EN objEN;
 
-    public Conexion(int opData) {
-        EN obj=new EN();
-        this.user=obj.user;
-        this.password=obj.pass;
+    public Conexion(int opData, EN objEN) {
+        this.objEN=objEN;
+        this.user=objEN.user;
+        this.password=objEN.pass;
         
         bd = (opData==1?"coltime":"sgn");
-        server = "jdbc:mysql://"+obj.IP+"/" + bd;
+        server = "jdbc:mysql://"+objEN.IP+"/" + bd;
     }
 
     public void establecerConexion() {

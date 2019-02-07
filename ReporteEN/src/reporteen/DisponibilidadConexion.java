@@ -8,21 +8,26 @@ import javax.swing.JOptionPane;
 public class DisponibilidadConexion implements Runnable {
 
     Color green = new Color(0, 185, 0);
-
+    EN objEN;    
+    
+    public DisponibilidadConexion(EN obj){
+        this.objEN=obj;
+    }
+    
     @Override
     public void run() {
-        EN vista = new EN();
+//        EN vista = new EN();
         while (true) {
-            Conexion obj = new Conexion(1);
-            obj.establecerConexion();
-            if (obj.getConexion() != null) {
-                vista.jLConexion.setText("Linea");
-                vista.jLConexion.setForeground(green);
+            Conexion conexion = new Conexion(1,objEN);
+            conexion.establecerConexion();
+            if (conexion.getConexion() != null) {
+                objEN.jLConexion.setText("Linea");
+                objEN.jLConexion.setForeground(green);
             } else {
-                vista.jLConexion.setText("Sin conexión");
-                vista.jLConexion.setForeground(Color.RED);
+                objEN.jLConexion.setText("Sin conexión");
+                objEN.jLConexion.setForeground(Color.RED);
             }
-            obj.destruir();
+            conexion.destruir();
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException ex) {
