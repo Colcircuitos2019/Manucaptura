@@ -8,6 +8,7 @@ import Controlador.HiloLectura;
 import Controlador.Proyecto;
 import Controlador.Usuario;
 import Controlador.generarXlsx;
+import Controlador.rutaQR;
 import Vistas.CambiarContraseña;
 import Vistas.ClausulasPrivacidad;
 import Vistas.ControlDelTiempo;
@@ -53,6 +54,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
     Thread tomaTiempo = null;
     public static String puertoActual = "COM6";//Por defecto va a ser el Puerto COM6
     proyecto pro = null;
+    rutaQR controlador=null;
     ///---------------------------------------------------------------------------
     //Al generar el ejecutable o acceso directo, no carga el menu principal. Estar atento a esta novedad para solucionarlo lo más pronto posible.
     //----------------------------------------------------------------------------
@@ -116,9 +118,9 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
     public static PrintStream myPS;
     ButtonGroup grupoCom = null;
     //Variables estaticas de conexion
-    public static String IP="192.168.4.173:3306";
-    public static String user= "coluser";//juanDavidM
-    public static String pass= "";//123
+    public static String IP="192.168.4.1:3306";
+    public static String user= "juanDavidM";//coluser
+    public static String pass= "123";//
             
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -205,6 +207,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
         jRLDesactivado = new javax.swing.JRadioButtonMenuItem();
         jMenu5 = new javax.swing.JMenu();
         jMenuItem4 = new javax.swing.JMenuItem();
+        rutaQR = new javax.swing.JMenuItem();
         jSeparator1 = new javax.swing.JPopupMenu.Separator();
         jMenu2 = new javax.swing.JMenu();
         jMenuItem2 = new javax.swing.JMenuItem();
@@ -1064,6 +1067,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
 
         jMenu3.add(jMLectura);
 
+        jMenu5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/db.png"))); // NOI18N
         jMenu5.setText("Conexión");
 
         jMenuItem4.setText("DB MySQL");
@@ -1075,6 +1079,15 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
         jMenu5.add(jMenuItem4);
 
         jMenu3.add(jMenu5);
+
+        rutaQR.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/path.png"))); // NOI18N
+        rutaQR.setText("Ruta QRs");
+        rutaQR.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                rutaQRActionPerformed(evt);
+            }
+        });
+        jMenu3.add(rutaQR);
         jMenu3.add(jSeparator1);
 
         jMenuBar1.add(jMenu3);
@@ -1177,6 +1190,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
                 btn6.setEnabled(false);
                 //ItemMenu de Estado de lectura.
                 jMLectura.setVisible(false);
+                rutaQR.setVisible(false);
                 jLEstadoLectura.setVisible(false);
                 jLabel14.setVisible(false);
                 break;
@@ -1187,6 +1201,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
                 btn6.setEnabled(false);
                 //ItemMenu de Estado de lectura.
                 jMLectura.setVisible(false);
+                rutaQR.setVisible(true);
                 jLEstadoLectura.setVisible(false);
                 jLabel14.setVisible(false);
                 break;
@@ -1197,6 +1212,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
                 btn6.setEnabled(false);
                 //ItemMenu de Estado de lectura.
                 jMLectura.setVisible(true);
+                rutaQR.setVisible(false);
                 jLEstadoLectura.setVisible(true);
                 jLabel14.setVisible(true);
                 break;
@@ -1207,6 +1223,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
                 btn6.setEnabled(false);
                 //ItemMenu de Estado de lectura.
                 jMLectura.setVisible(true);
+                rutaQR.setVisible(false);
                 jLEstadoLectura.setVisible(true);
                 jLabel14.setVisible(true);
                 break;
@@ -1214,6 +1231,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
                 this.setTitle("Administrador: " + name);
                 //ItemMenu de Estado de lectura.
                 jMLectura.setVisible(false);
+                rutaQR.setVisible(true);
                 jLEstadoLectura.setVisible(false);
                 jLabel14.setVisible(false);
                 break;
@@ -1225,6 +1243,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
                 btn6.setEnabled(false);
                 //ItemMenu de Estado de lectura.
                 jMLectura.setVisible(false);
+                rutaQR.setVisible(false);
                 jLEstadoLectura.setVisible(false);
                 jLabel14.setVisible(false);
                 break;
@@ -1746,6 +1765,31 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
             }
         }       
     }//GEN-LAST:event_btn7ActionPerformed
+
+    private void rutaQRActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rutaQRActionPerformed
+        //Parent, mensaje, titulo y tipo
+        if (controlador==null){
+            controlador= new rutaQR();  
+        }
+        controlador.consultarRutaQR(jDocumento.getText());
+        String path = JOptionPane.showInputDialog(this, "Ingresa la ruta donde se guardaran los QR generados", controlador.getRutaQR());
+        if(path!=null){
+        //...El path tiene que ser diferente a null y a vacio. El path tiene que ser 
+            if (!path.equals("") && path.codePointAt(path.length() - 1) == 92) {
+                //Gestionar la ruta
+                controlador.setRutaQR(path);
+                controlador.gestionarRutaQR(jDocumento.getText());
+                //...
+                if (controlador.getRespuesta()) {
+                    new rojerusan.RSNotifyAnimated("¡Realizado!", "Se actualizo la ruta de generacion de QR de los proyectos.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.SUCCESS).setVisible(true);
+                }
+                //...
+            } else {
+                new rojerusan.RSNotifyAnimated("¡Alerta!", "La ruta especificada no esta bien estructurada.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.ERROR).setVisible(true);
+            }            
+        }
+//       System.out.println(path);
+    }//GEN-LAST:event_rutaQRActionPerformed
 //Metodos de la clase menu----------------------------------------------------->
 //...
 //Configuracion de los puertos seriales-----------------------------------------
@@ -2165,6 +2209,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
     public static javax.swing.JRadioButtonMenuItem jRLDesactivado;
     public javax.swing.JPopupMenu.Separator jSeparator1;
     public rojerusan.RSFotoCircle rSUsuario;
+    public javax.swing.JMenuItem rutaQR;
     // End of variables declaration//GEN-END:variables
     @Override
     protected void finalize() throws Throwable {

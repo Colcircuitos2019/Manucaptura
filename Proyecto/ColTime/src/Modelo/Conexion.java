@@ -35,7 +35,7 @@ public class Conexion {
 //            }
         } catch (Exception e) {
 //            JOptionPane.showMessageDialog(null, "Imposible realizar conexion con la BD" + e);
-            e.printStackTrace();
+//            e.printStackTrace();
         }
     }
 //Traer conexión a la base de datos.
@@ -48,7 +48,7 @@ public class Conexion {
             try {
                 rs.close();
             } catch (Exception e) {
-                System.out.print("No es posible cerrar la Conexion");
+//                System.out.print("No es posible cerrar la Conexion");
             }
         }
     }

@@ -343,7 +343,7 @@ public class UsuarioM {
             JOptionPane.showMessageDialog(null, "¡Error!" + e);
         }
     }
-
+    
     @Override
     protected void finalize() throws Throwable {
         super.finalize(); //To change body of generated methods, choose Tools | Templates.

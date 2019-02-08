@@ -81,7 +81,7 @@ public class Diagramas {
 //            f.setLocationRelativeTo(null);
 //            f.setVisible(true);
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Error! " + e);
+//            JOptionPane.showMessageDialog(null, "Error! " + e);
         }
         return iconG;
     }
@@ -282,7 +282,7 @@ public class Diagramas {
 //            f.setLocationRelativeTo(null);
 //            f.setVisible(true);
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Error! " + e);
+//            JOptionPane.showMessageDialog(null, "Error! " + e);
         }
     }
 
@@ -384,7 +384,7 @@ public class Diagramas {
 //            f.setLocationRelativeTo(null);
 //            f.setVisible(true);
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Error! " + e);
+//            JOptionPane.showMessageDialog(null, "Error! " + e);
         }
     }
 
@@ -486,7 +486,7 @@ public class Diagramas {
 //            f.setLocationRelativeTo(null);
 //            f.setVisible(true);
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Error! " + e);
+//            JOptionPane.showMessageDialog(null, "Error! " + e);
         }
     }
 
@@ -508,7 +508,7 @@ public class Diagramas {
                 }
             }
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Error! " + e);
+//            JOptionPane.showMessageDialog(null, "Error! " + e);
         }
         return v;
     }

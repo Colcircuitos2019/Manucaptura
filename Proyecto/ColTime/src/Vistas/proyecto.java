@@ -4,6 +4,7 @@ import Atxy2k.CustomTextField.RestrictedTextField;
 import Controlador.DetalleProyecto;
 import Controlador.Proyecto;
 import Controlador.ProyectoQR;
+import Controlador.rutaQR;
 import coltime.Menu;
 import com.barcodelib.barcode.QRCode;
 import com.itextpdf.text.Document;
@@ -1708,129 +1709,146 @@ public class proyecto extends javax.swing.JPanel {
 //            Chocer.showOpenDialog(this);
 //            File guardar = Chocer.getSelectedFile();
 //            if (guardar != null) {
-                File folder = new File("\\\\servidor\\Proyectos 2\\3 - QR\\ImágenesQR");//Nombre de la carpeta
-                if (!folder.exists()) {
-                    folder.mkdirs();
-                }
-//                File folderPDF = new File(guardar + "\\PDF");//Nombre de la carpeta
-//                if (!folderPDF.exists()) {
-//                    folderPDF.mkdirs();
-//                }
-                //Tamaño de la fuente    
-                Font tall= new Font();
-                tall.setSize(7);
-                //Generar codigos QR
-                //Encabezado
-                PdfPCell header = new PdfPCell();
-//                Image logo = Image.getInstance(getClass().getResource("/imagenesEmpresa/logo.png"));
-//                logo.scaleAbsolute(350, 125);
-//                logo.setAlignment(Image.ALIGN_CENTER);
-
-                header.setBorder(Rectangle.NO_BORDER);
-                header.setColspan(4);
-//                tabla.addCell(header);
-//                tabla.setWidthPercentage(100);
-//                tabla.setWidths(new float[]{3, 3, 3});
-                //se creo y se abrio el documento        L   R   T   B
-                Document doc = new Document(PageSize.A4, 20, 150, 30, 170);
-                //se obtine la ruta del proyecto en tiempo de ejecucion.
-//            String ruta = System.getProperty("user.dir");
-                PdfWriter pdf = PdfWriter.getInstance(doc, new FileOutputStream("\\\\servidor\\Proyectos 2\\3 - QR\\" + jTNorden.getText() + ".pdf"));
-                doc.open();
-//                doc.add(logo);
-                fecha();
-//                doc.add(new Paragraph("Generado: " + fecha));
-                //Informacion del QR desde la base de datos
-                Controlador.Proyecto obj = new Controlador.Proyecto();
-                CachedRowSet crs = obj.Consultar_informacion_para_el_QR(Integer.parseInt(jTNorden.getText()));
-                while (crs.next()) {
-                    //Crear tabla de codigos QR
-                    PdfPTable tabla = new PdfPTable(4);
-                    tabla.addCell(header);
-                    tabla.setWidthPercentage(100);
-                    tabla.setWidths(new float[]{3, 3, 3, 3});
-                    //Creo la cadena de texto que contendra el QR
-                    if (crs.getInt(3) != 4) {
-                        QRCode cod = new QRCode();//Libreria para los QR
-                        //Numero de orden         //Detalle             //Negocio 
-                        String texto = jTNorden.getText() + ';' + crs.getInt(1) + ';' + crs.getInt(3);
-                        cod.setData(texto);
-                        cod.setDataMode(QRCode.MODE_BYTE);
-
-                        cod.setUOM(udm);
-                        cod.setLeftMargin(mi);
-                        cod.setResolution(resol);
-                        cod.setRightMargin(md);
-                        cod.setTopMargin(ms);
-                        cod.setBottomMargin(min);
-                        cod.setRotate(rot);
-                        cod.setModuleSize(tam);//Tamaño del QR con el cul se genera
-                        cod.renderBarcode("\\\\servidor\\Proyectos 2\\3 - QR\\ImágenesQR\\" + jTNorden.getText() + " " + tipoProyectoImagen(crs.getInt(2), crs.getInt(3)) + ".png");
-
-                        Image imagenQR = Image.getInstance("\\\\servidor\\Proyectos 2\\3 - QR\\ImágenesQR\\" + jTNorden.getText() + " " + tipoProyectoImagen(crs.getInt(2), crs.getInt(3)) + ".png");
-                        int j= (crs.getInt(3)==1?((crs.getInt(2)==1 || crs.getInt(2)==12)?12:4):4);
-                        for (int i = 0; i < j; i++) {
-                            imagenQR.setWidthPercentage(60);//Tamaño del QR con el cual va a ser insertado en el documento PDF
-                            imagenQR.setAlignment(Image.ALIGN_CENTER);//Alineamiento de lo Codigos en las celdas
-                            //Personalizar cell
-                            PdfPCell celda = new PdfPCell();
-//                      celda.setBorder(Rectangle.NO_BORDER);
-                            //Numero de orden del proyecto
-                            Paragraph orden = new Paragraph("Orden: " + jTNorden.getText(),tall);
-                            orden.setAlignment(1);
-                            celda.addElement(orden);
-                            //Referencia de área y producto
-                            celda.addElement(tipoProyecto(crs.getInt(2), crs.getInt(3)));
-                            //Imagen de QR
-                            celda.addElement(imagenQR);
-                            //Fecha de entrega del proyecto
-                            Paragraph Fecha = new Paragraph("Entrega: " + crs.getString(4),tall);
-                            Fecha.setAlignment(1);
-                            celda.addElement(Fecha);
-                            //Nombre del proyecto
-                            Paragraph proyecto = new Paragraph("Proyecto: " + crs.getString(5),tall);
-                            proyecto.setAlignment(1);
-                            celda.addElement(proyecto);
-                            if ((crs.getInt(2)==1 || crs.getInt(2)==12) &&(crs.getInt(2)==1)) {
-                                //Material del equipo
-                                Paragraph material = new Paragraph("Material: " + crs.getString(7),tall);
-                                material.setAlignment(1);
-                                celda.addElement(material);
-                            }
-                            //Cantidad Total de equipos
-                            Paragraph cantidad = new Paragraph("Cantidad: " + crs.getString(6),tall);
-                            cantidad.setAlignment(1);
-                            celda.addElement(cantidad);
-                            tabla.addCell(celda);  
-                        }
-//             Elimina las imagenes del QR 
-// El nombre de la imagen se puede hacer para que lo retorne una funcion para que sea una manera más optima de hacerlo
-                        File QRdelet = new File("\\\\servidor\\Proyectos 2\\3 - QR\\ImágenesQR\\" + jTNorden.getText() + " " + tipoProyectoImagen(crs.getInt(2), crs.getInt(3)) + ".png");
-                        QRdelet.delete();
+                //Consultar Ruta de guardado de los QR
+                rutaQR ruta=new rutaQR();
+                ruta.consultarRutaQR(Menu.jDocumento.getText());
+                String path= ruta.getRutaQR();
+                //...
+                if(path!=null){
+                    //...
+                    if (path.codePointAt(path.length() - 1) == 92) {//92= Código ASCII de \
                         //...
-                        cont++;
-                        header.setBorder(Rectangle.NO_BORDER);
-                        header.addElement(new Paragraph());
-                        header.setColspan(4);
-                        tabla.addCell(header);
-                        doc.add(tabla);
-                    }
-                    tabla=null;
-                    //Agregar una nueva hoja de PDF
-                    doc.newPage();              
-                }
-                crs.close();
-                doc.close();
-                //...
-                //...
-                if (cont == 0) {
-                    File PDF = new File("\\\\servidor\\Proyectos 2\\3 - QR\\" + jTNorden.getText() + ".pdf");
-                    PDF.delete();
-                } else {
-                    new rojerusan.RSNotifyAnimated("¡Listo!", "Los codigos QR de la orden N°" + jTNorden.getText() + " fueron generados exitosamente.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.SUCCESS).setVisible(true);
-                    System.gc();//Garbages collector.
-                }
+                        File folder = new File(path + "ImágenesQR");//Nombre de la carpeta
+                        if (!folder.exists()) {
+                            folder.mkdirs();
+                        }
+//                      File folderPDF = new File(guardar + "\\PDF");//Nombre de la carpeta
+//                      if (!folderPDF.exists()) {
+//                          folderPDF.mkdirs();
+//                       }
+                        //Tamaño de la fuente    
+                        Font tall = new Font();
+                        tall.setSize(7);
+                        //Generar codigos QR
+                        //Encabezado
+                        PdfPCell header = new PdfPCell();
+//                      Image logo = Image.getInstance(getClass().getResource("/imagenesEmpresa/logo.png"));
+//                      logo.scaleAbsolute(350, 125);
+//                      logo.setAlignment(Image.ALIGN_CENTER);
 
+                        header.setBorder(Rectangle.NO_BORDER);
+                        header.setColspan(4);
+//                      tabla.addCell(header);
+//                      tabla.setWidthPercentage(100);
+//                      tabla.setWidths(new float[]{3, 3, 3});
+                        //se creo y se abrio el documento        L   R   T   B
+                        Document doc = new Document(PageSize.A4, 20, 150, 30, 170);
+                        //se obtine la ruta del proyecto en tiempo de ejecucion.
+//                      String ruta = System.getProperty("user.dir");
+                        PdfWriter pdf = PdfWriter.getInstance(doc, new FileOutputStream(path + jTNorden.getText() + ".pdf"));
+                        doc.open();
+//                      doc.add(logo);
+                        fecha();
+//                      doc.add(new Paragraph("Generado: " + fecha));
+                        //Informacion del QR desde la base de datos
+                        Controlador.Proyecto obj = new Controlador.Proyecto();
+                        CachedRowSet crs = obj.Consultar_informacion_para_el_QR(Integer.parseInt(jTNorden.getText()));
+                        while (crs.next()) {
+                            //Crear tabla de codigos QR
+                            PdfPTable tabla = new PdfPTable(4);
+                            tabla.addCell(header);
+                            tabla.setWidthPercentage(100);
+                            tabla.setWidths(new float[]{3, 3, 3, 3});
+                            //Creo la cadena de texto que contendra el QR
+                            if (crs.getInt(3) != 4) {
+                                QRCode cod = new QRCode();//Libreria para los QR
+                                //Numero de orden         //Detalle             //Negocio 
+                                String texto = jTNorden.getText() + ';' + crs.getInt(1) + ';' + crs.getInt(3);
+                                cod.setData(texto);
+                                cod.setDataMode(QRCode.MODE_BYTE);
+//                              ...
+                                cod.setUOM(udm);
+                                cod.setLeftMargin(mi);
+                                cod.setResolution(resol);
+                                cod.setRightMargin(md);
+                                cod.setTopMargin(ms);
+                                cod.setBottomMargin(min);
+                                cod.setRotate(rot);
+                                cod.setModuleSize(tam);//Tamaño del QR con el cul se genera
+                                cod.renderBarcode(path + "ImágenesQR\\" + jTNorden.getText() + " " + tipoProyectoImagen(crs.getInt(2), crs.getInt(3)) + ".png");
+//                              ...
+                                Image imagenQR = Image.getInstance(path + "ImágenesQR\\" + jTNorden.getText() + " " + tipoProyectoImagen(crs.getInt(2), crs.getInt(3)) + ".png");
+                                int j = (crs.getInt(3) == 1 ? ((crs.getInt(2) == 1 || crs.getInt(2) == 12) ? 12 : 4) : 4);
+                                for (int i = 0; i < j; i++) {
+                                    imagenQR.setWidthPercentage(60);//Tamaño del QR con el cual va a ser insertado en el documento PDF
+                                    imagenQR.setAlignment(Image.ALIGN_CENTER);//Alineamiento de lo Codigos en las celdas
+                                    //Personalizar cell
+                                    PdfPCell celda = new PdfPCell();
+//                                  celda.setBorder(Rectangle.NO_BORDER);
+                                    //Numero de orden del proyecto
+                                    Paragraph orden = new Paragraph("Orden: " + jTNorden.getText(), tall);
+                                    orden.setAlignment(1);
+                                    celda.addElement(orden);
+                                    //Referencia de área y producto
+                                    celda.addElement(tipoProyecto(crs.getInt(2), crs.getInt(3)));
+                                    //Imagen de QR
+                                    celda.addElement(imagenQR);
+                                    //Fecha de entrega del proyecto
+                                    Paragraph Fecha = new Paragraph("Entrega: " + crs.getString(4), tall);
+                                    Fecha.setAlignment(1);
+                                    celda.addElement(Fecha);
+                                    //Nombre del proyecto
+                                    Paragraph proyecto = new Paragraph("Proyecto: " + crs.getString(5), tall);
+                                    proyecto.setAlignment(1);
+                                    celda.addElement(proyecto);
+                                    if ((crs.getInt(2) == 1 || crs.getInt(2) == 12) && (crs.getInt(2) == 1)) {
+                                        //Material del equipo
+                                        Paragraph material = new Paragraph("Material: " + crs.getString(7), tall);
+                                        material.setAlignment(1);
+                                        celda.addElement(material);
+                                    }
+                                    //Cantidad Total de equipos
+                                    Paragraph cantidad = new Paragraph("Cantidad: " + crs.getString(6), tall);
+                                    cantidad.setAlignment(1);
+                                    celda.addElement(cantidad);
+                                    tabla.addCell(celda);
+                                }
+//                              Elimina las imagenes del QR 
+//                              El nombre de la imagen se puede hacer para que lo retorne una funcion para que sea una manera más optima de hacerlo
+                                File QRdelet = new File(path + "ImágenesQR\\" + jTNorden.getText() + " " + tipoProyectoImagen(crs.getInt(2), crs.getInt(3)) + ".png");
+                                QRdelet.delete();
+                                //...
+                                cont++;
+                                header.setBorder(Rectangle.NO_BORDER);
+                                header.addElement(new Paragraph());
+                                header.setColspan(4);
+                                tabla.addCell(header);
+                                doc.add(tabla);
+                            }
+                            tabla = null;
+                            //Agregar una nueva hoja de PDF
+                            doc.newPage();
+                        }
+                        crs.close();
+                        doc.close();
+                        //...
+                        if (cont == 0) {
+                            File PDF = new File(path + jTNorden.getText() + ".pdf");
+                            PDF.delete();
+                        } else {
+                            new rojerusan.RSNotifyAnimated("¡Listo!", "Los codigos QR de la orden N°" + jTNorden.getText() + " fueron generados exitosamente.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.SUCCESS).setVisible(true);
+                            System.gc();//Garbages collector.
+                        }
+                        //...
+                    } else {
+                        //... Mensaje de error
+                        new rojerusan.RSNotifyAnimated("¡ERROR!", "La ruta de destino no esta bien especificada.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.ERROR).setVisible(true);
+                    }                    
+                }else{
+                    //...
+                    new rojerusan.RSNotifyAnimated("¡Alerta!", "No tiene una ruta de destino especificada.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.WARNING).setVisible(true);
+                }
+                //...
 //            }
 //            Thread.sleep(7000);
         } catch (Exception e) {

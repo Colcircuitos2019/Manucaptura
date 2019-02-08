@@ -206,7 +206,7 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int orden, int detalle, int 
             ps.close();
             System.gc();//Garbage collector...
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Error! " + e);
+//            JOptionPane.showMessageDialog(null, "Error! " + e);
         }
         return res;
     }
@@ -266,7 +266,7 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int orden, int detalle, int 
             ps.close();
             con.close();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Error! " + e);
+//            JOptionPane.showMessageDialog(null, "Error! " + e);
         }
         return res;//Falta asignarle este true a una variable
     }
@@ -295,7 +295,7 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int orden, int detalle, int 
 //            ps.close();
 //            con.close();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Error! " + e);
+//            JOptionPane.showMessageDialog(null, "Error! " + e);
         }
     }
 
@@ -350,7 +350,7 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int orden, int detalle, int 
 //            ps.close();
 //            con.close();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Error! " + e);
+//            JOptionPane.showMessageDialog(null, "Error! " + e);
         }
     }
 
@@ -380,7 +380,7 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int orden, int detalle, int 
                 //...
             }
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Error! " + e);
+//            JOptionPane.showMessageDialog(null, "Error! " + e);
         }
     }
 
@@ -451,7 +451,7 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int orden, int detalle, int 
             conexion.cerrar(rs);
             ps.close();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Error! " + e);
+//            JOptionPane.showMessageDialog(null, "Error! " + e);
         }
         return crsP;
     }

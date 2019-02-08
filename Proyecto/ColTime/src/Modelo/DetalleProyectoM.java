@@ -41,7 +41,7 @@ public class DetalleProyectoM {
             ps.close();
             con.close();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "¡Error!" + e);
+//            JOptionPane.showMessageDialog(null, "¡Error!" + e);
         }
         return crs;
     }
@@ -80,7 +80,7 @@ public class DetalleProyectoM {
             ps.close();
             con.close();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "¡Error!" + e);
+//            JOptionPane.showMessageDialog(null, "¡Error!" + e);
         }
         return cantidad;
     }
@@ -351,7 +351,7 @@ public class DetalleProyectoM {
             ps.close();
             con.close();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, e);
+//            JOptionPane.showMessageDialog(null, e);
         }
         return res;
     }
@@ -417,7 +417,7 @@ public class DetalleProyectoM {
             ps.close();
             con.close();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "¡Error!" + e);
+//            JOptionPane.showMessageDialog(null, "¡Error!" + e);
         }
         return crs;
     }
@@ -440,7 +440,7 @@ public class DetalleProyectoM {
             conexion.cerrar(rs);
             conexion.destruir();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null,e);
+//            JOptionPane.showMessageDialog(null,e);
         }
         return crs;
     }
@@ -464,7 +464,7 @@ public class DetalleProyectoM {
             ps.close();
             con.close();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "¡Error!" + e);
+//            JOptionPane.showMessageDialog(null, "¡Error!" + e);
         }
         return crs;
     }
@@ -487,7 +487,7 @@ public class DetalleProyectoM {
             ps.close();
             con.close();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "¡Error!" + e);
+//            JOptionPane.showMessageDialog(null, "¡Error!" + e);
         }
         return crs;
     }
@@ -533,7 +533,7 @@ public class DetalleProyectoM {
             ps.close();
             con.close();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "¡Error!" + e);
+//            JOptionPane.showMessageDialog(null, "¡Error!" + e);
         }
         return crs;
     }
@@ -599,7 +599,7 @@ public class DetalleProyectoM {
             ps.close();
             con.close();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "¡Error!" + e);
+//            JOptionPane.showMessageDialog(null, "¡Error!" + e);
         }
         return res;
     }
@@ -641,7 +641,7 @@ public class DetalleProyectoM {
 //            ps.close();
 //            con.close();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Error! " + e);
+//            JOptionPane.showMessageDialog(null, "Error! " + e);
         }
         return res;
     }
@@ -665,7 +665,7 @@ public class DetalleProyectoM {
             ps.close();
             con.close();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "¡Error!" + e);
+//            JOptionPane.showMessageDialog(null, "¡Error!" + e);
         }
         return crs;
     }
@@ -688,7 +688,7 @@ public class DetalleProyectoM {
             ps.close();
             con.close();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "¡Error!" + e);
+//            JOptionPane.showMessageDialog(null, "¡Error!" + e);
         }
         return res;
     }
@@ -718,7 +718,7 @@ public class DetalleProyectoM {
             ps.close();
             con.close();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "¡Error!" + e);
+//            JOptionPane.showMessageDialog(null, "¡Error!" + e);
         }
         return res;
     }
@@ -741,7 +741,7 @@ public class DetalleProyectoM {
             ps.close();
             con.close();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "¡Error!" + e);
+//            JOptionPane.showMessageDialog(null, "¡Error!" + e);
         }
         return crs;
     }
@@ -763,7 +763,7 @@ public class DetalleProyectoM {
             ps.close();
             con.close();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "¡Error!" + e);
+//            JOptionPane.showMessageDialog(null, "¡Error!" + e);
         }
         return res;
     }
