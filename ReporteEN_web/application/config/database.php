@@ -45,25 +45,41 @@
 | the active record class
 */
 
-$active_group = 'default';
+$active_group = 'coltime';
 $active_record = TRUE;
 
-$db['default']['hostname'] = '192.168.4.1:3306';
-$db['default']['username'] = 'juanDavidM';
-$db['default']['password'] = '123';
-$db['default']['database'] = 'coltime';
-$db['default']['dbdriver'] = 'mysqli';
-$db['default']['dbprefix'] = '';
-$db['default']['pconnect'] = TRUE;
-$db['default']['db_debug'] = TRUE;
-$db['default']['cache_on'] = FALSE;
-$db['default']['cachedir'] = '';
-$db['default']['char_set'] = 'utf8';
-$db['default']['dbcollat'] = 'utf8_general_ci';
-$db['default']['swap_pre'] = '';
-$db['default']['autoinit'] = TRUE;
-$db['default']['stricton'] = FALSE;
+$db['coltime']['hostname'] = '192.168.4.1:3306';
+$db['coltime']['username'] = 'juanDavidM';
+$db['coltime']['password'] = '123';
+$db['coltime']['database'] = 'coltime';
+$db['coltime']['dbdriver'] = 'mysqli';
+$db['coltime']['dbprefix'] = '';
+$db['coltime']['pconnect'] = TRUE;
+$db['coltime']['db_debug'] = TRUE;
+$db['coltime']['cache_on'] = FALSE;
+$db['coltime']['cachedir'] = '';
+$db['coltime']['char_set'] = 'utf8';
+$db['coltime']['dbcollat'] = 'utf8_general_ci';
+$db['coltime']['swap_pre'] = '';
+$db['coltime']['autoinit'] = TRUE;
+$db['coltime']['stricton'] = FALSE;
 
 
+//Configuracion de la otra BD
+$db['sgn']['hostname'] = "localhost";
+$db['sgn']['username'] = "root";
+$db['sgn']['password'] = "SaAFjmXlMRvppyqW";
+$db['sgn']['database'] = "sgn";
+$db['sgn']['dbdriver'] = "mysqli";
+$db['sgn']['dbprefix'] = "";
+$db['sgn']['pconnect'] = TRUE;
+$db['sgn']['db_debug'] = FALSE;
+$db['sgn']['cache_on'] = FALSE;
+$db['sgn']['cachedir'] = "";
+$db['sgn']['char_set'] = "utf8";
+$db['sgn']['dbcollat'] = "utf8_general_ci";
+$db['sgn']['swap_pre'] = "";
+$db['sgn']['autoinit'] = TRUE;
+$db['sgn']['stricton'] = FALSE;
 /* End of file database.php */
 /* Location: ./application/config/database.php */
