@@ -12,7 +12,13 @@ class reporteENM extends CI_Model
 
 	public function estadoDeConexionServidorM()
 	{
-		# code...
+		try {
+			$this->load->database();
+
+			return 1;
+		} catch (Exception $e) {
+			return $e;
+		}
 	}
 
 	public function estructurarEncabezadoM()

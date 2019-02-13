@@ -20,6 +20,9 @@ $(document).ready(function() {
 			// console.log(datos);
 			$('#cuerpo').html(datos);
 			$('#reporte').DataTable(configDataTable());
+			// $('#reporte').DataTable().ajax.reload(null, false);
+			// $('#reporte').DataTable().fnDestroy();
+			// $('#cuerpo').empty();
 		})
 		.fail(function(e) {
 			console.log(e);
@@ -60,5 +63,19 @@ function configDataTable() {
         }
     };
 }
+// Consultar estado del servidor
+// $.ajax({
+// 	url: baseURL+'reporteEN/estadoDeConexionServidor',
+// 	type: 'POST'
+// })
+// .done(function(e) {
+// 	console.log("success" + e);
+// })
+// .fail(function() {
+// 	console.log("error");
+// })
+// .always(function() {
+// 	console.log("complete");
+// });
 
 });

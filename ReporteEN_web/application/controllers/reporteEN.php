@@ -16,7 +16,7 @@ class reporteEN extends CI_Controller
 	// Metodos y funciones de la clase
 	public function estadoDeConexionServidor()
 	{
-		# code...
+		echo $this->reporteENM->estadoDeConexionServidorM();
 	}
 
 	public function estructurarEncabezado()
@@ -47,6 +47,7 @@ class reporteEN extends CI_Controller
 		$cuerpoHTML="";
 		$cantidadTotal=0;
 		$cantidadTermianda=0;
+		$cantidadProceso=0;
 		$cantidadRestante=0;
 		$rowProyectoHTML="";
 		$rep=0;	
@@ -56,7 +57,7 @@ class reporteEN extends CI_Controller
 		// var_dump($procesos);
 		foreach ($infoProduccion as $infoProyecto) {
 			if($rep==0){//Es la primera vez que ingresa al ciclo?
-				$cantidadTotal = (int)$infoProyecto->canitadad_total;
+				$cantidadTotal = (int) $infoProyecto->canitadad_total;
 				$rowProyectoHTML.="<tr>
 									 <td>".$infoProyecto->proyecto_numero_orden."</td>
 									 <td>".$cantidadTotal."</td>
@@ -65,7 +66,7 @@ class reporteEN extends CI_Controller
 				$num_Orden=$infoProyecto->proyecto_numero_orden;
 				$ordenProcesos[$infoProyecto->nombre_proceso] = array('estado'=> $infoProyecto->estado_idestado,'cantidad_proceso'=> $infoProyecto->cantidadProceso);
 				// ...
-				$cantidadTermianda += number_format($infoProyecto->cantidadProceso);//Cantidad terminada del proceso
+				$cantidadProceso += (int) $infoProyecto->cantidadProceso;//Cantidad terminada del proceso
 				// ...
 				$rep=1;
 			}else{//No es la primera vez que ingresa al ciclo
@@ -74,7 +75,7 @@ class reporteEN extends CI_Controller
 					// ...
 					$ordenProcesos[$infoProyecto->nombre_proceso] = array('estado'=> $infoProyecto->estado_idestado,'cantidad_proceso'=> $infoProyecto->cantidadProceso);
 					// ...
-					$cantidadTermianda += number_format($infoProyecto->cantidadProceso);//Cantidad terminada del proceso
+					$cantidadProceso += (int) $infoProyecto->cantidadProceso;//Cantidad terminada del proceso
 					// ...
 				}else{//Es el proceso de otro proyecto
 
@@ -82,9 +83,11 @@ class reporteEN extends CI_Controller
 					for ($i=0; $i < count($procesos); $i++) { 
 						$rowProyectoHTML.="<td style=\"background-color: ".$this->clasificarColorEstoProcesos($ordenProcesos[$procesos[$i]]['estado']).";\">". $ordenProcesos[$procesos[$i]]['cantidad_proceso']."</td>";
 					}
-					// 				   Cantidad terminada     Restantes
-					$cantidadRestante = ($cantidadTotal-$cantidadTermianda);//Arreglas el calcular cantidad terminada y la cantidad restante
-					$rowProyectoHTML.="<td>".(number_format($cantidadTermianda)!=0?($cantidadRestante):0)."</td><td>".(number_format($cantidadTotal)-number_format($cantidadRestante))."</td></tr>";
+					//Cantidades terminadas del proyecto
+					// 				                   Cantidad terminada                          Restantes
+					$rowProyectoHTML.="<td>".($cantidadProceso!=0? $cantidadTermianda = ($cantidadTotal-$cantidadProceso):0)."</td>";
+					//Cantidades restantes del proyecto
+					$rowProyectoHTML.="<td>".($cantidadTotal-$cantidadTermianda)."</td></tr>";
 
 					// Agregar la fila a la tabla
 					$cuerpoHTML.=$rowProyectoHTML;
@@ -93,10 +96,11 @@ class reporteEN extends CI_Controller
 					$rowProyectoHTML="";
 					$cantidadTotal=0;
 					$cantidadTermianda=0;
+					$cantidadProceso=0;
 					$cantidadRestante=0;
 					$ordenProcesos=array();
 					// ...
-					$cantidadTotal = number_format($infoProyecto->canitadad_total);
+					$cantidadTotal = (int) $infoProyecto->canitadad_total;
 					$rowProyectoHTML.="<tr>
 										 <td>".$infoProyecto->proyecto_numero_orden."</td>
 										 <td>".$cantidadTotal."</td>
@@ -105,7 +109,7 @@ class reporteEN extends CI_Controller
 					$num_Orden=$infoProyecto->proyecto_numero_orden;
 					$ordenProcesos[$infoProyecto->nombre_proceso] = array('estado'=> $infoProyecto->estado_idestado,'cantidad_proceso'=> $infoProyecto->cantidadProceso);
 					// ...
-					$cantidadTermianda += number_format($infoProyecto->cantidadProceso);//Cantidad terminada del proceso
+					$cantidadProceso += (int) $infoProyecto->cantidadProceso;//Cantidad terminada del proceso
 					// break;
 				}
 				//...
@@ -117,15 +121,18 @@ class reporteEN extends CI_Controller
 			for ($i=0; $i < count($procesos); $i++) { 
 				$rowProyectoHTML.="<td style=\"background-color: ".$this->clasificarColorEstoProcesos($ordenProcesos[$procesos[$i]]['estado']).";\">". $ordenProcesos[$procesos[$i]]['cantidad_proceso']."</td>";
 			}
-			// 				   Cantidad terminada     Restantes
-			$rowProyectoHTML.="<td>".($cantidadTermianda!=0?$cantidadRestante = (number_format($cantidadTotal)-number_format($cantidadTermianda)):0)."</td><td>".(number_format($cantidadTotal)-number_format($cantidadRestante))."</td></tr>";
+			//Cantidades terminadas del proyecto
+			// 				                   Cantidad terminada                          Restantes
+			$rowProyectoHTML.="<td>".($cantidadProceso!=0? $cantidadTermianda = ($cantidadTotal-$cantidadProceso):0)."</td>";
+
+			//Cantidades restantes del proyecto
+			$rowProyectoHTML.="<td>".($cantidadTotal-$cantidadTermianda)."</td></tr>";
 
 			// Agregar la fila a la tabla
 			$cuerpoHTML.=$rowProyectoHTML;
+			$res=0;
 		}
-		// $infoCuerpo = $this->consultarNombreLiderProyectoEN('1216727816');
-		// echo json_encode($ordenProcesos);
-		// echo json_encode($infoProduccion);
+		// Retorna el cuerpo de la informacion
 		echo $cuerpoHTML;
 	}
 

@@ -70,7 +70,7 @@
 			border:  solid #fff;
 			background: #fff;
 		}
-		td{
+		td, th{
 			text-align: center;
 			text-transform: capitalize;
 		}
