@@ -45,14 +45,14 @@ class reporteFE extends CI_Controller
 
 	public function consultarInformacionCuerpoTabla()
 	{
-		$procesos = $this->input->post('procesos');
-		$ordenProcesos=array();
-		$num_Orden="";
+		// $procesos = $this->input->post('procesos');
+		// $ordenProcesos=array();
+		//Procesos de formato estandar
+		$procesosProyecto = $this->ProcesosEstadoInicial();
+		// ...
+		$camposValidacion = array('num_Orden' => "", 'tipo_producto' => "", 'PNC' => "" );
+		// ...
 		$cuerpoHTML="";
-		$cantidadTotal=0;
-		$cantidadTermianda=0;
-		$cantidadProceso=0;
-		$cantidadRestante=0;
 		$rowProyectoHTML="";
 		$rep=0;	
 
@@ -66,86 +66,205 @@ class reporteFE extends CI_Controller
 									 <td>".$infoProyecto->material."</td>
 									 <td>".$infoProyecto->canitadad_total."</td>
 									 <td>".$infoProyecto->nombre."</td>";
-			// 	// ...
-			// 	$num_Orden=$infoProyecto->proyecto_numero_orden;
-			// 	$ordenProcesos[$infoProyecto->nombre_proceso] = array('estado'=> $infoProyecto->estado_idestado,'cantidad_proceso'=> $infoProyecto->cantidadProceso);
-			// 	// ...
-			// 	$cantidadProceso += (int) $infoProyecto->cantidadProceso;//Cantidad terminada del proceso
-			// 	// ...
-			// 	$rep=1;
+			// variables de validación
+			$camposValidacion["num_Orden"] = $infoProyecto->proyecto_numero_orden;// Numero de la orden
+			$camposValidacion["tipo_producto"] = $infoProyecto->nombre;// Tipo de producto (Circuito, Stencil, etc...)
+			$camposValidacion["PNC"] = $infoProyecto->ubicacion;// Producto no conforme
+			$camposValidacion["cantidadTotal"] = $infoProyecto->canitadad_total;// Cantidad total del proyecto
+			// if (intval($infoProyecto->Procesos_idproceso) =! 10) {
+				// Estado en que se encuentra el proceso 
+				$procesosProyecto[$infoProyecto->Procesos_idproceso]["estado"] =  (int)$infoProyecto->estado_idestado;
+				// Cantidad terminada por el proceso
+				$procesosProyecto[intval($infoProyecto->Procesos_idproceso)+1]["cantidadPT"] = (int)$infoProyecto->cantidad_terminada;
+				// $procesosProyecto[$infoProyecto->Procesos_idproceso]["cantidadPT"] = (int)$infoProyecto->cantidad_terminada;
+			// }
+			// ...
+			$rep=1;
+			//...
 			}else{//No es la primera vez que ingresa al ciclo
-			// 	//...
-			// 	if ($num_Orden==$infoProyecto->proyecto_numero_orden) {//Es un proceso del mismo proyecto
+			//...	
+			//     El numero de orden del row anteriror es el mismo que el siguiente row
+				if ($camposValidacion["num_Orden"] === $infoProyecto->proyecto_numero_orden && $camposValidacion["tipo_producto"] == $infoProyecto->nombre && $camposValidacion["PNC"] == $infoProyecto->ubicacion) {//Es un proceso del mismo proyecto
 			// 		// ...
-			// 		$ordenProcesos[$infoProyecto->nombre_proceso] = array('estado'=> $infoProyecto->estado_idestado,'cantidad_proceso'=> $infoProyecto->cantidadProceso);
-			// 		// ...
-			// 		$cantidadProceso += (int) $infoProyecto->cantidadProceso;//Cantidad terminada del proceso
-			// 		// ...
-			// 	}else{//Es el proceso de otro proyecto
 
+					// Estado en que se encuentra el proceso 
+					// if (intval($infoProyecto->Procesos_idproceso) =! 10) {
+						$procesosProyecto[$infoProyecto->Procesos_idproceso]["estado"] = (int)$infoProyecto->estado_idestado;
+					// Cantidad terminada por el proceso
+					// $procesosProyecto[$infoProyecto->Procesos_idproceso]["cantidadPT"] = (int)$infoProyecto->cantidad_terminada;
+					// $procesosProyecto[intval($infoProyecto->Procesos_idproceso) + (intval($infoProyecto->Procesos_idproceso) != 10?1:0)]["cantidadPT"] = (int)$infoProyecto->cantidad_terminada;
+						$procesosProyecto[intval($infoProyecto->Procesos_idproceso) + 1]["cantidadPT"] = (int)$infoProyecto->cantidad_terminada;
+					// }
+
+			// 		// ...
+				}else{//Es el proceso de otro proyecto
+					// break;
+					// var_dump($camposValidacion);
+					// var_dump($procesosProyecto);
+					// var_dump($this->pasosDeCantidadesProcesos($procesosProyecto, $camposValidacion["cantidadTotal"]));
 			// 		// Crear html de los procesos
-			// 		for ($i=0; $i < count($procesos); $i++) { 
-			// 			$rowProyectoHTML.="<td style=\"background-color: ".$this->clasificarColorEstoProcesos($ordenProcesos[$procesos[$i]]['estado']).";\">". $ordenProcesos[$procesos[$i]]['cantidad_proceso']."</td>";
-			// 		}
-			// 		//Cantidades terminadas del proyecto
-			// 		// 				                   Cantidad terminada                          Restantes
-			// 		$rowProyectoHTML.="<td>".($cantidadProceso!=0? $cantidadTermianda = ($cantidadTotal-$cantidadProceso):0)."</td>";
-			// 		//Cantidades restantes del proyecto
-			// 		$rowProyectoHTML.="<td>".($cantidadTotal-$cantidadTermianda)."</td></tr>";
-
-			// 		// Agregar la fila a la tabla
-			// 		$cuerpoHTML.=$rowProyectoHTML;
+					$rowProyectoHTML.= $this->construccionRowProyecto($this->pasosDeCantidadesProcesos($procesosProyecto, $camposValidacion["cantidadTotal"]));
+					// $rowProyectoHTML.= $this->construccionRowProyecto($procesosProyecto);
+					// $procesosProyecto = $this->pasosDeCantidadesProcesos($procesosProyecto,10);
+					// var_dump($procesosProyecto);
+					// ...
+					$cuerpoHTML.= $rowProyectoHTML;
 			// 		// ...
 			// 		// Estado inicial de las varialbes
-			// 		$rowProyectoHTML="";
-			// 		$cantidadTotal=0;
-			// 		$cantidadTermianda=0;
-			// 		$cantidadProceso=0;
-			// 		$cantidadRestante=0;
-			// 		$ordenProcesos=array();
-			// 		// ...
-			// 		$cantidadTotal = (int) $infoProyecto->canitadad_total;
-			// 		$rowProyectoHTML.="<tr>
-			// 							 <td>".$infoProyecto->proyecto_numero_orden."</td>
-			// 							 <td>".$cantidadTotal."</td>
-			// 							 <td>".($infoProyecto->lider_proyecto==null?'-':$this->consultarNombreLiderProyectoEN($infoProyecto->lider_proyecto))."</td>";
-			// 		// ...
-			// 		$num_Orden=$infoProyecto->proyecto_numero_orden;
-			// 		$ordenProcesos[$infoProyecto->nombre_proceso] = array('estado'=> $infoProyecto->estado_idestado,'cantidad_proceso'=> $infoProyecto->cantidadProceso);
-			// 		// ...
-			// 		$cantidadProceso += (int) $infoProyecto->cantidadProceso;//Cantidad terminada del proceso
-			// 		// break;
-			// 	}
-			// 	//...
+					$procesosProyecto = $this->ProcesosEstadoInicial();
+					// ...
+					$camposValidacion = array('num_Orden' => "", 'tipo_producto' => "", 'PNC' => "" );
+					// ...
+					$cuerpoHTML="";
+					// ...
+					$rowProyectoHTML.="<tr>
+										 <td style=\"background-color:".$this->clasificacionColoTipoDesarrolloProyecto($infoProyecto->tipo_proyecto).";\">".$infoProyecto->proyecto_numero_orden."</td>
+										 <td>".$infoProyecto->material."</td>
+										 <td>".$infoProyecto->canitadad_total."</td>
+										 <td>".$infoProyecto->nombre."</td>";
+					// Recopilar la informacion del siguiente proceso
+					$procesosProyecto = $this->ProcesosEstadoInicial();
+					// variables de validación
+					$camposValidacion["num_Orden"] = $infoProyecto->proyecto_numero_orden;// Numero de la orden
+					$camposValidacion["tipo_producto"] = $infoProyecto->nombre;// Tipo de producto (Circuito, Stencil, etc...)
+					$camposValidacion["PNC"] = $infoProyecto->ubicacion;// Producto no conforme
+					$camposValidacion["cantidadTotal"] = (int)$infoProyecto->canitadad_total;// Cantidad total del proyecto
+
+					// Estado en que se encuentra el proceso 
+					$procesosProyecto[$infoProyecto->Procesos_idproceso]["estado"] =  (int)$infoProyecto->estado_idestado;
+					// Cantidad terminada por el proceso
+					$procesosProyecto[$infoProyecto->Procesos_idproceso]["cantidadPT"] = (int)$infoProyecto->cantidad_terminada;
+				// ...
+				}
+			//...
 			}
+		//...
 		}
 		// ...
-		// if ($rep=1) {
-		// 	// Crear html de los procesos
-		// 	for ($i=0; $i < count($procesos); $i++) { 
-		// 		$rowProyectoHTML.="<td style=\"background-color: ".$this->clasificarColorEstoProcesos($ordenProcesos[$procesos[$i]]['estado']).";\">". $ordenProcesos[$procesos[$i]]['cantidad_proceso']."</td>";
-		// 	}
-		// 	//Cantidades terminadas del proyecto
-		// 	// 				                   Cantidad terminada                          Restantes
-		// 	$rowProyectoHTML.="<td>".($cantidadProceso!=0? $cantidadTermianda = ($cantidadTotal-$cantidadProceso):0)."</td>";
-
-		// 	//Cantidades restantes del proyecto
-		// 	$rowProyectoHTML.="<td>".($cantidadTotal-$cantidadTermianda)."</td></tr>";
-
-		// 	// Agregar la fila a la tabla
-		// 	$cuerpoHTML.=$rowProyectoHTML;
-		// 	$res=0;
-		// }
+		if ($rep=1) {
+			// ...
+			$rowProyectoHTML.= $this->construccionRowProyecto($this->pasosDeCantidadesProcesos($procesosProyecto, $camposValidacion["cantidadTotal"]));
+			// ...
+			$cuerpoHTML.= $rowProyectoHTML;
+			// ...
+			$res=0;
+		}
 		// Retorna el cuerpo de la informacion
-		// echo $cuerpoHTML;
-		echo json_encode($infoProduccion);
+		echo $cuerpoHTML;
+		// echo json_encode($procesosProyecto);
 	}
 
-	public function consultarNombreLiderProyectoEN($documento)
+	public function ProcesosEstadoInicial()
 	{
-		$names = $this->reporteENM->consultarNombreLiderProyectoENM($documento);
+		return array(
+					  "1" => array("estado" => 0, "cantidadPT" => 0), // Perforado
+					  "2" => array("estado" => 0, "cantidadPT" => 0), // Quimicos
+					  "3" => array("estado" => 0, "cantidadPT" => 0), // Caminos
+					  "4" => array("estado" => 0, "cantidadPT" => 0), // Quemado
+					  "5" => array("estado" => 0, "cantidadPT" => 0), // C.C.TH
+					  "6" => array("estado" => 0, "cantidadPT" => 0), // Screen
+					  "7" => array("estado" => 0, "cantidadPT" => 0), // Estañado
+					  "8" => array("estado" => 0, "cantidadPT" => 0), // C.C2
+					  "9" => array("estado" => 0, "cantidadPT" => 0), // Ruteo
+					  "10" => array("estado" => 0, "cantidadPT" => 0), // Maquinas
+					);
+	}
 
-		return $names->nombre1.' '.$names->nombre2.' '.$names->apellido1.' '.$names->apellido2;//No olvidar capitalizar este string
+	public function pasosDeCantidadesProcesos($procesoCantidad, $cantidadTotalProyecto)
+	{
+		$cantidadSiguienteP = 0;
+		// Mover las cantidades terminadas del proceso anterior al siguiente proceso que le sigue
+		// for ($i=1; $i <= count($procesoCantidad) ; $i++) {
+		for ($i=1; $i < count($procesoCantidad); $i++) { 
+			if ($procesoCantidad[$i]["estado"] == "0") {
+				$procesoCantidad[$i+1]["cantidadPT"] = $procesoCantidad[$i]["cantidadPT"];
+				$procesoCantidad[$i]["cantidadPT"] = 0;
+			}
+		}
+		// Calcular las cantidades que van a quedar en cada proceso
+		for ($i=1; $i < count($procesoCantidad); $i++) { 
+			// if ($procesoCantidad[$i]["estado"] == "0") {
+			if ($i == 1) { //Perforado 
+				# ...
+				if ($procesoCantidad[$i]["estado"] == "0") {
+					// ...
+					$procesoCantidad[$i]["cantidadPT"]= $cantidadTotalProyecto - $procesoCantidad[$i+1]["cantidadPT"];// La cantidad de perforado es igual a la cantidad total del proyecto menos la cantidad pasada de perforado a quimicos 
+				}else{
+					// ...
+					$procesoCantidad[$i]["cantidadPT"]= $cantidadTotalProyecto - $procesoCantidad[$i+2]["cantidadPT"];// La cantidad de perforado es igual a la cantidad total del proyecto menos la cantidad pasada de perforado a quimicos 
+				}
+				// ...
+			}else{
+				// ...
+				if($i == 5 || $i == 8){ // Aplica unicamente para Screen y
+					if ($procesoCantidad[$i+1]["estado"] == "0") {
+						// ...
+						$procesoCantidad[$i]["cantidadPT"] = $procesoCantidad[$i]["cantidadPT"] - $procesoCantidad[$i+1]["cantidadPT"];
+					}else{
+						// ... 
+						$procesoCantidad[$i]["cantidadPT"] = $procesoCantidad[$i]["cantidadPT"] - $procesoCantidad[$i+1]["cantidadPT"];
+					}
+
+				}else{
+					$procesoCantidad[$i]["cantidadPT"] = $procesoCantidad[$i]["cantidadPT"] - $procesoCantidad[$i+1]["cantidadPT"]; //La cantidad total del proceso N es igual a la cantidad pasada del proceso anterior - la cantidad del proceso N siguiente.
+				}
+				// }
+			}
+		} 
+			# ... Primer paso de cantidades
+			// $cantidadSiguienteP = $procesoCantidad[2]["cantidadPT"]; // cantidad terminada de quimicos
+			// $procesoCantidad[2]["cantidadPT"]= $procesoCantidad[1]["cantidadPT"]; // Cantidad terminada en perforado pasa a Quimicos
+			// # ... Segundo paso de cantidades
+			// $procesoCantidad[3]["cantidadPT"]= $cantidadSiguienteP; // Cantidad terminadas de Quimicos pasan a caminos
+			// $cantidadSiguienteP = $procesoCantidad[2]["cantidadPT"]; // cantidad terminada de quimicos
+			# ...
+		// }
+		/*Orden de los procesos
+			1-Perforado
+			2-Quimicos
+			3-Caminos
+			4-Quemado
+			5-C.C.TH
+			6-Screen
+			7-Estañado
+			8-C.C2
+			9-Ruteo
+			10-Maquinas*/
+		//...
+		// for ($i=1; $i <= count($procesoCantidad) ; $i++) {
+		// 	# ...
+		// 	if ($i == 1) {//Proceso de perforado
+		// 		# ...Mover las cantidades terminadas del proceso anterior al siguiente proceso que le sigue
+		// 		$procesoCantidad[$i+1]["cantidadPT"]=
+		// 		# ...
+		// 		$procesoCantidad[$i]["cantidadPT"] = ($cantidadTotalProyecto - $procesoCantidad[$i]["cantidadPT"]);//Cantidad inicial en perforado
+		// 		// break;
+		// 	}else{
+		// 		// $procesoCantidad[$i]["cantidadPT"] = $cantidadTotalProyecto - $procesoCantidad[$i-1]["cantidadPT"];
+		// 		// var_dump($procesoCantidad[$i-1]["cantidadPT"]);
+		// 		// var_dump($procesoCantidad[$i]["cantidadPT"]);
+		// 	}
+		// 	# ...
+		// }
+ 
+		return $procesoCantidad;
+	}
+
+	public function construccionRowProyecto($procesos)
+	{	$cuerpoHTML="";
+		// ... 
+		foreach ($procesos as $proceso) {
+			# ...
+			if(isset($proceso["estado"])){
+				$cuerpoHTML.="<td style=\"background-color:".$this->clasificarColorEstoProcesos($proceso["estado"]).";\">". $proceso["cantidadPT"] ."</td>";
+				// var_dump($proceso);  ($proceso["estado"]=="0"?0:$proceso["cantidadPT"])
+			}
+			# ...
+		}
+		// ...
+		$cuerpoHTML.="<td>PNC</td></tr>";
+		// ...
+		return $cuerpoHTML;
 	}
 
 	public function clasificarColorEstoProcesos($estado)
@@ -153,19 +272,21 @@ class reporteFE extends CI_Controller
 		$color="";
 		switch ($estado) {
 			case 2://Pausado
-				$color="#FB5353";
+				$color="#FB5353";//Rojo
 				break;
 			case 3://Terminado
-				$color="#74FB53";
+				$color="#74FB53";//Verde
 				break;
 			case 4://Ejecucion
-				$color="#FFA81B";
+				$color="#FFA81B";//Naranjado
 				break;
-			default://Por iniciar
-				$color="#FFF";
-				break;	
+			case 1://Por iniciar
+				$color="#FFF";//Blanco
+				break;
+			default: // N/A no aplica 
+				$color="#B0B0B0";//Gris
+				break;		
 		}
-		// #B0B0B0 = gray
 
 		return $color;
 	}

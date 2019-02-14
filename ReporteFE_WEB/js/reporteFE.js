@@ -13,11 +13,13 @@ $(document).ready(function() {
 		$.ajax({
 			url: baseURL+'reporteFE/consultarInformacionCuerpoTabla',
 			type: 'POST',
-			dataType: 'json'
+			dataType: 'html'
 		})
 		.done(function(cuerpo) {
 			// console.log(datos);
 			$('#cuerpo').html(cuerpo);
+			console.log(cuerpo);
+			// console.log(cuerpo);
 			// $('#reporte').DataTable(configDataTable());
 			// $('#reporte').DataTable().ajax.reload(null, false);
 			// $('#reporte').DataTable().fnDestroy();
