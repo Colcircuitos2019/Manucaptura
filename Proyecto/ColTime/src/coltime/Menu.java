@@ -16,7 +16,6 @@ import Vistas.DetallesAreaInfo;
 import Vistas.Producciones;
 import Vistas.Inicio;
 import Vistas.Inicio1;
-import Vistas.Operarios;
 import Vistas.Procesos;
 import Vistas.Usuarios1;
 import Vistas.proyecto;
@@ -118,7 +117,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
     public static PrintStream myPS;
     ButtonGroup grupoCom = null;
     //Variables estaticas de conexion
-    public static String IP="192.168.4.1:3306";
+    public static String IP="192.168.4.2:3306";
     public static String user= "juanDavidM";//coluser
     public static String pass= "123";//
             

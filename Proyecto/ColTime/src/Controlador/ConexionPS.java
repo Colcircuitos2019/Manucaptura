@@ -1,6 +1,6 @@
 package Controlador;
 
-import Vistas.Inicio;
+import Modelo.UsuarioM;
 import coltime.Menu;
 import gnu.io.CommPort;
 import gnu.io.CommPortIdentifier;
@@ -24,6 +24,7 @@ public class ConexionPS {
     private String v[] = null;
     private static String puertoCOM = "COM6";//Por defecto va a ser el puerto serial COM6
     private static String usuariodoc = "";
+    UsuarioM model = new UsuarioM();
     //Escribir archibo plano
     int hora, minutos, segundos;
     Date fecha = new Date();
@@ -39,6 +40,7 @@ public class ConexionPS {
     public void enlacePuertos(Menu menu) {//Ese metodo lo utilizan los roles de encargados de FE, EN y TE
         Menu obj = new Menu();
         CommPort puerto = null;
+        int lectura; //Consultar el esato de lectura de la base de datos
         String valorBeta = "";
         int ErrorConexionPuerto = 0;
         try {
@@ -50,7 +52,7 @@ public class ConexionPS {
             Scanner mySC;
             while (commports.hasMoreElements()) {//Se valida que el puerto que necesito este disponible
                 existePuerto = 1;//Si ingreso es porque existe un puerto.
-                myCPI = (CommPortIdentifier) commports.nextElement();
+                myCPI = (CommPortIdentifier) commports.nextElement();//...
                 if (myCPI.getName().equals(obj.puertoActual)) {//&& myCPI.PORT_SERIAL
                     puerto = myCPI.open("Puerto Serial Operario", 1200);//Abro el puerto y le mando dos parametros que son el nombre de la apertura y el tiempo de respuesta
                     SerialPort mySP = (SerialPort) puerto;
@@ -64,9 +66,11 @@ public class ConexionPS {
                     menu.jRLActivado.setSelected(true);
                     //Cambio de la etiqueta del estado de lectura en la vista de menu ubicada en el menu lateral.
                     menu.estadoDeLectura();
+                    //Guardar estado de lectura del puerto serial del usuario
+                    estadoPertoSerialOperarios(menu.diponible, menu);//Estado del puerto serial activado
                     //Si la Variable no cambia de valor a 1 significa que el puerto esta ocupado por algun otro programa.
                     ErrorConexionPuerto = 1;
-                    //
+                    // ...
                     while (true) {//Valida el mismo puerto que se abrio!!
                         while (!mySC.hasNext()) {//Valida que en el puerto serial exista alguna linea de información...
                             //Valida que el puerto serial tenga un tiempo de respues, si no lo tiene el sistema lo dara como que el puerto serial fue desconectado del equipo.
@@ -79,6 +83,8 @@ public class ConexionPS {
                             //Se va a cerrar la conexion del puerto si el usuario se salio de la sesión.
                             if (!menu.diponible) {
                                 puerto.close();
+                                //Guardar estado de lectura del puerto serial del usuario
+                                estadoPertoSerialOperarios(menu.diponible, menu);//Estado del puerto serial Desactivado
                                 break;
                             }
                         }
@@ -100,7 +106,6 @@ public class ConexionPS {
                                 if (Character.isDigit(valorBeta.charAt(1))) {//Valida que el valor de entrada sea el correcto//Funcionamiento con wifi
                                     //...
                                     obj.LecturaCodigoQR(valorBeta);//Se encargara de ler el codigo QR
-//                                    System.out.println(valorBeta);
                                     //--------------------------------------------------
                                     //Limpieza de la memoria RAM
                                     System.gc();//Garbage collector.  
@@ -114,10 +119,10 @@ public class ConexionPS {
                     }
                 }
             }
-            //
+            // ...
             if (conexion == 0) {// 0 =No se pudo realizar la conexion, 1: Conexion realizada correactamente.
                 //Se selecciona el item Activado de: Menu Principal>Configuración>Lectura>Desactivado.
-                menu.jRLDesactivado.setSelected(true);//Activado
+                menu.jRLDesactivado.setSelected(true);//Button radio desactivado selecionado
                 if (JOptionPane.showOptionDialog(null, "Error: " + "No se pudo conectar al puerto serial " + obj.puertoActual + ". " + "¿Desea seleccionar otro puerto serial disponible?",
                         "seleccione...", JOptionPane.YES_NO_CANCEL_OPTION,
                         JOptionPane.QUESTION_MESSAGE, null,// null para icono por defecto.
@@ -143,14 +148,17 @@ public class ConexionPS {
                 } else {
                     menu.diponible = false;
                 }
+                // ...
+                //Guardar estado de lectura del puerto serial del usuario
+                estadoPertoSerialOperarios(menu.diponible, menu);//Estado de lectuera del puerto serial desactivado
             }
-            //
+            // ...
             if (existePuerto == 0) {//Se mostrara un mensaje diciendo que no existe ningun puerto serial disponible
                 JOptionPane.showMessageDialog(null, "No existe ningun puerto serial disponible, por favor conecte el dispotitivo");
             } else {
                 existePuerto = 0;
             }
-            //
+            // ...
         } catch (Exception e) {
             //JOptionPane.showMessageDialog(null, "Error: " + e);
             //Si la variable ErrorConexionPuerto es igual a 1 significa que se pudo establecer conexion pero se presento algune problema con el puerto.
@@ -162,10 +170,17 @@ public class ConexionPS {
             menu.diponible = false;
             //Cambio de la etiqueta del estado de lectura en la vista de menu ubicada en el menu lateral.
             menu.estadoDeLectura();//Desactivado
-            //
+            //Guardar estado de lectura del puerto serial
+            estadoPertoSerialOperarios(menu.diponible, menu);//Estado de lectura del puerto es desactivado
         }
     }
-
+// Pendiente por terminar...
+    public void estadoPertoSerialOperarios(boolean estado, Menu menu){
+        //...
+        model.actualizarEstadoLecturaPuertoSerial((estado?1:0), menu.jDocumento.getText());//Esta funcion retorna un booleano
+        //...
+    }
+    
     public String[] puertosDisponibles() {
         int pos = 0;
         try {
@@ -179,7 +194,6 @@ public class ConexionPS {
             pos = 0;
             comports = CommPortIdentifier.getPortIdentifiers();
             //Se a gregan lo valores al vector con longitud ya definida
-//            v[0] = "Seleccione...";
             while (comports.hasMoreElements()) {
                 CommPortIdentifier comportIdenti = (CommPortIdentifier) comports.nextElement();
                 v[pos] = comportIdenti.getName();
