@@ -4,8 +4,6 @@
  */
 class reporteFE extends CI_Controller
 {
-	// Variables clase
-	// private $variable = array( "ordenProcesos" => array());
 
 	function __construct()
 	{
@@ -16,7 +14,12 @@ class reporteFE extends CI_Controller
 	// Metodos y funciones de la clase
 	public function estadoDeConexionServidor()
 	{
-		echo $this->reporteENM->estadoDeConexionServidorM();
+		echo $this->reporteFEM->estadoDeConexionServidorM();
+	}
+
+	public function estadoDeLecturaPuertoSerial()
+	{
+		echo $this->reporteFEM->estadoDeLecturaPuertoSerialM();
 	}
 
 	public function cabezaReporte()
@@ -45,20 +48,17 @@ class reporteFE extends CI_Controller
 
 	public function consultarInformacionCuerpoTabla()
 	{
-		// $procesos = $this->input->post('procesos');
-		// $ordenProcesos=array();
 		//Procesos de formato estandar
 		$procesosProyecto = $this->ProcesosEstadoInicial();
 		// ...
-		$camposValidacion = array('num_Orden' => "", 'tipo_producto' => "", 'PNC' => "" );
+		$camposValidacion = array('num_Orden' => "", 'tipo_producto' => "", 'PNC' => "", "cantidadTotal" => "" );
 		// ...
 		$cuerpoHTML="";
 		$rowProyectoHTML="";
 		$rep=0;	
-
+		// ...
 		$infoProduccion = $this->reporteFEM->consultarInformacionCuerpoTablaM();
 		// ...
-		// var_dump($procesos);
 		foreach ($infoProduccion as $infoProyecto) {
 			if($rep==0){//Es la primera vez que ingresa al ciclo?
 				$rowProyectoHTML.="<tr>
@@ -71,12 +71,10 @@ class reporteFE extends CI_Controller
 			$camposValidacion["tipo_producto"] = $infoProyecto->nombre;// Tipo de producto (Circuito, Stencil, etc...)
 			$camposValidacion["PNC"] = $infoProyecto->ubicacion;// Producto no conforme
 			$camposValidacion["cantidadTotal"] = $infoProyecto->canitadad_total;// Cantidad total del proyecto
-			// if (intval($infoProyecto->Procesos_idproceso) =! 10) {
 				// Estado en que se encuentra el proceso 
 				$procesosProyecto[$infoProyecto->Procesos_idproceso]["estado"] =  (int)$infoProyecto->estado_idestado;
 				// Cantidad terminada por el proceso
 				$procesosProyecto[intval($infoProyecto->Procesos_idproceso)+1]["cantidadPT"] = (int)$infoProyecto->cantidad_terminada;
-				// $procesosProyecto[$infoProyecto->Procesos_idproceso]["cantidadPT"] = (int)$infoProyecto->cantidad_terminada;
 			// }
 			// ...
 			$rep=1;
@@ -85,37 +83,28 @@ class reporteFE extends CI_Controller
 			//...	
 			//     El numero de orden del row anteriror es el mismo que el siguiente row
 				if ($camposValidacion["num_Orden"] === $infoProyecto->proyecto_numero_orden && $camposValidacion["tipo_producto"] == $infoProyecto->nombre && $camposValidacion["PNC"] == $infoProyecto->ubicacion) {//Es un proceso del mismo proyecto
-			// 		// ...
-
+					// ...
 					// Estado en que se encuentra el proceso 
-					// if (intval($infoProyecto->Procesos_idproceso) =! 10) {
 						$procesosProyecto[$infoProyecto->Procesos_idproceso]["estado"] = (int)$infoProyecto->estado_idestado;
 					// Cantidad terminada por el proceso
-					// $procesosProyecto[$infoProyecto->Procesos_idproceso]["cantidadPT"] = (int)$infoProyecto->cantidad_terminada;
-					// $procesosProyecto[intval($infoProyecto->Procesos_idproceso) + (intval($infoProyecto->Procesos_idproceso) != 10?1:0)]["cantidadPT"] = (int)$infoProyecto->cantidad_terminada;
 						$procesosProyecto[intval($infoProyecto->Procesos_idproceso) + 1]["cantidadPT"] = (int)$infoProyecto->cantidad_terminada;
-					// }
-
-			// 		// ...
+					// ...
 				}else{//Es el proceso de otro proyecto
-					// break;
-					// var_dump($camposValidacion);
-					// var_dump($procesosProyecto);
-					// var_dump($this->pasosDeCantidadesProcesos($procesosProyecto, $camposValidacion["cantidadTotal"]));
+					// ...
 			// 		// Crear html de los procesos
-					$rowProyectoHTML.= $this->construccionRowProyecto($this->pasosDeCantidadesProcesos($procesosProyecto, $camposValidacion["cantidadTotal"]));
-					// $rowProyectoHTML.= $this->construccionRowProyecto($procesosProyecto);
-					// $procesosProyecto = $this->pasosDeCantidadesProcesos($procesosProyecto,10);
-					// var_dump($procesosProyecto);
+					$rowProyectoHTML.= $this->construccionRowProyecto($this->pasosDeCantidadesProcesos($procesosProyecto, $camposValidacion["cantidadTotal"]), $camposValidacion["PNC"]);
 					// ...
 					$cuerpoHTML.= $rowProyectoHTML;
 			// 		// ...
 			// 		// Estado inicial de las varialbes
 					$procesosProyecto = $this->ProcesosEstadoInicial();
+					// var_dump($procesosProyecto);
 					// ...
-					$camposValidacion = array('num_Orden' => "", 'tipo_producto' => "", 'PNC' => "" );
+					$camposValidacion = array('num_Orden' => "", 'tipo_producto' => "", 'PNC' => "", "cantidadTotal" => "" );
 					// ...
-					$cuerpoHTML="";
+					// var_dump($cuerpoHTML);
+					// $cuerpoHTML="";
+					$rowProyectoHTML="";
 					// ...
 					$rowProyectoHTML.="<tr>
 										 <td style=\"background-color:".$this->clasificacionColoTipoDesarrolloProyecto($infoProyecto->tipo_proyecto).";\">".$infoProyecto->proyecto_numero_orden."</td>
@@ -133,7 +122,7 @@ class reporteFE extends CI_Controller
 					// Estado en que se encuentra el proceso 
 					$procesosProyecto[$infoProyecto->Procesos_idproceso]["estado"] =  (int)$infoProyecto->estado_idestado;
 					// Cantidad terminada por el proceso
-					$procesosProyecto[$infoProyecto->Procesos_idproceso]["cantidadPT"] = (int)$infoProyecto->cantidad_terminada;
+					$procesosProyecto[intval($infoProyecto->Procesos_idproceso) + 1]["cantidadPT"] = (int)$infoProyecto->cantidad_terminada;
 				// ...
 				}
 			//...
@@ -143,7 +132,7 @@ class reporteFE extends CI_Controller
 		// ...
 		if ($rep=1) {
 			// ...
-			$rowProyectoHTML.= $this->construccionRowProyecto($this->pasosDeCantidadesProcesos($procesosProyecto, $camposValidacion["cantidadTotal"]));
+			$rowProyectoHTML.= $this->construccionRowProyecto($this->pasosDeCantidadesProcesos($procesosProyecto, $camposValidacion["cantidadTotal"]), $camposValidacion["PNC"]);
 			// ...
 			$cuerpoHTML.= $rowProyectoHTML;
 			// ...
@@ -151,7 +140,6 @@ class reporteFE extends CI_Controller
 		}
 		// Retorna el cuerpo de la informacion
 		echo $cuerpoHTML;
-		// echo json_encode($procesosProyecto);
 	}
 
 	public function ProcesosEstadoInicial()
@@ -172,53 +160,45 @@ class reporteFE extends CI_Controller
 
 	public function pasosDeCantidadesProcesos($procesoCantidad, $cantidadTotalProyecto)
 	{
-		$cantidadSiguienteP = 0;
 		// Mover las cantidades terminadas del proceso anterior al siguiente proceso que le sigue
-		// for ($i=1; $i <= count($procesoCantidad) ; $i++) {
 		for ($i=1; $i < count($procesoCantidad); $i++) { 
-			if ($procesoCantidad[$i]["estado"] == "0") {
+			if ($procesoCantidad[$i]["estado"] === 0) {
 				$procesoCantidad[$i+1]["cantidadPT"] = $procesoCantidad[$i]["cantidadPT"];
 				$procesoCantidad[$i]["cantidadPT"] = 0;
 			}
 		}
 		// Calcular las cantidades que van a quedar en cada proceso
+		// ...
 		for ($i=1; $i < count($procesoCantidad); $i++) { 
-			// if ($procesoCantidad[$i]["estado"] == "0") {
-			if ($i == 1) { //Perforado 
+			// ...
+			if ($i === 1) { //Perforado 
 				# ...
-				if ($procesoCantidad[$i]["estado"] == "0") {
+				if ($procesoCantidad[$i+1]["estado"] === 0) {
 					// ...
-					$procesoCantidad[$i]["cantidadPT"]= $cantidadTotalProyecto - $procesoCantidad[$i+1]["cantidadPT"];// La cantidad de perforado es igual a la cantidad total del proyecto menos la cantidad pasada de perforado a quimicos 
+					$procesoCantidad[$i]["cantidadPT"]= $cantidadTotalProyecto - $procesoCantidad[$i+2]["cantidadPT"];// La cantidad de perforado es igual a la cantidad total del proyecto menos la cantidad pasada de perforado a quimicos
 				}else{
 					// ...
-					$procesoCantidad[$i]["cantidadPT"]= $cantidadTotalProyecto - $procesoCantidad[$i+2]["cantidadPT"];// La cantidad de perforado es igual a la cantidad total del proyecto menos la cantidad pasada de perforado a quimicos 
+					$procesoCantidad[$i]["cantidadPT"]= $cantidadTotalProyecto - $procesoCantidad[$i+1]["cantidadPT"];// La cantidad de perforado es igual a la cantidad total del proyecto menos la cantidad pasada de perforado a quimicos Object.
 				}
 				// ...
-			}else{
+			}else{ //Resto de procesos
 				// ...
 				if($i == 5 || $i == 8){ // Aplica unicamente para Screen y
-					if ($procesoCantidad[$i+1]["estado"] == "0") {
+					if ($procesoCantidad[$i+1]["estado"] === 0) {
 						// ...
-						$procesoCantidad[$i]["cantidadPT"] = $procesoCantidad[$i]["cantidadPT"] - $procesoCantidad[$i+1]["cantidadPT"];
+						$procesoCantidad[$i]["cantidadPT"] = $procesoCantidad[$i]["cantidadPT"] - $procesoCantidad[$i+2]["cantidadPT"];
+						// ...
 					}else{
 						// ... 
 						$procesoCantidad[$i]["cantidadPT"] = $procesoCantidad[$i]["cantidadPT"] - $procesoCantidad[$i+1]["cantidadPT"];
+						// ...
 					}
-
 				}else{
 					$procesoCantidad[$i]["cantidadPT"] = $procesoCantidad[$i]["cantidadPT"] - $procesoCantidad[$i+1]["cantidadPT"]; //La cantidad total del proceso N es igual a la cantidad pasada del proceso anterior - la cantidad del proceso N siguiente.
 				}
-				// }
 			}
 		} 
-			# ... Primer paso de cantidades
-			// $cantidadSiguienteP = $procesoCantidad[2]["cantidadPT"]; // cantidad terminada de quimicos
-			// $procesoCantidad[2]["cantidadPT"]= $procesoCantidad[1]["cantidadPT"]; // Cantidad terminada en perforado pasa a Quimicos
-			// # ... Segundo paso de cantidades
-			// $procesoCantidad[3]["cantidadPT"]= $cantidadSiguienteP; // Cantidad terminadas de Quimicos pasan a caminos
-			// $cantidadSiguienteP = $procesoCantidad[2]["cantidadPT"]; // cantidad terminada de quimicos
-			# ...
-		// }
+
 		/*Orden de los procesos
 			1-Perforado
 			2-Quimicos
@@ -231,38 +211,22 @@ class reporteFE extends CI_Controller
 			9-Ruteo
 			10-Maquinas*/
 		//...
-		// for ($i=1; $i <= count($procesoCantidad) ; $i++) {
-		// 	# ...
-		// 	if ($i == 1) {//Proceso de perforado
-		// 		# ...Mover las cantidades terminadas del proceso anterior al siguiente proceso que le sigue
-		// 		$procesoCantidad[$i+1]["cantidadPT"]=
-		// 		# ...
-		// 		$procesoCantidad[$i]["cantidadPT"] = ($cantidadTotalProyecto - $procesoCantidad[$i]["cantidadPT"]);//Cantidad inicial en perforado
-		// 		// break;
-		// 	}else{
-		// 		// $procesoCantidad[$i]["cantidadPT"] = $cantidadTotalProyecto - $procesoCantidad[$i-1]["cantidadPT"];
-		// 		// var_dump($procesoCantidad[$i-1]["cantidadPT"]);
-		// 		// var_dump($procesoCantidad[$i]["cantidadPT"]);
-		// 	}
-		// 	# ...
-		// }
  
 		return $procesoCantidad;
 	}
 
-	public function construccionRowProyecto($procesos)
+	public function construccionRowProyecto($procesos, $PNC)
 	{	$cuerpoHTML="";
 		// ... 
 		foreach ($procesos as $proceso) {
 			# ...
 			if(isset($proceso["estado"])){
-				$cuerpoHTML.="<td style=\"background-color:".$this->clasificarColorEstoProcesos($proceso["estado"]).";\">". $proceso["cantidadPT"] ."</td>";
-				// var_dump($proceso);  ($proceso["estado"]=="0"?0:$proceso["cantidadPT"])
+				$cuerpoHTML.="<td style=\"background-color:".$this->clasificarColorEstoProcesos($proceso["estado"]).";\">". ($proceso["estado"]=="0"?0:$proceso["cantidadPT"]) ."</td>";
 			}
 			# ...
 		}
 		// ...
-		$cuerpoHTML.="<td>PNC</td></tr>";
+		$cuerpoHTML.="<td>".($PNC==null?"-":$PNC)."</td></tr>";
 		// ...
 		return $cuerpoHTML;
 	}

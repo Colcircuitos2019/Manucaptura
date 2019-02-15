@@ -1,0 +1,91 @@
+body{
+			/*		 Top Right Bot Left */
+/*			padding:  0em 0em 0em 0em;
+*/			background-color: #CCDCE2;
+			margin: 2em;
+		}
+
+		.fondo{
+			background-color: #fff;
+			max-width: 1330px;
+			border-radius: 5px;
+			padding: 15px;
+			-webkit-box-shadow: -4px 6px 36px -2px rgba(0,0,0,0.52);
+			-moz-box-shadow: -4px 6px 36px -2px rgba(0,0,0,0.52);
+			box-shadow: -4px 6px 36px -2px rgba(0,0,0,0.52);
+		}
+		
+		button{
+			border-radius: 15px;
+			height: 2em;
+			width: 2em;
+		}
+
+		/*Tipo de ejecucion*/
+		#normal{
+			border:  solid #fff;
+			background: #fff;
+		}
+		
+		#quick{
+			border:  solid #01AEF0;
+			background: #01AEF0;
+		}
+		
+		#rqt{
+			border:  solid #FFAFAF;
+			background: #FFAFAF;
+		}
+		/*Estados de proceso*/
+		
+		#terminado{
+			border:  solid #74FB53;
+			background: #74FB53;
+		}
+		
+		#pausado{
+			border:  solid #FB5353;
+			background: #FB5353;
+		}
+		
+		#ejecucion{
+			border:  solid #FFA81B;
+			background: #FFA81B;
+		}
+		
+		#porIniciar{
+			border:  solid #fff;
+			background: #fff;
+		}
+		
+		td, th{
+			text-align: center;
+			text-transform: capitalize;
+		}
+
+		.linea{
+			color: green;
+		}
+
+		.sinLinea{
+			color: red;
+		}
+
+		/* Responsividad */
+		@media (min-width: 1200px)
+		.container {
+		    max-width: 1140px;
+		}
+		@media (min-width: 992px)
+		.container {
+		    max-width: 960px;
+		}
+		@media (min-width: 768px)
+		.container {
+		    max-width: 720px;
+		}
+
+		@media (min-width: 576px)
+		.container {
+		    max-width: 540px;
+		}

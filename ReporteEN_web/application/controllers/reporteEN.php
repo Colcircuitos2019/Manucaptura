@@ -19,6 +19,11 @@ class reporteEN extends CI_Controller
 		echo $this->reporteENM->estadoDeConexionServidorM();
 	}
 
+	public function estadoDeLecturaPuertoSerial()
+	{
+		echo $this->reporteENM->estadoDeLecturaPuertoSerialM();
+	}
+
 	public function estructurarEncabezado()
 	{
 		$cabeza="<tr><th>N°Orden</th><th>Cant</th><th>Lider de proyecto</th>";
@@ -59,7 +64,7 @@ class reporteEN extends CI_Controller
 			if($rep==0){//Es la primera vez que ingresa al ciclo?
 				$cantidadTotal = (int) $infoProyecto->canitadad_total;
 				$rowProyectoHTML.="<tr>
-									 <td>".$infoProyecto->proyecto_numero_orden."</td>
+									 <td style=\"background-color: ".$this->clasificacionColoTipoDesarrolloProyecto($infoProyecto->tipo_proyecto).";\">".$infoProyecto->proyecto_numero_orden."</td>
 									 <td>".$cantidadTotal."</td>
 									 <td>".($infoProyecto->lider_proyecto==null?'-':$this->consultarNombreLiderProyectoEN($infoProyecto->lider_proyecto))."</td>";
 				// ...
@@ -71,7 +76,7 @@ class reporteEN extends CI_Controller
 				$rep=1;
 			}else{//No es la primera vez que ingresa al ciclo
 				//...
-				if ($num_Orden==$infoProyecto->proyecto_numero_orden) {//Es un proceso del mismo proyecto
+				if ($num_Orden === $infoProyecto->proyecto_numero_orden) {//Es un proceso del mismo proyecto
 					// ...
 					$ordenProcesos[$infoProyecto->nombre_proceso] = array('estado'=> $infoProyecto->estado_idestado,'cantidad_proceso'=> $infoProyecto->cantidadProceso);
 					// ...
@@ -102,7 +107,7 @@ class reporteEN extends CI_Controller
 					// ...
 					$cantidadTotal = (int) $infoProyecto->canitadad_total;
 					$rowProyectoHTML.="<tr>
-										 <td>".$infoProyecto->proyecto_numero_orden."</td>
+										 <td style=\"background-color: ".$this->clasificacionColoTipoDesarrolloProyecto($infoProyecto->tipo_proyecto).";\">".$infoProyecto->proyecto_numero_orden."</td>
 										 <td>".$cantidadTotal."</td>
 										 <td>".($infoProyecto->lider_proyecto==null?'-':$this->consultarNombreLiderProyectoEN($infoProyecto->lider_proyecto))."</td>";
 					// ...
@@ -161,6 +166,24 @@ class reporteEN extends CI_Controller
 				break;	
 		}
 
+		return $color;
+	}
+
+	public function clasificacionColoTipoDesarrolloProyecto($desarrollo)
+	{
+		$color="";
+		switch ($desarrollo) {
+			case 'RQT':
+				$color="#FFAFAF";//Rosado
+				break;
+			case "Quick":
+				$color="#01AEF0";//Azul
+				break;
+			case "Normal":
+				$color="#FFF";//Blanco
+				break;
+		}
+		// 
 		return $color;
 	}
 

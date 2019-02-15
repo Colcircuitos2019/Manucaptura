@@ -22,6 +22,17 @@ class reporteFEM extends CI_Model
 		}
 	}
 
+	public function estadoDeLecturaPuertoSerialM()
+	{
+		$this->load->database();
+
+		$query = $this->db->query("CALL PA_ConsultarEstadoLecturaFacilitador('98113053240');");
+
+		$result = $query->row();
+
+		return $result->estadoLectura;
+	}
+
 	public function consultarInformacionCuerpoTablaM()
 	{
 		$this->load->database();

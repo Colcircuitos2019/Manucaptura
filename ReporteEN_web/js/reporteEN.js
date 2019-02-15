@@ -1,38 +1,17 @@
 $(document).ready(function() {
-	// Consultar Tabla 
-	$.ajax({
-		url: baseURL+'reporteEN/estructurarEncabezado',
-		type: 'POST',
-		dataType: 'json'
-	})
-	.done(function(informacion) {
-		// ...
-		// Encabezados de la tabla
-		$(".encabezado").html(informacion.cabeza);
-		// ...
-		$.ajax({
-			url: baseURL+'reporteEN/consultarInformacionCuerpoTabla',
-			type: 'POST',
-			dataType: 'html',
-			data: {procesos: informacion.procesos}
-		})
-		.done(function(datos) {
-			// console.log(datos);
-			$('#cuerpo').html(datos);
-			$('#reporte').DataTable(configDataTable());
-			// $('#reporte').DataTable().ajax.reload(null, false);
-			// $('#reporte').DataTable().fnDestroy();
-			// $('#cuerpo').empty();
-		})
-		.fail(function(e) {
-			console.log(e);
-		});
-		// ...
-	})
-	.fail(function(e) {
-		console.log("error primer nivel" + e);
-	});	
-//Retornar la configuracion para la funcion DataTable
+
+// Consultar información
+setInterval("produccion()",1000);
+
+// Consultar conexion con servidor
+setInterval("estadoDelServidorDB()",1000);
+
+// Consultar el estado de lectura del facilitador a cargo.
+estadoLectura();
+
+});
+
+// Retornar la configuracion para la funcion DataTable
 function configDataTable() {
     return {
         "bStateSave": true,
@@ -63,19 +42,100 @@ function configDataTable() {
         }
     };
 }
-// Consultar estado del servidor
-// $.ajax({
-// 	url: baseURL+'reporteEN/estadoDeConexionServidor',
-// 	type: 'POST'
-// })
-// .done(function(e) {
-// 	console.log("success" + e);
-// })
-// .fail(function() {
-// 	console.log("error");
-// })
-// .always(function() {
-// 	console.log("complete");
-// });
 
-});
+// Consutar la informacion del área de produccion (EN)
+function produccion() {
+ 		$.ajax({
+ 			url: baseURL+'reporteEN/estructurarEncabezado',
+ 			type: 'POST',
+ 			dataType: 'json'
+ 		}).done(function(informacion) {
+ 			// ...
+ 			$.ajax({
+ 				url: baseURL+'reporteEN/consultarInformacionCuerpoTabla',
+ 				type: 'POST',
+ 				dataType: 'html',
+ 				data: {procesos: informacion.procesos}
+ 			})
+ 			.done(function(cuerpo) {
+ 				// ...
+ 				$("#contentTable").empty();
+ 				$("#contentTable").html("<table id=\"reporte\" class=\"table table-striped table-bordered\" style=\"width:100%\">"+
+ 	 		        						"<thead class=\"encabezado\">"+
+
+ 	 		        						"</thead>"+
+ 											"<tbody id=\"cuerpo\">"+
+
+ 											"</tbody>"+
+ 	 		        						"<tfoot class=\"encabezado\">"+
+
+ 	 		        						"</tfoot>"+
+ 	 									"</table>");
+ 				// ...
+ 				$(".encabezado").html(informacion.cabeza); //Cabeza y Pie de pagina de la tabla
+ 				// ...
+ 				$('#cuerpo').html(cuerpo);// Tabla de información
+ 				// ...
+ 				$("#reporte").DataTable(configDataTable());
+ 			})
+ 			.fail(function(e) {
+ 				console.log(e);
+ 			});
+ 			// ...
+ 		})
+ 		.fail(function(e) {
+ 			console.log("error primer nivel" + e);
+ 		});	
+} 
+//...
+
+function estadoDelServidorDB() {
+		// ...
+			// Consultar estado del servidor
+			$.ajax({
+				url: baseURL+'reporteEN/estadoDeConexionServidor',
+				type: 'POST'
+			})
+			.done(function(estadoDB) {
+				// console.log("success" + estadoDB);//Estado del servidor
+				if (estadoDB == 1) {
+					// Hay conexion con el motor de base de datos
+					$("#estadoDB").text("Linea");
+					$("#estadoDB").addClass('linea');
+					$("#estadoDB").removeClass('sinLinea');
+				}else{
+					//No existe conexion con la base de datos
+					$("#estadoDB").text("Sin linea");
+					$("#estadoDB").addClass('sinLinea');
+					$("#estadoDB").removeClass('linea');
+				}
+			})
+			.fail(function() {
+				console.log("error");
+			});
+		// ...
+}
+// ...
+
+function estadoLectura() {
+	$.ajax({
+		url: baseURL + 'reporteEN/estadoDeLecturaPuertoSerial',
+		type: 'POST'
+	})
+	.done(function(estadoLectura) {
+		// console.log(estadoLectura);
+		if (estadoLectura == 1) { //Esta de lectura del puerto serial esta "Activado"
+			$("#estadoLectura").text("Activado");
+			$("#estadoLectura").addClass('linea');
+			$("#estadoLectura").removeClass('sinLinea');
+		}else{ //Estado de lectura del puerto serial "Desactivado"
+			$("#estadoLectura").text("Desactivado");
+			$("#estadoLectura").addClass('sinLinea');
+			$("#estadoLectura").removeClass('linea');
+		}	
+		// console.log("success");
+	})
+	.fail(function() {
+		console.log("error");
+	});
+}

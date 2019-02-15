@@ -13,12 +13,24 @@ class reporteENM extends CI_Model
 	public function estadoDeConexionServidorM()
 	{
 		try {
+			// ...
 			$this->load->database();
-
+			// ...
 			return 1;
 		} catch (Exception $e) {
 			return $e;
 		}
+	}
+
+	public function estadoDeLecturaPuertoSerialM()
+	{
+		$this->load->database();
+
+		$query = $this->db->query("CALL PA_ConsultarEstadoLecturaFacilitador('1017156424');");
+
+		$result = $query->row();
+
+		return $result->estadoLectura;
 	}
 
 	public function estructurarEncabezadoM()
