@@ -76,6 +76,10 @@
 			color: red;
 		}
 
+		h6{
+			text-align: center;
+		}
+
 		/* Responsividad */
 		@media (min-width: 1200px)
 		.container {

@@ -57,7 +57,7 @@ body{
 			border:  solid #fff;
 			background: #fff;
 		}
-		
+
 		td, th{
 			text-align: center;
 			text-transform: capitalize;
@@ -69,6 +69,10 @@ body{
 
 		.sinLinea{
 			color: red;
+		}
+
+		h6{
+			text-align: center;
 		}
 
 		/* Responsividad */

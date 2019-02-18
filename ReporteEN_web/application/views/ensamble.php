@@ -18,8 +18,12 @@
 
 	<div class="container fondo">
 	  	<div class="row">
-	  				<div class="col-md-10">
+	  				<div class="col-md-8">
 	  		  			<h1>Reporte ENsamble</h2>
+	  				</div>
+	  				<div class="col-md-2">
+	  					<h6 >Actualizaciones</h6>
+	  					<h6 id="cantActualizaciones">0</h6>
 	  				</div>
 	  				<div class="col-md-2 float-right">
 	  					<h6>Conexion DB: <small id="estadoDB"></small></h6>

@@ -26,7 +26,7 @@ class reporteFEM extends CI_Model
 	{
 		$this->load->database();
 
-		$query = $this->db->query("CALL PA_ConsultarEstadoLecturaFacilitador('98113053240');");
+		$query = $this->db->query("CALL PA_ConsultarEstadoLecturaFacilitador('43975208');");
 
 		$result = $query->row();
 

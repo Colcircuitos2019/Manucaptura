@@ -1,11 +1,10 @@
 $(document).ready(function() {
-
 // Consultar información
-setInterval("produccion()",1000);
+setInterval("produccion($(\"#cantActualizaciones\").text())" ,1000);
 
 // Consultar conexion con servidor
 setInterval("estadoDelServidorDB()",1000);
-
+	
 // Consultar el estado de lectura del facilitador a cargo.
 estadoLectura();
 
@@ -44,48 +43,54 @@ function configDataTable() {
 }
 
 // Consutar la informacion del área de produccion (EN)
-function produccion() {
- 		$.ajax({
- 			url: baseURL+'reporteEN/estructurarEncabezado',
- 			type: 'POST',
- 			dataType: 'json'
- 		}).done(function(informacion) {
- 			// ...
- 			$.ajax({
- 				url: baseURL+'reporteEN/consultarInformacionCuerpoTabla',
- 				type: 'POST',
- 				dataType: 'html',
- 				data: {procesos: informacion.procesos}
- 			})
- 			.done(function(cuerpo) {
- 				// ...
- 				$("#contentTable").empty();
- 				$("#contentTable").html("<table id=\"reporte\" class=\"table table-striped table-bordered\" style=\"width:100%\">"+
- 	 		        						"<thead class=\"encabezado\">"+
+function produccion(cont) {
+	// console.log(cont);
+	if (parseInt(cont) == parseInt($("#cantActualizaciones").text())) {
+			$.ajax({
+				url: baseURL+'reporteEN/estructurarEncabezado',
+				type: 'POST',
+				dataType: 'json'
+			}).done(function(informacion) {
+				// ...
+				$.ajax({
+					url: baseURL+'reporteEN/consultarInformacionCuerpoTabla',
+					type: 'POST',
+					dataType: 'html',
+					data: {procesos: informacion.procesos}
+				})
+				.done(function(cuerpo) {
+					// ...
+					$("#contentTable").empty();
+					$("#contentTable").html("<table id=\"reporte\" class=\"table table-striped table-bordered\" style=\"width:100%\">"+
+		 		        						"<thead class=\"encabezado\">"+
 
- 	 		        						"</thead>"+
- 											"<tbody id=\"cuerpo\">"+
+		 		        						"</thead>"+
+												"<tbody id=\"cuerpo\">"+
 
- 											"</tbody>"+
- 	 		        						"<tfoot class=\"encabezado\">"+
+												"</tbody>"+
+		 		        						"<tfoot class=\"encabezado\">"+
 
- 	 		        						"</tfoot>"+
- 	 									"</table>");
- 				// ...
- 				$(".encabezado").html(informacion.cabeza); //Cabeza y Pie de pagina de la tabla
- 				// ...
- 				$('#cuerpo').html(cuerpo);// Tabla de información
- 				// ...
- 				$("#reporte").DataTable(configDataTable());
- 			})
- 			.fail(function(e) {
- 				console.log(e);
- 			});
- 			// ...
- 		})
- 		.fail(function(e) {
- 			console.log("error primer nivel" + e);
- 		});	
+		 		        						"</tfoot>"+
+		 									"</table>");
+					// ...
+					$(".encabezado").html(informacion.cabeza); //Cabeza y Pie de pagina de la tabla
+					// ...
+					$('#cuerpo').html(cuerpo);// Tabla de información
+					// ...
+					$("#reporte").DataTable(configDataTable());
+					// ... Aumenta uno el contado de actualizaciones
+					$("#cantActualizaciones").text(parseInt($("#cantActualizaciones").text()) + 1);
+				})
+				.fail(function(e) {
+					console.log(e);
+				});
+				// ...
+			})
+			.fail(function(e) {
+				console.log("error primer nivel" + e);
+			});
+	}
+	// ...
 } 
 //...
 

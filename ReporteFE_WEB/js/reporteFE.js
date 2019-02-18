@@ -57,8 +57,7 @@ function produccion() {
  				dataType: 'html'
  			})
  			.done(function(cuerpo) {
- 				// console.log(datos);
- 				// console.log(cuerpo);
+ 				// ...
  				$("#contentTable").empty();
  				$("#contentTable").html("<table id=\"reporte\" class=\"table table-striped table-bordered\" style=\"width:100%\">"+
  	 		        						"<thead class=\"encabezado\">"+
@@ -77,6 +76,9 @@ function produccion() {
  				$('#cuerpo').html(cuerpo);// Tabla de información
  				// ...
  				$("#reporte").DataTable(configDataTable());
+ 				// ... Aumenta uno el contado de actualizaciones
+ 				$("#cantActualizaciones").text(parseInt($("#cantActualizaciones").text()) + 1);
+ 				// ...
  			})
  			.fail(function(e) {
  				console.log(e);
