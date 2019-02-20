@@ -1,6 +1,7 @@
 $(document).ready(function() {
 // Consultar información
 setInterval("produccion($(\"#cantActualizaciones\").text())" ,1000);
+// produccion($("#cantActualizaciones").text());
 
 // Consultar conexion con servidor
 setInterval("estadoDelServidorDB()",1000);
@@ -13,6 +14,10 @@ estadoLectura();
 // Retornar la configuracion para la funcion DataTable
 function configDataTable() {
     return {
+    	"fixedHeader": { //Esto me replica el header y el footer
+    	        "header": true,
+    	        "footer": true
+    	},
         "bStateSave": true,
         "iCookieDuration": 60,
         "language": {
@@ -45,6 +50,7 @@ function configDataTable() {
 // Consutar la informacion del área de produccion (EN)
 function produccion(cont) {
 	// console.log(cont);
+	// debugger;
 	if (parseInt(cont) == parseInt($("#cantActualizaciones").text())) {
 			$.ajax({
 				url: baseURL+'reporteEN/estructurarEncabezado',
@@ -61,7 +67,7 @@ function produccion(cont) {
 				.done(function(cuerpo) {
 					// ...
 					$("#contentTable").empty();
-					$("#contentTable").html("<table id=\"reporte\" class=\"table table-striped table-bordered\" style=\"width:100%\">"+
+					$("#contentTable").html("<table id=\"reporte\" class=\"display\" style=\"width:100%\">"+
 		 		        						"<thead class=\"encabezado\">"+
 
 		 		        						"</thead>"+

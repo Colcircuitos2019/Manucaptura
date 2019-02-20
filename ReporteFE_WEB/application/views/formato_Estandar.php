@@ -12,10 +12,12 @@
 	<link rel="stylesheet" type="text/css" href="./css/DataTable.css">
 	<!-- Estilo personalizados -->
 	<link rel="stylesheet" type="text/css" href="./css/styleFrom.css">
+	<!-- Estilo data table fixed -->
+	<link rel="stylesheet" type="text/css" href="./css/DataTableFixed.css">
 </head>
 <body>
 <!-- .-.-. -->
-	<div class="container fondo">
+	<!-- <div class="container fondo"> -->
 		<div class="row">
 			<div class="col-md-8">
 	  			<h1>Reporte Formato Estandar</h2>
@@ -31,21 +33,12 @@
 		</div>
 	  	<br>
 		<!--  -->
- 		<div class="table-responsive" id="contentTable">
- 		<table id="reporte" class="table table-striped table-bordered" style="width:100%">
- 		        <thead class="encabezado">
-					<!--  -->
- 		        </thead>
-				<tbody id="cuerpo">
-					<!--  -->
-				</tbody>
- 		        <tfoot class="encabezado">
-					<!--  -->
- 		        </tfoot>
- 		</table>
+ 		<div class="" id="contentTable">
+ 				
  		</div>
 		<!--  -->
 	</div><br>
+	<!--  -->
 	<div class="container">
 		<div class="row">
 				<!-- Colores tipo de proyecto -->
@@ -90,7 +83,7 @@
 				</div>
 			<!--  -->
 			</div>
-	</div>
+	<!-- </div> -->
 	<!-- </div> -->
 
 <!-- jQuery 3.3.1 -->
@@ -101,6 +94,8 @@
 <script src="./js/Bootstrap_4.js"></script>
 <!-- JS Data Table -->
 <script type="text/javascript" charset="utf8" src="./js/DataTable.js"></script>
+<!-- JS Data Table Fixed -->
+<script type="text/javascript" charset="utf8" src="./js/DataTableFixed.js"></script>
 <!-- Acciones -->
 <script src="./js/reporteFE.js"></script>
 <!-- ... -->

@@ -13,6 +13,8 @@
 	<link rel="stylesheet" type="text/css" href="./css/DataTable.css">
 	<!-- Estilo personalizados -->
 	<link rel="stylesheet" type="text/css" href="./css/styleFrom.css">
+	<!-- Estilo data table fixed -->
+	<link rel="stylesheet" type="text/css" href="./css/DataTableFixed.css">
 </head>
 <body>
 
@@ -33,17 +35,7 @@
 	  	<br>
 		<!--  -->
  		<div class="table-responsive" id="contentTable">
- 		<table id="reporte" class="table table-striped table-bordered" style="width:100%">
- 		        <thead class="encabezado">
-					<!--  -->
- 		        </thead>
-				<tbody id="cuerpo">
-					<!--  -->
-				</tbody>
- 		        <tfoot class="encabezado">
-					<!--  -->
- 		        </tfoot>
- 		</table>
+		
  		</div>
 		<!--  -->
 	</div><br>
@@ -98,6 +90,8 @@
 <script src="./js/Bootstrap_4.js"></script>
 <!-- JS Data Table -->
 <script type="text/javascript" charset="utf8" src="./js/DataTable.js"></script>
+<!-- JS Data Table Fixed-->
+<script type="text/javascript" charset="utf8" src="./js/DataTableFixed.js"></script>
 <!-- Acciones -->
 <script src="./js/reporteEN.js"></script>
 <!-- ... -->

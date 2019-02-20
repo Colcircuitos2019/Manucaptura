@@ -1,7 +1,8 @@
 $(document).ready(function() {
 
 // Consultar información
-setInterval("produccion()",1000);
+setInterval("produccion($(\"#cantActualizaciones\").text())",1000);
+// produccion();
 
 // Consultar conexion con servidor
 setInterval("estadoDelServidorDB()",1000);
@@ -14,6 +15,10 @@ setInterval("estadoLectura()", 1000);
 // Retornar la configuracion para la funcion DataTable
 function configDataTable() {
     return {
+    	"fixedHeader": {
+    	        "header": true,
+    	        "footer": true
+    	},
         "bStateSave": true,
         "iCookieDuration": 60,
         "language": {
@@ -44,50 +49,52 @@ function configDataTable() {
 }
 
 // Consutar la informacion del área de produccion (FE)
-function produccion() {
- 		$.ajax({
- 			url: baseURL+'reporteFE/cabezaReporte',
- 			type: 'POST',
- 			dataType: 'html'
- 		}).done(function(cabezaReporte) {
- 			// ...
- 			$.ajax({
- 				url: baseURL+'reporteFE/consultarInformacionCuerpoTabla',
- 				type: 'POST',
- 				dataType: 'html'
- 			})
- 			.done(function(cuerpo) {
- 				// ...
- 				$("#contentTable").empty();
- 				$("#contentTable").html("<table id=\"reporte\" class=\"table table-striped table-bordered\" style=\"width:100%\">"+
- 	 		        						"<thead class=\"encabezado\">"+
+function produccion(cont) {
+	if (parseInt(cont) == parseInt($("#cantActualizaciones").text())) {
+				$.ajax({
+					url: baseURL+'reporteFE/cabezaReporte',
+					type: 'POST',
+					dataType: 'html'
+				}).done(function(cabezaReporte) {
+					// ...
+					$.ajax({
+						url: baseURL+'reporteFE/consultarInformacionCuerpoTabla',
+						type: 'POST',
+						dataType: 'html'
+					})
+					.done(function(cuerpo) {
+						// ... table table-striped table-bordered
+						$("#contentTable").empty();
+						$("#contentTable").html("<table id=\"reporte\" class=\"display\" style=\"width:100%\">"+
+			 		        						"<thead class=\"encabezado\">"+
 
- 	 		        						"</thead>"+
- 											"<tbody id=\"cuerpo\">"+
+			 		        						"</thead>"+
+													"<tbody id=\"cuerpo\">"+
 
- 											"</tbody>"+
- 	 		        						"<tfoot class=\"encabezado\">"+
+													"</tbody>"+
+			 		        						"<tfoot class=\"encabezado\">"+
 
- 	 		        						"</tfoot>"+
- 	 									"</table>");
- 				// ...
- 				$(".encabezado").html(cabezaReporte); //Cabeza y Pie de pagina de la tabla
- 				// ...
- 				$('#cuerpo').html(cuerpo);// Tabla de información
- 				// ...
- 				$("#reporte").DataTable(configDataTable());
- 				// ... Aumenta uno el contado de actualizaciones
- 				$("#cantActualizaciones").text(parseInt($("#cantActualizaciones").text()) + 1);
- 				// ...
- 			})
- 			.fail(function(e) {
- 				console.log(e);
- 			});
- 			// ...
- 		})
- 		.fail(function(e) {
- 			console.log("error primer nivel" + e);
- 		});	
+			 		        						"</tfoot>"+
+			 									"</table>");
+						// ...
+						$(".encabezado").html(cabezaReporte); //Cabeza y Pie de pagina de la tabla
+						// ...
+						$('#cuerpo').html(cuerpo);// Tabla de información
+						// ...
+						$("#reporte").DataTable(configDataTable());
+						// ... Aumenta uno el contado de actualizaciones
+						$("#cantActualizaciones").text(parseInt($("#cantActualizaciones").text()) + 1);
+						// ...
+					})
+					.fail(function(e) {
+						console.log(e);
+					});
+					// ...
+				})
+				.fail(function(e) {
+					console.log("error primer nivel" + e);
+				});	
+	}
 } 
 //...
 
@@ -118,7 +125,6 @@ function estadoDelServidorDB() {
 		// ...
 }
 // ...
-
 
 function estadoLectura() {
 	$.ajax({
