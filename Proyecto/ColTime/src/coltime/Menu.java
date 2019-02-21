@@ -117,9 +117,9 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
     public static PrintStream myPS;
     ButtonGroup grupoCom = null;
     //Variables estaticas de conexion
-    public static String IP="192.168.4.2:3306";
-    public static String user= "juanDavidM";//coluser
-    public static String pass= "123";//
+    public static String IP="192.168.4.173:3306";
+    public static String user= "coluser";//coluser juanDavidM
+    public static String pass= "";// 123
             
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents

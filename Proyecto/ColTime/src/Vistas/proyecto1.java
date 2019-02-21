@@ -607,27 +607,10 @@ public class proyecto1 extends javax.swing.JPanel {
 //Metodos-------------------------------------------------------------------->
 
     private void generarReportesTiemposArea(int area){
-        //Reporte general Excel.
-        DetalleProyecto obj = new DetalleProyecto();
-        CachedRowSet crs = obj.generarReporteAreaTiempos(area);//Generar nuevo...
-        //Ruta de guardado del archivo
-        JFileChooser Chocer = new JFileChooser();
-        Chocer.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        Chocer.setLocation(500, 500);
-        Chocer.showOpenDialog(this);
-        File guardar = Chocer.getSelectedFile();//Selecciona la rota escogida en el jFileChooser
-        //Instancia de la clase encargada de generar los Excel del sistema de información...
-        generarXlsx excel = new generarXlsx();
-        if (guardar != null) {
-            //General el reporte de los tiempo de produccion del área...
-            if (excel.generarReporteTiemposAreaProduccion(crs, String.valueOf(guardar),area)) {//Información y ruta de guardado.
-                //Documento creado correctamente
-                new rojerusan.RSNotifyAnimated("Listo!", "El reporte General de producción fue creado exitosamente.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.SUCCESS).setVisible(true);
-            } else {
-                //Error al crear el documento
-                new rojerusan.RSNotifyAnimated("¡Error!", "No puedo crear el reporte General.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.ERROR).setVisible(true);
-            }
-        }
+        //Consultar el reporte por rango de fechas...
+        RangoFechasReporteTiempos fechas = new RangoFechasReporteTiempos(null,false,area);
+        fechas.setLocationRelativeTo(this);
+        fechas.setVisible(true);
     }    
     
     private ImageIcon llamarDiagramas(int tipoDiagrama, int busqueda) {

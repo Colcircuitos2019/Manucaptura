@@ -93,9 +93,9 @@ public class DetalleProyecto {
     }
     
     //Reporte de tiempos de cada una de las áreas de producción.
-    public CachedRowSet generarReporteAreaTiempos(int area){
+    public CachedRowSet generarReporteAreaTiempos(int area,String fechaI, String fechaF){
         DetalleProyectoM obj = new DetalleProyectoM();
-        return obj.generarReporteAreaTiemposM(area);
+        return obj.generarReporteAreaTiemposM(area, fechaI, fechaF);
     }
 
     //Consulta los detalles del proyecto

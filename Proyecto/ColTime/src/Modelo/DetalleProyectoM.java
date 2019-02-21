@@ -422,15 +422,17 @@ public class DetalleProyectoM {
         return crs;
     }
     
-    public CachedRowSet generarReporteAreaTiemposM(int area){
+    public CachedRowSet generarReporteAreaTiemposM(int area, String fechaI, String fechaF){
         try {
             conexion =new Conexion(1);
             conexion.establecerConexion();
             con=conexion.getConexion();
             //Quey------------------------------------------------------------->
-            String Qry= "CALL PA_ReporteTiemposAreaProduccion(?)";
+            String Qry= "CALL PA_ReporteTiemposAreaProduccion(?,?,?)";
             ps=con.prepareStatement(Qry);
             ps.setInt(1, area);
+            ps.setString(2, fechaI);
+            ps.setString(3, fechaF);
             rs=ps.executeQuery();
             crs=new CachedRowSetImpl();
             crs.populate(rs);
