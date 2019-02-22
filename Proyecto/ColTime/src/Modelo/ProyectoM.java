@@ -442,18 +442,23 @@ public class ProyectoM {
             conexion = new Conexion(1);
             conexion.establecerConexion();
             con = conexion.getConexion();
-            //Query------------------------------------------------------------>
-            String Qry = Qry = "CALL PA_ConsultarProyectosIngreso(?,?,?,?)";
-            if (TipoFecha.equals("Ingreso")) {
-                //Query para buscar por fecha de Ingreso
-                Qry = "CALL PA_ConsultarProyectosIngreso(?,?,?,?)";
-            } else if (TipoFecha.equals("Entrega")) {
-                //Query para buscar por fecha de Entrega''                
-                Qry = "CALL PA_ConsultarProyectosEntrega(?,?,?,?)";
-            } else if (TipoFecha.equals("Salida")) {
-                //Query para buscar por fecha de Salida
-                Qry = "CALL PA_ConsultarProyectosSalida(?,?,?,?)";
+            //Query------------------------------------------------------------>Buscar otar forma de hacer esta consulta más eficiente.
+            String Qry="";
+            switch(TipoFecha){
+                case "Ingreso":
+                    Qry = "CALL PA_ConsultarProyectosIngreso(?,?,?,?)";
+                    break;
+                case "Entrega":
+                    Qry = "CALL PA_ConsultarProyectosEntrega(?,?,?,?)";
+                    break;
+                case "Salida":
+                    Qry = "CALL PA_ConsultarProyectosSalida(?,?,?,?)";
+                    break;
+                default:
+                    Qry = "CALL PA_ConsultarProyectosIngreso(?,?,?,?)";
+                    break;
             }
+            //...
             ps = con.prepareStatement(Qry);
             ps.setInt(1, numerOrden);
             ps.setString(2, nombreCliente);

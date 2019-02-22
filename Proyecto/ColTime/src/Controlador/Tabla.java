@@ -1,15 +1,12 @@
 package Controlador;
 
-import com.barcodelib.barcode.a.j;
 import java.awt.Cursor;
 import javax.sql.rowset.CachedRowSet;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JRadioButton;
-import javax.swing.JSpinner;
 import javax.swing.JTable;
-import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 
 public class Tabla {
@@ -56,7 +53,7 @@ public class Tabla {
                 v[4] = String.valueOf(crs.getInt(4));//Cantidad total Procesada
                 v[5] = crs.getString(5);//Tiempo total del proceso en minutos
                 v[6] = crs.getString(6);//Tiempo total del proceso por unidad en minutos
-                v[7] = crs.getString(7);//Estado del producto
+                v[7] = clasificarEstado(crs.getInt(7));//Estado del producto
                 v[8] = crs.getString(8);//Hora en que se empezo a ejecutar el proceso
                 if (crs.getString(11) != null) {//Tiempo de ejecucion del proceso
                     v[9] = crs.getString(11);
@@ -97,6 +94,25 @@ public class Tabla {
         }
     }
 
+    private String clasificarEstado(int estado) {
+        String respuesta = "";
+        switch (estado) {
+            case 1: // Por iniciar
+                respuesta = "Por iniciar";
+                break;
+            case 2: // Pausado
+                respuesta = "Pausado";
+                break;
+            case 3: // terminado
+                respuesta = "Terminado";
+                break;
+            case 4: // Ejecucion
+                respuesta = "Ejecucion";
+                break;
+        }
+        return respuesta;
+    }
+    
     //Se encarga de traer la informacion de la base de datos
     private CachedRowSet consuldateDetalleProduccion() {
         DetalleProyecto obj = new DetalleProyecto();

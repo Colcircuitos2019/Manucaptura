@@ -1055,9 +1055,9 @@ public class ConsutaProyecto extends javax.swing.JFrame {
                 v1[5] = crs.getString(6);
                 v1[6] = crs.getString(7);
                 if (crs.getBoolean(17)) {
-                    v1[7] = crs.getString(8);//Estado
+                    v1[7] = clasificarEstado(crs.getInt(8));//Estado
                 } else {
-                    v1[7] = "Parada";//Estado
+                    v1[7] = "Parada";
                 }
                 v1[8] = crs.getString(9);
                 v1[9] = String.valueOf(crs.getBoolean(10));
@@ -1088,6 +1088,25 @@ public class ConsutaProyecto extends javax.swing.JFrame {
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "¡Error! " + e);
         }
+    }
+    
+    private String clasificarEstado(int estado){
+        String respuesta = "";
+        switch(estado){
+            case 1: // Por iniciar
+                respuesta = "Por iniciar";
+                break;
+            case 2: // Pausado
+                respuesta = "Pausado";
+                break;
+            case 3: // terminado
+                respuesta = "Terminado";
+                break;
+            case 4: // Ejecucion
+                respuesta = "Ejecucion";
+                break;
+        }
+        return respuesta;
     }
 
     private void consultarDetalle(String numerOrden) {

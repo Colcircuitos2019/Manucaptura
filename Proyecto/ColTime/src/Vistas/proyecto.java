@@ -1175,7 +1175,7 @@ public class proyecto extends javax.swing.JPanel {
                 "seleccione...", JOptionPane.YES_NO_CANCEL_OPTION,
                 JOptionPane.QUESTION_MESSAGE, null,// null para icono por defecto.
                 new Object[]{"SI", "NO"}, "SI");
-//        disponibilidad = false;
+        // ...
         if (seleccion == 0) {
             Proyecto obj = new Proyecto();
             if (obj.validarNumerOrden(Integer.parseInt(jTNorden.getText()))) {//Se valida que la orden no exista
@@ -1183,8 +1183,8 @@ public class proyecto extends javax.swing.JPanel {
             } else {
                 validarRegistro(1);
             }
-        }
-//        puerto.close();
+        }   
+        // ...
     }//GEN-LAST:event_btnGuardarActionPerformed
 
     public void accionBtnGuardarProyecto(){
@@ -2107,7 +2107,7 @@ public class proyecto extends javax.swing.JPanel {
 
     private void botonRegistrarModificar() {
         Controlador.Proyecto obj = new Controlador.Proyecto();
-        modificarInfoProyecto(obj);
+        modificarInfoProyecto(obj);//Informacion general del proyecto
         if (obj.registrar_Modificar_Proyecto(Menu.jDocumento.getText(), op)) {
             if (op == 1) {
                 //Registrar el proyecto
