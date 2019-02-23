@@ -218,6 +218,7 @@ public class DetalleProyectoM {
                             ps.execute();
                         } else {//tener en cuenta que los procesos se van a traer de la tabla procesos dependiendo del tipo de negocio!!
                             //Si es TH o FV
+                            //Este PRocedure esta pendiente por eliminar.
 //                            Qry = "CALL PA_RegistrarDetalleFormatoEstandar(?,?,?)";//Registrar los procesos queda pendiente para desarrollar.....................................................................................
 //                            ps = con.prepareStatement(Qry);
 //                            ps.setInt(1, Integer.parseInt(numerOrden));
@@ -229,13 +230,20 @@ public class DetalleProyectoM {
 //                            }
 //                            ps.execute();
 //                          Consultar el ID detalle del proyecto... <------- Pendiente
-//                          ...
+                            Qry = "SELECT FU_ConsultarelIDDetalledelproductoFE(?,?,?) as idDetalleProducto;";//
+                            ps = con.prepareStatement(Qry);
+                            ps.setString(1, numerOrden);
+                            ps.setInt(2, idTipoProducto);
+                            ps.setString(3, (procesoPNC==null?"":procesoPNC));
+                            rs = ps.executeQuery();
+                            rs.next();
+                            int idDetalleProducto = rs.getInt(1);
 //                          Consultar el ID de la condicion que se cumple para la asignacion de los procesos del producto...
                             Qry = "SELECT FU_ClasificarCondicionProductoFE(?,?,?,?) as idCondicional";//
                             ps = con.prepareStatement(Qry);
                             ps.setString(1, numerOrden);
                             ps.setInt(2, idTipoProducto);
-                            ps.setString(3, procesoPNC);
+                            ps.setString(3, (procesoPNC==null?"":procesoPNC));
                             ps.setString(4, material);
                             rs = ps.executeQuery();
                             rs.next();
@@ -251,13 +259,13 @@ public class DetalleProyectoM {
                                 Qry = "CALL PA_RegistrarProcesosProductoFE(?,?,?);";
                                 ps = con.prepareStatement(Qry);
                                 ps.setInt(1, rs.getInt("idProceso"));
-                                ps.setInt(2, 1); //idDetalleProyecto
+                                ps.setInt(2, idDetalleProducto); //idDetalleProyecto
                                 ps.setInt(3, rs.getInt("orden"));
                                 ps.execute();
-                            }
+                            }//<------- hasta acá llegue el día 22/02/2019
                         }
                     } else {//Negocio del almacen Para registrar los compoennetes
-                        //tener en cuenta que los procesos se ban a traer de la tabla procesos dependiendo del tipo de negocio!!
+                        //tener en cuenta que los procesos se van a traer de la tabla procesos dependiendo del tipo de negocio!!
                         Qry = "CALL PA_RegistrarDetalleAlmacen(?,?,?)";
                         ps = con.prepareStatement(Qry);
                         ps.setInt(1, Integer.parseInt(numerOrden));
@@ -482,7 +490,7 @@ public class DetalleProyectoM {
             //Query------------------------------------------------------------>
             String Qry = "CALL PA_ConsultarDetalleProyecto(?,?)";
             ps = con.prepareStatement(Qry);
-            ps.setInt(1, Integer.parseInt(numeOrden));
+            ps.setString(1, numeOrden);
             ps.setInt(2, estado);
             rs = ps.executeQuery();
             crs = new CachedRowSetImpl();

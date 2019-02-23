@@ -2114,7 +2114,7 @@ public class proyecto extends javax.swing.JPanel {
                 if (RegistrarModificarDetalle(jTNorden.getText(), 1)) {
                     //Mensaje de exito
                     new rojerusan.RSNotifyAnimated("Listo!!", "El Proyecto con el numero de orden: " + jTNorden.getText() + " fue registrada exitosamente.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.SUCCESS).setVisible(true);
-                    generarQR();
+                    generarQR();// <----- Pendiente reactivar el generar QR de los proyectos
                     limpiarID();
                 } else {
                     //Mensaje de error

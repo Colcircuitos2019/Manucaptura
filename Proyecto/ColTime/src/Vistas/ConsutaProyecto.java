@@ -1126,7 +1126,7 @@ public class ConsutaProyecto extends javax.swing.JFrame {
                     v2[3] = crs.getString(4);//Cantidad
                     v2[4] = crs.getString(7);//Ubicacion del PNC
                     if (TProyecto.getValueAt(row, 16).toString().equals("1")) {
-                        v2[5] = crs.getString(5);//Estado
+                        v2[5] = clasificarEstado(crs.getInt(5));//Estado
                     } else {
                         v2[5] = "Parada";//Estado
                     }
@@ -1138,7 +1138,7 @@ public class ConsutaProyecto extends javax.swing.JFrame {
                     v1[2] = crs.getString(3);//Tipo negocio
                     v1[3] = crs.getString(4);//Cantidad
                     if (TProyecto.getValueAt(row, 16).toString().equals("1")) {
-                        v1[4] = crs.getString(5);//Estado
+                        v1[4] = clasificarEstado(crs.getInt(5));//Estado
                     } else {
                         v1[4] = "Parada";//Estado
                     }

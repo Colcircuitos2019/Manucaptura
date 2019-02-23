@@ -32,7 +32,7 @@ public class FE_TE_INM {
     //Metodos------------------------------------------------->
     //No se te olvide tener en cuenta el id del lector y concatenar a la informacion despues de leer el código QR***
     //Depurar esta seccion de còdigo para optimizarlo...
-public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int orden, int detalle, int negocio, int lector, int cantidadTerminada, int operarios, PrintStream myPS, int procesoPasoCantidades) {
+public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetalle, int area, int idLector, int cantidadTerminada, int operarios, PrintStream myPS, int procesoPasoCantidades) {
         //Falta hacer que se puedan poner varias tomas de tiempo del mismo proceso al mismo tiempo.
         //Realizar una validacion adicional, el sistema no me va a dejar iniciar la toma de tiempo del proceso si no se le a pasado cantidades terminadas de un proceso anterior. Tener en cuenta teclados.
         try {
@@ -42,22 +42,22 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int orden, int detalle, int 
             //Query------------------------------------------------------------>
             String Qry = "Select FU_ValidarTomaDeTiempo(?,?,?,?)";
             ps = con.prepareStatement(Qry);
-            ps.setInt(1, orden);
-            ps.setInt(2, detalle);
-            ps.setInt(3, lector);
-            ps.setInt(4, negocio);
+            ps.setInt(1, numeroOrden);
+            ps.setInt(2, idDetalle);
+            ps.setInt(3, idLector);
+            ps.setInt(4, area);
             rs = ps.executeQuery();
             rs.next();
             if (rs.getBoolean(1)) {//Pausar O IniciarToma de tiempos
                 //-------------------------------------------------------------->
-                if(negocio==3){
-                    //Validar el sub proceso al cual se va a enviar la informacion
-//                    if((procesoPasoCantidades!=0 && lector!=18) || ((procesoPasoCantidades==0 || procesoPasoCantidades!=18) && lector==18)){
+                if(area==3 || area==1){
+                //Validar el sub proceso al cual se va a enviar la informacion
                         //Validar que la cantidad ingresada por el operario sea igual o menor a la cantidad que tiene disponible este proceso para trabajar
-                        Qry = "SELECT FU_ValidarCantidadParaProcesosEnsamble(?,?);";
+                        Qry = "SELECT FU_ValidarCantidadParaProcesosEnsamble(?,?,?);";
                         ps = con.prepareStatement(Qry);
-                        ps.setInt(1, detalle);
-                        ps.setInt(2, lector);
+                        ps.setInt(1, idDetalle);
+                        ps.setInt(2, idLector);
+                        ps.setInt(3, area);
                         rs = ps.executeQuery();
                         if (rs.next()) {
                             if (cantidadTerminada <= rs.getInt(1)) {
@@ -66,21 +66,18 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int orden, int detalle, int 
                                 accion = false;
                             }
                         }   
-//                    }else{
-//                        accion=false;
-//                    }
                 }
                 //...
                 int restante=0;
                 //...
                 if(accion){
-                    if(negocio!=3){//Si el área de produccion es "1"=Formato estandar o "2"=Teclados el estado se calcula desde el modelo
+                    if(area!=3 && area!=1){//Si el área de produccion es "1"=Formato estandar o "2"=Teclados el estado se calcula desde el modelo
                         Qry = "CALL PA_ValidarCantidadDetalleProyecto(?,?,?,?)";//Esto me trae tres cosas: Cantidad total del proyecto
                         ps = con.prepareStatement(Qry);
-                        ps.setInt(1, orden);
-                        ps.setInt(2, detalle);
-                        ps.setInt(3, lector);
-                        ps.setInt(4, negocio);
+                        ps.setInt(1, numeroOrden);
+                        ps.setInt(2, idDetalle);
+                        ps.setInt(3, idLector);
+                        ps.setInt(4, area);
                         rs = ps.executeQuery();
                         rs.next();
                         //Tener en cuenta que tienes que mostrar un mensaje en el celular.(Pendiente para futuras versiones)
@@ -119,20 +116,20 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int orden, int detalle, int 
                     //...
                     Qry = "CALL PA_CalcularTiempoMinutos(?,?,?,?)";
                     ps = con.prepareStatement(Qry);
-                    ps.setInt(1, orden);
-                    ps.setInt(2, detalle);
-                    ps.setInt(3, lector);
-                    ps.setInt(4, negocio);
+                    ps.setInt(1, numeroOrden);
+                    ps.setInt(2, idDetalle);
+                    ps.setInt(3, idLector);
+                    ps.setInt(4, area);
                     rs = ps.executeQuery();
                     rs.next();
                     T_Total = convertirHorasAMinutos(rs.getString(1).split(":"), rs.getString(2).split(":"), operarios);
                     //...
                     Qry = "CALL PA_PausarTomaDeTiempoDeProcesos(?,?,?,?,?,?,?,?,?,?)";//NOTA: Para el área de ensamble se van a enviar dos procesos el cual al primero se le van a restar las cantidades terminadas y al segundo se le van a sumar las cantidades terminadas
                     ps = con.prepareStatement(Qry);
-                    ps.setInt(1, orden);
-                    ps.setInt(2, detalle);
-                    ps.setInt(3, lector);
-                    ps.setInt(4, negocio);
+                    ps.setInt(1, numeroOrden);
+                    ps.setInt(2, idDetalle);
+                    ps.setInt(3, idLector);
+                    ps.setInt(4, area);
                     ps.setString(5, String.valueOf(T_Total));
 //                    ps.setInt(6, (cantidadTerminada+cantidadAntigua));
                     ps.setInt(6, cantidadTerminada);
@@ -143,11 +140,11 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int orden, int detalle, int 
                     ps.execute();//Respuesta es igual a True para poder agregar los botones, Ya no es necesario esta respuesta para buscar los botones
                     res=true;
                     //Promedio de producto por minuto.
-                    cantidadProductoMinuto(detalle, negocio, lector);
+                    cantidadProductoMinuto(idDetalle, area, idLector);
                     //Tiempo total del proceso.
-                    actualizarTotalTiempoProyecto(detalle, negocio);
+                    actualizarTotalTiempoProyecto(idDetalle, area);
                     //Timepo total por unidad...
-                    totalTiempoPorUnidad(detalle, negocio);
+                    totalTiempoPorUnidad(idDetalle, area);
                     //Si no cumple la condición va a retornar un falso y monstrara una mensaje de advertencia.
                     //...
                 } else {
@@ -159,20 +156,20 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int orden, int detalle, int 
             } else {
                 //Si no existe se ejecutara el procedimiento para iniciar o renaudar el tiempo
                 //...
-                if(negocio==3){//Validar que este proyecto ya se tenga un proceso selccionado para iniciar
+                if(area==3){//Validar que este proyecto ya se tenga un proceso selccionado para iniciar
                     //Para ensamble: Validar que si no tiene un orden establecido en los procesos no se puede iniciar ningun proceso de ensamble
 //                    Pendiente realizar esta validacion
                     Qry = "SELECT FU_ValidarProcesoInicioProcesoEnsamble(?)";//Pendiente generar la funcion
                     ps = con.prepareStatement(Qry);
-                    ps.setInt(1, detalle);
+                    ps.setInt(1, idDetalle);
                     rs = ps.executeQuery();
                     rs.next();
                     if(rs.getInt(1)==1){//Si tiene selccionado el proceso inicial de ensamble retornara un 1 si no retornara un 0
                         //Para ensamble: Validar si tiene cantidades para procesar, sino tiene entonces no se iniciaria el proceso.
                         Qry = "SELECT FU_ValidarCantidadParaProcesosEnsamble(?,?);";
                         ps = con.prepareStatement(Qry);
-                        ps.setInt(1, detalle);
-                        ps.setInt(2, lector);
+                        ps.setInt(1, idDetalle);
+                        ps.setInt(2, idLector);
                         rs = ps.executeQuery();
                         if (rs.next()) {
                             if (Integer.parseInt(rs.getString(1)) > 0) {
@@ -189,10 +186,10 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int orden, int detalle, int 
                 if(accion){
                     Qry = "CALL PA_IniciarRenaudarTomaDeTiempoProcesos(?,?,?,?,?)";
                     ps = con.prepareStatement(Qry);
-                    ps.setInt(1, orden);
-                    ps.setInt(2, detalle);
-                    ps.setInt(3, lector);
-                    ps.setInt(4, negocio);
+                    ps.setInt(1, numeroOrden);
+                    ps.setInt(2, idDetalle);
+                    ps.setInt(3, idLector);
+                    ps.setInt(4, area);
                     ps.setInt(5, operarios);
                     res = !ps.execute();//Respuesta es igual a True para poder agregar los botones  
                 }else{
@@ -206,7 +203,7 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int orden, int detalle, int 
             ps.close();
             System.gc();//Garbage collector...
         } catch (Exception e) {
-//            JOptionPane.showMessageDialog(null, "Error! " + e);
+            JOptionPane.showMessageDialog(null, "Error! " + e);
         }
         return res;
     }
