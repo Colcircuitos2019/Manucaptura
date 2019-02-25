@@ -48,9 +48,9 @@
 $active_group = 'coltime';
 $active_record = TRUE;
 
-$db['coltime']['hostname'] = '192.168.4.1:3306';
-$db['coltime']['username'] = 'juanDavidM';
-$db['coltime']['password'] = '123';
+$db['coltime']['hostname'] = '192.168.4.173:3306';
+$db['coltime']['username'] = 'coluser';
+$db['coltime']['password'] = '';
 $db['coltime']['database'] = 'coltime';
 $db['coltime']['dbdriver'] = 'mysqli';
 $db['coltime']['dbprefix'] = '';

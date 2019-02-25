@@ -53,7 +53,7 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
                 if(area==3 || area==1){
                 //Validar el sub proceso al cual se va a enviar la informacion
                         //Validar que la cantidad ingresada por el operario sea igual o menor a la cantidad que tiene disponible este proceso para trabajar
-                        Qry = "SELECT FU_ValidarCantidadParaProcesosEnsamble(?,?,?);";
+                        Qry = "SELECT FU_ValidarCantidadProcesoAreasProduccion(?,?,?);";
                         ps = con.prepareStatement(Qry);
                         ps.setInt(1, idDetalle);
                         ps.setInt(2, idLector);
@@ -156,20 +156,23 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
             } else {
                 //Si no existe se ejecutara el procedimiento para iniciar o renaudar el tiempo
                 //...
-                if(area==3){//Validar que este proyecto ya se tenga un proceso selccionado para iniciar
+                if(area==3 || area==1){//Validar que este proyecto ya se tenga un proceso selccionado para iniciar
                     //Para ensamble: Validar que si no tiene un orden establecido en los procesos no se puede iniciar ningun proceso de ensamble
 //                    Pendiente realizar esta validacion
-                    Qry = "SELECT FU_ValidarProcesoInicioProcesoEnsamble(?)";//Pendiente generar la funcion
+                    Qry = "SELECT FU_ValidarProcesoInicioAreasProduccion(?,?,?)";//Pendiente generar la funcion
                     ps = con.prepareStatement(Qry);
                     ps.setInt(1, idDetalle);
+                    ps.setInt(2, area);
+                    ps.setInt(3, idLector);
                     rs = ps.executeQuery();
                     rs.next();
                     if(rs.getInt(1)==1){//Si tiene selccionado el proceso inicial de ensamble retornara un 1 si no retornara un 0
                         //Para ensamble: Validar si tiene cantidades para procesar, sino tiene entonces no se iniciaria el proceso.
-                        Qry = "SELECT FU_ValidarCantidadParaProcesosEnsamble(?,?);";
+                        Qry = "SELECT FU_ValidarCantidadProcesoAreasProduccion(?,?,?);";
                         ps = con.prepareStatement(Qry);
                         ps.setInt(1, idDetalle);
                         ps.setInt(2, idLector);
+                        ps.setInt(3 ,area);
                         rs = ps.executeQuery();
                         if (rs.next()) {
                             if (Integer.parseInt(rs.getString(1)) > 0) {

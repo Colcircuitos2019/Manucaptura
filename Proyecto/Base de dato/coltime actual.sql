@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 22-02-2019 a las 22:36:51
+-- Tiempo de generación: 25-02-2019 a las 18:49:27
 -- Versión del servidor: 10.1.29-MariaDB
 -- Versión de PHP: 7.2.0
 
@@ -299,13 +299,13 @@ SELECT total;
 
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_ConsultarDetalleProyecto` (IN `orden` INT(11), IN `estado` INT)  NO SQL
+CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_ConsultarDetalleProyecto` (IN `orden` VARCHAR(10), IN `estado` INT)  NO SQL
 BEGIN
 
 IF estado=0 THEN
-SELECT d.idDetalle_proyecto,n.nom_area,t.nombre,d.canitadad_total,e.nombre as estado, d.PNC,d.ubicacion,d.material,p.parada FROM producto t  JOIN detalle_proyecto d on t.idProducto=d.idProducto JOIN area n on d.idArea=n.idArea JOIN estado e on d.estado=e.idestado JOIN proyecto p ON d.proyecto_numero_orden=p.numero_orden WHERE d.proyecto_numero_orden=orden;
+SELECT d.idDetalle_proyecto,n.nom_area,t.nombre,d.canitadad_total,d.estado, d.PNC,d.ubicacion,d.material,p.parada FROM producto t  JOIN detalle_proyecto d on t.idProducto=d.idProducto JOIN area n on d.idArea=n.idArea JOIN proyecto p ON d.proyecto_numero_orden=p.numero_orden WHERE d.proyecto_numero_orden=orden;
 ELSE
-SELECT d.idDetalle_proyecto,n.nom_area,t.nombre,d.canitadad_total,e.nombre as estado, d.PNC,d.ubicacion,d.material,p.parada FROM producto t  JOIN detalle_proyecto d on t.idProducto=d.idProducto JOIN area n on d.idArea=n.idArea JOIN estado e on d.estado=e.idestado JOIN proyecto p ON d.proyecto_numero_orden=p.numero_orden WHERE d.proyecto_numero_orden=orden and p.eliminacion=1;
+SELECT d.idDetalle_proyecto,n.nom_area,t.nombre,d.canitadad_total,d.estado, d.PNC,d.ubicacion,d.material,p.parada FROM producto t  JOIN detalle_proyecto d on t.idProducto=d.idProducto JOIN area n on d.idArea=n.idArea JOIN proyecto p ON d.proyecto_numero_orden=p.numero_orden WHERE d.proyecto_numero_orden=orden and p.eliminacion=1;
 END IF;
 
 END$$
@@ -667,16 +667,16 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_DetalleDelDetalleDelproyecto` (I
 BEGIN
 
 IF area=1 THEN
-SELECT p.nombre_proceso,Date_Format(f.fecha_inicio,'%d-%M-%Y') as inicio,Date_format(f.fecha_fin,'%d-%M-%Y') as fin,f.cantidad_terminada,f.tiempo_total_por_proceso,f.tiempo_por_unidad,f.estado as estado,TIME_FORMAT(f.hora_ejecucion,'%r'),TIME_FORMAT(TIMEDIFF(now(),f.hora_ejecucion),'%H:%i:%S') as tiempoActual,TIME_FORMAT(f.hora_terminacion,'%r') as "hora terminacion",TIME_FORMAT(TIMEDIFF(f.hora_terminacion,f.hora_ejecucion),'%H:%i:%S') as InicioTerminadoIntervalo,f.idDetalle_formato_estandar,f.orden,f.noperarios FROM detalle_formato_estandar f JOIN procesos p on f.idproceso=p.idproceso where f.idDetalle_proyecto=detalle ORDER BY f.idproceso ASC;
+SELECT p.nombre_proceso,Date_Format(f.fecha_inicio,'%d-%M-%Y') as inicio,Date_format(f.fecha_fin,'%d-%M-%Y') as fin,f.cantidad_terminada,f.tiempo_total_por_proceso,f.tiempo_por_unidad,f.estado,TIME_FORMAT(f.hora_ejecucion,'%r') AS horaInicio,TIME_FORMAT(TIMEDIFF(now(),f.hora_ejecucion),'%H:%i:%S') as tiempoActual,TIME_FORMAT(f.hora_terminacion,'%r') as hora_terminacion,TIME_FORMAT(TIMEDIFF(f.hora_terminacion,f.hora_ejecucion),'%H:%i:%S') as InicioTerminadoIntervalo,f.idDetalle_formato_estandar,CONVERT(f.orden, int),f.noperarios, f.cantidadProceso FROM detalle_formato_estandar f JOIN procesos p on f.idproceso=p.idproceso where f.idDetalle_proyecto=detalle ORDER BY f.idproceso ASC;
 ELSE
   IF area=2 THEN
-  SELECT p.nombre_proceso,Date_Format(f.fecha_inicio,'%d-%M-%Y'),Date_format(f.fecha_fin,'%d-%M-%Y'),f.cantidad_terminada,f.tiempo_total_proceso,f.tiempo_por_unidad,f.estado,TIME_FORMAT(f.hora_ejecucion,'%r'),TIME_FORMAT(TIMEDIFF(now(),f.hora_ejecucion),'%H:%i:%S') as tiempoActual,TIME_FORMAT(f.hora_terminacion,'%r'),TIME_FORMAT(TIMEDIFF(f.hora_terminacion,f.hora_ejecucion),'%H:%i:%s'),f.idDetalle_teclados,f.orden,f.noperarios FROM detalle_teclados f JOIN procesos p on f.idproceso=p.idproceso where f.idDetalle_proyecto=detalle ORDER BY f.idproceso ASC;
+  SELECT p.nombre_proceso,Date_Format(f.fecha_inicio,'%d-%M-%Y') AS inicio,Date_format(f.fecha_fin,'%d-%M-%Y') AS fin,f.cantidad_terminada,f.tiempo_total_proceso,f.tiempo_por_unidad,f.estado,TIME_FORMAT(f.hora_ejecucion,'%r'),TIME_FORMAT(TIMEDIFF(now(),f.hora_ejecucion),'%H:%i:%S') as tiempoActual,TIME_FORMAT(f.hora_terminacion,'%r'),TIME_FORMAT(TIMEDIFF(f.hora_terminacion,f.hora_ejecucion),'%H:%i:%s'),f.idDetalle_teclados AS idDetalleProceso,f.orden,f.noperarios FROM detalle_teclados f JOIN procesos p on f.idproceso=p.idproceso where f.idDetalle_proyecto=detalle ORDER BY f.idproceso ASC;
   ELSE
    IF area=3 THEN
-SELECT p.nombre_proceso,Date_Format(f.fecha_inicio,'%d-%M-%Y'),Date_format(f.fecha_fin,'%d-%M-%Y'),f.cantidad_terminada,f.tiempo_total_por_proceso,f.tiempo_por_unidad,f.estado,TIME_FORMAT(f.hora_ejecucion,'%r'),TIME_FORMAT(TIMEDIFF(now(),f.hora_ejecucion),'%H:%i:%S') as tiempoActual,TIME_FORMAT(f.hora_terminacion,'%r'),TIME_FORMAT(TIMEDIFF(f.hora_terminacion,f.hora_ejecucion),'%H:%i:%s'),f.idDetalle_ensamble,f.noperarios,f.noperarios,CONVERT(f.orden, int),f.idDetalle_ensamble,f.cantidadProceso FROM detalle_ensamble f JOIN procesos p on f.idproceso=p.idproceso where f.idDetalle_proyecto=detalle ORDER BY f.idproceso ASC;
+SELECT p.nombre_proceso,Date_Format(f.fecha_inicio,'%d-%M-%Y') AS inicio,Date_format(f.fecha_fin,'%d-%M-%Y') AS fin,f.cantidad_terminada,f.tiempo_total_por_proceso,f.tiempo_por_unidad,f.estado,TIME_FORMAT(f.hora_ejecucion,'%r') AS horaInicio,TIME_FORMAT(TIMEDIFF(now(),f.hora_ejecucion),'%H:%i:%S') as tiempoActual,TIME_FORMAT(f.hora_terminacion,'%r') AS hora_terminacion,TIME_FORMAT(TIMEDIFF(f.hora_terminacion,f.hora_ejecucion),'%H:%i:%s') AS InicioTerminadoIntervalo ,f.idDetalle_ensamble,CONVERT(f.orden,int),f.noperarios,f.cantidadProceso FROM detalle_ensamble f JOIN procesos p on f.idproceso=p.idproceso where f.idDetalle_proyecto=detalle ORDER BY f.idproceso ASC;
    ELSE
     IF area=4 THEN
-    SELECT p.nombre_proceso,Date_Format(al.fecha_inicio,'%d-%M-%Y'),Date_format(al.fecha_fin,'%d-%M-%Y'),al.cantidad_recibida,al.tiempo_total_proceso,al.tiempo_total_proceso,f.estado,TIME_FORMAT(al.hora_registro,'%r'),datediff(CURRENT_DATE,al.fecha_inicio) as dias,TIME_FORMAT(al.hora_llegada,'%r'),datediff(al.fecha_fin,al.fecha_inicio),al.idalmacen FROM almacen al JOIN procesos p on al.idproceso=p.idproceso where al.idDetalle_proyecto=detalle ORDER BY al.idproceso ASC;
+    SELECT p.nombre_proceso,Date_Format(al.fecha_inicio,'%d-%M-%Y'),Date_format(al.fecha_fin,'%d-%M-%Y'),al.cantidad_recibida,al.tiempo_total_proceso,al.tiempo_total_proceso,f.estado,TIME_FORMAT(al.hora_registro,'%r'),datediff(CURRENT_DATE,al.fecha_inicio) as dias,TIME_FORMAT(al.hora_llegada,'%r'),datediff(al.fecha_fin,al.fecha_inicio),al.idalmacen AS idDetalleProceso FROM almacen al JOIN procesos p on al.idproceso=p.idproceso where al.idDetalle_proyecto=detalle ORDER BY al.idproceso ASC;
     END IF;
    END IF;
   END IF;
@@ -992,7 +992,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_InformeNFE` ()  NO SQL
 BEGIN
 
 #SELECT p.numero_orden,d.material,p.tipo_proyecto,tn.nombre as tipoNegocio,d.canitadad_total,df.cantidad_terminada,df.idproceso,df.estado,d.PNC FROM proyecto p RIGHT JOIN detalle_proyecto d ON p.numero_orden=d.proyecto_numero_orden JOIN detalle_formato_estandar df ON d.idDetalle_proyecto=df.idDetalle_proyecto JOIN producto tn on d.idProducto=tn.idproducto WHERE d.idArea=1 AND p.eliminacion=1 AND d.estado!=3 GROUP BY d.idDetalle_proyecto,df.idproceso ORDER BY d.proyecto_numero_orden ASC;
-SELECT d.proyecto_numero_orden,d.material,p.tipo_proyecto,tn.nombre,d.canitadad_total,df.cantidad_terminada,df.idproceso,df.estado,d.ubicacion FROM detalle_formato_estandar df RIGHT JOIN detalle_proyecto d ON df.idDetalle_proyecto=d.idDetalle_proyecto LEFT JOIN proyecto p ON d.proyecto_numero_orden=p.numero_orden JOIN producto tn on d.idProducto=tn.idproducto where d.idArea=1 AND p.eliminacion=1 AND d.estado!=3 GROUP BY d.idDetalle_proyecto,df.idproceso ORDER BY d.proyecto_numero_orden,tn.nombre,d.PNC,d.ubicacion;
+SELECT d.proyecto_numero_orden,d.material,p.tipo_proyecto,tn.nombre,d.canitadad_total,df.cantidad_terminada,df.cantidadProceso,df.idproceso,df.estado,d.ubicacion FROM detalle_formato_estandar df RIGHT JOIN detalle_proyecto d ON df.idDetalle_proyecto=d.idDetalle_proyecto LEFT JOIN proyecto p ON d.proyecto_numero_orden=p.numero_orden JOIN producto tn on d.idProducto=tn.idproducto where d.idArea=1 AND p.eliminacion=1 AND d.estado!=3 AND df.cantidad_terminada is not null GROUP BY d.idDetalle_proyecto,df.idproceso ORDER BY d.proyecto_numero_orden,tn.nombre,d.PNC,d.ubicacion;
 # AND df.fecha_fin is null
 END$$
 
@@ -1293,6 +1293,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_PausarTomaDeTiempoDeProcesos` (I
 BEGIN
 DECLARE id int;
 DECLARE id2 int;
+DECLARE ordenProcesos tinyint;
 DECLARE cantidadp int;
 DECLARE primero int;
 DECLARE segundo int;
@@ -1302,11 +1303,24 @@ DECLARE restanteProcesoA int;
 IF est=2 THEN#Cuando el estado es pausado=2
 
 IF busqueda=1 THEN#La variable busqueda hace referencia al area de produccion
-
-SET id=(SELECT f.idDetalle_formato_estandar from detalle_formato_estandar f JOIN detalle_proyecto d on f.idDetalle_proyecto=d.idDetalle_proyecto where d.proyecto_numero_orden=orden AND d.idDetalle_proyecto=detalle and f.idproceso=lector and f.estado=4);
  
- UPDATE detalle_formato_estandar f SET  f.estado=est, f.tiempo_total_por_proceso=tiempo,f.cantidad_terminada=(cantidadTerminada+cantidadAntiguaTermianda),f.noperarios=0 WHERE f.idDetalle_formato_estandar=id;
-
+# Nueva forma de manejo de las cantidades...
+SET id=(SELECT f.idDetalle_formato_estandar from detalle_formato_estandar f JOIN detalle_proyecto d on f.idDetalle_proyecto=d.idDetalle_proyecto where d.proyecto_numero_orden=orden AND d.idDetalle_proyecto=detalle and f.idproceso=lector and f.estado=4);#ID del proceso primario
+#...
+SET ordenProcesos=(SELECT f.orden from detalle_formato_estandar f JOIN detalle_proyecto d on f.idDetalle_proyecto=d.idDetalle_proyecto where d.proyecto_numero_orden=orden AND d.idDetalle_proyecto=detalle and f.idproceso=lector and f.estado=4)+1;
+#...
+#Al proceso primario se la van a restar las cantidades terminadas, Esta pendiente calcular el estado del proceso que envia.
+UPDATE detalle_formato_estandar f SET f.cantidadProceso=(CONVERT(f.cantidadProceso, int)-cantidadTerminada),f.cantidad_terminada=(f.cantidad_terminada+cantidadTerminada), f.noperarios=0,f.tiempo_total_por_proceso=tiempo WHERE f.idDetalle_formato_estandar=id;
+# ...
+SET id2=(SELECT f.idDetalle_formato_estandar from detalle_formato_estandar f JOIN detalle_proyecto d on f.idDetalle_proyecto=d.idDetalle_proyecto where d.proyecto_numero_orden=orden AND d.idDetalle_proyecto=detalle and f.orden=ordenProcesos);#ID del proceso secundario
+#...
+#Al proceso secundario se la van a sumar las cantidades terminadas, Esta pendiente calcular el estado del proceso que recibe.
+UPDATE detalle_formato_estandar f SET f.cantidadProceso=(CONVERT(f.cantidadProceso, int)+cantidadTerminada) WHERE f.idDetalle_formato_estandar=id2;
+#...
+#Funcion para clasificar el estado de cada proceso, Esto queda pendiente
+  SET cantidadp=(SELECT CONVERT(e.canitadad_total,int) FROM detalle_proyecto e WHERE e.idDetalle_proyecto=detalle);
+  SELECT FU_ClasificarEstadoProcesos(id,id2,cantidadp,busqueda);
+  #...
 ELSE
  IF busqueda=2 THEN
  
@@ -1335,7 +1349,7 @@ ELSE
   #...
   #Funcion para clasificar el estado de cada proceso, Esto queda pendiente
   SET cantidadp=(SELECT CONVERT(e.canitadad_total,int) FROM detalle_proyecto e WHERE e.idDetalle_proyecto=detalle);
-  SELECT FU_ClasificarEstadoProcesosEnsamble(id,id2,cantidadp);
+  SELECT FU_ClasificarEstadoProcesos(id,id2,cantidadp,busqueda);
   #...
   END IF; 
  END IF;
@@ -1754,7 +1768,7 @@ BEGIN
 #
 IF idProceso=1 THEN
 # ...
-	INSERT INTO `detalle_formato_estandar`(`idDetalle_proyecto`, `idproceso`, `orden`, `cantidadProceso`) VALUES (idDetalleProyecto, idProceso, ordenEjecucion, (SELECT d.canitadad_total FROM detalle_proyecto d WHERE d.idDetalle_proyecto=detalle));
+	INSERT INTO `detalle_formato_estandar`(`idDetalle_proyecto`, `idproceso`, `orden`, `cantidadProceso`) VALUES (idDetalleProyecto, idProceso, ordenEjecucion, (SELECT d.canitadad_total FROM detalle_proyecto d WHERE d.idDetalle_proyecto=idDetalleProyecto));
 # ...
 ELSE
 # ...
@@ -2034,27 +2048,64 @@ END IF;
 
 END$$
 
-CREATE DEFINER=`root`@`localhost` FUNCTION `FU_ClasificarEstadoProcesosEnsamble` (`proceso1` INT, `proceso2` INT, `cant` INT) RETURNS TINYINT(1) NO SQL
+CREATE DEFINER=`root`@`localhost` FUNCTION `FU_ClasificarEstadoProcesos` (`proceso1` INT, `proceso2` INT, `cant` INT, `area` TINYINT(1)) RETURNS TINYINT(1) NO SQL
 BEGIN
-#Clasificar el estado del proceso 1 (pausado=2 o terminado=3)
-IF EXISTS(SELECT * FROM detalle_ensamble e WHERE e.idDetalle_ensamble=proceso1 AND CONVERT(e.cantidad_terminada,int)>=cant AND CONVERT(e.cantidadProceso,int)=0 AND e.estado=4) THEN
- UPDATE detalle_ensamble e SET e.estado=3, e.fecha_fin=now() WHERE e.idDetalle_ensamble=proceso1;#Estado Terminado
- #RETURN 3;
-ELSE	    
- UPDATE detalle_ensamble e SET e.estado=2, e.fecha_fin=null WHERE e.idDetalle_ensamble=proceso1;#Estado Pausado
- #RETURN 2;
-END IF;
+
+IF area=1 THEN #Formato estandar - FE
+# ...
+	#Clasificar el estado del proceso 1 (pausado=2 o terminado=3)
+	IF EXISTS(SELECT * FROM detalle_formato_estandar f WHERE f.idDetalle_formato_estandar=proceso1 AND CONVERT(f.cantidad_terminada,int)>=cant AND CONVERT(f.cantidadProceso,int)=0 AND f.estado=4) THEN
+    # ...
+ 		UPDATE detalle_formato_estandar f SET f.estado=3, f.fecha_fin=now() WHERE f.idDetalle_formato_estandar=proceso1;#Estado Terminado
+ 	# ...
+	ELSE	    
+ 		UPDATE detalle_formato_estandar f SET f.estado=2, f.fecha_fin=null WHERE f.idDetalle_formato_estandar=proceso1;#Estado Pausado
+ 	# ...
+	END IF;
+# ...
+ELSE #Ensamble
+# ...
+	#Clasificar el estado del proceso 1 (pausado=2 o terminado=3)
+	IF EXISTS(SELECT * FROM detalle_ensamble e WHERE e.idDetalle_ensamble=proceso1 AND CONVERT(e.cantidad_terminada,int)>=cant AND CONVERT(e.cantidadProceso,int)=0 AND e.estado=4) THEN
+    # ...
+ 		UPDATE detalle_ensamble e SET e.estado=3, e.fecha_fin=now() WHERE e.idDetalle_ensamble=proceso1;#Estado Terminado
+ 	# ...
+	ELSE	    
+ 		UPDATE detalle_ensamble e SET e.estado=2, e.fecha_fin=null WHERE e.idDetalle_ensamble=proceso1;#Estado Pausado
+ 	# ...
+	END IF;
 #...
-#Clasificar el estado del proceso 2 (pausado=2 o terminado=3)
-IF EXISTS(SELECT * FROM detalle_ensamble e WHERE e.idDetalle_ensamble=proceso2 AND CONVERT(e.cantidad_terminada,int)>=cant AND CONVERT(e.cantidadProceso,int)=0 AND e.estado!=4) THEN
- UPDATE detalle_ensamble e SET e.estado=3, e.fecha_fin=now() WHERE e.idDetalle_ensamble=proceso2;#Estado Terminado
-ELSE
- IF EXISTS(SELECT * FROM detalle_ensamble e WHERE e.idDetalle_ensamble=proceso2 AND e.estado!=4 AND e.estado!=1) THEN
-	UPDATE detalle_ensamble e SET e.estado=2, e.fecha_fin=null WHERE e.idDetalle_ensamble=proceso2;#Estado Pausado 
- END IF; 
+	#Clasificar el estado del proceso 2 (pausado=2 o terminado=3)
+	IF EXISTS(SELECT * FROM detalle_ensamble e WHERE e.idDetalle_ensamble=proceso2 AND CONVERT(e.cantidad_terminada,int)>=cant AND CONVERT(e.cantidadProceso,int)=0 AND e.estado!=4) THEN
+    # ....
+ 		UPDATE detalle_ensamble e SET e.estado=3, e.fecha_fin=now() WHERE e.idDetalle_ensamble=proceso2;#Estado Terminado
+    #...    
+	ELSE
+ 		IF EXISTS(SELECT * FROM detalle_ensamble e WHERE e.idDetalle_ensamble=proceso2 AND e.estado!=4 AND e.estado!=1) THEN
+       	# ...
+			UPDATE detalle_ensamble e SET e.estado=2, e.fecha_fin=null WHERE e.idDetalle_ensamble=proceso2;#Estado Pausado
+        # ...    
+ 		END IF; 
+	END IF;
+# ...
 END IF;
 #...
 return 1;
+END$$
+
+CREATE DEFINER=`` FUNCTION `FU_ConsultarelIDDetalledelproductoFE` (`numOrden` VARCHAR(10), `idProducto` TINYINT, `productoPNC` VARCHAR(25)) RETURNS INT(11) NO SQL
+BEGIN
+
+DECLARE idDetalleProducto int;
+
+IF productoPNC='' THEN
+  set idDetalleProducto=((SELECT dd.idDetalle_proyecto from detalle_proyecto dd WHERE dd.proyecto_numero_orden=(numOrden) AND dd.idProducto=idProducto AND dd.idArea=1 AND dd.ubicacion is null));
+ELSE
+  set idDetalleProducto=((SELECT dd.idDetalle_proyecto from detalle_proyecto dd WHERE dd.proyecto_numero_orden=(numOrden) AND dd.idProducto=idProducto AND dd.idArea=1 AND dd.ubicacion=productoPNC));
+END IF;
+
+RETURN idDetalleProducto;
+
 END$$
 
 CREATE DEFINER=`root`@`localhost` FUNCTION `FU_ConsultarEstadoDetalleProyecto` (`detalle` INT) RETURNS TINYINT(1) NO SQL
@@ -2339,10 +2390,20 @@ END IF;
 
 END$$
 
-CREATE DEFINER=`root`@`localhost` FUNCTION `FU_ValidarCantidadParaProcesosEnsamble` (`detalle` INT, `lector` INT) RETURNS INT(11) NO SQL
+CREATE DEFINER=`root`@`localhost` FUNCTION `FU_ValidarCantidadProcesoAreasProduccion` (`idDetalleProyecto` INT, `lector` TINYINT, `area` TINYINT) RETURNS INT(11) NO SQL
 BEGIN
 #Consulta las cantidades que tiene el proceso de ensamble para validar si tiene equipos a los cuales les puede trabajar.
-RETURN (SELECT e.cantidadProceso FROM detalle_ensamble e WHERE e.idDetalle_proyecto=detalle AND e.idproceso=lector);
+
+IF area=1 THEN #Formato Estandar - FE
+	RETURN (SELECT f.cantidadProceso FROM detalle_formato_estandar f WHERE f.idDetalle_proyecto=idDetalleProyecto AND f.idproceso=lector);
+ELSE
+  IF area=2 THEN # Teclados - TE
+  #Esta pendiente por implementar
+    RETURN (SELECT t.cantidadProceso FROM detalle_teclados t WHERE t.idDetalle_proyecto=idDetalleProyecto AND t.idproceso=lector);
+  ELSE #Ensamble - EN cuando área es 3
+    RETURN (SELECT e.cantidadProceso FROM detalle_ensamble e WHERE e.idDetalle_proyecto=idDetalleProyecto AND e.idproceso=lector);
+  END IF;
+END IF;
 
 END$$
 
@@ -2413,15 +2474,29 @@ END IF;
 
 END$$
 
-CREATE DEFINER=`root`@`localhost` FUNCTION `FU_ValidarProcesoInicioProcesoEnsamble` (`detalle` INT) RETURNS TINYINT(1) NO SQL
+CREATE DEFINER=`root`@`localhost` FUNCTION `FU_ValidarProcesoInicioAreasProduccion` (`detalle` INT, `area` TINYINT, `idProceso` TINYINT) RETURNS TINYINT(1) NO SQL
 BEGIN
 
-IF EXISTS(SELECT * FROM detalle_ensamble e WHERE e.idDetalle_proyecto=detalle AND e.orden=1) THEN
-#Si existe un proceso seleccionado como inicial
-	return 1;
-ELSE
-#No existe un proceso selccionado
-	return 0;
+IF area = 1 THEN #Formato Estandar - FE
+# ...
+	IF EXISTS(SELECT * FROM detalle_formato_estandar f WHERE f.idDetalle_proyecto=detalle AND f.idproceso=idProceso) THEN
+	#Si existe un proceso seleccionado como inicial
+		return 1;
+	ELSE
+	#No existe un proceso selccionado
+		return 0;
+	END IF;
+# ...
+ELSE # Ensamble - EN
+# ...
+IF EXISTS(SELECT * FROM detalle_ensamble e WHERE e.idDetalle_proyecto=detalle AND e.orden=1 AND e.idproceso=idProceso) THEN
+	#Si existe un proceso seleccionado como inicial
+		return 1;
+	ELSE
+	#No existe un proceso selccionado
+		return 0;
+	END IF;
+# ...
 END IF;
 
 END$$
@@ -2598,7 +2673,11 @@ INSERT INTO `condicion_producto` (`idCondicion`, `idProducto`, `material`, `anti
 (5, 1, 'TH', 0, 1),
 (6, 1, 'FV', 0, 0),
 (7, 1, 'FV', 1, 0),
-(8, 1, 'FV', 0, 1);
+(8, 1, 'FV', 0, 1),
+(9, 6, NULL, 0, 0),
+(10, 4, NULL, 0, 0),
+(11, 3, NULL, 0, 0),
+(12, 2, NULL, 0, 1);
 
 -- --------------------------------------------------------
 
@@ -2688,9 +2767,9 @@ INSERT INTO `detalle_ensamble` (`idDetalle_ensamble`, `tiempo_por_unidad`, `tiem
 (62, '00:00', '00:00', '0', NULL, NULL, 16, 16, 1, NULL, NULL, 0, 0, '0'),
 (63, '00:00', '1507:40', '0', '2018-12-03', NULL, 16, 17, 2, '2018-12-05 06:00:21', '2018-12-05 12:51:29', 0, 0, '0'),
 (64, '00:00', '00:00', '0', NULL, NULL, 16, 18, 1, NULL, NULL, 0, 0, '0'),
-(65, '00:00', '00:00', '0', NULL, NULL, 17, 15, 1, NULL, NULL, 0, 0, '0'),
-(66, '00:00', '00:00', '0', NULL, NULL, 17, 16, 1, NULL, NULL, 0, 0, '0'),
-(67, '00:00', '00:00', '0', NULL, NULL, 17, 17, 1, NULL, NULL, 0, 0, '0'),
+(65, '00:00', '2887:39', '5', '2019-02-23', NULL, 17, 15, 2, '2019-02-25 10:08:24', '2019-02-25 10:08:39', 0, 1, '5'),
+(66, '00:00', '00:00', '0', NULL, NULL, 17, 16, 1, NULL, NULL, 0, 0, '4'),
+(67, '00:00', '00:00', '0', NULL, NULL, 17, 17, 1, NULL, NULL, 0, 0, '1'),
 (68, '00:00', '00:00', '0', NULL, NULL, 17, 18, 1, NULL, NULL, 0, 0, '0'),
 (69, '84:47', '339:08', '4', '2018-12-14', '2018-12-17', 18, 15, 3, '2018-12-17 09:32:19', '2018-12-17 09:33:10', 0, 1, '0'),
 (70, '00:00', '00:00', '0', NULL, NULL, 18, 16, 1, NULL, NULL, 0, 0, '0'),
@@ -2969,1308 +3048,31 @@ CREATE TABLE `detalle_formato_estandar` (
 --
 
 INSERT INTO `detalle_formato_estandar` (`idDetalle_formato_estandar`, `tiempo_por_unidad`, `tiempo_total_por_proceso`, `cantidad_terminada`, `fecha_inicio`, `fecha_fin`, `idDetalle_proyecto`, `idproceso`, `estado`, `hora_ejecucion`, `hora_terminacion`, `noperarios`, `orden`, `cantidadProceso`) VALUES
-(1, '00:00', '00:00', '0', NULL, NULL, 13, 1, 1, NULL, NULL, 0, 0, '0'),
-(2, '00:00', '00:00', '0', NULL, NULL, 13, 2, 1, NULL, NULL, 0, 0, '0'),
-(3, '00:00', '00:00', '0', NULL, NULL, 13, 3, 1, NULL, NULL, 0, 0, '0'),
-(4, '00:00', '00:00', '0', NULL, NULL, 13, 4, 1, NULL, NULL, 0, 0, '0'),
-(5, '00:00', '00:00', '0', NULL, NULL, 13, 5, 1, NULL, NULL, 0, 0, '0'),
-(6, '00:00', '00:00', '0', NULL, NULL, 13, 7, 1, NULL, NULL, 0, 0, '0'),
-(7, '00:00', '00:00', '0', NULL, NULL, 13, 8, 1, NULL, NULL, 0, 0, '0'),
-(8, '00:00', '00:00', '0', NULL, NULL, 13, 10, 1, NULL, NULL, 0, 0, '0'),
-(9, '00:00', '00:00', '0', NULL, NULL, 17, 1, 1, NULL, NULL, 0, 0, '0'),
-(10, '00:00', '00:00', '0', NULL, NULL, 17, 3, 1, NULL, NULL, 0, 0, '0'),
-(11, '00:00', '00:00', '0', NULL, NULL, 17, 4, 1, NULL, NULL, 0, 0, '0'),
-(12, '00:00', '00:00', '0', NULL, NULL, 17, 5, 1, NULL, NULL, 0, 0, '0'),
-(13, '00:00', '00:00', '0', NULL, NULL, 17, 6, 1, NULL, NULL, 0, 0, '0'),
-(14, '00:00', '00:00', '0', NULL, NULL, 17, 7, 1, NULL, NULL, 0, 0, '0'),
-(15, '00:00', '00:00', '0', NULL, NULL, 17, 8, 1, NULL, NULL, 0, 0, '0'),
-(16, '00:00', '00:00', '0', NULL, NULL, 17, 9, 1, NULL, NULL, 0, 0, '0'),
-(17, '00:00', '00:00', '0', NULL, NULL, 17, 10, 1, NULL, NULL, 0, 0, '0'),
-(18, '00:00', '00:00', '0', NULL, NULL, 19, 1, 1, NULL, NULL, 0, 0, '0'),
-(19, '00:00', '00:00', '0', NULL, NULL, 19, 3, 1, NULL, NULL, 0, 0, '0'),
-(20, '00:00', '00:00', '0', NULL, NULL, 19, 4, 1, NULL, NULL, 0, 0, '0'),
-(21, '00:00', '00:00', '0', NULL, NULL, 36, 1, 1, NULL, NULL, 0, 0, '0'),
-(22, '00:00', '00:00', '0', NULL, NULL, 36, 2, 1, NULL, NULL, 0, 0, '0'),
-(23, '00:00', '00:00', '0', NULL, NULL, 36, 3, 1, NULL, NULL, 0, 0, '0'),
-(24, '00:00', '00:00', '0', NULL, NULL, 36, 4, 1, NULL, NULL, 0, 0, '0'),
-(25, '00:00', '00:00', '0', NULL, NULL, 36, 5, 1, NULL, NULL, 0, 0, '0'),
-(26, '00:00', '00:00', '0', NULL, NULL, 36, 6, 1, NULL, NULL, 0, 0, '0'),
-(27, '00:00', '00:00', '0', NULL, NULL, 36, 7, 1, NULL, NULL, 0, 0, '0'),
-(28, '00:00', '00:00', '0', NULL, NULL, 36, 8, 1, NULL, NULL, 0, 0, '0'),
-(29, '00:00', '00:00', '0', NULL, NULL, 36, 10, 1, NULL, NULL, 0, 0, '0'),
-(30, '00:00', '90:37', '0', '2019-01-28', NULL, 37, 1, 2, '2019-01-30 16:11:03', '2019-01-30 16:11:15', 0, 12, '0'),
-(31, '00:00', '00:00', '0', NULL, NULL, 37, 2, 1, NULL, NULL, 0, 0, '0'),
-(32, '00:00', '00:00', '0', NULL, NULL, 37, 3, 1, NULL, NULL, 0, 0, '0'),
-(33, '00:00', '00:00', '0', NULL, NULL, 37, 4, 1, NULL, NULL, 0, 0, '0'),
-(34, '00:00', '00:00', '0', NULL, NULL, 37, 5, 1, NULL, NULL, 0, 0, '0'),
-(35, '00:00', '00:00', '0', NULL, NULL, 37, 6, 1, NULL, NULL, 0, 0, '0'),
-(36, '00:00', '00:00', '0', NULL, NULL, 37, 7, 1, NULL, NULL, 0, 0, '0'),
-(37, '00:00', '00:00', '0', NULL, NULL, 37, 8, 1, NULL, NULL, 0, 0, '0'),
-(38, '00:00', '00:00', '0', NULL, NULL, 37, 9, 1, NULL, NULL, 0, 0, '0'),
-(39, '00:00', '00:00', '0', NULL, NULL, 37, 10, 1, NULL, NULL, 0, 0, '0'),
-(40, '00:00', '00:00', '0', NULL, NULL, 38, 1, 1, NULL, NULL, 0, 0, '0'),
-(41, '00:00', '00:00', '0', NULL, NULL, 38, 2, 1, NULL, NULL, 0, 0, '0'),
-(42, '00:00', '00:00', '0', NULL, NULL, 38, 3, 1, NULL, NULL, 0, 0, '0'),
-(43, '00:00', '00:00', '0', NULL, NULL, 38, 4, 1, NULL, NULL, 0, 0, '0'),
-(44, '00:00', '00:00', '0', NULL, NULL, 38, 5, 1, NULL, NULL, 0, 0, '0'),
-(45, '00:00', '00:00', '0', NULL, NULL, 38, 6, 1, NULL, NULL, 0, 0, '0'),
-(46, '00:00', '00:00', '0', NULL, NULL, 38, 7, 1, NULL, NULL, 0, 0, '0'),
-(47, '00:00', '00:00', '0', NULL, NULL, 38, 8, 1, NULL, NULL, 0, 0, '0'),
-(48, '00:00', '00:00', '0', NULL, NULL, 38, 10, 1, NULL, NULL, 0, 0, '0'),
-(49, '00:00', '00:00', '0', NULL, NULL, 39, 1, 1, NULL, NULL, 0, 0, '0'),
-(50, '00:00', '00:00', '0', NULL, NULL, 39, 2, 1, NULL, NULL, 0, 0, '0'),
-(51, '00:00', '00:00', '0', NULL, NULL, 39, 3, 1, NULL, NULL, 0, 0, '0'),
-(52, '00:00', '00:00', '0', NULL, NULL, 39, 4, 1, NULL, NULL, 0, 0, '0'),
-(53, '00:00', '00:00', '0', NULL, NULL, 39, 5, 1, NULL, NULL, 0, 0, '0'),
-(54, '00:00', '00:00', '0', NULL, NULL, 39, 6, 1, NULL, NULL, 0, 0, '0'),
-(55, '00:00', '00:00', '0', NULL, NULL, 39, 7, 1, NULL, NULL, 0, 0, '0'),
-(56, '00:00', '00:00', '0', NULL, NULL, 39, 8, 1, NULL, NULL, 0, 0, '0'),
-(57, '00:00', '00:00', '0', NULL, NULL, 39, 10, 1, NULL, NULL, 0, 0, '0'),
-(61, '00:00', '00:00', '0', NULL, NULL, 44, 1, 1, NULL, NULL, 0, 0, '0'),
-(62, '00:00', '00:00', '0', NULL, NULL, 44, 3, 1, NULL, NULL, 0, 0, '0'),
-(63, '00:00', '00:00', '0', NULL, NULL, 44, 4, 1, NULL, NULL, 0, 0, '0'),
-(64, '00:00', '00:00', '0', NULL, NULL, 44, 5, 1, NULL, NULL, 0, 0, '0'),
-(65, '00:00', '00:00', '0', NULL, NULL, 44, 6, 1, NULL, NULL, 0, 0, '0'),
-(66, '00:00', '00:00', '0', NULL, NULL, 44, 7, 1, NULL, NULL, 0, 0, '0'),
-(67, '00:00', '00:00', '0', NULL, NULL, 44, 8, 1, NULL, NULL, 0, 0, '0'),
-(68, '00:00', '00:00', '0', NULL, NULL, 44, 10, 1, NULL, NULL, 0, 0, '0'),
-(69, '00:00', '00:00', '0', NULL, NULL, 45, 1, 1, NULL, NULL, 0, 0, '0'),
-(70, '00:00', '00:00', '0', NULL, NULL, 45, 3, 1, NULL, NULL, 0, 0, '0'),
-(71, '00:00', '00:00', '0', NULL, NULL, 45, 4, 1, NULL, NULL, 0, 0, '0'),
-(72, '00:00', '00:00', '0', NULL, NULL, 45, 5, 1, NULL, NULL, 0, 0, '0'),
-(73, '00:00', '00:00', '0', NULL, NULL, 45, 6, 1, NULL, NULL, 0, 0, '0'),
-(74, '00:00', '00:00', '0', NULL, NULL, 45, 7, 1, NULL, NULL, 0, 0, '0'),
-(75, '00:00', '00:00', '0', NULL, NULL, 45, 8, 1, NULL, NULL, 0, 0, '0'),
-(76, '00:00', '00:00', '0', NULL, NULL, 45, 10, 1, NULL, NULL, 0, 0, '0'),
-(101, '00:00', '00:00', '0', NULL, NULL, 84, 1, 1, NULL, NULL, 0, 0, '0'),
-(102, '00:00', '00:00', '0', NULL, NULL, 84, 2, 1, NULL, NULL, 0, 0, '0'),
-(103, '00:00', '00:00', '0', NULL, NULL, 84, 3, 1, NULL, NULL, 0, 0, '0'),
-(104, '00:00', '00:00', '0', NULL, NULL, 84, 4, 1, NULL, NULL, 0, 0, '0'),
-(105, '00:00', '00:00', '0', NULL, NULL, 84, 5, 1, NULL, NULL, 0, 0, '0'),
-(106, '00:00', '00:00', '0', NULL, NULL, 84, 6, 1, NULL, NULL, 0, 0, '0'),
-(107, '00:00', '00:00', '0', NULL, NULL, 84, 7, 1, NULL, NULL, 0, 0, '0'),
-(108, '00:00', '00:00', '0', NULL, NULL, 84, 8, 1, NULL, NULL, 0, 0, '0'),
-(109, '00:00', '00:00', '0', NULL, NULL, 84, 9, 1, NULL, NULL, 0, 0, '0'),
-(110, '00:00', '00:00', '0', NULL, NULL, 84, 10, 1, NULL, NULL, 0, 0, '0'),
-(111, '00:00', '00:00', '0', NULL, NULL, 85, 1, 1, NULL, NULL, 0, 0, '0'),
-(112, '00:00', '00:00', '0', NULL, NULL, 85, 2, 1, NULL, NULL, 0, 0, '0'),
-(113, '00:00', '00:00', '0', NULL, NULL, 85, 3, 1, NULL, NULL, 0, 0, '0'),
-(114, '00:00', '00:00', '0', NULL, NULL, 85, 4, 1, NULL, NULL, 0, 0, '0'),
-(115, '00:00', '00:00', '0', NULL, NULL, 85, 5, 1, NULL, NULL, 0, 0, '0'),
-(116, '00:00', '00:00', '0', NULL, NULL, 85, 6, 1, NULL, NULL, 0, 0, '0'),
-(117, '00:00', '00:00', '0', NULL, NULL, 85, 7, 1, NULL, NULL, 0, 0, '0'),
-(118, '00:00', '00:00', '0', NULL, NULL, 85, 8, 1, NULL, NULL, 0, 0, '0'),
-(119, '00:00', '00:00', '0', NULL, NULL, 85, 9, 1, NULL, NULL, 0, 0, '0'),
-(120, '00:00', '00:00', '0', NULL, NULL, 85, 10, 1, NULL, NULL, 0, 0, '0'),
-(121, '00:00', '00:00', '0', NULL, NULL, 87, 1, 1, NULL, NULL, 0, 0, '0'),
-(122, '00:00', '00:00', '0', NULL, NULL, 87, 2, 1, NULL, NULL, 0, 0, '0'),
-(123, '00:00', '00:00', '0', NULL, NULL, 87, 3, 1, NULL, NULL, 0, 0, '0'),
-(124, '00:00', '00:00', '0', NULL, NULL, 87, 4, 1, NULL, NULL, 0, 0, '0'),
-(125, '00:00', '00:00', '0', NULL, NULL, 87, 5, 1, NULL, NULL, 0, 0, '0'),
-(126, '00:00', '00:00', '0', NULL, NULL, 87, 6, 1, NULL, NULL, 0, 0, '0'),
-(127, '00:00', '00:00', '0', NULL, NULL, 87, 7, 1, NULL, NULL, 0, 0, '0'),
-(128, '00:00', '00:00', '0', NULL, NULL, 87, 8, 1, NULL, NULL, 0, 0, '0'),
-(129, '00:00', '00:00', '0', NULL, NULL, 87, 9, 1, NULL, NULL, 0, 0, '0'),
-(130, '00:00', '00:00', '0', NULL, NULL, 87, 10, 1, NULL, NULL, 0, 0, '0'),
-(131, '00:00', '00:00', '0', NULL, NULL, 89, 1, 1, NULL, NULL, 0, 0, '0'),
-(132, '00:00', '00:00', '0', NULL, NULL, 89, 3, 1, NULL, NULL, 0, 0, '0'),
-(133, '00:00', '00:00', '0', NULL, NULL, 89, 4, 1, NULL, NULL, 0, 0, '0'),
-(134, '00:00', '00:00', '0', NULL, NULL, 89, 5, 1, NULL, NULL, 0, 0, '0'),
-(135, '00:00', '00:00', '0', NULL, NULL, 89, 6, 1, NULL, NULL, 0, 0, '0'),
-(136, '00:00', '00:00', '0', NULL, NULL, 89, 7, 1, NULL, NULL, 0, 0, '0'),
-(137, '00:00', '00:00', '0', NULL, NULL, 89, 8, 1, NULL, NULL, 0, 0, '0'),
-(138, '00:00', '00:00', '0', NULL, NULL, 89, 10, 1, NULL, NULL, 0, 0, '0'),
-(139, '00:00', '00:00', '0', NULL, NULL, 90, 1, 1, NULL, NULL, 0, 0, '0'),
-(140, '00:00', '00:00', '0', NULL, NULL, 90, 2, 1, NULL, NULL, 0, 0, '0'),
-(141, '00:00', '00:00', '0', NULL, NULL, 90, 3, 1, NULL, NULL, 0, 0, '0'),
-(142, '00:00', '00:00', '0', NULL, NULL, 90, 4, 1, NULL, NULL, 0, 0, '0'),
-(143, '00:00', '00:00', '0', NULL, NULL, 90, 5, 1, NULL, NULL, 0, 0, '0'),
-(144, '00:00', '00:00', '0', NULL, NULL, 90, 6, 1, NULL, NULL, 0, 0, '0'),
-(145, '00:00', '00:00', '0', NULL, NULL, 90, 7, 1, NULL, NULL, 0, 0, '0'),
-(146, '00:00', '00:00', '0', NULL, NULL, 90, 8, 1, NULL, NULL, 0, 0, '0'),
-(147, '00:00', '00:00', '0', NULL, NULL, 90, 10, 1, NULL, NULL, 0, 0, '0'),
-(148, '28:02', '140:14', '5', '2019-01-29', '2019-01-29', 91, 1, 3, '2019-01-29 10:41:41', '2019-01-29 13:01:55', 0, 0, '0'),
-(149, '100:47', '503:56', '5', '2019-01-30', '2019-01-30', 91, 2, 3, '2019-01-30 06:15:55', '2019-01-30 14:39:51', 0, 0, '0'),
-(150, '02:28', '12:21', '5', '2019-01-31', '2019-01-31', 91, 3, 3, '2019-01-31 09:03:52', '2019-01-31 09:16:13', 0, 0, '0'),
-(151, '16:48', '84:04', '5', '2019-01-31', '2019-01-31', 91, 4, 3, '2019-01-31 10:02:11', '2019-01-31 11:26:15', 0, 0, '0'),
-(152, '00:00', '00:00', '0', NULL, NULL, 91, 5, 1, NULL, NULL, 0, 0, '0'),
-(153, '12:13', '61:06', '5', '2019-01-31', '2019-01-31', 91, 6, 3, '2019-01-31 16:25:31', '2019-01-31 17:26:37', 0, 0, '0'),
-(154, '00:00', '00:00', '0', NULL, NULL, 91, 7, 1, NULL, NULL, 0, 0, '0'),
-(155, '00:00', '00:00', '0', NULL, NULL, 91, 8, 1, NULL, NULL, 0, 0, '0'),
-(156, '00:00', '00:00', '0', NULL, NULL, 91, 10, 1, NULL, NULL, 0, 0, '0'),
-(157, '23:39', '141:57', '6', '2019-01-29', '2019-01-29', 92, 1, 3, '2019-01-29 13:25:48', '2019-01-29 15:47:24', 0, 0, '0'),
-(158, '138:36', '831:41', '6', '2019-01-30', '2019-01-31', 92, 2, 3, '2019-01-31 06:14:27', '2019-01-31 06:14:47', 0, 0, '0'),
-(159, '00:00', '44:56', '0', '2019-01-31', NULL, 92, 3, 4, '2019-01-31 14:59:22', NULL, 1, 6, '0'),
-(160, '00:00', '00:00', '0', NULL, NULL, 92, 4, 1, NULL, NULL, 0, 0, '0'),
-(161, '00:00', '00:00', '0', NULL, NULL, 92, 5, 1, NULL, NULL, 0, 0, '0'),
-(162, '00:00', '93:32', '0', '2019-02-01', NULL, 92, 6, 4, '2019-02-04 07:10:42', NULL, 1, 6, '0'),
-(163, '00:02', '00:15', '6', '2019-02-04', '2019-02-04', 92, 7, 3, '2019-02-04 08:07:28', '2019-02-04 08:07:43', 0, 0, '0'),
-(164, '00:01', '00:11', '6', '2019-02-04', '2019-02-04', 92, 8, 3, '2019-02-04 08:08:05', '2019-02-04 08:08:16', 0, 0, '0'),
-(165, '00:00', '00:00', '0', NULL, NULL, 92, 10, 1, NULL, NULL, 0, 0, '0'),
-(166, '03:10', '15:51', '5', '2019-01-29', '2019-01-29', 93, 1, 3, '2019-01-29 14:19:39', '2019-01-29 14:35:30', 0, 0, '0'),
-(167, '100:57', '504:46', '5', '2019-01-30', '2019-01-30', 93, 2, 3, '2019-01-30 06:15:31', '2019-01-30 14:40:17', 0, 0, '0'),
-(168, '07:02', '35:11', '5', '2019-01-31', '2019-01-31', 93, 3, 3, '2019-01-31 10:14:22', '2019-01-31 10:14:58', 0, 0, '0'),
-(169, '00:02', '00:14', '5', '2019-01-31', '2019-01-31', 93, 4, 3, '2019-01-31 11:50:07', '2019-01-31 11:50:21', 0, 0, '0'),
-(170, '00:00', '00:00', '0', NULL, NULL, 93, 5, 1, NULL, NULL, 0, 0, '0'),
-(171, '14:52', '74:24', '5', '2019-01-31', '2019-01-31', 93, 6, 3, '2019-01-31 16:11:56', '2019-01-31 17:26:20', 0, 0, '0'),
-(172, '00:05', '00:25', '5', '2019-02-01', '2019-02-01', 93, 7, 3, '2019-02-01 06:41:06', '2019-02-01 06:41:31', 0, 0, '0'),
-(173, '00:50', '04:12', '5', '2019-02-01', '2019-02-01', 93, 8, 3, '2019-02-01 06:42:02', '2019-02-01 06:46:14', 0, 0, '0'),
-(174, '00:00', '00:00', '0', NULL, NULL, 93, 10, 1, NULL, NULL, 0, 0, '0'),
-(178, '00:00', '00:00', '0', NULL, NULL, 98, 1, 1, NULL, NULL, 0, 0, '0'),
-(179, '00:00', '00:00', '0', NULL, NULL, 98, 2, 1, NULL, NULL, 0, 0, '0'),
-(180, '00:00', '00:00', '0', NULL, NULL, 98, 3, 1, NULL, NULL, 0, 0, '0'),
-(181, '00:00', '00:00', '0', NULL, NULL, 98, 4, 1, NULL, NULL, 0, 0, '0'),
-(182, '00:00', '00:00', '0', NULL, NULL, 98, 5, 1, NULL, NULL, 0, 0, '0'),
-(183, '00:00', '00:00', '0', NULL, NULL, 98, 6, 1, NULL, NULL, 0, 0, '0'),
-(184, '00:00', '00:00', '0', NULL, NULL, 98, 7, 1, NULL, NULL, 0, 0, '0'),
-(185, '00:00', '00:00', '0', NULL, NULL, 98, 8, 1, NULL, NULL, 0, 0, '0'),
-(186, '00:00', '00:00', '0', NULL, NULL, 98, 10, 1, NULL, NULL, 0, 0, '0'),
-(190, '01:01', '102:00', '100', '2019-01-30', '2019-01-30', 103, 1, 3, '2019-01-30 07:59:42', '2019-01-30 09:41:42', 0, 0, '0'),
-(191, '15:20', '1534:03', '100', '2019-01-31', '2019-02-01', 103, 2, 3, '2019-01-31 08:28:08', '2019-02-01 10:02:11', 0, 0, '0'),
-(192, '00:00', '153:39', '0', '2019-02-01', NULL, 103, 3, 2, '2019-02-01 13:57:04', '2019-02-01 14:26:52', 0, 100, '0'),
-(193, '00:00', '00:00', '0', NULL, NULL, 103, 4, 1, NULL, NULL, 0, 0, '0'),
-(194, '00:00', '00:00', '0', NULL, NULL, 103, 5, 1, NULL, NULL, 0, 0, '0'),
-(195, '00:00', '148:23', '0', '2019-02-04', NULL, 103, 6, 2, '2019-02-04 14:04:00', '2019-02-04 16:32:23', 0, 100, '0'),
-(196, '00:00', '00:00', '0', NULL, NULL, 103, 7, 1, NULL, NULL, 0, 0, '0'),
-(197, '00:00', '00:00', '0', NULL, NULL, 103, 8, 1, NULL, NULL, 0, 0, '0'),
-(198, '00:00', '00:00', '0', NULL, NULL, 103, 10, 1, NULL, NULL, 0, 0, '0'),
-(199, '00:22', '38:07', '100', '2019-01-29', '2019-01-29', 104, 1, 3, '2019-01-29 16:16:29', '2019-01-29 16:27:17', 0, 0, '0'),
-(200, '00:00', '1088:24', '0', '2019-02-01', NULL, 104, 2, 2, '2019-02-04 06:47:17', '2019-02-04 16:02:14', 0, 100, '0'),
-(201, '00:00', '261:25', '0', '2019-02-04', NULL, 104, 3, 2, '2019-02-04 11:42:00', '2019-02-04 15:09:57', 0, 100, '0'),
-(202, '00:00', '00:00', '0', NULL, NULL, 104, 4, 1, NULL, NULL, 0, 0, '0'),
-(203, '00:00', '00:00', '0', NULL, NULL, 104, 5, 1, NULL, NULL, 0, 0, '0'),
-(204, '14:43', '1472:56', '100', '2019-02-06', '2019-02-08', 104, 6, 3, '2019-02-07 08:09:24', '2019-02-08 07:37:54', 0, 0, '0'),
-(205, '00:00', '00:00', '0', NULL, NULL, 104, 7, 1, NULL, NULL, 0, 0, '0'),
-(206, '00:00', '00:00', '0', NULL, NULL, 104, 8, 1, NULL, NULL, 0, 0, '0'),
-(207, '00:00', '00:00', '0', NULL, NULL, 104, 10, 1, NULL, NULL, 0, 0, '0'),
-(208, '03:49', '76:31', '20', '2019-01-30', '2019-01-30', 105, 1, 3, '2019-01-30 14:55:33', '2019-01-30 16:12:04', 0, 0, '0'),
-(209, '00:00', '50:42', '0', '2019-01-30', NULL, 105, 3, 2, '2019-01-30 15:20:27', '2019-01-30 16:11:09', 0, 20, '0'),
-(210, '00:00', '00:18', '20', '2019-01-31', '2019-01-31', 105, 4, 3, '2019-01-31 09:00:46', '2019-01-31 09:01:04', 0, 0, '0'),
-(211, '00:00', '00:00', '0', NULL, NULL, 105, 5, 1, NULL, NULL, 0, 0, '0'),
-(212, '03:14', '64:52', '20', '2019-01-31', '2019-01-31', 105, 6, 3, '2019-01-31 10:10:12', '2019-01-31 11:15:04', 0, 0, '0'),
-(213, '00:00', '00:00', '0', NULL, NULL, 105, 7, 1, NULL, NULL, 0, 0, '0'),
-(214, '00:00', '00:00', '0', NULL, NULL, 105, 8, 1, NULL, NULL, 0, 0, '0'),
-(215, '00:00', '00:00', '0', NULL, NULL, 105, 10, 1, NULL, NULL, 0, 0, '0'),
-(216, '07:45', '15:30', '2', '2019-01-29', '2019-01-29', 106, 1, 3, '2019-01-29 14:19:47', '2019-01-29 14:35:17', 0, 0, '0'),
-(217, '250:31', '501:03', '2', '2019-01-30', '2019-01-30', 106, 2, 3, '2019-01-30 06:15:17', '2019-01-30 14:36:20', 0, 0, '0'),
-(218, '00:03', '00:07', '2', '2019-01-31', '2019-01-31', 106, 3, 3, '2019-01-31 06:23:36', '2019-01-31 06:23:43', 0, 0, '0'),
-(219, '17:47', '35:34', '2', '2019-01-30', '2019-01-30', 106, 4, 3, '2019-01-30 14:12:47', '2019-01-30 14:48:21', 0, 0, '0'),
-(220, '00:07', '00:15', '2', '2019-01-30', '2019-01-30', 106, 5, 3, '2019-01-30 15:22:18', '2019-01-30 15:22:33', 0, 0, '0'),
-(221, '29:09', '58:19', '2', '2019-01-31', '2019-01-31', 106, 6, 3, '2019-01-31 10:15:57', '2019-01-31 11:14:16', 0, 0, '0'),
-(222, '00:00', '00:00', '0', NULL, NULL, 106, 7, 1, NULL, NULL, 0, 0, '0'),
-(223, '00:00', '00:00', '0', NULL, NULL, 106, 8, 1, NULL, NULL, 0, 0, '0'),
-(224, '00:00', '00:00', '0', NULL, NULL, 106, 10, 1, NULL, NULL, 0, 0, '0'),
-(225, '00:00', '00:00', '0', NULL, NULL, 108, 1, 1, NULL, NULL, 0, 0, '0'),
-(226, '00:00', '00:00', '0', NULL, NULL, 108, 2, 1, NULL, NULL, 0, 0, '0'),
-(227, '00:00', '00:00', '0', NULL, NULL, 108, 3, 1, NULL, NULL, 0, 0, '0'),
-(228, '00:00', '00:00', '0', NULL, NULL, 108, 4, 1, NULL, NULL, 0, 0, '0'),
-(229, '00:00', '00:00', '0', NULL, NULL, 108, 5, 1, NULL, NULL, 0, 0, '0'),
-(230, '00:00', '00:00', '0', NULL, NULL, 108, 6, 1, NULL, NULL, 0, 0, '0'),
-(231, '00:00', '00:00', '0', NULL, NULL, 108, 7, 1, NULL, NULL, 0, 0, '0'),
-(232, '00:00', '00:00', '0', NULL, NULL, 108, 8, 1, NULL, NULL, 0, 0, '0'),
-(233, '00:00', '00:00', '0', NULL, NULL, 108, 10, 1, NULL, NULL, 0, 0, '0'),
-(234, '00:00', '00:00', '0', NULL, NULL, 109, 1, 1, NULL, NULL, 0, 0, '0'),
-(235, '00:00', '00:00', '0', NULL, NULL, 109, 2, 1, NULL, NULL, 0, 0, '0'),
-(236, '00:00', '00:00', '0', NULL, NULL, 109, 3, 1, NULL, NULL, 0, 0, '0'),
-(237, '00:00', '00:00', '0', NULL, NULL, 109, 4, 1, NULL, NULL, 0, 0, '0'),
-(238, '00:00', '00:00', '0', NULL, NULL, 109, 5, 1, NULL, NULL, 0, 0, '0'),
-(239, '00:00', '00:00', '0', NULL, NULL, 109, 6, 1, NULL, NULL, 0, 0, '0'),
-(240, '00:00', '00:00', '0', NULL, NULL, 109, 7, 1, NULL, NULL, 0, 0, '0'),
-(241, '00:00', '00:00', '0', NULL, NULL, 109, 8, 1, NULL, NULL, 0, 0, '0'),
-(242, '00:00', '00:00', '0', NULL, NULL, 109, 10, 1, NULL, NULL, 0, 0, '0'),
-(243, '02:44', '27:29', '10', '2019-02-04', '2019-02-04', 110, 1, 3, '2019-02-04 09:44:36', '2019-02-04 10:12:05', 0, 0, '0'),
-(244, '00:00', '22:23', '0', '2019-02-04', NULL, 110, 3, 2, '2019-02-04 10:47:10', '2019-02-04 11:09:33', 0, 10, '0'),
-(245, '00:00', '00:00', '0', NULL, NULL, 110, 4, 1, NULL, NULL, 0, 0, '0'),
-(246, '00:00', '00:00', '0', NULL, NULL, 110, 5, 1, NULL, NULL, 0, 0, '0'),
-(247, '00:00', '00:00', '0', NULL, NULL, 110, 6, 1, NULL, NULL, 0, 0, '0'),
-(248, '00:00', '00:00', '0', NULL, NULL, 110, 7, 1, NULL, NULL, 0, 0, '0'),
-(249, '00:00', '00:00', '0', NULL, NULL, 110, 8, 1, NULL, NULL, 0, 0, '0'),
-(250, '00:00', '00:00', '0', NULL, NULL, 110, 10, 1, NULL, NULL, 0, 0, '0'),
-(251, '126:31', '1265:12', '10', '2019-02-04', '2019-02-05', 111, 1, 3, '2019-02-04 09:44:29', '2019-02-05 06:49:41', 0, 0, '0'),
-(252, '00:00', '23:53', '0', '2019-02-04', NULL, 111, 3, 2, '2019-02-04 10:47:01', '2019-02-04 11:10:54', 0, 10, '0'),
-(253, '02:31', '25:12', '10', '2019-02-05', '2019-02-05', 111, 4, 3, '2019-02-05 06:48:50', '2019-02-05 07:14:02', 0, 0, '0'),
-(254, '00:03', '00:32', '10', '2019-02-05', '2019-02-05', 111, 5, 3, '2019-02-05 07:17:09', '2019-02-05 07:17:41', 0, 0, '0'),
-(255, '00:00', '00:00', '0', NULL, NULL, 111, 6, 1, NULL, NULL, 0, 0, '0'),
-(256, '00:00', '00:00', '0', NULL, NULL, 111, 7, 1, NULL, NULL, 0, 0, '0'),
-(257, '00:00', '00:00', '0', NULL, NULL, 111, 8, 1, NULL, NULL, 0, 0, '0'),
-(258, '00:00', '00:00', '0', NULL, NULL, 111, 10, 1, NULL, NULL, 0, 0, '0'),
-(259, '04:34', '18:19', '4', '2019-01-31', '2019-01-31', 112, 1, 3, '2019-01-31 09:15:43', '2019-01-31 09:34:02', 0, 0, '0'),
-(260, '61:21', '245:24', '4', '2019-01-31', '2019-01-31', 112, 2, 3, '2019-01-31 09:46:25', '2019-01-31 13:51:49', 0, 0, '0'),
-(261, '00:00', '21:42', '0', '2019-01-31', NULL, 112, 3, 4, '2019-01-31 14:43:37', NULL, 1, 4, '0'),
-(262, '00:00', '00:00', '0', NULL, NULL, 112, 4, 1, NULL, NULL, 0, 0, '0'),
-(263, '05:41', '22:47', '4', '2019-02-01', '2019-02-01', 112, 5, 3, '2019-02-01 06:19:20', '2019-02-01 06:42:07', 0, 0, '0'),
-(264, '14:15', '57:03', '4', '2019-02-01', '2019-02-01', 112, 6, 3, '2019-02-01 10:41:08', '2019-02-01 10:44:57', 0, 0, '0'),
-(265, '00:00', '00:00', '0', NULL, NULL, 112, 7, 1, NULL, NULL, 0, 0, '0'),
-(266, '00:00', '00:00', '0', NULL, NULL, 112, 8, 1, NULL, NULL, 0, 0, '0'),
-(267, '00:00', '00:00', '0', NULL, NULL, 112, 10, 1, NULL, NULL, 0, 0, '0'),
-(268, '174:05', '174:05', '1', '2019-01-30', '2019-01-30', 113, 1, 3, '2019-01-30 12:31:41', '2019-01-30 12:32:01', 0, 0, '0'),
-(269, '836:58', '836:58', '1', '2019-01-30', '2019-01-31', 113, 2, 3, '2019-01-30 16:18:25', '2019-01-31 06:15:23', 0, 0, '0'),
-(270, '00:00', '18:52', '0', '2019-01-31', NULL, 113, 3, 4, '2019-01-31 09:35:02', NULL, 1, 1, '0'),
-(271, '96:37', '96:37', '1', '2019-01-31', '2019-01-31', 113, 4, 3, '2019-01-31 09:50:21', '2019-01-31 11:26:58', 0, 0, '0'),
-(272, '09:51', '09:51', '1', '2019-01-31', '2019-01-31', 113, 5, 3, '2019-01-31 13:39:15', '2019-01-31 13:49:06', 0, 0, '0'),
-(273, '42:47', '42:47', '1', '2019-01-31', '2019-01-31', 113, 6, 3, '2019-01-31 15:28:32', '2019-01-31 16:11:19', 0, 0, '0'),
-(274, '00:00', '00:00', '0', NULL, NULL, 113, 7, 1, NULL, NULL, 0, 0, '0'),
-(275, '00:00', '00:00', '0', NULL, NULL, 113, 8, 1, NULL, NULL, 0, 0, '0'),
-(276, '00:00', '00:00', '0', NULL, NULL, 113, 10, 1, NULL, NULL, 0, 0, '0'),
-(277, '00:27', '04:38', '10', '2019-01-31', '2019-01-31', 114, 1, 3, '2019-01-31 10:12:28', '2019-01-31 10:17:06', 0, 0, '0'),
-(278, '02:37', '26:14', '10', '2019-01-31', '2019-01-31', 114, 3, 3, '2019-01-31 11:12:32', '2019-01-31 11:27:33', 0, 0, '0'),
-(279, '00:00', '81:59', '0', '2019-01-31', NULL, 114, 4, 2, '2019-01-31 11:29:20', '2019-01-31 12:51:19', 0, 10, '0'),
-(280, '00:00', '00:00', '0', NULL, NULL, 114, 5, 1, NULL, NULL, 0, 0, '0'),
-(281, '04:12', '42:00', '10', '2019-02-01', '2019-02-01', 114, 6, 3, '2019-02-01 10:34:21', '2019-02-01 11:08:29', 0, 0, '0'),
-(282, '00:00', '00:00', '0', NULL, NULL, 114, 7, 1, NULL, NULL, 0, 0, '0'),
-(283, '00:00', '00:00', '0', NULL, NULL, 114, 8, 1, NULL, NULL, 0, 0, '0'),
-(284, '00:00', '00:00', '0', NULL, NULL, 114, 10, 1, NULL, NULL, 0, 0, '0'),
-(285, '02:35', '25:52', '10', '2019-01-31', '2019-01-31', 115, 1, 3, '2019-01-31 09:42:26', '2019-01-31 10:08:18', 0, 0, '0'),
-(286, '00:00', '00:00', '0', '2019-02-01', NULL, 115, 2, 4, '2019-02-01 10:28:34', NULL, 1, 0, '0'),
-(287, '01:36', '16:07', '10', '2019-02-04', '2019-02-04', 115, 3, 3, '2019-02-04 07:47:27', '2019-02-04 08:03:34', 0, 0, '0'),
-(288, '00:00', '00:00', '0', NULL, NULL, 115, 4, 1, NULL, NULL, 0, 0, '0'),
-(289, '00:00', '00:00', '0', NULL, NULL, 115, 5, 1, NULL, NULL, 0, 0, '0'),
-(290, '00:00', '00:00', '0', NULL, NULL, 115, 6, 1, NULL, NULL, 0, 0, '0'),
-(291, '00:00', '00:00', '0', NULL, NULL, 115, 7, 1, NULL, NULL, 0, 0, '0'),
-(292, '00:00', '00:00', '0', NULL, NULL, 115, 8, 1, NULL, NULL, 0, 0, '0'),
-(293, '00:00', '00:00', '0', NULL, NULL, 115, 10, 1, NULL, NULL, 0, 0, '0'),
-(294, '00:00', '00:00', '0', NULL, NULL, 116, 1, 1, NULL, NULL, 0, 0, '0'),
-(295, '00:24', '04:08', '10', '2019-02-06', '2019-02-06', 116, 3, 3, '2019-02-06 06:26:15', '2019-02-06 06:30:23', 0, 0, '0'),
-(296, '12:49', '128:12', '10', '2019-02-06', '2019-02-06', 116, 4, 3, '2019-02-06 07:09:05', '2019-02-06 09:17:17', 0, 0, '0'),
-(297, '00:15', '02:37', '10', '2019-02-06', '2019-02-06', 116, 5, 3, '2019-02-06 09:33:18', '2019-02-06 09:35:55', 0, 0, '0'),
-(298, '05:53', '58:59', '10', '2019-02-06', '2019-02-06', 116, 6, 3, '2019-02-06 11:26:50', '2019-02-06 12:25:49', 0, 0, '0'),
-(299, '00:00', '00:00', '0', NULL, NULL, 116, 7, 1, NULL, NULL, 0, 0, '0'),
-(300, '00:00', '00:00', '0', NULL, NULL, 116, 8, 1, NULL, NULL, 0, 0, '0'),
-(301, '00:00', '00:00', '0', NULL, NULL, 116, 10, 1, NULL, NULL, 0, 0, '0'),
-(302, '87:34', '875:49', '10', '2019-02-04', '2019-02-05', 117, 1, 3, '2019-02-04 16:11:42', '2019-02-05 06:47:31', 0, 0, '0'),
-(303, '00:00', '7440:14', '2', '2019-02-06', NULL, 117, 2, 2, '2019-02-06 10:20:14', '2019-02-11 14:20:28', 0, 8, '0'),
-(304, '05:53', '58:51', '10', '2019-02-06', '2019-02-06', 117, 3, 3, '2019-02-06 13:28:59', '2019-02-06 13:45:52', 0, 0, '0'),
-(305, '00:00', '00:00', '0', NULL, NULL, 117, 4, 1, NULL, NULL, 0, 0, '0'),
-(306, '00:00', '00:00', '0', NULL, NULL, 117, 5, 1, NULL, NULL, 0, 0, '0'),
-(307, '08:01', '80:13', '10', '2019-02-07', '2019-02-07', 117, 6, 3, '2019-02-07 15:08:17', '2019-02-07 15:40:48', 0, 0, '0'),
-(308, '00:00', '00:00', '0', NULL, NULL, 117, 7, 1, NULL, NULL, 0, 0, '0'),
-(309, '00:00', '00:00', '0', NULL, NULL, 117, 8, 1, NULL, NULL, 0, 0, '0'),
-(310, '00:00', '00:00', '0', NULL, NULL, 117, 10, 1, NULL, NULL, 0, 0, '0'),
-(311, '00:00', '00:00', '0', NULL, NULL, 118, 1, 1, NULL, NULL, 0, 0, '0'),
-(312, '01:14', '12:24', '10', '2019-02-06', '2019-02-06', 118, 3, 3, '2019-02-06 06:25:52', '2019-02-06 06:38:16', 0, 0, '0'),
-(313, '13:42', '137:05', '10', '2019-02-06', '2019-02-06', 118, 4, 3, '2019-02-06 06:59:36', '2019-02-06 09:16:41', 0, 0, '0'),
-(314, '00:25', '04:19', '10', '2019-02-06', '2019-02-06', 118, 5, 3, '2019-02-06 09:28:03', '2019-02-06 09:32:22', 0, 0, '0'),
-(315, '05:59', '59:57', '10', '2019-02-06', '2019-02-06', 118, 6, 3, '2019-02-06 11:27:07', '2019-02-06 12:27:04', 0, 0, '0'),
-(316, '00:00', '00:00', '0', NULL, NULL, 118, 7, 1, NULL, NULL, 0, 0, '0'),
-(317, '00:00', '00:00', '0', NULL, NULL, 118, 8, 1, NULL, NULL, 0, 0, '0'),
-(318, '00:00', '00:00', '0', NULL, NULL, 118, 10, 1, NULL, NULL, 0, 0, '0'),
-(319, '00:00', '00:00', '0', NULL, NULL, 119, 1, 1, NULL, NULL, 0, 0, '0'),
-(320, '00:00', '00:00', '0', '2019-02-06', NULL, 119, 3, 4, '2019-02-06 06:38:43', NULL, 1, 10, '0'),
-(321, '10:58', '109:46', '10', '2019-02-06', '2019-02-06', 119, 4, 3, '2019-02-06 07:27:59', '2019-02-06 09:17:45', 0, 0, '0'),
-(322, '01:01', '10:10', '10', '2019-02-06', '2019-02-06', 119, 5, 3, '2019-02-06 09:36:59', '2019-02-06 09:47:09', 0, 0, '0'),
-(323, '09:39', '96:31', '10', '2019-02-06', '2019-02-06', 119, 6, 3, '2019-02-06 13:11:55', '2019-02-06 13:34:30', 0, 0, '0'),
-(324, '00:00', '00:00', '0', NULL, NULL, 119, 7, 1, NULL, NULL, 0, 0, '0'),
-(325, '00:00', '00:00', '0', NULL, NULL, 119, 8, 1, NULL, NULL, 0, 0, '0'),
-(326, '00:00', '00:00', '0', NULL, NULL, 119, 10, 1, NULL, NULL, 0, 0, '0'),
-(327, '3353:5', '6707:47', '2', '2019-01-31', '2019-02-05', 120, 1, 3, '2019-01-31 15:30:28', '2019-02-05 07:18:15', 0, 0, '0'),
-(328, '158:52', '317:45', '2', '2019-02-01', '2019-02-01', 120, 2, 3, '2019-02-01 07:39:44', '2019-02-01 12:57:29', 0, 0, '0'),
-(329, '03:38', '07:17', '2', '2019-02-01', '2019-02-01', 120, 3, 3, '2019-02-01 15:45:00', '2019-02-01 15:52:17', 0, 0, '0'),
-(330, '00:00', '00:00', '0', NULL, NULL, 120, 4, 1, NULL, NULL, 0, 0, '0'),
-(331, '00:00', '00:00', '0', NULL, NULL, 120, 5, 1, NULL, NULL, 0, 0, '0'),
-(332, '30:24', '60:49', '2', '2019-02-04', '2019-02-04', 120, 6, 3, '2019-02-04 08:46:06', '2019-02-04 08:54:38', 0, 0, '0'),
-(333, '00:05', '00:11', '2', '2019-02-04', '2019-02-04', 120, 7, 3, '2019-02-04 09:14:18', '2019-02-04 09:14:29', 0, 0, '0'),
-(334, '03:23', '06:46', '2', '2019-02-04', '2019-02-04', 120, 8, 3, '2019-02-04 09:16:59', '2019-02-04 09:23:45', 0, 0, '0'),
-(335, '00:00', '00:00', '0', NULL, NULL, 120, 10, 1, NULL, NULL, 0, 0, '0'),
-(336, '3346:5', '6693:43', '2', '2019-01-31', '2019-02-05', 121, 1, 3, '2019-01-31 15:30:39', '2019-02-05 07:04:22', 0, 0, '0'),
-(337, '159:15', '318:31', '2', '2019-02-01', '2019-02-01', 121, 2, 3, '2019-02-01 07:39:12', '2019-02-01 12:57:43', 0, 0, '0'),
-(338, '03:50', '07:41', '2', '2019-02-01', '2019-02-01', 121, 3, 3, '2019-02-01 15:44:51', '2019-02-01 15:52:32', 0, 0, '0'),
-(339, '00:00', '00:00', '0', NULL, NULL, 121, 4, 1, NULL, NULL, 0, 0, '0'),
-(340, '00:00', '00:00', '0', NULL, NULL, 121, 5, 1, NULL, NULL, 0, 0, '0'),
-(341, '30:24', '60:48', '2', '2019-02-04', '2019-02-04', 121, 6, 3, '2019-02-04 08:45:57', '2019-02-04 08:54:16', 0, 0, '0'),
-(342, '00:05', '00:10', '2', '2019-02-04', '2019-02-04', 121, 7, 3, '2019-02-04 09:14:00', '2019-02-04 09:14:10', 0, 0, '0'),
-(343, '03:21', '06:42', '2', '2019-02-04', '2019-02-04', 121, 8, 3, '2019-02-04 09:16:47', '2019-02-04 09:23:29', 0, 0, '0'),
-(344, '00:00', '00:00', '0', NULL, NULL, 121, 10, 1, NULL, NULL, 0, 0, '0'),
-(348, '48:35', '48:35', '1', '2019-02-06', '2019-02-06', 127, 1, 3, '2019-02-06 06:34:11', '2019-02-06 07:22:46', 0, 0, '0'),
-(349, '306:17', '306:17', '1', '2019-02-06', '2019-02-06', 127, 2, 3, '2019-02-06 07:50:34', '2019-02-06 12:56:51', 0, 0, '0'),
-(350, '39:11', '39:11', '1', '2019-02-06', '2019-02-06', 127, 3, 3, '2019-02-06 13:48:07', '2019-02-06 14:27:18', 0, 0, '0'),
-(351, '00:00', '00:00', '0', NULL, NULL, 127, 4, 1, NULL, NULL, 0, 0, '0'),
-(352, '00:00', '00:00', '0', NULL, NULL, 127, 5, 1, NULL, NULL, 0, 0, '0'),
-(353, '00:00', '00:00', '0', '2019-02-07', NULL, 127, 6, 4, '2019-02-07 08:25:47', NULL, 1, 0, '0'),
-(354, '00:00', '00:00', '0', NULL, NULL, 127, 7, 1, NULL, NULL, 0, 0, '0'),
-(355, '00:00', '00:00', '0', NULL, NULL, 127, 8, 1, NULL, NULL, 0, 0, '0'),
-(356, '00:00', '00:00', '0', NULL, NULL, 127, 10, 1, NULL, NULL, 0, 0, '0'),
-(360, '02:18', '23:06', '10', '2019-02-04', '2019-02-04', 132, 1, 3, '2019-02-04 07:22:17', '2019-02-04 07:45:23', 0, 0, '0'),
-(361, '47:15', '472:33', '10', '2019-02-04', '2019-02-04', 132, 2, 3, '2019-02-04 07:56:18', '2019-02-04 15:48:51', 0, 0, '0'),
-(362, '00:00', '00:00', '0', NULL, NULL, 132, 3, 1, NULL, NULL, 0, 0, '0'),
-(363, '00:00', '00:00', '0', NULL, NULL, 132, 4, 1, NULL, NULL, 0, 0, '0'),
-(364, '00:00', '00:00', '0', NULL, NULL, 132, 5, 1, NULL, NULL, 0, 0, '0'),
-(365, '08:22', '83:43', '10', '2019-02-06', '2019-02-06', 132, 6, 3, '2019-02-06 06:34:16', '2019-02-06 07:57:59', 0, 0, '0'),
-(366, '00:01', '00:17', '10', '2019-02-06', '2019-02-06', 132, 7, 3, '2019-02-06 08:09:06', '2019-02-06 08:09:23', 0, 0, '0'),
-(367, '02:14', '22:23', '10', '2019-02-06', '2019-02-06', 132, 8, 3, '2019-02-06 10:20:37', '2019-02-06 10:28:41', 0, 0, '0'),
-(368, '00:00', '00:00', '0', NULL, NULL, 132, 10, 1, NULL, NULL, 0, 0, '0'),
-(369, '00:20', '68:40', '200', '2019-02-06', '2019-02-06', 133, 1, 3, '2019-02-06 12:17:51', '2019-02-06 13:26:31', 0, 0, '0'),
-(370, '00:33', '110:33', '200', '2019-02-07', '2019-02-07', 133, 3, 3, '2019-02-07 09:31:52', '2019-02-07 11:22:25', 0, 0, '0'),
-(371, '00:00', '00:00', '0', NULL, NULL, 133, 4, 1, NULL, NULL, 0, 0, '0'),
-(372, '00:00', '00:00', '0', NULL, NULL, 133, 5, 1, NULL, NULL, 0, 0, '0'),
-(373, '00:00', '00:00', '0', '2019-02-11', NULL, 133, 6, 4, '2019-02-11 16:13:54', NULL, 1, 0, '0'),
-(374, '00:00', '00:00', '0', NULL, NULL, 133, 7, 1, NULL, NULL, 0, 0, '0'),
-(375, '00:00', '00:00', '0', NULL, NULL, 133, 8, 1, NULL, NULL, 0, 0, '0'),
-(376, '00:00', '00:00', '0', NULL, NULL, 133, 10, 1, NULL, NULL, 0, 0, '0'),
-(377, '00:00', '00:00', '0', NULL, NULL, 134, 1, 1, NULL, NULL, 0, 0, '0'),
-(378, '00:00', '00:00', '0', NULL, NULL, 134, 2, 1, NULL, NULL, 0, 0, '0'),
-(379, '00:00', '00:00', '0', NULL, NULL, 134, 3, 1, NULL, NULL, 0, 0, '0'),
-(380, '00:00', '00:00', '0', NULL, NULL, 134, 4, 1, NULL, NULL, 0, 0, '0'),
-(381, '00:00', '00:00', '0', NULL, NULL, 134, 5, 1, NULL, NULL, 0, 0, '0'),
-(382, '00:00', '00:00', '0', NULL, NULL, 134, 6, 1, NULL, NULL, 0, 0, '0'),
-(383, '00:00', '00:00', '0', NULL, NULL, 134, 7, 1, NULL, NULL, 0, 0, '0'),
-(384, '00:00', '00:00', '0', NULL, NULL, 134, 8, 1, NULL, NULL, 0, 0, '0'),
-(385, '00:00', '00:00', '0', NULL, NULL, 134, 10, 1, NULL, NULL, 0, 0, '0'),
-(386, '92:53', '1114:45', '12', '2019-02-04', '2019-02-05', 135, 1, 3, '2019-02-04 13:34:30', '2019-02-05 06:48:43', 0, 0, '0'),
-(387, '00:00', '00:00', '0', '2019-02-06', NULL, 135, 2, 4, '2019-02-06 06:37:04', NULL, 1, 0, '0'),
-(388, '12:38', '151:40', '12', '2019-02-06', '2019-02-06', 135, 3, 3, '2019-02-06 08:53:22', '2019-02-06 10:16:33', 0, 0, '0'),
-(389, '14:24', '172:53', '12', '2019-02-06', '2019-02-06', 135, 4, 3, '2019-02-06 10:33:01', '2019-02-06 13:25:54', 0, 0, '0'),
-(390, '00:00', '00:00', '0', NULL, NULL, 135, 5, 1, NULL, NULL, 0, 0, '0'),
-(391, '17:14', '206:56', '12', '2019-02-07', '2019-02-07', 135, 6, 3, '2019-02-07 15:08:28', '2019-02-07 15:51:41', 0, 0, '0'),
-(392, '00:00', '00:00', '0', NULL, NULL, 135, 7, 1, NULL, NULL, 0, 0, '0'),
-(393, '00:00', '00:00', '0', NULL, NULL, 135, 8, 1, NULL, NULL, 0, 0, '0'),
-(394, '00:00', '00:00', '0', NULL, NULL, 135, 10, 1, NULL, NULL, 0, 0, '0'),
-(398, '07:00', '28:01', '4', '2019-02-04', '2019-02-04', 140, 1, 3, '2019-02-04 14:29:18', '2019-02-04 14:57:19', 0, 0, '0'),
-(399, '00:00', '00:00', '0', NULL, NULL, 140, 2, 1, NULL, NULL, 0, 0, '0'),
-(400, '00:00', '00:00', '0', NULL, NULL, 140, 3, 1, NULL, NULL, 0, 0, '0'),
-(401, '00:00', '00:00', '0', NULL, NULL, 140, 4, 1, NULL, NULL, 0, 0, '0'),
-(402, '00:02', '00:11', '4', '2019-02-06', '2019-02-06', 140, 5, 3, '2019-02-06 06:31:58', '2019-02-06 06:32:09', 0, 0, '0'),
-(403, '00:00', '16:13', '0', '2019-02-06', NULL, 140, 6, 4, '2019-02-06 10:31:56', NULL, 1, 4, '0'),
-(404, '00:04', '00:17', '4', '2019-02-06', '2019-02-06', 140, 7, 3, '2019-02-06 11:42:28', '2019-02-06 11:42:45', 0, 0, '0'),
-(405, '00:20', '01:20', '4', '2019-02-06', '2019-02-06', 140, 8, 3, '2019-02-06 11:43:09', '2019-02-06 11:44:29', 0, 0, '0'),
-(406, '00:00', '00:00', '0', NULL, NULL, 140, 10, 1, NULL, NULL, 0, 0, '0'),
-(407, '00:08', '00:41', '5', '2019-02-04', '2019-02-04', 141, 1, 3, '2019-02-04 13:34:05', '2019-02-04 13:34:42', 0, 0, '0'),
-(408, '00:00', '00:00', '0', '2019-02-04', NULL, 141, 2, 4, '2019-02-04 14:10:43', NULL, 1, 0, '0'),
-(409, '00:00', '00:00', '0', NULL, NULL, 141, 3, 1, NULL, NULL, 0, 0, '0'),
-(410, '00:00', '00:00', '0', NULL, NULL, 141, 4, 1, NULL, NULL, 0, 0, '0'),
-(411, '00:00', '00:00', '0', NULL, NULL, 141, 5, 1, NULL, NULL, 0, 0, '0'),
-(412, '00:00', '16:22', '0', '2019-02-06', NULL, 141, 6, 4, '2019-02-06 10:31:41', NULL, 1, 5, '0'),
-(413, '00:03', '00:16', '5', '2019-02-06', '2019-02-06', 141, 7, 3, '2019-02-06 11:42:21', '2019-02-06 11:42:37', 0, 0, '0'),
-(414, '00:03', '00:16', '5', '2019-02-06', '2019-02-06', 141, 8, 3, '2019-02-06 11:43:03', '2019-02-06 11:43:19', 0, 0, '0'),
-(415, '00:00', '00:00', '0', NULL, NULL, 141, 10, 1, NULL, NULL, 0, 0, '0'),
-(416, '47:33', '951:15', '20', '2019-02-04', '2019-02-05', 142, 1, 3, '2019-02-04 14:57:11', '2019-02-05 06:48:25', 0, 0, '0'),
-(417, '00:00', '00:00', '0', '2019-02-06', NULL, 142, 2, 4, '2019-02-06 09:50:19', NULL, 1, 0, '0'),
-(418, '02:56', '58:58', '20', '2019-02-06', '2019-02-06', 142, 3, 3, '2019-02-06 13:12:07', '2019-02-06 13:46:32', 0, 0, '0'),
-(419, '00:00', '00:00', '0', NULL, NULL, 142, 4, 1, NULL, NULL, 0, 0, '0'),
-(420, '00:00', '00:00', '0', NULL, NULL, 142, 5, 1, NULL, NULL, 0, 0, '0'),
-(421, '00:00', '86:06', '0', '2019-02-08', NULL, 142, 6, 4, '2019-02-11 13:51:58', NULL, 1, 20, '0'),
-(422, '00:00', '00:00', '0', NULL, NULL, 142, 7, 1, NULL, NULL, 0, 0, '0'),
-(423, '00:00', '00:00', '0', NULL, NULL, 142, 8, 1, NULL, NULL, 0, 0, '0'),
-(424, '00:00', '00:00', '0', NULL, NULL, 142, 10, 1, NULL, NULL, 0, 0, '0'),
-(425, '00:06', '00:27', '4', '2019-02-04', '2019-02-04', 143, 1, 3, '2019-02-04 13:33:51', '2019-02-04 13:34:16', 0, 0, '0'),
-(426, '00:00', '00:00', '0', '2019-02-04', NULL, 143, 2, 4, '2019-02-04 14:10:58', NULL, 1, 0, '0'),
-(427, '00:00', '00:00', '0', NULL, NULL, 143, 3, 1, NULL, NULL, 0, 0, '0'),
-(428, '00:00', '00:00', '0', NULL, NULL, 143, 4, 1, NULL, NULL, 0, 0, '0'),
-(429, '00:00', '00:00', '0', NULL, NULL, 143, 5, 1, NULL, NULL, 0, 0, '0'),
-(430, '20:54', '83:39', '4', '2019-02-06', '2019-02-06', 143, 6, 3, '2019-02-06 06:34:40', '2019-02-06 07:58:19', 0, 0, '0'),
-(431, '00:05', '00:20', '4', '2019-02-06', '2019-02-06', 143, 7, 3, '2019-02-06 08:09:12', '2019-02-06 08:09:32', 0, 0, '0'),
-(432, '19:07', '76:28', '4', '2019-02-06', '2019-02-06', 143, 8, 3, '2019-02-06 08:09:51', '2019-02-06 09:26:19', 0, 0, '0'),
-(433, '00:00', '00:00', '0', NULL, NULL, 143, 10, 1, NULL, NULL, 0, 0, '0'),
-(434, '00:00', '00:00', '0', NULL, NULL, 144, 1, 1, NULL, NULL, 0, 0, '0'),
-(435, '00:02', '21:49', '500', '2019-02-06', '2019-02-06', 144, 3, 3, '2019-02-06 06:26:07', '2019-02-06 06:47:56', 0, 0, '0'),
-(436, '00:14', '124:34', '500', '2019-02-06', '2019-02-06', 144, 4, 3, '2019-02-06 08:54:12', '2019-02-06 10:58:46', 0, 0, '0'),
-(437, '00:00', '00:00', '0', NULL, NULL, 144, 5, 1, NULL, NULL, 0, 0, '0'),
-(438, '00:03', '32:31', '500', '2019-02-07', '2019-02-07', 144, 6, 3, '2019-02-07 11:32:58', '2019-02-07 12:05:29', 0, 0, '0'),
-(439, '00:00', '00:00', '0', NULL, NULL, 144, 7, 1, NULL, NULL, 0, 0, '0'),
-(440, '00:00', '00:00', '0', NULL, NULL, 144, 8, 1, NULL, NULL, 0, 0, '0'),
-(441, '00:00', '00:00', '0', NULL, NULL, 144, 10, 1, NULL, NULL, 0, 0, '0'),
-(442, '04:56', '14:49', '3', '2019-02-04', '2019-02-04', 145, 1, 3, '2019-02-04 09:28:17', '2019-02-04 09:43:06', 0, 0, '0'),
-(443, '00:00', '64:04', '0', '2019-02-04', NULL, 145, 3, 4, '2019-02-04 11:41:30', NULL, 1, 3, '0'),
-(444, '00:00', '00:00', '0', NULL, NULL, 145, 4, 1, NULL, NULL, 0, 0, '0'),
-(445, '00:00', '00:00', '0', NULL, NULL, 145, 5, 1, NULL, NULL, 0, 0, '0'),
-(446, '00:00', '00:00', '0', NULL, NULL, 145, 6, 1, NULL, NULL, 0, 0, '0'),
-(447, '00:00', '00:00', '0', NULL, NULL, 145, 7, 1, NULL, NULL, 0, 0, '0'),
-(448, '00:00', '00:00', '0', NULL, NULL, 145, 8, 1, NULL, NULL, 0, 0, '0'),
-(449, '00:00', '00:00', '0', NULL, NULL, 145, 10, 1, NULL, NULL, 0, 0, '0'),
-(450, '00:00', '00:00', '0', NULL, NULL, 146, 1, 1, NULL, NULL, 0, 0, '0'),
-(451, '03:28', '41:38', '12', '2019-02-06', '2019-02-06', 146, 3, 3, '2019-02-06 13:29:05', '2019-02-06 13:46:07', 0, 0, '0'),
-(452, '00:00', '00:00', '0', NULL, NULL, 146, 4, 1, NULL, NULL, 0, 0, '0'),
-(453, '00:00', '00:00', '0', NULL, NULL, 146, 5, 1, NULL, NULL, 0, 0, '0'),
-(454, '05:42', '68:32', '12', '2019-02-07', '2019-02-07', 146, 6, 3, '2019-02-07 08:46:25', '2019-02-07 09:54:57', 0, 0, '0'),
-(455, '00:00', '00:00', '0', NULL, NULL, 146, 7, 1, NULL, NULL, 0, 0, '0'),
-(456, '00:00', '00:00', '0', NULL, NULL, 146, 8, 1, NULL, NULL, 0, 0, '0'),
-(457, '00:00', '00:00', '0', NULL, NULL, 146, 10, 1, NULL, NULL, 0, 0, '0'),
-(458, '00:00', '00:00', '0', NULL, NULL, 147, 1, 1, NULL, NULL, 0, 0, '0'),
-(459, '00:00', '00:00', '0', NULL, NULL, 147, 2, 1, NULL, NULL, 0, 0, '0'),
-(460, '01:42', '85:05', '50', '2019-02-06', '2019-02-07', 147, 3, 3, '2019-02-07 09:20:59', '2019-02-07 09:21:09', 0, 0, '0'),
-(461, '00:00', '00:00', '0', NULL, NULL, 147, 4, 1, NULL, NULL, 0, 0, '0'),
-(462, '00:00', '00:00', '0', NULL, NULL, 147, 5, 1, NULL, NULL, 0, 0, '0'),
-(463, '00:00', '00:00', '0', NULL, NULL, 147, 7, 1, NULL, NULL, 0, 0, '0'),
-(464, '00:00', '00:00', '0', NULL, NULL, 147, 8, 1, NULL, NULL, 0, 0, '0'),
-(465, '00:00', '00:00', '0', NULL, NULL, 147, 10, 1, NULL, NULL, 0, 0, '0'),
-(476, '49:06', '98:13', '2', '2019-02-08', '2019-02-08', 151, 1, 3, '2019-02-08 07:16:07', '2019-02-08 08:54:20', 0, 0, '0'),
-(477, '00:00', '4240:17', '0', '2019-02-08', NULL, 151, 2, 4, '2019-02-11 15:52:42', NULL, 1, 2, '0'),
-(478, '12:19', '24:39', '2', '2019-02-08', '2019-02-08', 151, 3, 3, '2019-02-08 13:39:32', '2019-02-08 14:04:11', 0, 0, '0'),
-(479, '00:00', '00:00', '0', NULL, NULL, 151, 4, 1, NULL, NULL, 0, 0, '0'),
-(480, '00:00', '00:00', '0', NULL, NULL, 151, 5, 1, NULL, NULL, 0, 0, '0'),
-(481, '36:10', '72:20', '2', '2019-02-08', '2019-02-08', 151, 6, 3, '2019-02-08 14:48:53', '2019-02-08 16:01:13', 0, 0, '0'),
-(482, '00:00', '00:00', '0', NULL, NULL, 151, 7, 1, NULL, NULL, 0, 0, '0'),
-(483, '00:00', '00:00', '0', NULL, NULL, 151, 8, 1, NULL, NULL, 0, 0, '0'),
-(484, '00:00', '00:00', '0', NULL, NULL, 151, 10, 1, NULL, NULL, 0, 0, '0'),
-(485, '49:06', '98:12', '2', '2019-02-08', '2019-02-08', 152, 1, 3, '2019-02-08 07:16:17', '2019-02-08 08:54:29', 0, 0, '0'),
-(486, '102:22', '204:44', '2', '2019-02-08', '2019-02-08', 152, 2, 3, '2019-02-08 09:33:05', '2019-02-08 12:57:49', 0, 0, '0'),
-(487, '12:06', '24:13', '2', '2019-02-08', '2019-02-08', 152, 3, 3, '2019-02-08 13:39:45', '2019-02-08 14:03:58', 0, 0, '0'),
-(488, '00:00', '00:00', '0', NULL, NULL, 152, 4, 1, NULL, NULL, 0, 0, '0'),
-(489, '00:00', '00:00', '0', NULL, NULL, 152, 5, 1, NULL, NULL, 0, 0, '0'),
-(490, '43:43', '87:27', '2', '2019-02-08', '2019-02-08', 152, 6, 3, '2019-02-08 14:33:02', '2019-02-08 16:00:29', 0, 0, '0'),
-(491, '00:00', '00:00', '0', NULL, NULL, 152, 7, 1, NULL, NULL, 0, 0, '0'),
-(492, '00:00', '00:00', '0', NULL, NULL, 152, 8, 1, NULL, NULL, 0, 0, '0'),
-(493, '00:00', '00:00', '0', NULL, NULL, 152, 10, 1, NULL, NULL, 0, 0, '0'),
-(494, '00:00', '00:00', '0', NULL, NULL, 153, 1, 1, NULL, NULL, 0, 0, '0'),
-(495, '00:00', '00:00', '0', '2019-02-06', NULL, 153, 2, 4, '2019-02-06 09:49:37', NULL, 1, 0, '0'),
-(496, '07:47', '15:34', '2', '2019-02-06', '2019-02-06', 153, 3, 3, '2019-02-06 10:49:55', '2019-02-06 11:05:29', 0, 0, '0'),
-(497, '00:00', '00:00', '0', '2019-02-06', NULL, 153, 4, 4, '2019-02-06 16:14:55', NULL, 1, 0, '0'),
-(498, '00:00', '00:00', '0', NULL, NULL, 153, 5, 1, NULL, NULL, 0, 0, '0'),
-(499, '00:00', '00:00', '0', '2019-02-07', NULL, 153, 6, 4, '2019-02-07 08:34:57', NULL, 1, 0, '0'),
-(500, '00:00', '00:00', '0', NULL, NULL, 153, 7, 1, NULL, NULL, 0, 0, '0'),
-(501, '00:00', '00:00', '0', NULL, NULL, 153, 8, 1, NULL, NULL, 0, 0, '0'),
-(502, '00:00', '00:00', '0', NULL, NULL, 153, 10, 1, NULL, NULL, 0, 0, '0'),
-(503, '48:15', '48:15', '1', '2019-02-06', '2019-02-06', 154, 1, 3, '2019-02-06 06:34:19', '2019-02-06 07:22:34', 0, 0, '0'),
-(504, '305:10', '305:10', '1', '2019-02-06', '2019-02-06', 154, 2, 3, '2019-02-06 07:51:21', '2019-02-06 12:56:31', 0, 0, '0'),
-(505, '39:07', '39:07', '1', '2019-02-06', '2019-02-06', 154, 3, 3, '2019-02-06 13:47:56', '2019-02-06 14:27:03', 0, 0, '0'),
-(506, '00:00', '00:00', '0', NULL, NULL, 154, 4, 1, NULL, NULL, 0, 0, '0'),
-(507, '00:00', '00:00', '0', NULL, NULL, 154, 5, 1, NULL, NULL, 0, 0, '0'),
-(508, '1704:1', '1704:17', '1', '2019-02-07', '2019-02-08', 154, 6, 3, '2019-02-07 08:26:06', '2019-02-08 12:50:23', 0, 0, '0'),
-(509, '00:00', '00:00', '0', NULL, NULL, 154, 7, 1, NULL, NULL, 0, 0, '0'),
-(510, '00:00', '00:00', '0', NULL, NULL, 154, 8, 1, NULL, NULL, 0, 0, '0'),
-(511, '00:00', '00:00', '0', NULL, NULL, 154, 10, 1, NULL, NULL, 0, 0, '0'),
-(512, '02:26', '36:30', '15', '2019-02-06', '2019-02-06', 155, 1, 3, '2019-02-06 11:24:26', '2019-02-06 12:00:56', 0, 0, '0'),
-(513, '00:00', '13:16', '0', '2019-02-06', NULL, 155, 3, 2, '2019-02-06 16:03:00', '2019-02-06 16:16:16', 0, 15, '0'),
-(514, '00:00', '00:00', '0', NULL, NULL, 155, 4, 1, NULL, NULL, 0, 0, '0'),
-(515, '00:00', '00:00', '0', NULL, NULL, 155, 5, 1, NULL, NULL, 0, 0, '0'),
-(516, '05:30', '82:35', '15', '2019-02-07', '2019-02-07', 155, 6, 3, '2019-02-07 10:35:54', '2019-02-07 11:58:29', 0, 0, '0'),
-(517, '00:00', '00:00', '0', NULL, NULL, 155, 7, 1, NULL, NULL, 0, 0, '0'),
-(518, '00:00', '00:00', '0', NULL, NULL, 155, 8, 1, NULL, NULL, 0, 0, '0'),
-(519, '00:00', '00:00', '0', NULL, NULL, 155, 10, 1, NULL, NULL, 0, 0, '0'),
-(520, '00:00', '00:00', '0', '2019-02-08', NULL, 156, 1, 4, '2019-02-08 14:17:12', NULL, 1, 0, '0'),
-(521, '19:50', '198:26', '10', '2019-02-11', '2019-02-11', 156, 2, 3, '2019-02-11 11:03:05', '2019-02-11 14:21:31', 0, 0, '0'),
-(522, '00:00', '00:00', '0', NULL, NULL, 156, 3, 1, NULL, NULL, 0, 0, '0'),
-(523, '00:00', '00:00', '0', NULL, NULL, 156, 4, 1, NULL, NULL, 0, 0, '0'),
-(524, '00:00', '00:00', '0', NULL, NULL, 156, 5, 1, NULL, NULL, 0, 0, '0'),
-(525, '00:00', '00:00', '0', NULL, NULL, 156, 6, 1, NULL, NULL, 0, 0, '0'),
-(526, '00:00', '00:00', '0', NULL, NULL, 156, 7, 1, NULL, NULL, 0, 0, '0'),
-(527, '00:00', '00:00', '0', NULL, NULL, 156, 8, 1, NULL, NULL, 0, 0, '0'),
-(528, '00:00', '00:00', '0', NULL, NULL, 156, 10, 1, NULL, NULL, 0, 0, '0'),
-(529, '00:07', '31:37', '250', '2019-02-07', '2019-02-07', 157, 1, 3, '2019-02-07 13:03:24', '2019-02-07 13:35:01', 0, 0, '0'),
-(530, '00:00', '00:00', '0', NULL, NULL, 157, 3, 1, NULL, NULL, 0, 0, '0'),
-(531, '00:00', '00:00', '0', NULL, NULL, 157, 4, 1, NULL, NULL, 0, 0, '0'),
-(532, '00:00', '00:00', '0', NULL, NULL, 157, 5, 1, NULL, NULL, 0, 0, '0'),
-(533, '00:00', '00:00', '0', NULL, NULL, 157, 7, 1, NULL, NULL, 0, 0, '0'),
-(534, '00:00', '00:00', '0', NULL, NULL, 157, 8, 1, NULL, NULL, 0, 0, '0'),
-(535, '00:00', '00:00', '0', NULL, NULL, 157, 10, 1, NULL, NULL, 0, 0, '0'),
-(536, '00:00', '00:01', '0', '2019-02-06', NULL, 158, 1, 4, '2019-02-06 14:57:28', NULL, 1, 4, '0'),
-(537, '00:00', '00:00', '0', '2019-02-07', NULL, 158, 2, 4, '2019-02-07 14:01:38', NULL, 1, 0, '0'),
-(538, '07:26', '29:46', '4', '2019-02-08', '2019-02-08', 158, 3, 3, '2019-02-08 09:29:34', '2019-02-08 09:40:36', 0, 0, '0'),
-(539, '00:00', '00:00', '0', NULL, NULL, 158, 4, 1, NULL, NULL, 0, 0, '0'),
-(540, '00:00', '00:00', '0', NULL, NULL, 158, 5, 1, NULL, NULL, 0, 0, '0'),
-(541, '29:00', '116:00', '4', '2019-02-11', '2019-02-11', 158, 6, 3, '2019-02-11 09:21:28', '2019-02-11 10:11:12', 0, 0, '0'),
-(542, '00:00', '00:00', '0', NULL, NULL, 158, 7, 1, NULL, NULL, 0, 0, '0'),
-(543, '00:00', '00:00', '0', NULL, NULL, 158, 8, 1, NULL, NULL, 0, 0, '0'),
-(544, '00:00', '00:00', '0', NULL, NULL, 158, 10, 1, NULL, NULL, 0, 0, '0'),
-(545, '00:00', '00:00', '0', NULL, NULL, 159, 1, 1, NULL, NULL, 0, 0, '0'),
-(546, '00:00', '00:00', '0', NULL, NULL, 159, 2, 1, NULL, NULL, 0, 0, '0'),
-(547, '00:00', '00:00', '0', NULL, NULL, 159, 3, 1, NULL, NULL, 0, 0, '0'),
-(548, '00:00', '00:00', '0', NULL, NULL, 159, 4, 1, NULL, NULL, 0, 0, '0'),
-(549, '00:00', '00:00', '0', NULL, NULL, 159, 5, 1, NULL, NULL, 0, 0, '0'),
-(550, '00:00', '00:00', '0', NULL, NULL, 159, 6, 1, NULL, NULL, 0, 0, '0'),
-(551, '00:00', '00:00', '0', NULL, NULL, 159, 7, 1, NULL, NULL, 0, 0, '0'),
-(552, '00:00', '00:00', '0', NULL, NULL, 159, 8, 1, NULL, NULL, 0, 0, '0'),
-(553, '00:00', '00:00', '0', NULL, NULL, 159, 10, 1, NULL, NULL, 0, 0, '0'),
-(554, '48:08', '48:08', '1', '2019-02-06', '2019-02-06', 160, 1, 3, '2019-02-06 06:34:51', '2019-02-06 07:22:59', 0, 0, '0'),
-(555, '306:03', '306:03', '1', '2019-02-06', '2019-02-06', 160, 2, 3, '2019-02-06 07:50:10', '2019-02-06 12:56:13', 0, 0, '0'),
-(556, '00:00', '00:00', '0', NULL, NULL, 160, 3, 1, NULL, NULL, 0, 0, '0'),
-(557, '00:00', '00:00', '0', NULL, NULL, 160, 4, 1, NULL, NULL, 0, 0, '0'),
-(558, '00:00', '00:00', '0', NULL, NULL, 160, 5, 1, NULL, NULL, 0, 0, '0'),
-(559, '00:00', '00:00', '0', NULL, NULL, 160, 6, 1, NULL, NULL, 0, 0, '0'),
-(560, '00:00', '00:00', '0', NULL, NULL, 160, 7, 1, NULL, NULL, 0, 0, '0'),
-(561, '00:00', '00:00', '0', NULL, NULL, 160, 8, 1, NULL, NULL, 0, 0, '0'),
-(562, '00:00', '00:00', '0', NULL, NULL, 160, 10, 1, NULL, NULL, 0, 0, '0'),
-(563, '01:38', '16:25', '10', '2019-02-06', '2019-02-06', 161, 1, 3, '2019-02-06 09:05:29', '2019-02-06 09:21:54', 0, 0, '0'),
-(564, '145:08', '1451:26', '10', '2019-02-06', '2019-02-07', 161, 2, 3, '2019-02-06 11:44:55', '2019-02-07 11:56:21', 0, 0, '0'),
-(565, '01:48', '18:03', '10', '2019-02-07', '2019-02-07', 161, 3, 3, '2019-02-07 14:33:55', '2019-02-07 14:51:58', 0, 0, '0'),
-(566, '00:00', '00:00', '0', NULL, NULL, 161, 4, 1, NULL, NULL, 0, 0, '0'),
-(567, '00:00', '00:00', '0', NULL, NULL, 161, 5, 1, NULL, NULL, 0, 0, '0'),
-(568, '11:12', '112:04', '10', '2019-02-08', '2019-02-08', 161, 6, 3, '2019-02-08 14:49:10', '2019-02-08 16:03:35', 0, 0, '0'),
-(569, '00:00', '00:00', '0', NULL, NULL, 161, 7, 1, NULL, NULL, 0, 0, '0'),
-(570, '00:00', '00:00', '0', NULL, NULL, 161, 8, 1, NULL, NULL, 0, 0, '0'),
-(571, '00:00', '00:00', '0', NULL, NULL, 161, 10, 1, NULL, NULL, 0, 0, '0'),
-(572, '00:00', '00:00', '0', NULL, NULL, 162, 1, 1, NULL, NULL, 0, 0, '0'),
-(573, '00:00', '00:00', '0', NULL, NULL, 162, 2, 1, NULL, NULL, 0, 0, '0'),
-(574, '00:00', '00:00', '0', NULL, NULL, 162, 3, 1, NULL, NULL, 0, 0, '0'),
-(575, '00:00', '00:00', '0', NULL, NULL, 162, 4, 1, NULL, NULL, 0, 0, '0'),
-(576, '00:00', '00:00', '0', NULL, NULL, 162, 5, 1, NULL, NULL, 0, 0, '0'),
-(577, '00:00', '00:00', '0', NULL, NULL, 162, 7, 1, NULL, NULL, 0, 0, '0'),
-(578, '00:00', '00:00', '0', NULL, NULL, 162, 8, 1, NULL, NULL, 0, 0, '0'),
-(579, '00:00', '00:00', '0', NULL, NULL, 162, 10, 1, NULL, NULL, 0, 0, '0'),
-(580, '00:00', '00:00', '0', NULL, NULL, 163, 1, 1, NULL, NULL, 0, 0, '0'),
-(581, '00:00', '00:00', '0', NULL, NULL, 163, 2, 1, NULL, NULL, 0, 0, '0'),
-(582, '00:00', '00:00', '0', NULL, NULL, 163, 3, 1, NULL, NULL, 0, 0, '0'),
-(583, '00:00', '00:00', '0', NULL, NULL, 163, 4, 1, NULL, NULL, 0, 0, '0'),
-(584, '00:00', '00:00', '0', NULL, NULL, 163, 5, 1, NULL, NULL, 0, 0, '0'),
-(585, '00:00', '00:00', '0', NULL, NULL, 163, 6, 1, NULL, NULL, 0, 0, '0'),
-(586, '00:00', '00:00', '0', NULL, NULL, 163, 7, 1, NULL, NULL, 0, 0, '0'),
-(587, '00:00', '00:00', '0', NULL, NULL, 163, 8, 1, NULL, NULL, 0, 0, '0'),
-(588, '00:00', '00:00', '0', NULL, NULL, 163, 10, 1, NULL, NULL, 0, 0, '0'),
-(589, '01:42', '51:14', '30', '2019-02-06', '2019-02-06', 164, 1, 3, '2019-02-06 14:05:54', '2019-02-06 14:57:08', 0, 0, '0'),
-(590, '00:00', '00:00', '0', NULL, NULL, 164, 2, 1, NULL, NULL, 0, 0, '0'),
-(591, '00:00', '00:00', '0', NULL, NULL, 164, 3, 1, NULL, NULL, 0, 0, '0'),
-(592, '00:00', '00:00', '0', NULL, NULL, 164, 4, 1, NULL, NULL, 0, 0, '0'),
-(593, '00:00', '00:00', '0', NULL, NULL, 164, 5, 1, NULL, NULL, 0, 0, '0'),
-(594, '00:00', '00:00', '0', NULL, NULL, 164, 6, 1, NULL, NULL, 0, 0, '0'),
-(595, '00:00', '00:00', '0', NULL, NULL, 164, 7, 1, NULL, NULL, 0, 0, '0'),
-(596, '00:00', '00:00', '0', NULL, NULL, 164, 8, 1, NULL, NULL, 0, 0, '0'),
-(597, '00:00', '00:00', '0', NULL, NULL, 164, 10, 1, NULL, NULL, 0, 0, '0'),
-(598, '00:00', '00:01', '0', '2019-02-06', NULL, 165, 1, 4, '2019-02-06 14:57:18', NULL, 1, 2, '0'),
-(599, '194:04', '388:09', '2', '2019-02-07', '2019-02-07', 165, 2, 3, '2019-02-07 07:33:13', '2019-02-07 14:01:22', 0, 0, '0'),
-(600, '04:07', '08:14', '2', '2019-02-07', '2019-02-07', 165, 3, 3, '2019-02-07 15:05:10', '2019-02-07 15:13:24', 0, 0, '0'),
-(601, '00:00', '00:00', '0', NULL, NULL, 165, 4, 1, NULL, NULL, 0, 0, '0'),
-(602, '00:00', '00:00', '0', NULL, NULL, 165, 5, 1, NULL, NULL, 0, 0, '0'),
-(603, '43:19', '86:38', '2', '2019-02-08', '2019-02-08', 165, 6, 3, '2019-02-08 08:49:42', '2019-02-08 10:16:20', 0, 0, '0'),
-(604, '00:00', '00:00', '0', NULL, NULL, 165, 7, 1, NULL, NULL, 0, 0, '0'),
-(605, '00:00', '00:00', '0', NULL, NULL, 165, 8, 1, NULL, NULL, 0, 0, '0'),
-(606, '00:00', '00:00', '0', NULL, NULL, 165, 10, 1, NULL, NULL, 0, 0, '0'),
-(607, '00:00', '00:00', '0', NULL, NULL, 166, 1, 1, NULL, NULL, 0, 0, '0'),
-(608, '00:00', '00:00', '0', NULL, NULL, 166, 3, 1, NULL, NULL, 0, 0, '0'),
-(609, '00:00', '00:00', '0', NULL, NULL, 166, 4, 1, NULL, NULL, 0, 0, '0'),
-(610, '00:00', '00:00', '0', NULL, NULL, 166, 5, 1, NULL, NULL, 0, 0, '0'),
-(611, '00:00', '00:00', '0', NULL, NULL, 166, 6, 1, NULL, NULL, 0, 0, '0'),
-(612, '00:00', '00:00', '0', NULL, NULL, 166, 7, 1, NULL, NULL, 0, 0, '0'),
-(613, '00:00', '00:00', '0', NULL, NULL, 166, 8, 1, NULL, NULL, 0, 0, '0'),
-(614, '00:00', '00:00', '0', NULL, NULL, 166, 10, 1, NULL, NULL, 0, 0, '0'),
-(615, '01:22', '27:30', '20', '2019-02-06', '2019-02-06', 167, 1, 3, '2019-02-06 15:12:43', '2019-02-06 15:40:13', 0, 0, '0'),
-(616, '00:00', '12:51', '0', '2019-02-06', NULL, 167, 3, 2, '2019-02-06 16:03:30', '2019-02-06 16:16:21', 0, 20, '0');
-INSERT INTO `detalle_formato_estandar` (`idDetalle_formato_estandar`, `tiempo_por_unidad`, `tiempo_total_por_proceso`, `cantidad_terminada`, `fecha_inicio`, `fecha_fin`, `idDetalle_proyecto`, `idproceso`, `estado`, `hora_ejecucion`, `hora_terminacion`, `noperarios`, `orden`, `cantidadProceso`) VALUES
-(617, '00:00', '00:00', '0', NULL, NULL, 167, 4, 1, NULL, NULL, 0, 0, '0'),
-(618, '00:00', '00:00', '0', NULL, NULL, 167, 5, 1, NULL, NULL, 0, 0, '0'),
-(619, '03:18', '66:04', '20', '2019-02-07', '2019-02-07', 167, 6, 3, '2019-02-07 09:55:28', '2019-02-07 11:01:32', 0, 0, '0'),
-(620, '00:00', '00:00', '0', NULL, NULL, 167, 7, 1, NULL, NULL, 0, 0, '0'),
-(621, '00:00', '00:00', '0', NULL, NULL, 167, 8, 1, NULL, NULL, 0, 0, '0'),
-(622, '00:00', '00:00', '0', NULL, NULL, 167, 10, 1, NULL, NULL, 0, 0, '0'),
-(623, '08:36', '51:38', '6', '2019-02-06', '2019-02-06', 168, 1, 3, '2019-02-06 14:06:00', '2019-02-06 14:57:38', 0, 0, '0'),
-(624, '226:50', '1361:04', '6', '2019-02-07', '2019-02-08', 168, 2, 3, '2019-02-07 09:32:47', '2019-02-08 08:13:51', 0, 0, '0'),
-(625, '04:07', '24:45', '6', '2019-02-08', '2019-02-08', 168, 3, 3, '2019-02-08 10:20:06', '2019-02-08 10:44:51', 0, 0, '0'),
-(626, '00:00', '00:00', '0', NULL, NULL, 168, 4, 1, NULL, NULL, 0, 0, '0'),
-(627, '00:00', '00:00', '0', NULL, NULL, 168, 5, 1, NULL, NULL, 0, 0, '0'),
-(628, '19:20', '116:05', '6', '2019-02-11', '2019-02-11', 168, 6, 3, '2019-02-11 09:21:51', '2019-02-11 10:11:35', 0, 0, '0'),
-(629, '00:00', '00:00', '0', NULL, NULL, 168, 7, 1, NULL, NULL, 0, 0, '0'),
-(630, '00:00', '00:00', '0', NULL, NULL, 168, 8, 1, NULL, NULL, 0, 0, '0'),
-(631, '00:00', '00:00', '0', NULL, NULL, 168, 10, 1, NULL, NULL, 0, 0, '0'),
-(632, '07:21', '14:43', '2', '2019-02-06', '2019-02-06', 169, 1, 3, '2019-02-06 11:07:37', '2019-02-06 11:22:20', 0, 0, '0'),
-(633, '194:11', '388:22', '2', '2019-02-07', '2019-02-07', 169, 2, 3, '2019-02-07 07:33:33', '2019-02-07 14:01:55', 0, 0, '0'),
-(634, '06:01', '12:02', '2', '2019-02-07', '2019-02-07', 169, 3, 3, '2019-02-07 15:13:48', '2019-02-07 15:25:50', 0, 0, '0'),
-(635, '00:00', '00:00', '0', NULL, NULL, 169, 4, 1, NULL, NULL, 0, 0, '0'),
-(636, '00:00', '00:00', '0', NULL, NULL, 169, 5, 1, NULL, NULL, 0, 0, '0'),
-(637, '43:23', '86:47', '2', '2019-02-08', '2019-02-08', 169, 6, 3, '2019-02-08 08:49:53', '2019-02-08 10:16:40', 0, 0, '0'),
-(638, '00:00', '00:00', '0', NULL, NULL, 169, 7, 1, NULL, NULL, 0, 0, '0'),
-(639, '00:00', '00:00', '0', NULL, NULL, 169, 8, 1, NULL, NULL, 0, 0, '0'),
-(640, '00:00', '00:00', '0', NULL, NULL, 169, 10, 1, NULL, NULL, 0, 0, '0'),
-(641, '00:00', '00:00', '0', '2019-02-06', NULL, 170, 1, 4, '2019-02-06 15:58:54', NULL, 1, 0, '0'),
-(642, '222:54', '1337:25', '6', '2019-02-07', '2019-02-08', 170, 2, 3, '2019-02-07 14:21:34', '2019-02-08 12:38:59', 0, 0, '0'),
-(643, '04:01', '24:09', '6', '2019-02-08', '2019-02-08', 170, 3, 3, '2019-02-08 13:53:46', '2019-02-08 14:06:45', 0, 0, '0'),
-(644, '00:00', '00:00', '0', NULL, NULL, 170, 4, 1, NULL, NULL, 0, 0, '0'),
-(645, '00:00', '00:00', '0', NULL, NULL, 170, 5, 1, NULL, NULL, 0, 0, '0'),
-(646, '19:20', '116:01', '6', '2019-02-11', '2019-02-11', 170, 6, 3, '2019-02-11 09:21:38', '2019-02-11 10:11:24', 0, 0, '0'),
-(647, '00:00', '00:00', '0', NULL, NULL, 170, 7, 1, NULL, NULL, 0, 0, '0'),
-(648, '00:00', '00:00', '0', NULL, NULL, 170, 8, 1, NULL, NULL, 0, 0, '0'),
-(649, '00:00', '00:00', '0', NULL, NULL, 170, 10, 1, NULL, NULL, 0, 0, '0'),
-(650, '04:50', '48:27', '10', '2019-02-11', '2019-02-11', 171, 1, 3, '2019-02-11 11:42:15', '2019-02-11 12:30:42', 0, 0, '0'),
-(651, '00:00', '00:00', '0', NULL, NULL, 171, 2, 1, NULL, NULL, 0, 0, '0'),
-(652, '00:00', '00:00', '0', NULL, NULL, 171, 3, 1, NULL, NULL, 0, 0, '0'),
-(653, '00:00', '00:00', '0', NULL, NULL, 171, 4, 1, NULL, NULL, 0, 0, '0'),
-(654, '00:00', '00:00', '0', NULL, NULL, 171, 5, 1, NULL, NULL, 0, 0, '0'),
-(655, '00:00', '00:00', '0', NULL, NULL, 171, 6, 1, NULL, NULL, 0, 0, '0'),
-(656, '00:00', '00:00', '0', NULL, NULL, 171, 7, 1, NULL, NULL, 0, 0, '0'),
-(657, '00:00', '00:00', '0', NULL, NULL, 171, 8, 1, NULL, NULL, 0, 0, '0'),
-(658, '00:00', '00:00', '0', NULL, NULL, 171, 10, 1, NULL, NULL, 0, 0, '0'),
-(659, '01:22', '27:31', '20', '2019-02-06', '2019-02-06', 172, 1, 3, '2019-02-06 15:12:31', '2019-02-06 15:40:02', 0, 0, '0'),
-(660, '00:00', '13:34', '0', '2019-02-06', NULL, 172, 3, 2, '2019-02-06 16:03:09', '2019-02-06 16:16:43', 0, 20, '0'),
-(661, '00:00', '00:00', '0', NULL, NULL, 172, 4, 1, NULL, NULL, 0, 0, '0'),
-(662, '00:00', '00:00', '0', NULL, NULL, 172, 5, 1, NULL, NULL, 0, 0, '0'),
-(663, '03:17', '65:55', '20', '2019-02-07', '2019-02-07', 172, 6, 3, '2019-02-07 09:55:15', '2019-02-07 11:01:10', 0, 0, '0'),
-(664, '00:00', '00:00', '0', NULL, NULL, 172, 7, 1, NULL, NULL, 0, 0, '0'),
-(665, '00:00', '00:00', '0', NULL, NULL, 172, 8, 1, NULL, NULL, 0, 0, '0'),
-(666, '00:00', '00:00', '0', NULL, NULL, 172, 10, 1, NULL, NULL, 0, 0, '0'),
-(667, '02:24', '48:09', '20', '2019-02-07', '2019-02-07', 173, 1, 3, '2019-02-07 09:24:41', '2019-02-07 10:12:50', 0, 0, '0'),
-(668, '14:29', '289:40', '20', '2019-02-11', '2019-02-11', 173, 2, 3, '2019-02-11 11:02:30', '2019-02-11 15:52:10', 0, 0, '0'),
-(669, '00:00', '00:00', '0', NULL, NULL, 173, 3, 1, NULL, NULL, 0, 0, '0'),
-(670, '00:00', '00:00', '0', NULL, NULL, 173, 4, 1, NULL, NULL, 0, 0, '0'),
-(671, '00:00', '00:00', '0', NULL, NULL, 173, 5, 1, NULL, NULL, 0, 0, '0'),
-(672, '00:00', '00:00', '0', NULL, NULL, 173, 6, 1, NULL, NULL, 0, 0, '0'),
-(673, '00:00', '00:00', '0', NULL, NULL, 173, 7, 1, NULL, NULL, 0, 0, '0'),
-(674, '00:00', '00:00', '0', NULL, NULL, 173, 8, 1, NULL, NULL, 0, 0, '0'),
-(675, '00:00', '00:00', '0', NULL, NULL, 173, 10, 1, NULL, NULL, 0, 0, '0'),
-(676, '00:00', '00:00', '0', '2019-02-08', NULL, 175, 1, 4, '2019-02-08 14:17:04', NULL, 1, 0, '0'),
-(677, '00:00', '00:00', '0', '2019-02-11', NULL, 175, 2, 4, '2019-02-11 14:20:11', NULL, 1, 0, '0'),
-(678, '00:00', '00:00', '0', NULL, NULL, 175, 3, 1, NULL, NULL, 0, 0, '0'),
-(679, '00:00', '00:00', '0', NULL, NULL, 175, 4, 1, NULL, NULL, 0, 0, '0'),
-(680, '00:00', '00:00', '0', NULL, NULL, 175, 5, 1, NULL, NULL, 0, 0, '0'),
-(681, '00:00', '00:00', '0', NULL, NULL, 175, 6, 1, NULL, NULL, 0, 0, '0'),
-(682, '00:00', '00:00', '0', NULL, NULL, 175, 7, 1, NULL, NULL, 0, 0, '0'),
-(683, '00:00', '00:00', '0', NULL, NULL, 175, 8, 1, NULL, NULL, 0, 0, '0'),
-(684, '00:00', '00:00', '0', NULL, NULL, 175, 9, 1, NULL, NULL, 0, 0, '0'),
-(685, '00:00', '00:00', '0', NULL, NULL, 175, 10, 1, NULL, NULL, 0, 0, '0'),
-(686, '12:03', '48:13', '4', '2019-02-11', '2019-02-11', 177, 1, 3, '2019-02-11 11:42:20', '2019-02-11 12:30:33', 0, 0, '0'),
-(687, '00:00', '00:00', '0', NULL, NULL, 177, 2, 1, NULL, NULL, 0, 0, '0'),
-(688, '00:00', '00:00', '0', NULL, NULL, 177, 3, 1, NULL, NULL, 0, 0, '0'),
-(689, '00:00', '00:00', '0', NULL, NULL, 177, 4, 1, NULL, NULL, 0, 0, '0'),
-(690, '00:00', '00:00', '0', NULL, NULL, 177, 5, 1, NULL, NULL, 0, 0, '0'),
-(691, '00:00', '00:00', '0', NULL, NULL, 177, 6, 1, NULL, NULL, 0, 0, '0'),
-(692, '00:00', '00:00', '0', NULL, NULL, 177, 7, 1, NULL, NULL, 0, 0, '0'),
-(693, '00:00', '00:00', '0', NULL, NULL, 177, 8, 1, NULL, NULL, 0, 0, '0'),
-(694, '00:00', '00:00', '0', NULL, NULL, 177, 10, 1, NULL, NULL, 0, 0, '0'),
-(705, '06:31', '26:06', '4', '2019-02-07', '2019-02-07', 181, 1, 3, '2019-02-07 15:55:52', '2019-02-07 16:21:58', 0, 0, '0'),
-(706, '00:00', '00:00', '0', '2019-02-08', NULL, 181, 2, 4, '2019-02-08 09:45:25', NULL, 1, 0, '0'),
-(707, '06:05', '24:23', '4', '2019-02-08', '2019-02-08', 181, 3, 3, '2019-02-08 10:19:58', '2019-02-08 10:44:21', 0, 0, '0'),
-(708, '00:00', '00:00', '0', NULL, NULL, 181, 4, 1, NULL, NULL, 0, 0, '0'),
-(709, '00:00', '00:00', '0', NULL, NULL, 181, 5, 1, NULL, NULL, 0, 0, '0'),
-(710, '28:59', '115:56', '4', '2019-02-11', '2019-02-11', 181, 6, 3, '2019-02-11 09:21:19', '2019-02-11 10:10:59', 0, 0, '0'),
-(711, '00:00', '00:00', '0', NULL, NULL, 181, 7, 1, NULL, NULL, 0, 0, '0'),
-(712, '00:00', '00:00', '0', NULL, NULL, 181, 8, 1, NULL, NULL, 0, 0, '0'),
-(713, '00:00', '00:00', '0', NULL, NULL, 181, 10, 1, NULL, NULL, 0, 0, '0'),
-(714, '01:34', '06:16', '4', '2019-02-07', '2019-02-07', 182, 1, 3, '2019-02-07 13:40:47', '2019-02-07 13:47:03', 0, 0, '0'),
-(715, '272:25', '1089:41', '4', '2019-02-07', '2019-02-08', 182, 2, 3, '2019-02-07 14:20:45', '2019-02-08 08:30:26', 0, 0, '0'),
-(716, '02:49', '11:17', '4', '2019-02-08', '2019-02-08', 182, 3, 3, '2019-02-08 08:43:22', '2019-02-08 08:54:39', 0, 0, '0'),
-(717, '35:03', '140:12', '4', '2019-02-08', '2019-02-08', 182, 4, 3, '2019-02-08 09:06:54', '2019-02-08 11:27:06', 0, 0, '0'),
-(718, '00:00', '00:00', '0', NULL, NULL, 182, 5, 1, NULL, NULL, 0, 0, '0'),
-(719, '15:34', '62:17', '4', '2019-02-08', '2019-02-08', 182, 6, 3, '2019-02-08 12:45:10', '2019-02-08 12:45:29', 0, 0, '0'),
-(720, '00:00', '00:00', '0', NULL, NULL, 182, 7, 1, NULL, NULL, 0, 0, '0'),
-(721, '00:00', '00:00', '0', NULL, NULL, 182, 8, 1, NULL, NULL, 0, 0, '0'),
-(722, '00:00', '00:00', '0', NULL, NULL, 182, 10, 1, NULL, NULL, 0, 0, '0'),
-(723, '06:23', '12:47', '2', '2019-02-07', '2019-02-07', 183, 1, 3, '2019-02-07 11:13:18', '2019-02-07 11:26:05', 0, 0, '0'),
-(724, '544:54', '1089:49', '2', '2019-02-07', '2019-02-08', 183, 2, 3, '2019-02-07 14:20:57', '2019-02-08 08:30:46', 0, 0, '0'),
-(725, '00:00', '00:00', '0', '2019-02-08', NULL, 183, 3, 4, '2019-02-08 10:19:50', NULL, 1, 0, '0'),
-(726, '00:00', '00:00', '0', NULL, NULL, 183, 4, 1, NULL, NULL, 0, 0, '0'),
-(727, '00:00', '00:00', '0', NULL, NULL, 183, 5, 1, NULL, NULL, 0, 0, '0'),
-(728, '00:00', '00:00', '0', '2019-02-11', NULL, 183, 6, 4, '2019-02-11 07:38:42', NULL, 1, 0, '0'),
-(729, '00:00', '00:00', '0', NULL, NULL, 183, 7, 1, NULL, NULL, 0, 0, '0'),
-(730, '00:00', '00:00', '0', NULL, NULL, 183, 8, 1, NULL, NULL, 0, 0, '0'),
-(731, '00:00', '00:00', '0', NULL, NULL, 183, 10, 1, NULL, NULL, 0, 0, '0'),
-(732, '01:52', '26:10', '14', '2019-02-07', '2019-02-07', 184, 1, 3, '2019-02-07 15:55:59', '2019-02-07 16:22:09', 0, 0, '0'),
-(733, '00:00', '00:00', '0', '2019-02-08', NULL, 184, 2, 4, '2019-02-08 11:09:16', NULL, 1, 0, '0'),
-(734, '01:28', '20:41', '14', '2019-02-08', '2019-02-08', 184, 3, 3, '2019-02-08 12:13:44', '2019-02-08 12:34:25', 0, 0, '0'),
-(735, '00:00', '00:00', '0', NULL, NULL, 184, 4, 1, NULL, NULL, 0, 0, '0'),
-(736, '00:00', '00:00', '0', NULL, NULL, 184, 5, 1, NULL, NULL, 0, 0, '0'),
-(737, '07:53', '110:35', '14', '2019-02-11', '2019-02-11', 184, 6, 3, '2019-02-11 10:17:13', '2019-02-11 12:07:48', 0, 0, '0'),
-(738, '00:00', '00:00', '0', NULL, NULL, 184, 7, 1, NULL, NULL, 0, 0, '0'),
-(739, '00:00', '00:00', '0', NULL, NULL, 184, 8, 1, NULL, NULL, 0, 0, '0'),
-(740, '00:00', '00:00', '0', NULL, NULL, 184, 10, 1, NULL, NULL, 0, 0, '0'),
-(741, '01:52', '26:14', '14', '2019-02-07', '2019-02-07', 185, 1, 3, '2019-02-07 15:56:06', '2019-02-07 16:22:20', 0, 0, '0'),
-(742, '00:00', '00:00', '0', '2019-02-08', NULL, 185, 2, 4, '2019-02-08 11:09:48', NULL, 1, 0, '0'),
-(743, '00:00', '00:16', '0', '2019-02-08', NULL, 185, 3, 4, '2019-02-08 12:34:07', NULL, 1, 14, '0'),
-(744, '00:00', '00:00', '0', NULL, NULL, 185, 4, 1, NULL, NULL, 0, 0, '0'),
-(745, '00:00', '00:00', '0', NULL, NULL, 185, 5, 1, NULL, NULL, 0, 0, '0'),
-(746, '07:55', '110:58', '14', '2019-02-11', '2019-02-11', 185, 6, 3, '2019-02-11 10:17:05', '2019-02-11 12:08:03', 0, 0, '0'),
-(747, '00:00', '00:00', '0', NULL, NULL, 185, 7, 1, NULL, NULL, 0, 0, '0'),
-(748, '00:00', '00:00', '0', NULL, NULL, 185, 8, 1, NULL, NULL, 0, 0, '0'),
-(749, '00:00', '00:00', '0', NULL, NULL, 185, 10, 1, NULL, NULL, 0, 0, '0'),
-(750, '00:00', '00:01', '0', '2019-02-08', NULL, 186, 1, 4, '2019-02-08 14:54:20', NULL, 1, 18, '0'),
-(751, '01:04', '19:18', '18', '2019-02-11', '2019-02-11', 186, 3, 3, '2019-02-11 06:56:24', '2019-02-11 07:15:42', 0, 0, '0'),
-(752, '00:00', '00:00', '0', NULL, NULL, 186, 4, 1, NULL, NULL, 0, 0, '0'),
-(753, '00:00', '00:00', '0', NULL, NULL, 186, 5, 1, NULL, NULL, 0, 0, '0'),
-(754, '03:45', '67:30', '18', '2019-02-11', '2019-02-11', 186, 6, 3, '2019-02-11 11:33:32', '2019-02-11 12:08:40', 0, 0, '0'),
-(755, '00:00', '00:00', '0', NULL, NULL, 186, 7, 1, NULL, NULL, 0, 0, '0'),
-(756, '00:00', '00:00', '0', NULL, NULL, 186, 8, 1, NULL, NULL, 0, 0, '0'),
-(757, '00:00', '00:00', '0', NULL, NULL, 186, 10, 1, NULL, NULL, 0, 0, '0'),
-(758, '00:35', '11:49', '20', '2019-02-08', '2019-02-08', 187, 1, 3, '2019-02-08 14:42:21', '2019-02-08 14:54:10', 0, 0, '0'),
-(759, '00:58', '19:28', '20', '2019-02-11', '2019-02-11', 187, 3, 3, '2019-02-11 06:56:34', '2019-02-11 07:16:02', 0, 0, '0'),
-(760, '00:00', '00:00', '0', NULL, NULL, 187, 4, 1, NULL, NULL, 0, 0, '0'),
-(761, '00:00', '00:00', '0', NULL, NULL, 187, 5, 1, NULL, NULL, 0, 0, '0'),
-(762, '03:23', '67:49', '20', '2019-02-11', '2019-02-11', 187, 6, 3, '2019-02-11 11:33:21', '2019-02-11 12:08:47', 0, 0, '0'),
-(763, '00:00', '00:00', '0', NULL, NULL, 187, 7, 1, NULL, NULL, 0, 0, '0'),
-(764, '00:00', '00:00', '0', NULL, NULL, 187, 8, 1, NULL, NULL, 0, 0, '0'),
-(765, '00:00', '00:00', '0', NULL, NULL, 187, 10, 1, NULL, NULL, 0, 0, '0'),
-(769, '00:00', '00:00', '0', '2019-02-08', NULL, 192, 1, 4, '2019-02-08 14:16:53', NULL, 1, 0, '0'),
-(770, '197:40', '197:40', '1', '2019-02-11', '2019-02-11', 192, 2, 3, '2019-02-11 11:03:18', '2019-02-11 14:20:58', 0, 0, '0'),
-(771, '00:00', '00:00', '0', NULL, NULL, 192, 3, 1, NULL, NULL, 0, 0, '0'),
-(772, '00:00', '00:00', '0', NULL, NULL, 192, 4, 1, NULL, NULL, 0, 0, '0'),
-(773, '00:00', '00:00', '0', NULL, NULL, 192, 5, 1, NULL, NULL, 0, 0, '0'),
-(774, '00:00', '00:00', '0', NULL, NULL, 192, 6, 1, NULL, NULL, 0, 0, '0'),
-(775, '00:00', '00:00', '0', NULL, NULL, 192, 7, 1, NULL, NULL, 0, 0, '0'),
-(776, '00:00', '00:00', '0', NULL, NULL, 192, 8, 1, NULL, NULL, 0, 0, '0'),
-(777, '00:00', '00:00', '0', NULL, NULL, 192, 10, 1, NULL, NULL, 0, 0, '0'),
-(778, '00:00', '00:00', '0', '2019-02-08', NULL, 193, 1, 4, '2019-02-08 14:16:43', NULL, 1, 0, '0'),
-(779, '198:03', '198:03', '1', '2019-02-11', '2019-02-11', 193, 2, 3, '2019-02-11 11:04:10', '2019-02-11 14:22:13', 0, 0, '0'),
-(780, '00:00', '00:00', '0', NULL, NULL, 193, 3, 1, NULL, NULL, 0, 0, '0'),
-(781, '00:00', '00:00', '0', NULL, NULL, 193, 4, 1, NULL, NULL, 0, 0, '0'),
-(782, '00:00', '00:00', '0', NULL, NULL, 193, 5, 1, NULL, NULL, 0, 0, '0'),
-(783, '00:00', '00:00', '0', NULL, NULL, 193, 6, 1, NULL, NULL, 0, 0, '0'),
-(784, '00:00', '00:00', '0', NULL, NULL, 193, 7, 1, NULL, NULL, 0, 0, '0'),
-(785, '00:00', '00:00', '0', NULL, NULL, 193, 8, 1, NULL, NULL, 0, 0, '0'),
-(786, '00:00', '00:00', '0', NULL, NULL, 193, 10, 1, NULL, NULL, 0, 0, '0'),
-(787, '00:00', '00:00', '0', NULL, NULL, 194, 1, 1, NULL, NULL, 0, 0, '0'),
-(788, '00:00', '00:00', '0', NULL, NULL, 194, 2, 1, NULL, NULL, 0, 0, '0'),
-(789, '00:00', '00:00', '0', NULL, NULL, 194, 3, 1, NULL, NULL, 0, 0, '0'),
-(790, '00:00', '00:00', '0', NULL, NULL, 194, 4, 1, NULL, NULL, 0, 0, '0'),
-(791, '00:00', '00:00', '0', NULL, NULL, 194, 5, 1, NULL, NULL, 0, 0, '0'),
-(792, '00:00', '00:00', '0', NULL, NULL, 194, 6, 1, NULL, NULL, 0, 0, '0'),
-(793, '00:00', '00:00', '0', NULL, NULL, 194, 7, 1, NULL, NULL, 0, 0, '0'),
-(794, '00:00', '00:00', '0', NULL, NULL, 194, 8, 1, NULL, NULL, 0, 0, '0'),
-(795, '00:00', '00:00', '0', NULL, NULL, 194, 10, 1, NULL, NULL, 0, 0, '0'),
-(799, '00:00', '00:00', '0', NULL, NULL, 199, 1, 1, NULL, NULL, 0, 0, '0'),
-(800, '00:00', '00:00', '0', NULL, NULL, 199, 2, 1, NULL, NULL, 0, 0, '0'),
-(801, '00:00', '00:00', '0', NULL, NULL, 199, 3, 1, NULL, NULL, 0, 0, '0'),
-(802, '00:00', '00:00', '0', NULL, NULL, 199, 4, 1, NULL, NULL, 0, 0, '0'),
-(803, '00:00', '00:00', '0', NULL, NULL, 199, 5, 1, NULL, NULL, 0, 0, '0'),
-(804, '00:00', '00:00', '0', NULL, NULL, 199, 6, 1, NULL, NULL, 0, 0, '0'),
-(805, '00:00', '00:00', '0', NULL, NULL, 199, 7, 1, NULL, NULL, 0, 0, '0'),
-(806, '00:00', '00:00', '0', NULL, NULL, 199, 8, 1, NULL, NULL, 0, 0, '0'),
-(807, '00:00', '00:00', '0', NULL, NULL, 199, 10, 1, NULL, NULL, 0, 0, '0'),
-(808, '00:00', '00:00', '0', NULL, NULL, 200, 1, 1, NULL, NULL, 0, 0, '0'),
-(809, '00:00', '00:00', '0', NULL, NULL, 200, 2, 1, NULL, NULL, 0, 0, '0'),
-(810, '00:00', '00:00', '0', NULL, NULL, 200, 3, 1, NULL, NULL, 0, 0, '0'),
-(811, '00:00', '00:00', '0', NULL, NULL, 200, 4, 1, NULL, NULL, 0, 0, '0'),
-(812, '00:00', '00:00', '0', NULL, NULL, 200, 5, 1, NULL, NULL, 0, 0, '0'),
-(813, '00:00', '00:00', '0', NULL, NULL, 200, 6, 1, NULL, NULL, 0, 0, '0'),
-(814, '00:00', '00:00', '0', NULL, NULL, 200, 7, 1, NULL, NULL, 0, 0, '0'),
-(815, '00:00', '00:00', '0', NULL, NULL, 200, 8, 1, NULL, NULL, 0, 0, '0'),
-(816, '00:00', '00:00', '0', NULL, NULL, 200, 10, 1, NULL, NULL, 0, 0, '0'),
-(817, '00:00', '00:00', '0', NULL, NULL, 201, 1, 1, NULL, NULL, 0, 0, '0'),
-(818, '00:00', '00:00', '0', NULL, NULL, 201, 2, 1, NULL, NULL, 0, 0, '0'),
-(819, '00:00', '00:00', '0', NULL, NULL, 201, 3, 1, NULL, NULL, 0, 0, '0'),
-(820, '00:00', '00:00', '0', NULL, NULL, 201, 4, 1, NULL, NULL, 0, 0, '0'),
-(821, '00:00', '00:00', '0', NULL, NULL, 201, 5, 1, NULL, NULL, 0, 0, '0'),
-(822, '00:00', '00:00', '0', NULL, NULL, 201, 6, 1, NULL, NULL, 0, 0, '0'),
-(823, '00:00', '00:00', '0', NULL, NULL, 201, 7, 1, NULL, NULL, 0, 0, '0'),
-(824, '00:00', '00:00', '0', NULL, NULL, 201, 8, 1, NULL, NULL, 0, 0, '0'),
-(825, '00:00', '00:00', '0', NULL, NULL, 201, 10, 1, NULL, NULL, 0, 0, '0'),
-(826, '02:38', '15:53', '6', '2019-02-08', '2019-02-08', 202, 1, 3, '2019-02-08 15:33:44', '2019-02-08 15:33:55', 0, 0, '0'),
-(827, '33:10', '199:05', '6', '2019-02-11', '2019-02-11', 202, 2, 3, '2019-02-11 11:02:50', '2019-02-11 14:21:55', 0, 0, '0'),
-(828, '00:00', '00:00', '0', NULL, NULL, 202, 3, 1, NULL, NULL, 0, 0, '0'),
-(829, '00:00', '00:00', '0', NULL, NULL, 202, 4, 1, NULL, NULL, 0, 0, '0'),
-(830, '00:00', '00:00', '0', NULL, NULL, 202, 5, 1, NULL, NULL, 0, 0, '0'),
-(831, '00:00', '00:00', '0', NULL, NULL, 202, 6, 1, NULL, NULL, 0, 0, '0'),
-(832, '00:00', '00:00', '0', NULL, NULL, 202, 7, 1, NULL, NULL, 0, 0, '0'),
-(833, '00:00', '00:00', '0', NULL, NULL, 202, 8, 1, NULL, NULL, 0, 0, '0'),
-(834, '00:00', '00:00', '0', NULL, NULL, 202, 10, 1, NULL, NULL, 0, 0, '0'),
-(835, '00:00', '00:00', '0', NULL, NULL, 203, 1, 1, NULL, NULL, 0, 0, '0'),
-(836, '00:00', '00:00', '0', NULL, NULL, 203, 2, 1, NULL, NULL, 0, 0, '0'),
-(837, '00:00', '00:00', '0', NULL, NULL, 203, 3, 1, NULL, NULL, 0, 0, '0'),
-(838, '00:00', '00:00', '0', NULL, NULL, 203, 4, 1, NULL, NULL, 0, 0, '0'),
-(839, '00:00', '00:00', '0', NULL, NULL, 203, 5, 1, NULL, NULL, 0, 0, '0'),
-(840, '00:00', '00:00', '0', NULL, NULL, 203, 6, 1, NULL, NULL, 0, 0, '0'),
-(841, '00:00', '00:00', '0', NULL, NULL, 203, 7, 1, NULL, NULL, 0, 0, '0'),
-(842, '00:00', '00:00', '0', NULL, NULL, 203, 8, 1, NULL, NULL, 0, 0, '0'),
-(843, '00:00', '00:00', '0', NULL, NULL, 203, 10, 1, NULL, NULL, 0, 0, '0'),
-(860, '00:17', '00:17', '1', '2019-02-14', '2019-02-14', 215, 1, 3, '2019-02-14 10:48:26', '2019-02-14 10:48:43', 0, 0, '0'),
-(861, '00:00', '00:00', '0', NULL, NULL, 215, 2, 1, NULL, NULL, 0, 0, '0'),
-(862, '00:00', '00:00', '0', NULL, NULL, 215, 3, 1, NULL, NULL, 0, 0, '0'),
-(863, '00:00', '00:00', '0', NULL, NULL, 215, 4, 1, NULL, NULL, 0, 0, '0'),
-(864, '00:00', '00:00', '0', NULL, NULL, 215, 5, 1, NULL, NULL, 0, 0, '0'),
-(865, '00:00', '00:00', '0', NULL, NULL, 215, 6, 1, NULL, NULL, 0, 0, '0'),
-(866, '00:00', '00:00', '0', NULL, NULL, 215, 7, 1, NULL, NULL, 0, 0, '0'),
-(867, '01:00', '01:00', '1', '2019-02-14', '2019-02-14', 215, 8, 3, '2019-02-14 13:04:41', '2019-02-14 13:05:41', 0, 0, '0'),
-(868, '00:00', '00:00', '0', NULL, NULL, 215, 10, 1, NULL, NULL, 0, 0, '0'),
-(869, '00:00', '16:35', '5', '2019-02-15', NULL, 216, 1, 2, '2019-02-15 16:22:38', '2019-02-15 16:22:51', 0, 45, '0'),
-(870, '00:00', '00:00', '0', NULL, NULL, 216, 3, 1, NULL, NULL, 0, 0, '0'),
-(871, '00:00', '00:00', '0', NULL, NULL, 216, 4, 1, NULL, NULL, 0, 0, '0'),
-(872, '00:00', '00:00', '0', NULL, NULL, 216, 5, 1, NULL, NULL, 0, 0, '0'),
-(873, '00:00', '00:00', '0', NULL, NULL, 216, 7, 1, NULL, NULL, 0, 0, '0'),
-(874, '00:00', '00:00', '0', NULL, NULL, 216, 8, 1, NULL, NULL, 0, 0, '0'),
-(875, '00:00', '00:00', '0', NULL, NULL, 216, 10, 1, NULL, NULL, 0, 0, '0'),
-(876, '00:00', '00:00', '0', NULL, NULL, 217, 1, 1, NULL, NULL, 0, 0, '0'),
-(877, '00:00', '00:00', '0', NULL, NULL, 217, 2, 1, NULL, NULL, 0, 0, '0'),
-(878, '00:00', '1993:42', '0', '2019-02-14', NULL, 217, 3, 2, '2019-02-14 07:19:17', '2019-02-15 16:23:31', 0, 5, '0'),
-(879, '00:00', '00:00', '0', NULL, NULL, 217, 4, 1, NULL, NULL, 0, 0, '0'),
-(880, '00:00', '00:00', '0', NULL, NULL, 217, 5, 1, NULL, NULL, 0, 0, '0'),
-(881, '00:00', '00:00', '0', NULL, NULL, 217, 6, 1, NULL, NULL, 0, 0, '0'),
-(882, '00:00', '00:00', '0', NULL, NULL, 217, 7, 1, NULL, NULL, 0, 0, '0'),
-(883, '00:00', '00:00', '0', NULL, NULL, 217, 8, 1, NULL, NULL, 0, 0, '0'),
-(884, '00:00', '00:00', '0', NULL, NULL, 217, 10, 1, NULL, NULL, 0, 0, '0'),
-(885, '00:00', '00:00', '0', NULL, NULL, 218, 1, 1, NULL, NULL, 0, 0, '0'),
-(886, '00:00', '00:00', '0', NULL, NULL, 218, 2, 1, NULL, NULL, 0, 0, '0'),
-(887, '10:16', '20:33', '2', '2019-02-14', '2019-02-14', 218, 3, 3, '2019-02-14 06:43:10', '2019-02-14 07:03:43', 0, 0, '0'),
-(888, '00:00', '00:00', '0', NULL, NULL, 218, 4, 1, NULL, NULL, 0, 0, '0'),
-(889, '00:00', '00:00', '0', NULL, NULL, 218, 5, 1, NULL, NULL, 0, 0, '0'),
-(890, '00:00', '00:00', '0', NULL, NULL, 218, 6, 1, NULL, NULL, 0, 0, '0'),
-(891, '00:00', '00:00', '0', NULL, NULL, 218, 7, 1, NULL, NULL, 0, 0, '0'),
-(892, '00:00', '00:00', '0', NULL, NULL, 218, 8, 1, NULL, NULL, 0, 0, '0'),
-(893, '00:00', '00:00', '0', NULL, NULL, 218, 10, 1, NULL, NULL, 0, 0, '0'),
-(894, '00:00', '02:02', '0', '2019-02-20', NULL, 219, 1, 2, '2019-02-22 10:34:34', '2019-02-22 10:35:45', 0, 60, '0'),
-(895, '00:00', '00:00', '0', NULL, NULL, 219, 3, 1, NULL, NULL, 0, 0, '0'),
-(896, '00:00', '00:00', '0', NULL, NULL, 219, 4, 1, NULL, NULL, 0, 0, '0'),
-(897, '00:00', '00:00', '0', NULL, NULL, 219, 5, 1, NULL, NULL, 0, 0, '0'),
-(898, '00:00', '00:00', '0', NULL, NULL, 219, 6, 1, NULL, NULL, 0, 0, '0'),
-(899, '00:00', '00:00', '0', NULL, NULL, 219, 7, 1, NULL, NULL, 0, 0, '0'),
-(900, '00:00', '00:00', '0', NULL, NULL, 219, 8, 1, NULL, NULL, 0, 0, '0'),
-(901, '00:00', '00:00', '0', NULL, NULL, 219, 10, 1, NULL, NULL, 0, 0, '0'),
-(902, '00:00', '00:00', '0', NULL, NULL, 221, 1, 1, NULL, NULL, 0, 0, '0'),
-(903, '00:00', '00:00', '0', NULL, NULL, 221, 3, 1, NULL, NULL, 0, 0, '0'),
-(904, '00:00', '00:00', '0', NULL, NULL, 221, 4, 1, NULL, NULL, 0, 0, '0'),
-(905, '00:00', '00:00', '0', NULL, NULL, 221, 5, 1, NULL, NULL, 0, 0, '0'),
-(906, '00:00', '00:00', '0', NULL, NULL, 221, 6, 1, NULL, NULL, 0, 0, '0'),
-(907, '00:00', '00:00', '0', NULL, NULL, 221, 7, 1, NULL, NULL, 0, 0, '0'),
-(908, '00:00', '00:00', '0', NULL, NULL, 221, 8, 1, NULL, NULL, 0, 0, '0'),
-(909, '00:00', '00:00', '0', NULL, NULL, 221, 9, 1, NULL, NULL, 0, 0, '0'),
-(910, '00:00', '00:00', '0', NULL, NULL, 221, 10, 1, NULL, NULL, 0, 0, '0'),
-(911, '00:00', '00:00', '0', NULL, NULL, 223, 1, 1, NULL, NULL, 0, 0, '0'),
-(912, '00:00', '00:00', '0', NULL, NULL, 223, 3, 1, NULL, NULL, 0, 0, '0'),
-(913, '00:00', '00:00', '0', NULL, NULL, 223, 4, 1, NULL, NULL, 0, 0, '0'),
-(914, '00:00', '00:00', '0', NULL, NULL, 224, 1, 1, NULL, NULL, 0, 0, '0'),
-(915, '00:00', '00:00', '0', NULL, NULL, 224, 2, 1, NULL, NULL, 0, 0, '0'),
-(916, '00:00', '00:00', '0', NULL, NULL, 224, 3, 1, NULL, NULL, 0, 0, '0'),
-(917, '00:00', '00:00', '0', NULL, NULL, 224, 4, 1, NULL, NULL, 0, 0, '0'),
-(918, '00:00', '00:00', '0', NULL, NULL, 224, 5, 1, NULL, NULL, 0, 0, '0'),
-(919, '00:00', '00:00', '0', NULL, NULL, 224, 6, 1, NULL, NULL, 0, 0, '0'),
-(920, '00:00', '00:00', '0', NULL, NULL, 224, 7, 1, NULL, NULL, 0, 0, '0'),
-(921, '00:00', '00:00', '0', NULL, NULL, 224, 8, 1, NULL, NULL, 0, 0, '0'),
-(922, '00:00', '00:00', '0', NULL, NULL, 224, 10, 1, NULL, NULL, 0, 0, '0'),
-(936, '00:00', '00:00', '0', NULL, NULL, 229, 1, 1, NULL, NULL, 0, 0, '0'),
-(937, '00:00', '00:00', '0', NULL, NULL, 229, 3, 1, NULL, NULL, 0, 0, '0'),
-(938, '00:00', '00:00', '0', NULL, NULL, 229, 4, 1, NULL, NULL, 0, 0, '0'),
-(939, '00:00', '00:00', '0', NULL, NULL, 229, 5, 1, NULL, NULL, 0, 0, '0'),
-(940, '00:00', '00:00', '0', NULL, NULL, 229, 6, 1, NULL, NULL, 0, 0, '0'),
-(941, '00:00', '00:00', '0', NULL, NULL, 229, 7, 1, NULL, NULL, 0, 0, '0'),
-(942, '00:00', '00:00', '0', NULL, NULL, 229, 8, 1, NULL, NULL, 0, 0, '0'),
-(943, '00:00', '00:00', '0', NULL, NULL, 229, 10, 1, NULL, NULL, 0, 0, '0'),
-(944, '00:00', '00:00', '0', NULL, NULL, 230, 1, 1, NULL, NULL, 0, 0, '0'),
-(945, '00:00', '00:00', '0', NULL, NULL, 230, 3, 1, NULL, NULL, 0, 0, '0'),
-(946, '00:00', '00:00', '0', NULL, NULL, 230, 4, 1, NULL, NULL, 0, 0, '0'),
-(947, '00:00', '00:00', '0', NULL, NULL, 230, 5, 1, NULL, NULL, 0, 0, '0'),
-(948, '55:00', '55:00', '1', '2019-02-14', '2019-02-14', 230, 6, 3, '2019-02-14 09:58:39', '2019-02-14 10:53:39', 0, 0, '0'),
-(949, '00:00', '00:00', '0', NULL, NULL, 230, 7, 1, NULL, NULL, 0, 0, '0'),
-(950, '00:00', '00:00', '0', NULL, NULL, 230, 8, 1, NULL, NULL, 0, 0, '0'),
-(951, '00:00', '00:00', '0', NULL, NULL, 230, 10, 1, NULL, NULL, 0, 0, '0'),
-(952, '00:00', '00:00', '0', NULL, NULL, 231, 1, 1, NULL, NULL, 0, 0, '0'),
-(953, '00:00', '00:00', '0', NULL, NULL, 231, 3, 1, NULL, NULL, 0, 0, '0'),
-(954, '00:00', '00:00', '0', NULL, NULL, 231, 4, 1, NULL, NULL, 0, 0, '0'),
-(955, '00:00', '00:00', '0', NULL, NULL, 231, 5, 1, NULL, NULL, 0, 0, '0'),
-(956, '63:07', '63:07', '1', '2019-02-14', '2019-02-14', 231, 6, 3, '2019-02-14 09:50:49', '2019-02-14 10:53:56', 0, 0, '0'),
-(957, '00:00', '00:00', '0', NULL, NULL, 231, 7, 1, NULL, NULL, 0, 0, '0'),
-(958, '00:00', '00:00', '0', NULL, NULL, 231, 8, 1, NULL, NULL, 0, 0, '0'),
-(959, '00:00', '00:00', '0', NULL, NULL, 231, 9, 1, NULL, NULL, 0, 0, '0'),
-(960, '00:00', '00:00', '0', NULL, NULL, 231, 10, 1, NULL, NULL, 0, 0, '0'),
-(961, '00:00', '00:00', '0', NULL, NULL, 232, 1, 1, NULL, NULL, 0, 0, '0'),
-(962, '00:00', '00:00', '0', NULL, NULL, 232, 2, 1, NULL, NULL, 0, 0, '0'),
-(963, '00:00', '00:00', '0', NULL, NULL, 232, 3, 1, NULL, NULL, 0, 0, '0'),
-(964, '00:00', '00:00', '0', NULL, NULL, 232, 4, 1, NULL, NULL, 0, 0, '0'),
-(965, '00:00', '00:00', '0', NULL, NULL, 232, 5, 1, NULL, NULL, 0, 0, '0'),
-(966, '00:00', '00:00', '0', NULL, NULL, 232, 7, 1, NULL, NULL, 0, 0, '0'),
-(967, '00:00', '00:00', '0', NULL, NULL, 232, 8, 1, NULL, NULL, 0, 0, '0'),
-(968, '00:00', '00:00', '0', NULL, NULL, 232, 10, 1, NULL, NULL, 0, 0, '0'),
-(969, '00:00', '00:00', '0', NULL, NULL, 233, 1, 1, NULL, NULL, 0, 0, '0'),
-(970, '00:00', '00:00', '0', NULL, NULL, 233, 3, 1, NULL, NULL, 0, 0, '0'),
-(971, '00:00', '00:00', '0', NULL, NULL, 233, 4, 1, NULL, NULL, 0, 0, '0'),
-(972, '00:00', '00:00', '0', NULL, NULL, 233, 5, 1, NULL, NULL, 0, 0, '0'),
-(973, '00:00', '00:00', '0', NULL, NULL, 233, 7, 1, NULL, NULL, 0, 0, '0'),
-(974, '00:00', '00:00', '0', NULL, NULL, 233, 8, 1, NULL, NULL, 0, 0, '0'),
-(975, '00:00', '00:00', '0', NULL, NULL, 233, 10, 1, NULL, NULL, 0, 0, '0'),
-(976, '00:00', '00:00', '0', NULL, NULL, 234, 1, 1, NULL, NULL, 0, 0, '0'),
-(977, '00:00', '00:00', '0', NULL, NULL, 234, 2, 1, NULL, NULL, 0, 0, '0'),
-(978, '00:00', '00:00', '0', NULL, NULL, 234, 3, 1, NULL, NULL, 0, 0, '0'),
-(979, '00:00', '00:00', '0', NULL, NULL, 234, 4, 1, NULL, NULL, 0, 0, '0'),
-(980, '00:00', '00:00', '0', NULL, NULL, 234, 5, 1, NULL, NULL, 0, 0, '0'),
-(981, '00:00', '00:00', '0', NULL, NULL, 234, 6, 1, NULL, NULL, 0, 0, '0'),
-(982, '00:00', '00:00', '0', NULL, NULL, 234, 7, 1, NULL, NULL, 0, 0, '0'),
-(983, '00:00', '00:00', '0', NULL, NULL, 234, 8, 1, NULL, NULL, 0, 0, '0'),
-(984, '00:00', '00:00', '0', NULL, NULL, 234, 10, 1, NULL, NULL, 0, 0, '0'),
-(985, '00:00', '00:00', '0', NULL, NULL, 235, 1, 1, NULL, NULL, 0, 0, '0'),
-(986, '00:00', '00:00', '0', NULL, NULL, 235, 3, 1, NULL, NULL, 0, 0, '0'),
-(987, '00:00', '00:00', '0', NULL, NULL, 235, 4, 1, NULL, NULL, 0, 0, '0'),
-(988, '00:00', '00:00', '0', NULL, NULL, 235, 5, 1, NULL, NULL, 0, 0, '0'),
-(989, '00:00', '00:00', '0', NULL, NULL, 235, 6, 1, NULL, NULL, 0, 0, '0'),
-(990, '00:00', '00:00', '0', NULL, NULL, 235, 7, 1, NULL, NULL, 0, 0, '0'),
-(991, '00:00', '00:00', '0', NULL, NULL, 235, 8, 1, NULL, NULL, 0, 0, '0'),
-(992, '00:00', '00:00', '0', NULL, NULL, 235, 10, 1, NULL, NULL, 0, 0, '0'),
-(993, '00:00', '00:00', '0', NULL, NULL, 236, 1, 1, NULL, NULL, 0, 0, '0'),
-(994, '00:00', '00:00', '0', NULL, NULL, 236, 3, 1, NULL, NULL, 0, 0, '0'),
-(995, '00:00', '00:00', '0', NULL, NULL, 236, 4, 1, NULL, NULL, 0, 0, '0'),
-(996, '00:00', '00:00', '0', NULL, NULL, 236, 5, 1, NULL, NULL, 0, 0, '0'),
-(997, '00:00', '00:00', '0', NULL, NULL, 236, 6, 1, NULL, NULL, 0, 0, '0'),
-(998, '00:00', '00:00', '0', NULL, NULL, 236, 7, 1, NULL, NULL, 0, 0, '0'),
-(999, '00:00', '00:00', '0', NULL, NULL, 236, 8, 1, NULL, NULL, 0, 0, '0'),
-(1000, '00:00', '00:00', '0', NULL, NULL, 236, 10, 1, NULL, NULL, 0, 0, '0'),
-(1001, '00:00', '00:00', '0', NULL, NULL, 237, 1, 1, NULL, NULL, 0, 0, '0'),
-(1002, '00:00', '00:00', '0', NULL, NULL, 237, 3, 1, NULL, NULL, 0, 0, '0'),
-(1003, '00:00', '00:00', '0', NULL, NULL, 237, 4, 1, NULL, NULL, 0, 0, '0'),
-(1004, '00:00', '00:00', '0', NULL, NULL, 237, 5, 1, NULL, NULL, 0, 0, '0'),
-(1005, '00:00', '00:00', '0', NULL, NULL, 237, 6, 1, NULL, NULL, 0, 0, '0'),
-(1006, '00:00', '00:00', '0', NULL, NULL, 237, 7, 1, NULL, NULL, 0, 0, '0'),
-(1007, '00:00', '00:00', '0', NULL, NULL, 237, 8, 1, NULL, NULL, 0, 0, '0'),
-(1008, '00:00', '00:00', '0', NULL, NULL, 237, 10, 1, NULL, NULL, 0, 0, '0'),
-(1009, '00:00', '00:00', '0', NULL, NULL, 238, 1, 1, NULL, NULL, 0, 0, '0'),
-(1010, '00:00', '00:00', '0', NULL, NULL, 238, 2, 1, NULL, NULL, 0, 0, '0'),
-(1011, '00:00', '00:00', '0', NULL, NULL, 238, 3, 1, NULL, NULL, 0, 0, '0'),
-(1012, '00:00', '00:00', '0', NULL, NULL, 238, 4, 1, NULL, NULL, 0, 0, '0'),
-(1013, '00:00', '00:00', '0', NULL, NULL, 238, 5, 1, NULL, NULL, 0, 0, '0'),
-(1014, '00:00', '00:00', '0', NULL, NULL, 238, 6, 1, NULL, NULL, 0, 0, '0'),
-(1015, '00:00', '00:00', '0', NULL, NULL, 238, 7, 1, NULL, NULL, 0, 0, '0'),
-(1016, '00:00', '00:00', '0', NULL, NULL, 238, 8, 1, NULL, NULL, 0, 0, '0'),
-(1017, '00:00', '00:00', '0', NULL, NULL, 238, 10, 1, NULL, NULL, 0, 0, '0'),
-(1018, '00:00', '00:00', '0', NULL, NULL, 240, 1, 1, NULL, NULL, 0, 0, '0'),
-(1019, '00:00', '00:00', '0', NULL, NULL, 240, 2, 1, NULL, NULL, 0, 0, '0'),
-(1020, '00:00', '00:00', '0', NULL, NULL, 240, 3, 1, NULL, NULL, 0, 0, '0'),
-(1021, '00:00', '00:00', '0', NULL, NULL, 240, 4, 1, NULL, NULL, 0, 0, '0'),
-(1022, '00:00', '00:00', '0', NULL, NULL, 240, 5, 1, NULL, NULL, 0, 0, '0'),
-(1023, '00:00', '00:00', '0', NULL, NULL, 240, 6, 1, NULL, NULL, 0, 0, '0'),
-(1024, '00:00', '00:00', '0', NULL, NULL, 240, 7, 1, NULL, NULL, 0, 0, '0'),
-(1025, '00:00', '00:00', '0', NULL, NULL, 240, 8, 1, NULL, NULL, 0, 0, '0'),
-(1026, '00:00', '00:00', '0', NULL, NULL, 240, 9, 1, NULL, NULL, 0, 0, '0'),
-(1027, '00:00', '00:00', '0', NULL, NULL, 240, 10, 1, NULL, NULL, 0, 0, '0'),
-(1028, '00:00', '00:00', '0', NULL, NULL, 242, 1, 1, NULL, NULL, 0, 0, '0'),
-(1029, '00:00', '00:00', '0', NULL, NULL, 242, 2, 1, NULL, NULL, 0, 0, '0'),
-(1030, '00:00', '00:00', '0', NULL, NULL, 242, 3, 1, NULL, NULL, 0, 0, '0'),
-(1031, '00:00', '00:00', '0', NULL, NULL, 242, 4, 1, NULL, NULL, 0, 0, '0'),
-(1032, '00:00', '00:00', '0', NULL, NULL, 242, 5, 1, NULL, NULL, 0, 0, '0'),
-(1033, '00:00', '00:00', '0', NULL, NULL, 242, 6, 1, NULL, NULL, 0, 0, '0'),
-(1034, '00:00', '00:00', '0', NULL, NULL, 242, 7, 1, NULL, NULL, 0, 0, '0'),
-(1035, '00:00', '00:00', '0', NULL, NULL, 242, 8, 1, NULL, NULL, 0, 0, '0'),
-(1036, '00:00', '00:00', '0', NULL, NULL, 242, 10, 1, NULL, NULL, 0, 0, '0'),
-(1037, '00:00', '00:00', '0', NULL, NULL, 243, 1, 1, NULL, NULL, 0, 0, '0'),
-(1038, '00:00', '00:00', '0', NULL, NULL, 243, 2, 1, NULL, NULL, 0, 0, '0'),
-(1039, '00:00', '00:00', '0', NULL, NULL, 243, 3, 1, NULL, NULL, 0, 0, '0'),
-(1040, '00:00', '00:00', '0', NULL, NULL, 243, 4, 1, NULL, NULL, 0, 0, '0'),
-(1041, '00:00', '00:00', '0', NULL, NULL, 243, 5, 1, NULL, NULL, 0, 0, '0'),
-(1042, '00:00', '00:00', '0', NULL, NULL, 243, 6, 1, NULL, NULL, 0, 0, '0'),
-(1043, '00:00', '00:00', '0', NULL, NULL, 243, 7, 1, NULL, NULL, 0, 0, '0'),
-(1044, '00:00', '00:00', '0', NULL, NULL, 243, 8, 1, NULL, NULL, 0, 0, '0'),
-(1045, '00:00', '00:00', '0', NULL, NULL, 243, 10, 1, NULL, NULL, 0, 0, '0'),
-(1046, '00:00', '00:00', '0', NULL, NULL, 244, 1, 1, NULL, NULL, 0, 0, '0'),
-(1047, '00:00', '00:00', '0', NULL, NULL, 244, 3, 1, NULL, NULL, 0, 0, '0'),
-(1048, '00:00', '00:00', '0', NULL, NULL, 244, 4, 1, NULL, NULL, 0, 0, '0'),
-(1049, '00:00', '00:00', '0', NULL, NULL, 244, 5, 1, NULL, NULL, 0, 0, '0'),
-(1050, '00:00', '00:00', '0', '2019-02-20', NULL, 244, 6, 4, '2019-02-20 10:19:44', NULL, 1, 0, '0'),
-(1051, '00:00', '00:00', '0', NULL, NULL, 244, 7, 1, NULL, NULL, 0, 0, '0'),
-(1052, '00:00', '00:00', '0', NULL, NULL, 244, 8, 1, NULL, NULL, 0, 0, '0'),
-(1053, '00:00', '00:00', '0', NULL, NULL, 244, 10, 1, NULL, NULL, 0, 0, '0'),
-(1054, '00:00', '00:00', '0', NULL, NULL, 245, 1, 1, NULL, NULL, 0, 0, '0'),
-(1055, '00:00', '00:00', '0', NULL, NULL, 245, 2, 1, NULL, NULL, 0, 0, '0'),
-(1056, '00:00', '00:00', '0', '2019-02-20', NULL, 245, 3, 4, '2019-02-20 15:48:17', NULL, 1, 0, '0'),
-(1057, '00:00', '00:00', '0', NULL, NULL, 245, 4, 1, NULL, NULL, 0, 0, '0'),
-(1058, '00:00', '00:00', '0', NULL, NULL, 245, 5, 1, NULL, NULL, 0, 0, '0'),
-(1059, '00:00', '00:00', '0', NULL, NULL, 245, 6, 1, NULL, NULL, 0, 0, '0'),
-(1060, '00:00', '00:00', '0', NULL, NULL, 245, 7, 1, NULL, NULL, 0, 0, '0'),
-(1061, '00:00', '00:00', '0', NULL, NULL, 245, 8, 1, NULL, NULL, 0, 0, '0'),
-(1062, '00:00', '00:00', '0', NULL, NULL, 245, 10, 1, NULL, NULL, 0, 0, '0'),
-(1063, '00:00', '00:00', '0', NULL, NULL, 247, 1, 1, NULL, NULL, 0, 0, '0'),
-(1064, '00:00', '00:00', '0', NULL, NULL, 247, 2, 1, NULL, NULL, 0, 0, '0'),
-(1065, '00:00', '00:00', '0', NULL, NULL, 247, 3, 1, NULL, NULL, 0, 0, '0'),
-(1066, '00:00', '00:00', '0', NULL, NULL, 247, 4, 1, NULL, NULL, 0, 0, '0'),
-(1067, '00:00', '00:00', '0', NULL, NULL, 247, 5, 1, NULL, NULL, 0, 0, '0'),
-(1068, '00:00', '00:00', '0', NULL, NULL, 247, 6, 1, NULL, NULL, 0, 0, '0'),
-(1069, '00:00', '00:00', '0', NULL, NULL, 247, 7, 1, NULL, NULL, 0, 0, '0'),
-(1070, '00:00', '00:00', '0', NULL, NULL, 247, 8, 1, NULL, NULL, 0, 0, '0'),
-(1071, '00:00', '00:00', '0', NULL, NULL, 247, 9, 1, NULL, NULL, 0, 0, '0'),
-(1072, '00:00', '00:00', '0', NULL, NULL, 247, 10, 1, NULL, NULL, 0, 0, '0'),
-(1073, '00:00', '00:00', '0', NULL, NULL, 249, 1, 1, NULL, NULL, 0, 0, '0'),
-(1074, '00:00', '00:00', '0', NULL, NULL, 249, 3, 1, NULL, NULL, 0, 0, '0'),
-(1075, '00:00', '00:00', '0', NULL, NULL, 249, 4, 1, NULL, NULL, 0, 0, '0'),
-(1076, '00:00', '00:00', '0', NULL, NULL, 249, 5, 1, NULL, NULL, 0, 0, '0'),
-(1077, '00:00', '00:00', '0', NULL, NULL, 249, 6, 1, NULL, NULL, 0, 0, '0'),
-(1078, '00:00', '00:00', '0', NULL, NULL, 249, 7, 1, NULL, NULL, 0, 0, '0'),
-(1079, '00:00', '00:00', '0', NULL, NULL, 249, 8, 1, NULL, NULL, 0, 0, '0'),
-(1080, '00:00', '00:00', '0', NULL, NULL, 249, 10, 1, NULL, NULL, 0, 0, '0'),
-(1084, '00:00', '00:00', '0', NULL, NULL, 250, 1, 1, NULL, NULL, 0, 0, '0'),
-(1085, '00:00', '00:00', '0', NULL, NULL, 250, 2, 1, NULL, NULL, 0, 0, '0'),
-(1086, '00:00', '00:00', '0', NULL, NULL, 250, 3, 1, NULL, NULL, 0, 0, '0'),
-(1087, '00:00', '00:00', '0', NULL, NULL, 250, 4, 1, NULL, NULL, 0, 0, '0'),
-(1088, '00:00', '00:00', '0', NULL, NULL, 250, 5, 1, NULL, NULL, 0, 0, '0'),
-(1089, '00:00', '00:00', '0', NULL, NULL, 250, 6, 1, NULL, NULL, 0, 0, '0'),
-(1090, '00:00', '00:00', '0', NULL, NULL, 250, 7, 1, NULL, NULL, 0, 0, '0'),
-(1091, '00:00', '00:00', '0', NULL, NULL, 250, 8, 1, NULL, NULL, 0, 0, '0'),
-(1092, '00:00', '00:00', '0', NULL, NULL, 250, 10, 1, NULL, NULL, 0, 0, '0'),
-(1093, '00:00', '00:00', '0', NULL, NULL, 251, 1, 1, NULL, NULL, 0, 0, '0'),
-(1094, '00:00', '00:00', '0', NULL, NULL, 251, 2, 1, NULL, NULL, 0, 0, '0'),
-(1095, '00:00', '00:00', '0', NULL, NULL, 251, 3, 1, NULL, NULL, 0, 0, '0'),
-(1096, '00:00', '00:00', '0', NULL, NULL, 251, 4, 1, NULL, NULL, 0, 0, '0'),
-(1097, '00:00', '00:00', '0', NULL, NULL, 251, 5, 1, NULL, NULL, 0, 0, '0'),
-(1098, '00:00', '00:00', '0', NULL, NULL, 251, 7, 1, NULL, NULL, 0, 0, '0'),
-(1099, '00:00', '00:00', '0', NULL, NULL, 251, 8, 1, NULL, NULL, 0, 0, '0'),
-(1100, '00:00', '00:00', '0', NULL, NULL, 251, 10, 1, NULL, NULL, 0, 0, '0'),
-(1101, '00:12', '00:24', '2', '2019-02-15', '2019-02-15', 255, 1, 3, '2019-02-15 09:29:40', '2019-02-15 09:30:04', 0, 0, '0'),
-(1102, '00:00', '00:00', '0', NULL, NULL, 255, 2, 1, NULL, NULL, 0, 0, '0'),
-(1103, '00:00', '00:00', '0', NULL, NULL, 255, 3, 1, NULL, NULL, 0, 0, '0'),
-(1104, '00:00', '00:00', '0', NULL, NULL, 255, 4, 1, NULL, NULL, 0, 0, '0'),
-(1105, '00:00', '00:00', '0', NULL, NULL, 255, 5, 1, NULL, NULL, 0, 0, '0'),
-(1106, '00:00', '00:00', '0', NULL, NULL, 255, 6, 1, NULL, NULL, 0, 0, '0'),
-(1107, '00:00', '00:00', '0', NULL, NULL, 255, 7, 1, NULL, NULL, 0, 0, '0'),
-(1108, '00:00', '00:00', '0', NULL, NULL, 255, 8, 1, NULL, NULL, 0, 0, '0'),
-(1109, '00:00', '00:00', '0', NULL, NULL, 255, 10, 1, NULL, NULL, 0, 0, '0'),
-(1119, '00:00', '00:00', '0', NULL, NULL, 258, 1, 1, NULL, NULL, 0, 0, '0'),
-(1120, '00:00', '00:00', '0', NULL, NULL, 258, 2, 1, NULL, NULL, 0, 0, '0'),
-(1121, '00:00', '00:00', '0', NULL, NULL, 258, 3, 1, NULL, NULL, 0, 0, '0'),
-(1122, '00:00', '00:00', '0', NULL, NULL, 258, 4, 1, NULL, NULL, 0, 0, '0'),
-(1123, '00:00', '00:00', '0', NULL, NULL, 258, 5, 1, NULL, NULL, 0, 0, '0'),
-(1124, '00:00', '00:00', '0', NULL, NULL, 258, 6, 1, NULL, NULL, 0, 0, '0'),
-(1125, '00:00', '00:00', '0', NULL, NULL, 258, 7, 1, NULL, NULL, 0, 0, '0'),
-(1126, '00:00', '00:00', '0', NULL, NULL, 258, 8, 1, NULL, NULL, 0, 0, '0'),
-(1127, '00:00', '00:00', '0', NULL, NULL, 258, 9, 1, NULL, NULL, 0, 0, '0'),
-(1128, '00:00', '00:00', '0', NULL, NULL, 258, 10, 1, NULL, NULL, 0, 0, '0'),
-(1129, '00:00', '00:00', '0', NULL, NULL, 260, 1, 1, NULL, NULL, 0, 0, '0'),
-(1130, '00:00', '00:00', '0', NULL, NULL, 260, 2, 1, NULL, NULL, 0, 0, '0'),
-(1131, '00:00', '00:00', '0', NULL, NULL, 260, 3, 1, NULL, NULL, 0, 0, '0'),
-(1132, '00:00', '00:00', '0', NULL, NULL, 260, 4, 1, NULL, NULL, 0, 0, '0'),
-(1133, '00:00', '00:00', '0', NULL, NULL, 260, 5, 1, NULL, NULL, 0, 0, '0'),
-(1134, '00:00', '00:00', '0', NULL, NULL, 260, 6, 1, NULL, NULL, 0, 0, '0'),
-(1135, '00:00', '00:00', '0', NULL, NULL, 260, 7, 1, NULL, NULL, 0, 0, '0'),
-(1136, '00:00', '00:00', '0', NULL, NULL, 260, 8, 1, NULL, NULL, 0, 0, '0'),
-(1137, '00:00', '00:00', '0', NULL, NULL, 260, 10, 1, NULL, NULL, 0, 0, '0'),
-(1138, '00:00', '00:00', '0', NULL, NULL, 261, 1, 1, NULL, NULL, 0, 0, '0'),
-(1139, '00:00', '00:00', '0', NULL, NULL, 261, 3, 1, NULL, NULL, 0, 0, '0'),
-(1140, '00:00', '00:00', '0', NULL, NULL, 261, 4, 1, NULL, NULL, 0, 0, '0'),
-(1141, '00:00', '00:00', '0', NULL, NULL, 261, 5, 1, NULL, NULL, 0, 0, '0'),
-(1142, '00:00', '00:00', '0', NULL, NULL, 261, 6, 1, NULL, NULL, 0, 0, '0'),
-(1143, '00:00', '00:00', '0', NULL, NULL, 261, 7, 1, NULL, NULL, 0, 0, '0'),
-(1144, '00:00', '00:00', '0', NULL, NULL, 261, 8, 1, NULL, NULL, 0, 0, '0'),
-(1145, '00:00', '00:00', '0', NULL, NULL, 261, 10, 1, NULL, NULL, 0, 0, '0'),
-(1146, '00:00', '00:00', '0', NULL, NULL, 262, 1, 1, NULL, NULL, 0, 0, '0'),
-(1147, '00:00', '00:00', '0', NULL, NULL, 262, 2, 1, NULL, NULL, 0, 0, '0'),
-(1148, '00:00', '00:00', '0', NULL, NULL, 262, 3, 1, NULL, NULL, 0, 0, '0'),
-(1149, '00:00', '00:00', '0', NULL, NULL, 262, 4, 1, NULL, NULL, 0, 0, '0'),
-(1150, '00:00', '00:00', '0', NULL, NULL, 262, 5, 1, NULL, NULL, 0, 0, '0'),
-(1151, '00:00', '00:00', '0', NULL, NULL, 262, 6, 1, NULL, NULL, 0, 0, '0'),
-(1152, '00:00', '00:00', '0', NULL, NULL, 262, 7, 1, NULL, NULL, 0, 0, '0'),
-(1153, '00:00', '00:00', '0', NULL, NULL, 262, 8, 1, NULL, NULL, 0, 0, '0'),
-(1154, '00:00', '00:00', '0', NULL, NULL, 262, 10, 1, NULL, NULL, 0, 0, '0'),
-(1155, '00:00', '00:00', '0', NULL, NULL, 263, 1, 1, NULL, NULL, 0, 0, '0'),
-(1156, '00:00', '00:00', '0', NULL, NULL, 263, 2, 1, NULL, NULL, 0, 0, '0'),
-(1157, '00:00', '12:49', '0', '2019-02-20', NULL, 263, 3, 2, '2019-02-20 15:33:50', '2019-02-20 15:46:39', 0, 10, '0'),
-(1158, '00:00', '00:00', '0', NULL, NULL, 263, 4, 1, NULL, NULL, 0, 0, '0'),
-(1159, '00:00', '00:00', '0', NULL, NULL, 263, 5, 1, NULL, NULL, 0, 0, '0'),
-(1160, '00:00', '00:00', '0', NULL, NULL, 263, 6, 1, NULL, NULL, 0, 0, '0'),
-(1161, '00:00', '00:00', '0', NULL, NULL, 263, 7, 1, NULL, NULL, 0, 0, '0'),
-(1162, '00:00', '00:00', '0', NULL, NULL, 263, 8, 1, NULL, NULL, 0, 0, '0'),
-(1163, '00:00', '00:00', '0', NULL, NULL, 263, 10, 1, NULL, NULL, 0, 0, '0'),
-(1164, '00:00', '00:00', '0', NULL, NULL, 264, 1, 1, NULL, NULL, 0, 0, '0'),
-(1165, '00:00', '00:00', '0', NULL, NULL, 264, 2, 1, NULL, NULL, 0, 0, '0'),
-(1166, '00:00', '00:00', '0', NULL, NULL, 264, 3, 1, NULL, NULL, 0, 0, '0'),
-(1167, '00:00', '00:00', '0', NULL, NULL, 264, 4, 1, NULL, NULL, 0, 0, '0'),
-(1168, '00:00', '00:00', '0', NULL, NULL, 264, 5, 1, NULL, NULL, 0, 0, '0'),
-(1169, '00:00', '00:00', '0', NULL, NULL, 264, 6, 1, NULL, NULL, 0, 0, '0'),
-(1170, '00:00', '00:00', '0', NULL, NULL, 264, 7, 1, NULL, NULL, 0, 0, '0'),
-(1171, '00:00', '00:00', '0', NULL, NULL, 264, 8, 1, NULL, NULL, 0, 0, '0'),
-(1172, '00:00', '00:00', '0', NULL, NULL, 264, 10, 1, NULL, NULL, 0, 0, '0'),
-(1173, '00:00', '00:00', '0', NULL, NULL, 277, 1, 1, NULL, NULL, 0, 0, '0'),
-(1174, '00:00', '00:00', '0', NULL, NULL, 277, 3, 1, NULL, NULL, 0, 0, '0'),
-(1175, '00:00', '00:00', '0', NULL, NULL, 277, 4, 1, NULL, NULL, 0, 0, '0'),
-(1176, '00:00', '00:00', '0', NULL, NULL, 278, 1, 1, NULL, NULL, 0, 0, '0'),
-(1177, '00:00', '00:00', '0', NULL, NULL, 278, 2, 1, NULL, NULL, 0, 0, '0'),
-(1178, '00:00', '00:00', '0', NULL, NULL, 278, 3, 1, NULL, NULL, 0, 0, '0'),
-(1179, '00:00', '00:00', '0', NULL, NULL, 278, 4, 1, NULL, NULL, 0, 0, '0'),
-(1180, '00:00', '00:00', '0', NULL, NULL, 278, 5, 1, NULL, NULL, 0, 0, '0'),
-(1181, '00:00', '00:00', '0', NULL, NULL, 278, 6, 1, NULL, NULL, 0, 0, '0'),
-(1182, '00:00', '00:00', '0', NULL, NULL, 278, 7, 1, NULL, NULL, 0, 0, '0'),
-(1183, '00:00', '00:00', '0', NULL, NULL, 278, 8, 1, NULL, NULL, 0, 0, '0'),
-(1184, '00:00', '00:00', '0', NULL, NULL, 278, 10, 1, NULL, NULL, 0, 0, '0'),
-(1185, '00:00', '00:00', '0', NULL, NULL, 280, 1, 1, NULL, NULL, 0, 0, '0'),
-(1186, '00:00', '00:00', '0', NULL, NULL, 280, 2, 1, NULL, NULL, 0, 0, '0'),
-(1187, '00:00', '00:00', '0', NULL, NULL, 280, 3, 1, NULL, NULL, 0, 0, '0'),
-(1188, '00:00', '00:00', '0', NULL, NULL, 280, 4, 1, NULL, NULL, 0, 0, '0'),
-(1189, '00:00', '00:00', '0', NULL, NULL, 280, 5, 1, NULL, NULL, 0, 0, '0'),
-(1190, '00:00', '00:00', '0', NULL, NULL, 280, 6, 1, NULL, NULL, 0, 0, '0'),
-(1191, '00:00', '00:00', '0', NULL, NULL, 280, 7, 1, NULL, NULL, 0, 0, '0'),
-(1192, '00:00', '00:00', '0', NULL, NULL, 280, 8, 1, NULL, NULL, 0, 0, '0'),
-(1193, '00:00', '00:00', '0', NULL, NULL, 280, 9, 1, NULL, NULL, 0, 0, '0'),
-(1194, '00:00', '00:00', '0', NULL, NULL, 280, 10, 1, NULL, NULL, 0, 0, '0'),
-(1195, '00:00', '00:00', '0', NULL, NULL, 282, 1, 1, NULL, NULL, 0, 0, '0'),
-(1196, '00:00', '00:00', '0', NULL, NULL, 282, 2, 1, NULL, NULL, 0, 0, '0'),
-(1197, '00:00', '00:00', '0', NULL, NULL, 282, 3, 1, NULL, NULL, 0, 0, '0'),
-(1198, '00:00', '00:00', '0', NULL, NULL, 282, 4, 1, NULL, NULL, 0, 0, '0'),
-(1199, '00:00', '00:00', '0', NULL, NULL, 282, 5, 1, NULL, NULL, 0, 0, '0'),
-(1200, '00:00', '00:00', '0', NULL, NULL, 282, 6, 1, NULL, NULL, 0, 0, '0'),
-(1201, '00:00', '00:00', '0', NULL, NULL, 282, 7, 1, NULL, NULL, 0, 0, '0'),
-(1202, '00:00', '00:00', '0', NULL, NULL, 282, 8, 1, NULL, NULL, 0, 0, '0'),
-(1203, '00:00', '00:00', '0', NULL, NULL, 282, 10, 1, NULL, NULL, 0, 0, '0'),
-(1204, '02:17', '114:45', '50', '2019-02-20', '2019-02-20', 283, 1, 3, '2019-02-20 13:12:47', '2019-02-20 13:57:38', 0, 0, '0'),
-(1205, '00:00', '00:00', '0', NULL, NULL, 283, 2, 1, NULL, NULL, 0, 0, '0'),
-(1206, '00:00', '00:00', '0', NULL, NULL, 283, 3, 1, NULL, NULL, 0, 0, '0'),
-(1207, '00:00', '00:00', '0', NULL, NULL, 283, 4, 1, NULL, NULL, 0, 0, '0'),
-(1208, '00:00', '00:00', '0', NULL, NULL, 283, 5, 1, NULL, NULL, 0, 0, '0'),
-(1209, '00:00', '00:00', '0', NULL, NULL, 283, 6, 1, NULL, NULL, 0, 0, '0'),
-(1210, '00:00', '00:00', '0', NULL, NULL, 283, 7, 1, NULL, NULL, 0, 0, '0'),
-(1211, '00:00', '00:00', '0', NULL, NULL, 283, 8, 1, NULL, NULL, 0, 0, '0'),
-(1212, '00:00', '00:00', '0', NULL, NULL, 283, 10, 1, NULL, NULL, 0, 0, '0'),
-(1213, '00:00', '00:00', '0', NULL, NULL, 284, 1, 1, NULL, NULL, 0, 0, '0'),
-(1214, '00:00', '00:00', '0', NULL, NULL, 284, 2, 1, NULL, NULL, 0, 0, '0'),
-(1215, '00:00', '00:00', '0', NULL, NULL, 284, 3, 1, NULL, NULL, 0, 0, '0'),
-(1216, '00:00', '00:00', '0', NULL, NULL, 284, 4, 1, NULL, NULL, 0, 0, '0'),
-(1217, '00:00', '00:00', '0', NULL, NULL, 284, 5, 1, NULL, NULL, 0, 0, '0'),
-(1218, '00:00', '00:00', '0', NULL, NULL, 284, 6, 1, NULL, NULL, 0, 0, '0'),
-(1219, '00:00', '00:00', '0', NULL, NULL, 284, 7, 1, NULL, NULL, 0, 0, '0'),
-(1220, '00:00', '00:00', '0', NULL, NULL, 284, 8, 1, NULL, NULL, 0, 0, '0'),
-(1221, '00:00', '00:00', '0', NULL, NULL, 284, 10, 1, NULL, NULL, 0, 0, '0'),
-(1222, '02:47', '69:38', '25', '2019-02-20', '2019-02-20', 285, 1, 3, '2019-02-20 11:47:25', '2019-02-20 12:57:03', 0, 0, '0'),
-(1223, '00:00', '00:00', '0', NULL, NULL, 285, 2, 1, NULL, NULL, 0, 0, '0'),
-(1224, '00:00', '00:00', '0', NULL, NULL, 285, 3, 1, NULL, NULL, 0, 0, '0'),
-(1225, '00:00', '00:00', '0', NULL, NULL, 285, 4, 1, NULL, NULL, 0, 0, '0'),
-(1226, '00:00', '00:00', '0', NULL, NULL, 285, 5, 1, NULL, NULL, 0, 0, '0'),
-(1227, '00:00', '00:00', '0', NULL, NULL, 285, 6, 1, NULL, NULL, 0, 0, '0'),
-(1228, '00:00', '00:00', '0', NULL, NULL, 285, 7, 1, NULL, NULL, 0, 0, '0'),
-(1229, '00:00', '00:00', '0', NULL, NULL, 285, 8, 1, NULL, NULL, 0, 0, '0'),
-(1230, '00:00', '00:00', '0', NULL, NULL, 285, 10, 1, NULL, NULL, 0, 0, '0'),
-(1231, '00:00', '00:00', '0', NULL, NULL, 286, 1, 1, NULL, NULL, 0, 0, '0'),
-(1232, '00:00', '00:00', '0', NULL, NULL, 286, 2, 1, NULL, NULL, 0, 0, '0'),
-(1233, '01:30', '36:13', '24', '2019-02-20', '2019-02-20', 286, 3, 3, '2019-02-20 07:35:46', '2019-02-20 08:11:59', 0, 0, '0'),
-(1234, '00:00', '00:00', '0', NULL, NULL, 286, 4, 1, NULL, NULL, 0, 0, '0'),
-(1235, '00:00', '00:00', '0', NULL, NULL, 286, 5, 1, NULL, NULL, 0, 0, '0'),
-(1236, '00:00', '00:00', '0', NULL, NULL, 286, 6, 1, NULL, NULL, 0, 0, '0'),
-(1237, '00:00', '00:00', '0', NULL, NULL, 286, 7, 1, NULL, NULL, 0, 0, '0'),
-(1238, '00:00', '00:00', '0', NULL, NULL, 286, 8, 1, NULL, NULL, 0, 0, '0'),
-(1239, '00:00', '00:00', '0', NULL, NULL, 286, 10, 1, NULL, NULL, 0, 0, '0'),
-(1240, '00:00', '00:00', '0', NULL, NULL, 287, 1, 1, NULL, NULL, 0, 0, '0'),
-(1241, '00:00', '00:00', '0', '2019-02-21', NULL, 287, 2, 4, '2019-02-21 08:25:31', NULL, 1, 0, '0'),
-(1242, '00:56', '09:28', '10', '2019-02-20', '2019-02-20', 287, 3, 3, '2019-02-20 10:03:02', '2019-02-20 10:12:30', 0, 0, '0'),
-(1243, '00:00', '00:00', '0', NULL, NULL, 287, 4, 1, NULL, NULL, 0, 0, '0'),
-(1244, '00:00', '00:00', '0', NULL, NULL, 287, 5, 1, NULL, NULL, 0, 0, '0'),
-(1245, '00:00', '00:00', '0', NULL, NULL, 287, 6, 1, NULL, NULL, 0, 0, '0'),
-(1246, '00:00', '00:00', '0', NULL, NULL, 287, 7, 1, NULL, NULL, 0, 0, '0'),
-(1247, '00:00', '00:00', '0', NULL, NULL, 287, 8, 1, NULL, NULL, 0, 0, '0'),
-(1248, '00:00', '00:00', '0', NULL, NULL, 287, 10, 1, NULL, NULL, 0, 0, '0'),
-(1249, '00:00', '00:00', '0', NULL, NULL, 289, 1, 1, NULL, NULL, 0, 0, '0'),
-(1250, '00:00', '00:00', '0', NULL, NULL, 289, 3, 1, NULL, NULL, 0, 0, '0'),
-(1251, '00:00', '00:00', '0', NULL, NULL, 289, 4, 1, NULL, NULL, 0, 0, '0'),
-(1252, '00:00', '00:00', '0', NULL, NULL, 289, 5, 1, NULL, NULL, 0, 0, '0'),
-(1253, '00:00', '00:00', '0', '2019-02-20', NULL, 289, 6, 4, '2019-02-20 10:49:54', NULL, 1, 0, '0'),
-(1254, '00:00', '00:00', '0', NULL, NULL, 289, 7, 1, NULL, NULL, 0, 0, '0'),
-(1255, '00:00', '00:00', '0', NULL, NULL, 289, 8, 1, NULL, NULL, 0, 0, '0'),
-(1256, '00:00', '00:00', '0', NULL, NULL, 289, 9, 1, NULL, NULL, 0, 0, '0'),
-(1257, '00:00', '00:00', '0', NULL, NULL, 289, 10, 1, NULL, NULL, 0, 0, '0'),
-(1258, '00:00', '00:00', '0', NULL, NULL, 291, 1, 1, NULL, NULL, 0, 0, '0'),
-(1259, '04:18', '21:34', '5', '2019-02-20', '2019-02-20', 291, 3, 3, '2019-02-20 08:54:28', '2019-02-20 09:03:33', 0, 0, '0'),
-(1260, '00:00', '00:00', '0', NULL, NULL, 291, 4, 1, NULL, NULL, 0, 0, '0'),
-(1261, '00:00', '00:00', '0', NULL, NULL, 291, 5, 1, NULL, NULL, 0, 0, '0'),
-(1262, '00:00', '00:00', '0', NULL, NULL, 291, 6, 1, NULL, NULL, 0, 0, '0'),
-(1263, '00:00', '00:00', '0', NULL, NULL, 291, 7, 1, NULL, NULL, 0, 0, '0'),
-(1264, '00:00', '00:00', '0', NULL, NULL, 291, 8, 1, NULL, NULL, 0, 0, '0'),
-(1265, '00:00', '00:00', '0', NULL, NULL, 291, 10, 1, NULL, NULL, 0, 0, '0'),
-(1266, '00:00', '00:00', '0', '2019-02-21', NULL, 294, 1, 4, '2019-02-21 09:45:50', NULL, 1, 0, '0'),
-(1267, '00:00', '00:00', '0', NULL, NULL, 294, 2, 1, NULL, NULL, 0, 0, '0'),
-(1268, '00:00', '00:00', '0', NULL, NULL, 294, 3, 1, NULL, NULL, 0, 0, '0'),
-(1269, '00:00', '00:00', '0', NULL, NULL, 294, 4, 1, NULL, NULL, 0, 0, '0'),
-(1270, '00:00', '00:00', '0', NULL, NULL, 294, 5, 1, NULL, NULL, 0, 0, '0'),
-(1271, '00:00', '00:00', '0', NULL, NULL, 294, 6, 1, NULL, NULL, 0, 0, '0'),
-(1272, '00:00', '00:00', '0', NULL, NULL, 294, 7, 1, NULL, NULL, 0, 0, '0'),
-(1273, '00:00', '00:00', '0', NULL, NULL, 294, 8, 1, NULL, NULL, 0, 0, '0'),
-(1274, '00:00', '00:00', '0', NULL, NULL, 294, 10, 1, NULL, NULL, 0, 0, '0'),
-(1275, '00:00', '00:00', '0', NULL, NULL, 295, 1, 1, NULL, NULL, 0, 0, '0'),
-(1276, '00:00', '00:00', '0', NULL, NULL, 295, 2, 1, NULL, NULL, 0, 0, '0'),
-(1277, '05:45', '28:48', '5', '2019-02-20', '2019-02-20', 295, 3, 3, '2019-02-20 11:22:41', '2019-02-20 11:51:29', 0, 0, '0'),
-(1278, '00:00', '00:00', '0', NULL, NULL, 295, 4, 1, NULL, NULL, 0, 0, '0'),
-(1279, '00:00', '00:00', '0', NULL, NULL, 295, 5, 1, NULL, NULL, 0, 0, '0'),
-(1280, '00:00', '00:00', '0', NULL, NULL, 295, 6, 1, NULL, NULL, 0, 0, '0'),
-(1281, '00:00', '00:00', '0', NULL, NULL, 295, 7, 1, NULL, NULL, 0, 0, '0'),
-(1282, '00:00', '00:00', '0', NULL, NULL, 295, 8, 1, NULL, NULL, 0, 0, '0'),
-(1283, '00:00', '00:00', '0', NULL, NULL, 295, 10, 1, NULL, NULL, 0, 0, '0'),
-(1284, '00:49', '41:02', '50', '2019-02-21', '2019-02-21', 296, 1, 3, '2019-02-21 07:57:09', '2019-02-21 08:38:11', 0, 0, '0'),
-(1285, '00:00', '00:00', '0', NULL, NULL, 296, 3, 1, NULL, NULL, 0, 0, '0'),
-(1286, '00:00', '00:00', '0', NULL, NULL, 296, 4, 1, NULL, NULL, 0, 0, '0'),
-(1287, '00:00', '00:00', '0', NULL, NULL, 296, 5, 1, NULL, NULL, 0, 0, '0'),
-(1288, '00:00', '00:00', '0', NULL, NULL, 296, 7, 1, NULL, NULL, 0, 0, '0'),
-(1289, '00:00', '00:00', '0', NULL, NULL, 296, 8, 1, NULL, NULL, 0, 0, '0'),
-(1290, '00:00', '00:00', '0', NULL, NULL, 296, 10, 1, NULL, NULL, 0, 0, '0'),
-(1291, '00:00', '00:00', '0', NULL, NULL, 298, 1, 1, NULL, NULL, 0, 0, '0'),
-(1292, '00:00', '00:00', '0', NULL, NULL, 298, 2, 1, NULL, NULL, 0, 0, '0'),
-(1293, '00:00', '00:00', '0', NULL, NULL, 298, 3, 1, NULL, NULL, 0, 0, '0');
-INSERT INTO `detalle_formato_estandar` (`idDetalle_formato_estandar`, `tiempo_por_unidad`, `tiempo_total_por_proceso`, `cantidad_terminada`, `fecha_inicio`, `fecha_fin`, `idDetalle_proyecto`, `idproceso`, `estado`, `hora_ejecucion`, `hora_terminacion`, `noperarios`, `orden`, `cantidadProceso`) VALUES
-(1294, '00:00', '00:00', '0', NULL, NULL, 298, 4, 1, NULL, NULL, 0, 0, '0'),
-(1295, '00:00', '00:00', '0', NULL, NULL, 298, 5, 1, NULL, NULL, 0, 0, '0'),
-(1296, '00:00', '00:00', '0', NULL, NULL, 298, 6, 1, NULL, NULL, 0, 0, '0'),
-(1297, '00:00', '00:00', '0', NULL, NULL, 298, 7, 1, NULL, NULL, 0, 0, '0'),
-(1298, '00:00', '00:00', '0', NULL, NULL, 298, 8, 1, NULL, NULL, 0, 0, '0'),
-(1299, '00:00', '00:00', '0', NULL, NULL, 298, 9, 1, NULL, NULL, 0, 0, '0'),
-(1300, '00:00', '00:00', '0', NULL, NULL, 298, 10, 1, NULL, NULL, 0, 0, '0'),
-(1301, '01:54', '01:54', '1', '2019-02-20', '2019-02-20', 300, 1, 3, '2019-02-20 16:02:47', '2019-02-20 16:04:41', 0, 0, '0'),
-(1302, '07:47', '07:47', '1', '2019-02-21', '2019-02-21', 300, 3, 3, '2019-02-21 06:51:51', '2019-02-21 06:59:38', 0, 0, '0'),
-(1303, '00:00', '00:00', '0', NULL, NULL, 300, 4, 1, NULL, NULL, 0, 0, '0'),
-(1304, '00:00', '00:00', '0', NULL, NULL, 300, 5, 1, NULL, NULL, 0, 0, '0'),
-(1305, '00:00', '00:00', '0', NULL, NULL, 300, 6, 1, NULL, NULL, 0, 0, '0'),
-(1306, '00:00', '00:00', '0', NULL, NULL, 300, 7, 1, NULL, NULL, 0, 0, '0'),
-(1307, '00:00', '00:00', '0', NULL, NULL, 300, 8, 1, NULL, NULL, 0, 0, '0'),
-(1308, '00:00', '00:00', '0', NULL, NULL, 300, 10, 1, NULL, NULL, 0, 0, '0'),
-(1309, '09:33', '09:33', '1', '2019-02-20', '2019-02-20', 301, 1, 3, '2019-02-20 14:56:39', '2019-02-20 14:57:00', 0, 0, '0'),
-(1310, '00:00', '00:00', '0', NULL, NULL, 301, 2, 1, NULL, NULL, 0, 0, '0'),
-(1311, '00:00', '00:00', '0', NULL, NULL, 301, 3, 1, NULL, NULL, 0, 0, '0'),
-(1312, '00:00', '00:00', '0', NULL, NULL, 301, 4, 1, NULL, NULL, 0, 0, '0'),
-(1313, '00:00', '00:00', '0', NULL, NULL, 301, 5, 1, NULL, NULL, 0, 0, '0'),
-(1314, '00:00', '00:00', '0', NULL, NULL, 301, 6, 1, NULL, NULL, 0, 0, '0'),
-(1315, '00:00', '00:00', '0', NULL, NULL, 301, 7, 1, NULL, NULL, 0, 0, '0'),
-(1316, '00:00', '00:00', '0', NULL, NULL, 301, 8, 1, NULL, NULL, 0, 0, '0'),
-(1317, '00:00', '00:00', '0', NULL, NULL, 301, 10, 1, NULL, NULL, 0, 0, '0'),
-(1318, '00:59', '05:59', '6', '2019-02-20', '2019-02-20', 243, 9, 3, '2019-02-20 09:24:09', '2019-02-20 09:30:08', 0, 0, '0'),
-(1319, '01:46', '01:46', '1', '2019-02-20', '2019-02-20', 262, 9, 3, '2019-02-20 09:33:35', '2019-02-20 09:35:21', 0, 0, '0'),
-(1320, '00:00', '00:00', '0', NULL, NULL, 302, 1, 1, NULL, NULL, 0, 0, '0'),
-(1321, '00:00', '00:00', '0', NULL, NULL, 302, 2, 1, NULL, NULL, 0, 0, '0'),
-(1322, '00:00', '00:00', '0', NULL, NULL, 302, 3, 1, NULL, NULL, 0, 0, '0'),
-(1323, '00:00', '00:00', '0', NULL, NULL, 302, 4, 1, NULL, NULL, 0, 0, '0'),
-(1324, '00:00', '00:00', '0', NULL, NULL, 302, 5, 1, NULL, NULL, 0, 0, '0'),
-(1325, '00:00', '00:00', '0', NULL, NULL, 302, 6, 1, NULL, NULL, 0, 0, '0'),
-(1326, '00:00', '00:00', '0', NULL, NULL, 302, 7, 1, NULL, NULL, 0, 0, '0'),
-(1327, '00:00', '00:00', '0', NULL, NULL, 302, 8, 1, NULL, NULL, 0, 0, '0'),
-(1328, '00:00', '00:00', '0', NULL, NULL, 302, 10, 1, NULL, NULL, 0, 0, '0'),
-(1329, '00:00', '00:00', '0', NULL, NULL, 303, 1, 1, NULL, NULL, 0, 0, '0'),
-(1330, '00:00', '00:00', '0', NULL, NULL, 303, 2, 1, NULL, NULL, 0, 0, '0'),
-(1331, '00:00', '00:00', '0', NULL, NULL, 303, 3, 1, NULL, NULL, 0, 0, '0'),
-(1332, '00:00', '00:00', '0', NULL, NULL, 303, 4, 1, NULL, NULL, 0, 0, '0'),
-(1333, '00:00', '00:00', '0', NULL, NULL, 303, 5, 1, NULL, NULL, 0, 0, '0'),
-(1334, '00:00', '00:00', '0', NULL, NULL, 303, 6, 1, NULL, NULL, 0, 0, '0'),
-(1335, '00:00', '00:00', '0', NULL, NULL, 303, 7, 1, NULL, NULL, 0, 0, '0'),
-(1336, '00:00', '00:00', '0', NULL, NULL, 303, 8, 1, NULL, NULL, 0, 0, '0'),
-(1337, '00:00', '00:00', '0', NULL, NULL, 303, 10, 1, NULL, NULL, 0, 0, '0'),
-(1338, '02:17', '09:09', '4', '2019-02-20', '2019-02-20', 304, 1, 3, '2019-02-20 14:57:11', '2019-02-20 14:57:20', 0, 0, '0'),
-(1339, '00:00', '00:00', '0', '2019-02-21', NULL, 304, 2, 4, '2019-02-21 09:58:41', NULL, 1, 0, '0'),
-(1340, '00:00', '00:00', '0', NULL, NULL, 304, 3, 1, NULL, NULL, 0, 0, '0'),
-(1341, '00:00', '00:00', '0', NULL, NULL, 304, 4, 1, NULL, NULL, 0, 0, '0'),
-(1342, '00:00', '00:00', '0', NULL, NULL, 304, 5, 1, NULL, NULL, 0, 0, '0'),
-(1343, '00:00', '00:00', '0', NULL, NULL, 304, 6, 1, NULL, NULL, 0, 0, '0'),
-(1344, '00:00', '00:00', '0', NULL, NULL, 304, 7, 1, NULL, NULL, 0, 0, '0'),
-(1345, '00:00', '00:00', '0', NULL, NULL, 304, 8, 1, NULL, NULL, 0, 0, '0'),
-(1346, '00:00', '00:00', '0', NULL, NULL, 304, 10, 1, NULL, NULL, 0, 0, '0'),
-(1347, '00:48', '08:09', '10', '2019-02-21', '2019-02-21', 305, 1, 3, '2019-02-21 08:40:28', '2019-02-21 08:48:37', 0, 0, '0'),
-(1348, '00:00', '00:00', '0', '2019-02-21', NULL, 305, 3, 4, '2019-02-21 09:56:01', NULL, 1, 0, '0'),
-(1349, '00:00', '00:00', '0', NULL, NULL, 305, 4, 1, NULL, NULL, 0, 0, '0'),
-(1350, '00:00', '00:00', '0', NULL, NULL, 305, 5, 1, NULL, NULL, 0, 0, '0'),
-(1351, '00:00', '00:00', '0', NULL, NULL, 305, 6, 1, NULL, NULL, 0, 0, '0'),
-(1352, '00:00', '00:00', '0', NULL, NULL, 305, 7, 1, NULL, NULL, 0, 0, '0'),
-(1353, '00:00', '00:00', '0', NULL, NULL, 305, 8, 1, NULL, NULL, 0, 0, '0'),
-(1354, '00:00', '00:00', '0', NULL, NULL, 305, 10, 1, NULL, NULL, 0, 0, '0'),
-(1355, '00:00', '00:00', '0', NULL, NULL, 306, 1, 1, NULL, NULL, 0, 0, '0'),
-(1356, '00:00', '00:00', '0', NULL, NULL, 306, 2, 1, NULL, NULL, 0, 0, '0'),
-(1357, '00:00', '00:00', '0', NULL, NULL, 306, 3, 1, NULL, NULL, 0, 0, '0'),
-(1358, '00:00', '00:00', '0', NULL, NULL, 306, 4, 1, NULL, NULL, 0, 0, '0'),
-(1359, '00:00', '00:00', '0', NULL, NULL, 306, 5, 1, NULL, NULL, 0, 0, '0'),
-(1360, '00:00', '00:00', '0', NULL, NULL, 306, 6, 1, NULL, NULL, 0, 0, '0'),
-(1361, '00:00', '00:00', '0', NULL, NULL, 306, 7, 1, NULL, NULL, 0, 0, '0'),
-(1362, '00:00', '00:00', '0', NULL, NULL, 306, 8, 1, NULL, NULL, 0, 0, '0'),
-(1363, '00:00', '00:00', '0', NULL, NULL, 306, 10, 1, NULL, NULL, 0, 0, '0'),
-(1364, '00:00', '00:00', '0', NULL, NULL, 308, 1, 1, NULL, NULL, 0, 0, '0'),
-(1365, '00:00', '00:00', '0', NULL, NULL, 308, 2, 1, NULL, NULL, 0, 0, '0'),
-(1366, '00:00', '00:00', '0', NULL, NULL, 308, 3, 1, NULL, NULL, 0, 0, '0'),
-(1367, '00:00', '00:00', '0', NULL, NULL, 308, 4, 1, NULL, NULL, 0, 0, '0'),
-(1368, '00:00', '00:00', '0', NULL, NULL, 308, 5, 1, NULL, NULL, 0, 0, '0'),
-(1369, '00:00', '00:00', '0', NULL, NULL, 308, 6, 1, NULL, NULL, 0, 0, '0'),
-(1370, '00:00', '00:00', '0', NULL, NULL, 308, 7, 1, NULL, NULL, 0, 0, '0'),
-(1371, '00:00', '00:00', '0', NULL, NULL, 308, 8, 1, NULL, NULL, 0, 0, '0'),
-(1372, '00:00', '00:00', '0', NULL, NULL, 308, 9, 1, NULL, NULL, 0, 0, '0'),
-(1373, '00:00', '00:00', '0', NULL, NULL, 308, 10, 1, NULL, NULL, 0, 0, '0'),
-(1374, '00:00', '00:00', '0', NULL, NULL, 310, 1, 1, NULL, NULL, 0, 0, '0'),
-(1375, '00:00', '00:00', '0', NULL, NULL, 310, 3, 1, NULL, NULL, 0, 0, '0'),
-(1376, '00:00', '00:00', '0', NULL, NULL, 310, 4, 1, NULL, NULL, 0, 0, '0'),
-(1377, '00:00', '00:00', '0', NULL, NULL, 311, 1, 1, NULL, NULL, 0, 0, '0'),
-(1378, '00:00', '00:00', '0', NULL, NULL, 311, 2, 1, NULL, NULL, 0, 0, '0'),
-(1379, '00:00', '00:00', '0', NULL, NULL, 311, 3, 1, NULL, NULL, 0, 0, '0'),
-(1380, '00:00', '00:00', '0', NULL, NULL, 311, 4, 1, NULL, NULL, 0, 0, '0'),
-(1381, '00:00', '00:00', '0', NULL, NULL, 311, 5, 1, NULL, NULL, 0, 0, '0'),
-(1382, '00:00', '00:00', '0', NULL, NULL, 311, 6, 1, NULL, NULL, 0, 0, '0'),
-(1383, '00:00', '00:00', '0', NULL, NULL, 311, 7, 1, NULL, NULL, 0, 0, '0'),
-(1384, '00:00', '00:00', '0', NULL, NULL, 311, 8, 1, NULL, NULL, 0, 0, '0'),
-(1385, '00:00', '00:00', '0', NULL, NULL, 311, 10, 1, NULL, NULL, 0, 0, '0'),
-(1386, '00:47', '39:30', '50', '2019-02-21', '2019-02-21', 312, 1, 3, '2019-02-21 08:50:34', '2019-02-21 09:30:04', 0, 0, '0'),
-(1387, '00:00', '00:00', '0', NULL, NULL, 312, 3, 1, NULL, NULL, 0, 0, '0'),
-(1388, '00:00', '00:00', '0', NULL, NULL, 312, 4, 1, NULL, NULL, 0, 0, '0'),
-(1389, '00:00', '00:00', '0', NULL, NULL, 312, 5, 1, NULL, NULL, 0, 0, '0'),
-(1390, '00:00', '00:00', '0', NULL, NULL, 312, 6, 1, NULL, NULL, 0, 0, '0'),
-(1391, '00:00', '00:00', '0', NULL, NULL, 312, 7, 1, NULL, NULL, 0, 0, '0'),
-(1392, '00:00', '00:00', '0', NULL, NULL, 312, 8, 1, NULL, NULL, 0, 0, '0'),
-(1393, '00:00', '00:00', '0', NULL, NULL, 312, 10, 1, NULL, NULL, 0, 0, '0'),
-(1394, '00:00', '00:00', '0', NULL, NULL, 316, 1, 1, NULL, NULL, 0, 0, '0'),
-(1395, '00:00', '00:00', '0', NULL, NULL, 316, 3, 1, NULL, NULL, 0, 0, '0'),
-(1396, '00:00', '00:00', '0', NULL, NULL, 316, 4, 1, NULL, NULL, 0, 0, '0'),
-(1397, '00:00', '00:00', '0', NULL, NULL, 320, 1, 1, NULL, NULL, 0, 0, '0'),
-(1398, '00:00', '00:00', '0', NULL, NULL, 320, 3, 1, NULL, NULL, 0, 0, '0'),
-(1399, '00:00', '00:00', '0', NULL, NULL, 320, 4, 1, NULL, NULL, 0, 0, '0'),
-(1400, '00:00', '00:00', '0', NULL, NULL, 323, 1, 1, NULL, NULL, 0, 0, '0'),
-(1401, '00:00', '00:00', '0', NULL, NULL, 323, 2, 1, NULL, NULL, 0, 0, '0'),
-(1402, '00:00', '00:00', '0', NULL, NULL, 323, 3, 1, NULL, NULL, 0, 0, '0'),
-(1403, '00:00', '00:00', '0', NULL, NULL, 323, 4, 1, NULL, NULL, 0, 0, '0'),
-(1404, '00:00', '00:00', '0', NULL, NULL, 323, 5, 1, NULL, NULL, 0, 0, '0'),
-(1405, '00:00', '00:00', '0', NULL, NULL, 323, 6, 1, NULL, NULL, 0, 0, '0'),
-(1406, '00:00', '00:00', '0', NULL, NULL, 323, 7, 1, NULL, NULL, 0, 0, '0'),
-(1407, '00:00', '00:00', '0', NULL, NULL, 323, 8, 1, NULL, NULL, 0, 0, '0'),
-(1408, '00:00', '00:00', '0', NULL, NULL, 323, 9, 1, NULL, NULL, 0, 0, '0'),
-(1409, '00:00', '00:00', '0', NULL, NULL, 323, 10, 1, NULL, NULL, 0, 0, '0');
+(1, '00:07', '01:17', '10', '2019-02-25', '2019-02-25', 329, 1, 3, '2019-02-25 11:55:30', '2019-02-25 11:56:18', 0, 1, '0'),
+(2, '00:00', '00:25', '1', '2019-02-25', NULL, 329, 3, 2, '2019-02-25 12:12:25', '2019-02-25 12:12:40', 0, 2, '9'),
+(3, '00:00', '00:00', '0', NULL, NULL, 329, 4, 1, NULL, NULL, 0, 3, '1'),
+(4, '00:00', '00:00', '0', NULL, NULL, 329, 5, 1, NULL, NULL, 0, 4, '0'),
+(5, '00:00', '00:00', '0', NULL, NULL, 329, 7, 1, NULL, NULL, 0, 5, '0'),
+(6, '00:00', '00:00', '0', NULL, NULL, 329, 8, 1, NULL, NULL, 0, 6, '0'),
+(7, '00:00', '00:00', '0', NULL, NULL, 329, 10, 1, NULL, NULL, 0, 7, '0'),
+(8, '00:00', '00:00', '0', NULL, NULL, 330, 1, 1, NULL, NULL, 0, 1, '1'),
+(9, '00:00', '00:00', '0', NULL, NULL, 330, 4, 1, NULL, NULL, 0, 2, '0'),
+(10, '00:00', '00:00', '0', NULL, NULL, 331, 1, 1, NULL, NULL, 0, 1, '1'),
+(11, '00:00', '00:00', '0', NULL, NULL, 331, 4, 1, NULL, NULL, 0, 2, '0'),
+(12, '00:00', '00:00', '0', NULL, NULL, 331, 4, 1, NULL, NULL, 0, 2, '0'),
+(13, '00:00', '00:00', '0', NULL, NULL, 332, 1, 1, NULL, NULL, 0, 1, '1'),
+(14, '00:00', '00:00', '0', NULL, NULL, 332, 3, 1, NULL, NULL, 0, 2, '0'),
+(15, '00:00', '00:00', '0', NULL, NULL, 332, 4, 1, NULL, NULL, 0, 3, '0'),
+(16, '00:00', '00:00', '0', NULL, NULL, 333, 1, 1, NULL, NULL, 0, 1, '10'),
+(17, '00:00', '00:00', '0', NULL, NULL, 333, 2, 1, NULL, NULL, 0, 2, '0'),
+(18, '00:00', '00:00', '0', NULL, NULL, 333, 3, 1, NULL, NULL, 0, 3, '0'),
+(19, '00:00', '00:00', '0', NULL, NULL, 333, 4, 1, NULL, NULL, 0, 4, '0'),
+(20, '00:00', '00:00', '0', NULL, NULL, 333, 5, 1, NULL, NULL, 0, 5, '0'),
+(21, '00:00', '00:00', '0', NULL, NULL, 333, 6, 1, NULL, NULL, 0, 6, '0'),
+(22, '00:00', '00:00', '0', NULL, NULL, 333, 7, 1, NULL, NULL, 0, 7, '0'),
+(23, '00:00', '00:00', '0', NULL, NULL, 333, 8, 1, NULL, NULL, 0, 8, '0'),
+(24, '00:00', '00:00', '0', NULL, NULL, 333, 9, 1, NULL, NULL, 0, 9, '0'),
+(25, '00:00', '00:00', '0', NULL, NULL, 333, 10, 1, NULL, NULL, 0, 1, '0');
 
 -- --------------------------------------------------------
 
@@ -4318,7 +3120,7 @@ INSERT INTO `detalle_proyecto` (`idDetalle_proyecto`, `idProducto`, `canitadad_t
 (14, 1, '100', NULL, 31633, 3, 1, 0, NULL, 4, 0, 0, 0, '00:00', '00:00', NULL, '1036629003'),
 (15, 1, '40', NULL, 31682, 3, 1, 0, NULL, 4, 0, 0, 0, '00:00', '00:00', NULL, NULL),
 (16, 1, '50', NULL, 31717, 3, 2, 0, NULL, 2, 0, 2, 0, '5230:45', '00:00', NULL, NULL),
-(17, 1, '10', NULL, 31809, 3, 1, 0, NULL, 4, 0, 0, 0, '00:00', '00:00', NULL, '43542658'),
+(17, 1, '10', NULL, 31809, 3, 2, 0, NULL, 3, 0, 1, 0, '2887:39', '00:00', NULL, '43542658'),
 (18, 1, '2', NULL, 31793, 3, 3, 0, NULL, 1, 0, 0, 3, '520:17', '175:21', '2018-12-20 14:51:47', '43542658'),
 (19, 1, '200', NULL, 31810, 3, 1, 0, NULL, 4, 0, 0, 0, '00:00', '00:00', NULL, NULL),
 (20, 1, '200', NULL, 31815, 3, 1, 0, NULL, 4, 0, 0, 0, '00:00', '00:00', NULL, '1036622270'),
@@ -4576,7 +3378,18 @@ INSERT INTO `detalle_proyecto` (`idDetalle_proyecto`, `idProducto`, `canitadad_t
 (320, 6, '1', NULL, 32319, 1, 1, 0, NULL, 3, 0, 0, 0, '00:00', '00:00', NULL, NULL),
 (321, 1, '2', NULL, 32321, 3, 1, 0, NULL, 4, 0, 0, 0, '00:00', '00:00', NULL, NULL),
 (322, 1, '2', NULL, 32322, 3, 1, 0, NULL, 4, 0, 0, 0, '00:00', '00:00', NULL, NULL),
-(323, 1, '5', 'TH', 32323, 1, 1, 0, NULL, 10, 0, 0, 0, '00:00', '00:00', NULL, NULL);
+(323, 1, '5', 'TH', 32323, 1, 1, 0, NULL, 10, 0, 0, 0, '00:00', '00:00', NULL, NULL),
+(324, 1, '5', 'TH', 32324, 1, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL),
+(325, 1, '9', 'TH', 32325, 1, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL),
+(326, 1, '10', 'TH', 32326, 1, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL),
+(327, 1, '15', 'TH', 32327, 1, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL),
+(328, 1, '12', 'TH', 32328, 1, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL),
+(329, 2, '10', 'FV', 32329, 1, 2, 0, NULL, 5, 0, 1, 1, '01:42', '00:00', NULL, NULL),
+(330, 4, '1', 'FV', 32329, 1, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL),
+(331, 3, '1', 'FV', 32329, 1, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL),
+(332, 6, '1', NULL, 32329, 1, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL),
+(333, 1, '10', 'TH', 32329, 1, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL),
+(334, 5, '10', NULL, 32330, 2, 1, 0, NULL, 4, 0, 0, 0, '00:00', '00:00', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -4608,7 +3421,11 @@ INSERT INTO `detalle_teclados` (`idDetalle_teclados`, `tiempo_por_unidad`, `tiem
 (1, '00:00', '00:36', '0', '2018-12-05', NULL, 20, 11, 2, '2018-12-05 12:24:46', '2018-12-05 12:25:22', 15, 0),
 (2, '00:00', '00:00', '0', NULL, NULL, 20, 12, 1, NULL, NULL, 0, 0),
 (3, '00:00', '00:00', '0', NULL, NULL, 20, 13, 1, NULL, NULL, 0, 0),
-(4, '00:00', '00:00', '0', NULL, NULL, 20, 14, 1, NULL, NULL, 0, 0);
+(4, '00:00', '00:00', '0', NULL, NULL, 20, 14, 1, NULL, NULL, 0, 0),
+(5, '00:00', '00:00', '0', NULL, NULL, 334, 11, 1, NULL, NULL, 0, 0),
+(6, '00:00', '00:00', '0', NULL, NULL, 334, 12, 1, NULL, NULL, 0, 0),
+(7, '00:00', '00:00', '0', NULL, NULL, 334, 13, 1, NULL, NULL, 0, 0),
+(8, '00:00', '00:00', '0', NULL, NULL, 334, 14, 1, NULL, NULL, 0, 0);
 
 -- --------------------------------------------------------
 
@@ -4735,7 +3552,21 @@ INSERT INTO `procesos_producto` (`idProceso_producto`, `idCondicion`, `orden`, `
 (66, 8, '5', 7),
 (67, 8, '6', 8),
 (68, 8, '7', 9),
-(69, 8, '8', 10);
+(69, 8, '8', 10),
+(70, 9, '1', 1),
+(71, 9, '2', 3),
+(72, 9, '3', 4),
+(73, 10, '1', 1),
+(74, 10, '2', 4),
+(75, 11, '1', 1),
+(77, 11, '2', 4),
+(78, 12, '1', 1),
+(79, 12, '2', 3),
+(80, 12, '3', 4),
+(81, 12, '4', 5),
+(82, 12, '5', 7),
+(83, 12, '6', 8),
+(84, 12, '7', 10);
 
 -- --------------------------------------------------------
 
@@ -4834,7 +3665,7 @@ INSERT INTO `proyecto` (`numero_orden`, `usuario_numero_documento`, `nombre_clie
 (31793, '1152697088', 'MINISTERIO DE DEFENSA NACIONAL', 'MINDEFENSA - PLACA DE CONTROL - NOV 28-18', 'Normal', 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, '2018-12-03 10:31:36', '2018-12-14', '2018-12-20 14:51:47', 0, 0, 3, 0, 0, 1, 1, NULL, NULL, NULL, NULL, NULL, 'A tiempo', NULL),
 (31795, '981130', 'TECREA S.A.S', 'TRACKFOX LORA', 'Normal', 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, '2019-01-29 06:21:53', '2018-12-26', NULL, 0, 0, 2, 0, 0, 1, 1, NULL, NULL, NULL, NULL, NULL, 'A tiempo', NULL),
 (31799, '98765201', 'TECREA S.A.S ', 'COLLAR FASE 1 ', 'RQT', 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, '2018-12-12 10:27:19', '2018-12-14', NULL, 0, 0, 2, 0, 0, 0, 1, NULL, NULL, NULL, NULL, '', 'A tiempo', NULL),
-(31809, '1152697088', 'DISTRACOM S.A', 'DISTRACOM-MFC OMEGA-NOV 27-18', 'Normal', 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, '2018-12-03 09:41:39', '2018-12-18', NULL, 0, 0, 1, 0, 0, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(31809, '1152697088', 'DISTRACOM S.A', 'DISTRACOM-MFC OMEGA-NOV 27-18', 'Normal', 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, '2018-12-03 09:41:39', '2018-12-18', NULL, 0, 0, 2, 0, 0, 1, 1, NULL, NULL, NULL, NULL, NULL, 'A tiempo', NULL),
 (31810, '1152697088', 'Dometal', 'DOMETAL-8076 CONCENTRADOR-NOV 28 2018', 'Normal', 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, '2018-12-04 07:00:41', '2018-12-11', NULL, 0, 0, 1, 0, 0, 0, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (31815, '1152697088', 'Dometal', 'DOMETAL-8076 CONCENTRADOR-NOV 28 2018', 'Normal', 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, '2018-12-04 07:02:23', '2019-01-11', NULL, 0, 0, 1, 0, 0, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (31816, '1152697088', 'Dometal', 'DOMETAL-7141 ACELEROMETRO V2.6-NOV 28-18', 'Normal', 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, '2018-12-04 07:05:28', '2019-01-09', NULL, 0, 0, 1, 0, 0, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
@@ -5024,7 +3855,14 @@ INSERT INTO `proyecto` (`numero_orden`, `usuario_numero_documento`, `nombre_clie
 (32319, '1216714539', 'LYA ELECTRONICS ', 'UWIGO ', 'Normal', 1, 0, 1, 1, 0, 0, 0, 0, 1, 0, '2019-02-20 17:31:47', '2019-03-14', NULL, 1, 1, 4, 0, 0, 1, 1, '2019-03-11', '2019-03-08', NULL, NULL, NULL, 'A tiempo', NULL),
 (32321, '98765201', 'MICROPLAST ANTONIO PALACIO & COMPAÑIA S.A.S.', 'INTEGRACION 2', 'Normal', 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, '2019-02-21 09:00:12', '2019-03-04', NULL, 0, 0, 1, 0, 0, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (32322, '98765201', 'MICROPLAST ANTONIO PALACIO & COMPAÑIA S.A.S.', 'INTEGRACION 2', 'Normal', 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, '2019-02-21 09:13:35', '2019-03-04', NULL, 0, 0, 1, 0, 0, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(32323, '981130', 'Juan David Marulanda', 'Prueba de desarrollo', 'Normal', 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, '2019-02-22 12:43:06', '2019-02-01', NULL, 1, 1, 1, 0, 0, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+(32323, '981130', 'Juan David Marulanda', 'Prueba de desarrollo', 'Normal', 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, '2019-02-22 12:43:06', '2019-02-01', NULL, 1, 1, 1, 0, 0, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(32324, '981130', 'Juan David MArulanda P', 'Prueba de registro de procesos predeterminados para los productos de FE', 'RQT', 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, '2019-02-23 08:30:03', '2019-02-07', NULL, 0, 1, 1, 0, 0, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(32325, '981130', 'Juan David Marulanda Paniagua', 'Prueba de registro de procesos de proyecto de productos de FE numero 2', 'Normal', 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, '2019-02-23 08:33:30', '2019-02-08', NULL, 0, 1, 1, 0, 0, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(32326, '981130', 'Juan david Marualnda Paniagua', 'Prueba de desarrollo numero 3', 'Normal', 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, '2019-02-23 08:37:56', '2019-02-12', NULL, 0, 1, 1, 0, 0, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(32327, '981130', 'Juan david marulanda paniagua', 'prueba de desarrollo numero 4', 'RQT', 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, '2019-02-23 08:41:08', '2019-02-14', NULL, 0, 1, 1, 0, 0, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(32328, '981130', 'juan david marulanda', 'prueba de desarrollo numero 5', 'Normal', 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, '2019-02-23 08:49:17', '2019-02-14', NULL, 0, 1, 1, 0, 0, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(32329, '981130', 'juan david marulanda paniagua', 'prueba de desarrollo numero 6', 'RQT', 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, '2019-02-23 09:17:28', '2019-02-15', NULL, 1, 1, 2, 0, 0, 1, 1, NULL, NULL, NULL, NULL, NULL, 'A tiempo', NULL),
+(32330, '981130', 'juan david marulanda', 'prueba de desarrollo numero 8', 'Normal', 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, '2019-02-25 10:40:57', '2019-02-01', NULL, 0, 0, 1, 0, 0, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -5050,7 +3888,7 @@ CREATE TABLE `usuario` (
 --
 
 INSERT INTO `usuario` (`numero_documento`, `tipo_documento`, `nombres`, `apellidos`, `cargo_idcargo`, `imagen`, `estado`, `contraeña`, `sesion`, `recuperacion`) VALUES
-('1017156424', 'CC', 'YAZMIN ANDREA', 'GALEANO CASTAÑEDA', 3, '', 1, 'yazmin1987', 1, 'dñpgxp68@4'),
+('1017156424', 'CC', 'YAZMIN ANDREA', 'GALEANO CASTAÑEDA', 3, '', 1, 'yazmin1987', 0, 'dñpgxp68@4'),
 ('1017191779', 'CC', 'Sintia Liceth', 'Ossa Vasquez', 6, '', 0, '1017191779', 0, '51e-uiññl9'),
 ('1020479554', 'CC', 'Sebastian', 'Gallego Perez', 3, NULL, 1, '1020479554', 1, '6wjnnjg5a-'),
 ('1040044905', 'CC', 'Jose Daniel ', 'Grajales Carmona', 1, '', 1, '1040044905', 0, 'z9jmqbñ2kl'),
@@ -5058,16 +3896,16 @@ INSERT INTO `usuario` (`numero_documento`, `tipo_documento`, `nombres`, `apellid
 ('1128266934', 'CC', 'Jhon Fredy', 'Velez Londoño', 4, '', 1, '1128266934', 0, '4elax2f2ub'),
 ('1152210828', 'CC', 'PAULA ANDREA ', 'HERRERA ÁLVAREZ', 5, '', 1, '1152210828', 1, 'eimaumks9s'),
 ('1152697088', 'CC', 'Diana Marcela', 'Patiño Cardona', 6, '', 1, '1152697088', 0, '1@zujadnñk'),
-('1216714539', 'CC', 'Maria alejandra ', 'zuluaga rivera', 6, '', 1, '1216714539', 1, '84@w8wli4a'),
+('1216714539', 'CC', 'Maria alejandra ', 'zuluaga rivera', 6, '', 1, '1216714539', 0, '84@w8wli4a'),
 ('123456789', 'CC', 'Almacen', '', 5, '', 1, '123456789', 0, 'jfmhh0vq5b'),
 ('42800589', 'CC', 'Juliana', 'Naranjo Henao', 6, '', 0, '42800589', 0, '-cnño-5wb4'),
 ('43263856', 'CC', 'Paula Andrea', 'Lopez Gutierrrez', 1, '', 1, '43263856', 0, 'cxcx03ñkf4'),
 ('43975208', 'CC', 'GLORIA ', 'JARAMILLO ', 2, '', 1, '43975208', 1, 'kbdnsdlciq'),
 ('71268332', 'CC', 'Adimaro', 'Montoya', 3, '', 0, '71268332', 0, '1vr8s4th-@'),
-('981130', 'CC', 'Juan David', 'Marulanda Paniagua', 4, '', 1, '98113053240juan', 1, '1u-hyppy60'),
+('981130', 'CC', 'Juan David', 'Marulanda Paniagua', 4, '', 1, '98113053240juan', 0, '1u-hyppy60'),
 ('98113053240', 'CC', 'Juan david', 'Marulanda Paniagua', 2, '', 1, '98113053240', 1, 'ue2282qgo1'),
 ('98699433', 'CC', 'ANDRES CAMILO', 'BUITRAGO GÓMEZ', 1, '', 1, '98699433', 0, 'ñkzrv7l@uh'),
-('98765201', 'CC', 'EDISSON ANDRES', 'BARAHONA CASTRILLON', 6, '', 1, '98765201', 1, 'q1-4i3i99t');
+('98765201', 'CC', 'EDISSON ANDRES', 'BARAHONA CASTRILLON', 6, '', 1, '98765201', 0, 'q1-4i3i99t');
 
 -- --------------------------------------------------------
 
@@ -5088,7 +3926,7 @@ CREATE TABLE `usuariopuerto` (
 
 INSERT INTO `usuariopuerto` (`documentousario`, `usuarioPuerto`, `rutaQRs`, `estadoLectura`) VALUES
 ('43975208', 'COM11', NULL, 1),
-('1017156424', 'COM7', NULL, 1),
+('1017156424', 'COM5', NULL, 0),
 ('981130', 'COM5', '\\\\servidor\\Proyectos2\\3 - QR\\', 0),
 ('71268332', 'COM1', NULL, 0),
 ('1128266934', 'COM4', NULL, 0),
@@ -5231,7 +4069,7 @@ ALTER TABLE `cargo`
 -- AUTO_INCREMENT de la tabla `condicion_producto`
 --
 ALTER TABLE `condicion_producto`
-  MODIFY `idCondicion` tinyint(4) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `idCondicion` tinyint(4) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT de la tabla `detalle_ensamble`
@@ -5243,19 +4081,19 @@ ALTER TABLE `detalle_ensamble`
 -- AUTO_INCREMENT de la tabla `detalle_formato_estandar`
 --
 ALTER TABLE `detalle_formato_estandar`
-  MODIFY `idDetalle_formato_estandar` smallint(6) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1410;
+  MODIFY `idDetalle_formato_estandar` smallint(6) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT de la tabla `detalle_proyecto`
 --
 ALTER TABLE `detalle_proyecto`
-  MODIFY `idDetalle_proyecto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=324;
+  MODIFY `idDetalle_proyecto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=335;
 
 --
 -- AUTO_INCREMENT de la tabla `detalle_teclados`
 --
 ALTER TABLE `detalle_teclados`
-  MODIFY `idDetalle_teclados` smallint(6) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `idDetalle_teclados` smallint(6) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT de la tabla `procesos`
@@ -5267,7 +4105,7 @@ ALTER TABLE `procesos`
 -- AUTO_INCREMENT de la tabla `procesos_producto`
 --
 ALTER TABLE `procesos_producto`
-  MODIFY `idProceso_producto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=70;
+  MODIFY `idProceso_producto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=85;
 
 --
 -- AUTO_INCREMENT de la tabla `producto`
@@ -5279,7 +4117,7 @@ ALTER TABLE `producto`
 -- AUTO_INCREMENT de la tabla `proyecto`
 --
 ALTER TABLE `proyecto`
-  MODIFY `numero_orden` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32324;
+  MODIFY `numero_orden` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32331;
 
 --
 -- Restricciones para tablas volcadas

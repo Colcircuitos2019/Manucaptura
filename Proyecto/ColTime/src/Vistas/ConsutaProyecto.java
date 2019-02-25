@@ -1127,7 +1127,7 @@ public class ConsutaProyecto extends javax.swing.JFrame {
                     v2[4] = crs.getString(7);//Ubicacion del PNC
                     if (TProyecto.getValueAt(row, 16).toString().equals("1")) {
                         v2[5] = clasificarEstado(crs.getInt(5));//Estado
-                    } else {
+                    } else {    
                         v2[5] = "Parada";//Estado
                     }
                     model2.addRow(v2);

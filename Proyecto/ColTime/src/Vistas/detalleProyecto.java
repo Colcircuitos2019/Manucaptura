@@ -133,15 +133,16 @@ public class detalleProyecto extends javax.swing.JDialog {
         TDetalleProduccion.setForeground(new java.awt.Color(128, 128, 131));
         TDetalleProduccion.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null}
+                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null}
             },
             new String [] {
-                "Proceso", "Fecha inicio", "Fecha fin", "Restantes", "Cantidad Procesada", "Tiempo total min", "Tiempo por unidad min", "Estado", "Hora Ejecucion", "Tiempo Ejecucion", "Hora Terminacion", "N°Op", "reiniciar", "IDdetalle", "Tiempo"
+                "Proceso", "Fecha inicio", "Fecha fin", "Restantes", "Cantidad Procesada", "Tiempo total min", "Tiempo por unidad min", "Estado", "Hora Ejecucion", "Tiempo Ejecucion", "Hora Terminacion", "N°Op", "orden", "reiniciar", "IDdetalle", "Tiempo"
             }
         ));
+        TDetalleProduccion.setToolTipText("");
         TDetalleProduccion.setFillsViewportHeight(true);
         TDetalleProduccion.setFocusTraversalPolicyProvider(true);
         TDetalleProduccion.setFocusable(false);
@@ -615,7 +616,8 @@ public class detalleProyecto extends javax.swing.JDialog {
         } catch (Exception e) {
 //            JOptionPane.showMessageDialog(null, "Error!! " + e);
         }
-
+        //                         0             1              2              3             4                    5                   6                7              8                   9                    10               11      12         13           14          15                       
+//        String encabezado[] = {"Proceso", "Fecha inicio", "Fecha fin", "Restante", "Cantidad procesada", "Tiempo total min", "Tiempo unidad min", "Estado", "Hora de ejecución", "Tiempo Ejecución", "Hora de Terminación", "N°OP", "Orden", "Reiniciar", "IDdetalle", "Tiempo"};
         if (permiso == 1 || negocio == 4) {
             if (negocio == 4) {
                 //Tiempo por unidad
@@ -631,32 +633,32 @@ public class detalleProyecto extends javax.swing.JDialog {
         }
         //Seleccion de orden de proceso inicial
         if(cargo!=3){
-            //orden
+            //orden de ejecucion de los procesos
+            TDetalleProduccion.getColumnModel().getColumn(12).setMinWidth(0);
+            TDetalleProduccion.getColumnModel().getColumn(12).setMaxWidth(0);
+            TDetalleProduccion.getTableHeader().getColumnModel().getColumn(12).setMaxWidth(0);
+            TDetalleProduccion.getTableHeader().getColumnModel().getColumn(12).setMinWidth(0);
+        }
+        
+        //Boton parar toma de tiempo para almacen
+        if (negocio != 4 || cargo !=5) {
             TDetalleProduccion.getColumnModel().getColumn(15).setMinWidth(0);
             TDetalleProduccion.getColumnModel().getColumn(15).setMaxWidth(0);
             TDetalleProduccion.getTableHeader().getColumnModel().getColumn(15).setMaxWidth(0);
             TDetalleProduccion.getTableHeader().getColumnModel().getColumn(15).setMinWidth(0);
         }
-        
-        //Boton parar toma de tiempo para almacen
-        if (negocio != 4 || cargo !=5) {
-            TDetalleProduccion.getColumnModel().getColumn(14).setMinWidth(0);
-            TDetalleProduccion.getColumnModel().getColumn(14).setMaxWidth(0);
-            TDetalleProduccion.getTableHeader().getColumnModel().getColumn(14).setMaxWidth(0);
-            TDetalleProduccion.getTableHeader().getColumnModel().getColumn(14).setMinWidth(0);
-        }
         //ID detalle del almacen
+        TDetalleProduccion.getColumnModel().getColumn(14).setMinWidth(0);
+        TDetalleProduccion.getColumnModel().getColumn(14).setMaxWidth(0);
+        TDetalleProduccion.getTableHeader().getColumnModel().getColumn(14).setMaxWidth(0);
+        TDetalleProduccion.getTableHeader().getColumnModel().getColumn(14).setMinWidth(0);
+    }
+
+    public void editarTamañoColumnas() {
         TDetalleProduccion.getColumnModel().getColumn(13).setMinWidth(0);
         TDetalleProduccion.getColumnModel().getColumn(13).setMaxWidth(0);
         TDetalleProduccion.getTableHeader().getColumnModel().getColumn(13).setMaxWidth(0);
         TDetalleProduccion.getTableHeader().getColumnModel().getColumn(13).setMinWidth(0);
-    }
-
-    public void editarTamañoColumnas() {
-        TDetalleProduccion.getColumnModel().getColumn(12).setMinWidth(0);
-        TDetalleProduccion.getColumnModel().getColumn(12).setMaxWidth(0);
-        TDetalleProduccion.getTableHeader().getColumnModel().getColumn(12).setMaxWidth(0);
-        TDetalleProduccion.getTableHeader().getColumnModel().getColumn(12).setMinWidth(0);
     }
 
     /**

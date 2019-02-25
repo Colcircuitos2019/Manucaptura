@@ -2110,7 +2110,7 @@ public class proyecto extends javax.swing.JPanel {
         modificarInfoProyecto(obj);//Informacion general del proyecto
         if (obj.registrar_Modificar_Proyecto(Menu.jDocumento.getText(), op)) {
             if (op == 1) {
-                //Registrar el proyecto
+                //Registrar el proyecto 
                 if (RegistrarModificarDetalle(jTNorden.getText(), 1)) {
                     //Mensaje de exito
                     new rojerusan.RSNotifyAnimated("Listo!!", "El Proyecto con el numero de orden: " + jTNorden.getText() + " fue registrada exitosamente.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.SUCCESS).setVisible(true);

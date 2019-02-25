@@ -29,11 +29,11 @@ public class Render extends DefaultTableCellRenderer {
         if (table.getValueAt(row, columna_patron).equals("Por iniciar")) {
             setBackground(Color.white);
         } else if (table.getValueAt(row, columna_patron).equals("Pausado")) {
-            setBackground(new Color(255, 168, 27));//Orange
+            setBackground(Color.RED);
         } else if (table.getValueAt(row, columna_patron).equals("Terminado")) {
             setBackground(Color.GREEN);
         } else if (table.getValueAt(row, columna_patron).equals("Ejecucion")) {
-            setBackground(Color.gray);
+            setBackground(new Color(255, 168, 27));//Orange
         }
         //Botones del jTable
         if (value instanceof JButton) {
