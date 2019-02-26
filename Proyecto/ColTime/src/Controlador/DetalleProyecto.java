@@ -153,9 +153,9 @@ public class DetalleProyecto {
     }
     
     //Seleccionar el proceso del área de ensamble por el cual va a iniciar el desarrollo de ese procesos
-    public boolean seleccionPrimerProcesoEnsamble(int detalle, int idProceso){
+    public boolean seleccionPrimerProcesoEnoTE(int detalle, int idProceso, int area){
         DetalleProyectoM obj = new DetalleProyectoM();
-        return obj.seleccionPrimerProcesoEnsambleM(detalle,idProceso);
+        return obj.seleccionPrimerProcesoENoTEM(detalle, idProceso, area);
     }
 
     @Override

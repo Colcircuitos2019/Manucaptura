@@ -50,7 +50,8 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
             rs.next();
             if (rs.getBoolean(1)) {//Pausar O IniciarToma de tiempos
                 //-------------------------------------------------------------->
-                if(area==3 || area==1){
+                // Queda pendiente la forma de realizar la toma de tiempos del área del almacen
+                if(area==3 || area==1 || area==2){
                 //Validar el sub proceso al cual se va a enviar la informacion
                         //Validar que la cantidad ingresada por el operario sea igual o menor a la cantidad que tiene disponible este proceso para trabajar
                         Qry = "SELECT FU_ValidarCantidadProcesoAreasProduccion(?,?,?);";
@@ -71,7 +72,8 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
                 int restante=0;
                 //...
                 if(accion){
-                    if(area!=3 && area!=1){//Si el área de produccion es "1"=Formato estandar o "2"=Teclados el estado se calcula desde el modelo
+                    // Queda pendiente la toma de tiempos del área de almacen
+                    if(area!=3 && area!=1 && area!=2){//Si el área de produccion es "1"=Formato estandar o "2"=Teclados el estado se calcula desde el modelo
                         Qry = "CALL PA_ValidarCantidadDetalleProyecto(?,?,?,?)";//Esto me trae tres cosas: Cantidad total del proyecto
                         ps = con.prepareStatement(Qry);
                         ps.setInt(1, numeroOrden);
@@ -104,7 +106,7 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
 //                int pasadas=rs.getInt(1)-restante;//El numero de las cantidades disponibles para que el otro proyecto las pueda trabajar.
                         //---------
                         // si el estado es dos o tres (2 o 3) procedera a realizar la actualización. 31344;2;3;16;1;1  
-                    }else{//Si el área de produccion es "3"=Ensamble entonces no va a realizar el calcular el estado del proceso desde el modelos sino desde la base de datos de una manera diferente.
+                    }else{//Si el área de produccion es "3"=Ensamble o "2"=Teclados o "1"=Formato estandar entonces no va a realizar el calcular el estado del proceso desde el modelos sino desde la base de datos de una manera diferente.
                         estado=2;
                     }
                   //...

@@ -12,13 +12,13 @@ import javax.swing.table.DefaultTableModel;
 public class Tabla {
 
     private boolean[] editable = {false, false, false, false, false, false, false, false, false, false, false, false,true};//Que celdas son editables
-    private static int detalle = 0, negocio = 0;
+    private static int detalle = 0, area = 0;
     private CachedRowSet crs = null;
 
     //Se encarga de generar la tabla con la informacion traida de la base de datos
-    public void visualizar(JTable tabla, int detalle, int negocio) {
+    public void visualizar(JTable tabla, int detalle, int area) {
         this.detalle = detalle;
-        this.negocio = negocio;
+        this.area = area;
         tabla.setDefaultRenderer(Object.class, new Render(7));
         //                         1            2              3           4                5                    6                   7               8              9                   10                    11              12      13         14            15         16                       
         String encabezado[] = {"Proceso", "Fecha inicio", "Fecha fin", "Restante", "Cantidad Terminada", "Tiempo total min", "Tiempo unidad min", "Estado", "Hora de ejecución", "Tiempo Ejecución", "Hora de Terminación", "N°OP", "Orden", "Reiniciar", "IDdetalle", "Tiempo"};
@@ -39,10 +39,7 @@ public class Tabla {
 
         ButtonGroup grupo=new ButtonGroup();
         Object v[] = new Object[16];
-        
-        //                         0             1              2              3             4                    5                   6                7              8                   9                    10               11      12         13           14          15                       
-//        String encabezado[] = {"Proceso", "Fecha inicio", "Fecha fin", "Restante", "Cantidad procesada", "Tiempo total min", "Tiempo unidad min", "Estado", "Hora de ejecución", "Tiempo Ejecución", "Hora de Terminación", "N°OP", "Orden", "Reiniciar", "IDdetalle", "Tiempo"};
-        
+        // ...
         try {
             crs = consuldateDetalleProduccion();
             boolean estadoDetalleP=consultarEstadoDetalleProyecto();
@@ -70,7 +67,7 @@ public class Tabla {
                 v[13] = btn;//Este boton se utiliza para que el administrador pueda reiniciar la toma de tiempo de los procesos de  FE/TE/EN
                 v[14] = crs.getInt(12); //IDDetalle <- No recibe el nombre de la columna
                 v[15] = tiempo;//Este boton se utiliza para parar el tiempo de los procesos de almacen.
-                if(negocio==3){//Seleccion del primer proceso
+                if(area==3 || area==2){//Seleccion del primer proceso
                       JRadioButton inicio= new JRadioButton();
                       inicio.setEnabled(estadoDetalleP);//El estado me lo retorna la base de datos
                       inicio.setActionCommand(crs.getString(12)+"-"+detalle);//ID del proceso de ensamble-ID detalle del proyecto de ensamble
@@ -119,7 +116,7 @@ public class Tabla {
     //Se encarga de traer la informacion de la base de datos
     private CachedRowSet consuldateDetalleProduccion() {
         DetalleProyecto obj = new DetalleProyecto();
-        return obj.consultarDetalleProduccion(detalle, negocio);
+        return obj.consultarDetalleProduccion(detalle, area);
     }
     
     //Consultar el estado del detalle del proyecto

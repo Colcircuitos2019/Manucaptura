@@ -14,21 +14,21 @@ import rojerusan.RSNotifyAnimated;
 
 public class detalleProyecto extends javax.swing.JDialog {
 
-    public detalleProyecto(java.awt.Frame parent, boolean modal, int detalle, int negocio, String orden, int permiso, int cargo) {//Falta organizar la variable "tipo" para que traiga el valor correspondiente
+    public detalleProyecto(java.awt.Frame parent, boolean modal, int detalle, int area, String orden, int permiso, int cargo) {//Falta organizar la variable "tipo" para que traiga el valor correspondiente
         super(parent, modal);
         initComponents();
-        if (negocio == 1) {
+        if (area == 1) {
             this.setTitle(orden + " - " + "Formato estándar");
-        } else if (negocio == 2) {
+        } else if (area == 2) {
             this.setTitle(orden + " - " + "Teclados");
-        } else if (negocio == 3) {
+        } else if (area == 3) {
             this.setTitle(orden + " - " + "Ensamble");
         } else {
             this.setTitle(orden + " - " + "Almacen");
         }
 
         this.detalle = detalle;
-        this.negocio = negocio;
+        this.area = area;
         this.setLocationRelativeTo(null);
         this.permiso = permiso;
         this.cargo = cargo;
@@ -47,7 +47,7 @@ public class detalleProyecto extends javax.swing.JDialog {
         jTFechaIngreso4.setEditable(false);
         jLiderProyecto.setEditable(false);
         TDetalleProduccion.getTableHeader().setReorderingAllowed(false);
-        if(cargo==3 && negocio==3){
+        if(cargo==3 && area==3){
            jLiderProyecto.setVisible(true);
            jBAgregarLider.setVisible(true);
            jLabel15.setVisible(true);
@@ -66,7 +66,7 @@ public class detalleProyecto extends javax.swing.JDialog {
     //variables
     private CachedRowSet crs = null;
     protected static int detalle = 0, cargo = 0;
-    private static int negocio = 0, permiso = 0;
+    private static int area = 0, permiso = 0;
     int rows = -1;
 
     @SuppressWarnings("unchecked")
@@ -533,7 +533,7 @@ public class detalleProyecto extends javax.swing.JDialog {
                         if (JOptionPane.showOptionDialog(null, "¿Seguro desea reinicializar la toma de tiempo? Perdera toda esta información.", "Seguridad", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null/*icono*/, botones, botones[0]) == 0) {
                             String idDetalle = String.valueOf(TDetalleProduccion.getValueAt(row, 13));//Identificador!!
                             DetalleProyecto obj = new DetalleProyecto();
-                            if (obj.ReiniciarDetalle(Integer.parseInt(idDetalle), negocio, detalle)) {///Pendiente???¿¿¿???¿¿¿XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+                            if (obj.ReiniciarDetalle(Integer.parseInt(idDetalle), area, detalle)) {///Pendiente???¿¿¿???¿¿¿XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
                                 new rojerusan.RSNotifyAnimated("¡Listo!", "El proceso: " + TDetalleProduccion.getValueAt(row, 0) + " fue reinicializado corresctamente.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.SUCCESS).setVisible(true);
                                 cargarTabla();
                             } else {
@@ -548,7 +548,7 @@ public class detalleProyecto extends javax.swing.JDialog {
                     //Seleccionar Primer proceso del área...
                     DetalleProyecto obj = new DetalleProyecto();
                     v = radioBoton.getActionCommand().split("-");// Vector de una log maxima siempre de 2
-                    obj.seleccionPrimerProcesoEnsamble(Integer.parseInt(v[1]), Integer.parseInt(v[0]));
+                    obj.seleccionPrimerProcesoEnoTE(Integer.parseInt(v[1]), Integer.parseInt(v[0]),area);
                     radioBoton.setSelected(true);
                     radioBoton.updateUI();
                     TDetalleProduccion.updateUI();
@@ -558,7 +558,7 @@ public class detalleProyecto extends javax.swing.JDialog {
     }//GEN-LAST:event_TDetalleProduccionMouseClicked
 
     private void TDetalleProduccionMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_TDetalleProduccionMouseReleased
-        if (negocio != 4) {
+        if (area != 4) {
             if (evt.isPopupTrigger()) {
                 popMenu.show(evt.getComponent(), evt.getX(), evt.getY());
             }
@@ -588,7 +588,7 @@ public class detalleProyecto extends javax.swing.JDialog {
 
     private void cargarTabla() {
         Tabla personalizar = new Tabla();
-        personalizar.visualizar(TDetalleProduccion, detalle, negocio);//Consulta de la informacion de los proceso
+        personalizar.visualizar(TDetalleProduccion, detalle, area);//Consulta de la informacion de los proceso
         try {
             DetalleProyecto obj = new DetalleProyecto();
             crs = obj.ConsultarInformacionFiltrariaDelDetalle(detalle);//Consulta la información filtraria.
@@ -616,10 +616,9 @@ public class detalleProyecto extends javax.swing.JDialog {
         } catch (Exception e) {
 //            JOptionPane.showMessageDialog(null, "Error!! " + e);
         }
-        //                         0             1              2              3             4                    5                   6                7              8                   9                    10               11      12         13           14          15                       
-//        String encabezado[] = {"Proceso", "Fecha inicio", "Fecha fin", "Restante", "Cantidad procesada", "Tiempo total min", "Tiempo unidad min", "Estado", "Hora de ejecución", "Tiempo Ejecución", "Hora de Terminación", "N°OP", "Orden", "Reiniciar", "IDdetalle", "Tiempo"};
-        if (permiso == 1 || negocio == 4) {
-            if (negocio == 4) {
+        // ...
+        if (permiso == 1 || area == 4) {
+            if (area == 4) {
                 //Tiempo por unidad
                 TDetalleProduccion.getColumnModel().getColumn(6).setMinWidth(0);
                 TDetalleProduccion.getColumnModel().getColumn(6).setMaxWidth(0);
@@ -632,7 +631,7 @@ public class detalleProyecto extends javax.swing.JDialog {
             editarTamañoColumnas();
         }
         //Seleccion de orden de proceso inicial
-        if(cargo!=3){
+        if(cargo!=3 && (cargo != 2 && area != 2)){
             //orden de ejecucion de los procesos
             TDetalleProduccion.getColumnModel().getColumn(12).setMinWidth(0);
             TDetalleProduccion.getColumnModel().getColumn(12).setMaxWidth(0);
@@ -641,7 +640,7 @@ public class detalleProyecto extends javax.swing.JDialog {
         }
         
         //Boton parar toma de tiempo para almacen
-        if (negocio != 4 || cargo !=5) {
+        if (area != 4 || cargo !=5) {
             TDetalleProduccion.getColumnModel().getColumn(15).setMinWidth(0);
             TDetalleProduccion.getColumnModel().getColumn(15).setMaxWidth(0);
             TDetalleProduccion.getTableHeader().getColumnModel().getColumn(15).setMaxWidth(0);

@@ -543,12 +543,12 @@ public class DetalleProyectoM {
             //Query------------------------------------------------------------>
             String Qry = "";
             switch (vistaC) {
-                case 1:
-                case 2:
-                case 4:
+                case 1:// FE
+                case 2:// TE
+                case 4:// Almacen
                     Qry = "CALL PA_DetalleProyectosProduccion(?,?,?)";
                     break;
-                case 3:
+                case 3:// EN
                     Qry = "CALL PA_DetalleDeProduccionProyectosActivos(?,?,?)";
                     break;
             }
@@ -783,16 +783,17 @@ public class DetalleProyectoM {
         return crs;
     }
     
-    public boolean seleccionPrimerProcesoEnsambleM(int detalle, int idProceso){
+    public boolean seleccionPrimerProcesoENoTEM(int detalle, int idProceso, int area){
         try {
             conexion = new Conexion(1);
             conexion.establecerConexion();
             con = conexion.getConexion();
             //Query------------------------------------------------------------>
-            String Qry = "CALL PA_selccionarPrimerProcesoProyectosEnsamble(?,?)";
+            String Qry = "CALL PA_selccionarPrimerProcesoProyectosENoTE(?,?,?)";
             ps = con.prepareStatement(Qry);
             ps.setInt(1, detalle);
             ps.setInt(2, idProceso);
+            ps.setInt(3, area);
             res = !ps.execute();
             //Cierre de conexiones
             conexion.cerrar(rs);
