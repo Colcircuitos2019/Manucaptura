@@ -3,6 +3,7 @@ package Controlador;
 import java.io.File;
 import java.util.ArrayList;
 import javax.sql.rowset.CachedRowSet;
+import javax.swing.JOptionPane;
 import jxl.Workbook;
 import jxl.WorkbookSettings;
 import jxl.format.Colour;
@@ -81,17 +82,17 @@ public class generarXlsx {
         try {
             WorkbookSettings conf = new WorkbookSettings();
             conf.setEncoding("ISO-8859-1");
-            WritableWorkbook woorBook = Workbook.createWorkbook(new File(ruta + "\\ReporteTiempoArea.xls"));//se busca la ruta para generar el archivo xls.
+            WritableWorkbook woorBook = Workbook.createWorkbook(new File(ruta + "\\ReporteTiempoArea_"+ clasificarAreaProduccion(area) +".xls"));//se busca la ruta para generar el archivo xls.
             // ...
-            WritableSheet sheet = woorBook.createSheet("Reporte Tiempos Área", 0);//se crea el archivo xls
+            WritableSheet sheet = woorBook.createSheet("Reporte Tiempos Área", 0);//se crea el archivo xls <- Asignarle un nombre por cada área de producción (FE, TE o EN)
             WritableFont h = new WritableFont(WritableFont.ARIAL, 16, WritableFont.NO_BOLD);//Se da un formato al tipo de letra con el que se va a escribir sobre la hoja
 //          h.setColour(Colour.BLUE);
             WritableCellFormat hFormat = new WritableCellFormat(h);//Se da formato a cada letra
             // ...
             //Encabezado columnas
             int x = 0, y=0, accion=0, cantP=0, cantidadProceso=0, cantidadProyecto=0, cantTerminada=0;
-            // ... 
-            String opNew="",opOld="";
+            // ...
+            String opNew="",opOld="",prodNew="",prodOld="";
             //Fechas de inicio y de fin del reporte de tiempo de producción. 
             sheet.addCell(new jxl.write.Label(0, y, "Fecha Inicio", hFormat));
             sheet.addCell(new jxl.write.Label(1, y, fechaI, hFormat));
@@ -105,16 +106,23 @@ public class generarXlsx {
             x++;
             //Cantidad del proyecto
             sheet.addCell(new jxl.write.Label(x, y, "Cantidad", hFormat));
-            //Procesos del área seleccionada
+            // ...
+            if (area == 1) {// Área de formato estandar - FE
+                //Nombre del Tipo de producto
+                x++;
+                sheet.addCell(new jxl.write.Label(x, y, "Producto", hFormat));
+            }
+            // ...
             Procesos proc=new Procesos();
-            CachedRowSet crsP=proc.consultarProcesos(area);// ... 
+            //Consultar los nombre de los procesos del área...
+            CachedRowSet crsP=proc.consultarProcesos(area);
             ArrayList<String> nombreProcesos=new ArrayList<String>();//Nombre de todos los proceso del área
             //Posicionar procesos en el excel
             x++;
             while (crsP.next()) {                
-                //Consultar los nombre de los procesos del área.
-                nombreProcesos.add(crsP.getString(1));
-                sheet.addCell(new jxl.write.Label(x, y, crsP.getString(1), hFormat));
+                //Procesos del área seleccionada
+                nombreProcesos.add(crsP.getString("nombre_proceso"));
+                sheet.addCell(new jxl.write.Label(x, y, crsP.getString("nombre_proceso"), hFormat));
                 x++;
             }
             cantP = nombreProcesos.size();
@@ -136,11 +144,12 @@ public class generarXlsx {
             // Fecha en que se termino el proyecto.
             sheet.addCell(new jxl.write.Label(x, y, "Fecha Terminacion", hFormat));
             x++;
-            //Fecha en la que termino empaque de procesar por ultima vez
+            //Fecha en la que termino empaque de procesar por ultima vez (ultimo proceso por el cual pasa el proceso)
 //            sheet.addCell(new jxl.write.Label(x, y, "Fecha T.empaque", hFormat));
 //            x++; // Esta pendiente por definir
             //...
             y++;
+            int columnasIniciales = (area==1?3:2);
             while(crs.next()){
                 //
                 if(accion == 0){
@@ -149,38 +158,51 @@ public class generarXlsx {
                     //Cantidade totales del proyecto
                     cantidadProyecto = crs.getInt("canitadad_total");
                     sheet.addCell(new jxl.write.Label(1, y, String.valueOf(cantidadProyecto), hFormat));
+                    //Nombre del Tipo de producto
+                    if(area == 1){
+                        sheet.addCell(new jxl.write.Label(2, y,crs.getString("nombre"), hFormat));
+                    }
                     //Seleccionar el proceso y ubicar el tiempo de produccion y el total
-                    sheet.addCell(new jxl.write.Label(nombreProcesos.indexOf(crs.getString("nombre_proceso"))+2,y, crs.getString("tiempo_total_por_proceso"), hFormat));
+                    sheet.addCell(new jxl.write.Label(nombreProcesos.indexOf(crs.getString("nombre_proceso")) + columnasIniciales,y, crs.getString("tiempo_total_por_proceso"), hFormat));
                     //Tiempo total de desarrollo del proyecto
-                    sheet.addCell(new jxl.write.Label(cantP + 2, y, crs.getString("tiempo_total"), hFormat));
+                    sheet.addCell(new jxl.write.Label(cantP + columnasIniciales++, y, crs.getString("tiempo_total"), hFormat));
                     // Tiempo Total Unidad
-                    sheet.addCell(new jxl.write.Label(cantP + 3, y, crs.getString("Total_timepo_Unidad"), hFormat));
+                    sheet.addCell(new jxl.write.Label(cantP + columnasIniciales++, y, crs.getString("Total_timepo_Unidad"), hFormat));
                     // Estado del proyecto
-                    sheet.addCell(new jxl.write.Label(cantP + 4, y, clasificacionEstado(crs.getString("estado_idestado")), hFormat));
+                    sheet.addCell(new jxl.write.Label(cantP + columnasIniciales++, y, clasificacionEstado(crs.getString("estado")), hFormat));
                     // Fecha en que se termino de procesar el proyecto
-                    sheet.addCell(new jxl.write.Label(cantP + 7, y, crs.getString("fecha_salida"), hFormat));
+                    sheet.addCell(new jxl.write.Label(cantP + columnasIniciales+2, y, crs.getString("fecha_salida"), hFormat));
                     // ...
                     // Cantidad total que poseé el proceso
                     cantidadProceso+= crs.getInt("cantidadProceso");
-                    opOld=crs.getString(1);//Viejo numero de orden seleccionado
+                    //Viejo numero de orden seleccionado
+                    opOld=crs.getString("numero_orden");
+                    //Viejo producto seleccionado
+                    prodOld=(area==1?crs.getString("nombre"):"");
                     accion=1;
+                    columnasIniciales = (area==1?3:2);
                 }else{
+//                  columnasIniciales = (area == 1 ? 3 : 2);
                     opNew=crs.getString(1);//Nuevo numero de orden seleccionado
+                    prodNew=(area==1?crs.getString("nombre"):"");//Nuevo producto seleccionado
                     //...
-                    if (opOld.equals(opNew)) {//El viejo numero de orden selecionado="opOld" es igual al nuevo numero de orden="opNew"
+                    if (validacionDeProducto(area,opNew,opOld,prodNew,prodOld)) {
+                        columnasIniciales = (area == 1 ? 3 : 2);
                         //Realiza las mismas acciones sobre la misma fila
                         opOld=opNew;//El nuevo numero de orden pasa a ser el viejo numero de orden
+                        prodOld=prodNew;
                         //Seleccionar el proceso y ubicar el tiempo de produccion y el total
-                        sheet.addCell(new jxl.write.Label(nombreProcesos.indexOf(crs.getString("nombre_proceso"))+2,y, crs.getString("tiempo_total_por_proceso"), hFormat));
+                        sheet.addCell(new jxl.write.Label(nombreProcesos.indexOf(crs.getString("nombre_proceso"))+columnasIniciales,y, crs.getString("tiempo_total_por_proceso"), hFormat));
                         // Cantidad total que poseé el proceso
                         cantidadProceso+= crs.getInt("cantidadProceso");
                     } else {
+                        columnasIniciales = (area == 1 ? 3 : 2);
                         //Cantidad terminada
                         cantTerminada = cantidadProyecto - cantidadProceso;
-                        sheet.addCell(new jxl.write.Label(cantP + 5, y, String.valueOf(cantTerminada), hFormat));
+                        sheet.addCell(new jxl.write.Label(cantP + columnasIniciales+3, y, String.valueOf(cantTerminada), hFormat));
                         cantidadProceso = 0;
                         //Cantidad restante
-                        sheet.addCell(new jxl.write.Label(cantP + 6, y, String.valueOf(cantidadProyecto - cantTerminada), hFormat));
+                        sheet.addCell(new jxl.write.Label(cantP + columnasIniciales+4, y, String.valueOf(cantidadProyecto - cantTerminada), hFormat));
                         //Salta a la siguiente fila y sigue realizando el mismo proceso de ubiación...
                         y++;
                         //Numero de orden
@@ -188,30 +210,35 @@ public class generarXlsx {
                         //Cantidade totales del proyecto
                         cantidadProyecto = crs.getInt("canitadad_total");
                         sheet.addCell(new jxl.write.Label(1, y, String.valueOf(cantidadProyecto), hFormat));
+                        //Nombre del Tipo de producto
+                        if (area == 1) {
+                            sheet.addCell(new jxl.write.Label(2, y, crs.getString("nombre"), hFormat));
+                        }
                         //Seleccionar el proceso y ubicar el tiempo de produccion y el total
-                        sheet.addCell(new jxl.write.Label(nombreProcesos.indexOf(crs.getString("nombre_proceso")) + 2, y, crs.getString("tiempo_total_por_proceso"), hFormat));
+                        sheet.addCell(new jxl.write.Label(nombreProcesos.indexOf(crs.getString("nombre_proceso")) + columnasIniciales, y, crs.getString("tiempo_total_por_proceso"), hFormat));
                         //Tiempo total de desarrollo del proyecto
-                        sheet.addCell(new jxl.write.Label(cantP + 2, y, crs.getString("tiempo_total"), hFormat));
+                        sheet.addCell(new jxl.write.Label(cantP + columnasIniciales++, y, crs.getString("tiempo_total"), hFormat));
                         // Tiempo Total Unidad
-                        sheet.addCell(new jxl.write.Label(cantP + 3, y, crs.getString("Total_timepo_Unidad"), hFormat));
+                        sheet.addCell(new jxl.write.Label(cantP + columnasIniciales++, y, crs.getString("Total_timepo_Unidad"), hFormat));
                         // Estado del proyecto
-                        sheet.addCell(new jxl.write.Label(cantP + 4, y, clasificacionEstado(crs.getString("estado_idestado")), hFormat));
+                        sheet.addCell(new jxl.write.Label(cantP + columnasIniciales++, y, clasificacionEstado(crs.getString("estado")), hFormat));
                         // Fecha en que se termino de procesar el proyecto
-                        sheet.addCell(new jxl.write.Label(cantP + 7, y, crs.getString("fecha_salida"), hFormat));
+                        sheet.addCell(new jxl.write.Label(cantP + columnasIniciales+2, y, crs.getString("fecha_salida"), hFormat));
                         // Cantidad total que poseé el proceso
                         cantidadProceso += crs.getInt("cantidadProceso");
                         //...
                         opOld = crs.getString("numero_orden");//Viejo numero de orden seleccionado
+                        prodOld = (area==1?crs.getString("nombre"):"");//El viejo tipo de producto seleccionado
                     }
                 }
             }
             if(accion == 1){
                 //Cantidad terminada
                 cantTerminada = cantidadProyecto - cantidadProceso;
-                sheet.addCell(new jxl.write.Label(cantP + 5, y, String.valueOf(cantTerminada), hFormat));
+                sheet.addCell(new jxl.write.Label(cantP + columnasIniciales+3, y, String.valueOf(cantTerminada), hFormat));
                 cantidadProceso = 0;
                 //Cantidad restante
-                sheet.addCell(new jxl.write.Label(cantP + 6, y, String.valueOf(cantidadProyecto - cantTerminada), hFormat));
+                sheet.addCell(new jxl.write.Label(cantP + columnasIniciales+4, y, String.valueOf(cantidadProyecto - cantTerminada), hFormat));
             }
             // ...
             woorBook.write();
@@ -219,8 +246,48 @@ public class generarXlsx {
             woorBook.close();
            return true;     
         } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e);
             return false;
         }
+    }
+    
+    private boolean validacionDeProducto(int area, String opNew, String opOld, String prodNew, String prodOld){
+        boolean respuesta=false;
+        switch(area){
+            case 1://Validacion de formato estandar - FE
+                //El viejo numero de orden selecionado="opOld" es igual al nuevo numero de orden="opNew" y el viejo producto seleccionado= "prodOld" es igual al nuevo producto="prodNew"
+                if(opOld.equals(opNew) && prodOld.equals(prodNew)){
+                    respuesta=true;
+                }
+                break;
+            case 2:
+            case 3://Validacion de Ensamble - EN y Teclados - TE
+                //El viejo numero de orden selecionado="opOld" es igual al nuevo numero de orden="opNew"
+                if(opOld.equals(opNew)){
+                    respuesta=true;
+                }
+                break;
+        }
+        return respuesta;
+    }
+    
+    private String clasificarAreaProduccion(int area){
+        String mensaje="";
+        switch(area){
+            case 1://Formato estandar
+                mensaje="FE";
+                break;
+            case 2://Teclados
+                mensaje="TE";
+                break;
+            case 3://Ensamble
+                mensaje="EN";
+                break;
+            case 4://Almacen
+                mensaje="AL";
+                break;
+        }
+        return mensaje;
     }
     
     private String clasificacionEstado(String estado){

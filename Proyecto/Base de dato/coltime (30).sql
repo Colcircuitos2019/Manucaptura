@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 25-02-2019 a las 18:49:27
+-- Tiempo de generación: 26-02-2019 a las 18:04:25
 -- Versión del servidor: 10.1.29-MariaDB
 -- Versión de PHP: 7.2.0
 
@@ -1789,7 +1789,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_ReporteTiemposAreaProduccion` (I
 BEGIN
 
 IF area=1 THEN#Formato Estandar
- SELECT p.numero_orden, de.idproceso,pro.nombre_proceso,de.tiempo_total_por_proceso,dp.tiempo_total,dp.canitadad_total  FROM proyecto p JOIN detalle_proyecto dp ON p.numero_orden=dp.proyecto_numero_orden JOIN detalle_formato_estandar de ON dp.idDetalle_proyecto=de.idDetalle_proyecto join procesos pro ON de.idproceso=pro.idproceso WHERE dp.idArea=1 AND p.eliminacion=1 AND dp.estado=3 ORDER BY p.numero_orden;
+SELECT p.numero_orden,pd.nombre AS producto, df.idproceso,pro.nombre_proceso,df.tiempo_total_por_proceso,dp.tiempo_total,dp.Total_timepo_Unidad,dp.estado,dp.canitadad_total, df.cantidadProceso,dp.fecha_salida  FROM proyecto p LEFT JOIN detalle_proyecto dp ON p.numero_orden=dp.proyecto_numero_orden LEFT JOIN detalle_formato_estandar df ON dp.idDetalle_proyecto=df.idDetalle_proyecto LEFT JOIN procesos pro ON df.idproceso=pro.idproceso JOIN producto pd ON dp.idProducto=pd.idproducto WHERE dp.idArea=1 AND p.eliminacion=1 AND (DATE_FORMAT(p.fecha_ingreso, '%Y-%m-%d') between fechaI AND fechaF) AND df.idproceso is not null ORDER BY p.numero_orden,dp.idProducto;
 ELSE
  IF area=2 THEN#Teclados
  SELECT p.numero_orden, de.idproceso,pro.nombre_proceso,de.tiempo_total_proceso,dp.tiempo_total,dp.canitadad_total  FROM proyecto p JOIN detalle_proyecto dp ON p.numero_orden=dp.proyecto_numero_orden JOIN detalle_teclados de ON dp.idDetalle_proyecto=de.idDetalle_proyecto join procesos pro ON de.idproceso=pro.idproceso WHERE dp.idArea=2 AND p.eliminacion=1 AND dp.estado=3 ORDER BY p.numero_orden;
