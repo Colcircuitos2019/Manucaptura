@@ -121,7 +121,7 @@ class reporteEN extends CI_Controller
 			}
 		}
 		// ...
-		if ($rep=1) {
+		if ($rep === 1) {
 			// Crear html de los procesos
 			for ($i=0; $i < count($procesos); $i++) { 
 				$rowProyectoHTML.="<td style=\"background-color: ".$this->clasificarColorEstoProcesos($ordenProcesos[$procesos[$i]]['estado']).";\">". $ordenProcesos[$procesos[$i]]['cantidad_proceso']."</td>";

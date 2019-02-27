@@ -19,7 +19,7 @@ function configDataTable() {
     	        "footer": true
     	},
         "bStateSave": true,
-        "iCookieDuration": 60,
+        "iCookieDuration": 360,
         "language": {
             "sProcessing": "Procesando...",
             "sZeroRecords": "No se encontraron resultados",
