@@ -191,6 +191,7 @@ public class DetalleProyectoM {
                             ps.setInt(4, rs.getInt(1));
                             ps.execute();
                         }
+                        //Verificacion del producto no conforme de TE
                         Qry = "CALL PA_DetalleDeLosProcesosDeTeclados(?,?,?)";
                         ps = con.prepareStatement(Qry);
                         ps.setInt(1, Integer.parseInt(numerOrden));
@@ -217,8 +218,8 @@ public class DetalleProyectoM {
                             ps.setInt(3, 20);//Proceso de GF "20"
                             ps.execute();
                         } else {//tener en cuenta que los procesos se van a traer de la tabla procesos dependiendo del tipo de negocio!!
-                            //Si es TH o FV
-                            //Este PRocedure esta pendiente por eliminar.
+                            
+                            //Este Procedure esta pendiente por eliminar.
 //                            Qry = "CALL PA_RegistrarDetalleFormatoEstandar(?,?,?)";//Registrar los procesos queda pendiente para desarrollar.....................................................................................
 //                            ps = con.prepareStatement(Qry);
 //                            ps.setInt(1, Integer.parseInt(numerOrden));
@@ -229,7 +230,6 @@ public class DetalleProyectoM {
 //                                ps.setString(3, ubicacion);
 //                            }
 //                            ps.execute();
-//                          Consultar el ID detalle del proyecto... <------- Pendiente
                             Qry = "SELECT FU_ConsultarelIDDetalledelproductoFE(?,?,?) as idDetalleProducto;";//
                             ps = con.prepareStatement(Qry);
                             ps.setString(1, numerOrden);

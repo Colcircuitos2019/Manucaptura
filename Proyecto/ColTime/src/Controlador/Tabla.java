@@ -21,7 +21,7 @@ public class Tabla {
         this.area = area;
         tabla.setDefaultRenderer(Object.class, new Render(7));
         //                         1            2              3           4                5                    6                   7               8              9                   10                    11              12      13         14            15         16                       
-        String encabezado[] = {"Proceso", "Fecha inicio", "Fecha fin", "Restante", "Cantidad Terminada", "Tiempo total min", "Tiempo unidad min", "Estado", "Hora de ejecución", "Tiempo Ejecución", "Hora de Terminación", "N°OP", "Orden", "Reiniciar", "IDdetalle", "Tiempo"};
+        String encabezado[] = {"Proceso", "Fecha inicio", "Fecha fin", "Restante", "Procesadas", "Tiempo total min", "Tiempo unidad min", "Estado", "Hora de ejecución", "Tiempo Ejecución", "Hora de Terminación", "N°OP", "Orden", "Reiniciar", "IDdetalle", "Tiempo"};
         DefaultTableModel ds = new DefaultTableModel(null, encabezado) {
 
             Class[] types = new Class[]{

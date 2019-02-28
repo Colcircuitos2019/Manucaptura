@@ -51,80 +51,44 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
             if (rs.getBoolean(1)) {//Pausar O IniciarToma de tiempos
                 //-------------------------------------------------------------->
                 // Queda pendiente la forma de realizar la toma de tiempos del área del almacen
-                if(area==3 || area==1 || area==2){
-                //Validar el sub proceso al cual se va a enviar la informacion
-                        //Validar que la cantidad ingresada por el operario sea igual o menor a la cantidad que tiene disponible este proceso para trabajar
-                        Qry = "SELECT FU_ValidarCantidadProcesoAreasProduccion(?,?,?);";
-                        ps = con.prepareStatement(Qry);
-                        ps.setInt(1, idDetalle);
-                        ps.setInt(2, idLector);
-                        ps.setInt(3, area);
-                        rs = ps.executeQuery();
-                        if (rs.next()) {
-                            if (cantidadTerminada <= rs.getInt(1)) {
-                                accion = true;
-                            } else {
-                                accion = false;
-                            }
-                        }   
+                if(area != 4){
+                    //Validar que la cantidad ingresada por el operario sea igual o menor a la cantidad que tiene disponible este proceso para trabajar
+                    Qry = "SELECT FU_ValidarCantidadProcesoAreasProduccion(?,?,?);";
+                    ps = con.prepareStatement(Qry);
+                    ps.setInt(1, idDetalle);
+                    ps.setInt(2, idLector);
+                    ps.setInt(3, area);
+                    rs = ps.executeQuery();
+                    if (rs.next()) {
+                        if (cantidadTerminada <= rs.getInt(1)) {
+                            accion = true;
+                        } else {
+                            accion = false;
+                        }
+                    }   
                 }
                 //...
                 int restante=0;
                 //...
                 if(accion){
                     // Queda pendiente la toma de tiempos del área de almacen
-                    if(area!=3 && area!=1 && area!=2){//Si el área de produccion es "1"=Formato estandar o "2"=Teclados el estado se calcula desde el modelo
-                        Qry = "CALL PA_ValidarCantidadDetalleProyecto(?,?,?,?)";//Esto me trae tres cosas: Cantidad total del proyecto
-                        ps = con.prepareStatement(Qry);
-                        ps.setInt(1, numeroOrden);
-                        ps.setInt(2, idDetalle);
-                        ps.setInt(3, idLector);
-                        ps.setInt(4, area);
-                        rs = ps.executeQuery();
-                        rs.next();
-                        //Tener en cuenta que tienes que mostrar un mensaje en el celular.(Pendiente para futuras versiones)
-                        //Si la cantidad terminada ingresada es menos a la cantidad que en total se deben realizar un registro sin ningun problema.
-                        if (rs.getInt(2) + cantidadTerminada < rs.getInt(1)) {
-                            //Si la afirmación es correcta se ejecutara el procedimiento para parar el tiempo.
-                            cantidadAntigua = rs.getInt(2);
-                            estado = 2;
-                            //Si la cantidad terminada ingresada es igual a la cantidad que en total se deben realizar un registro sin ningun problema.
-                        } else if (rs.getInt(2) + cantidadTerminada == rs.getInt(1)) {
-                            cantidadAntigua = rs.getInt(2);
-                            estado = 3;
-                            //Calcular cantidad por unidad.
-                            //Si la cantidad terminada ingresada es mayor a la cantidad que en total se deben realizar no se debe realizar ninguna acción.
-                        } else {
-                            cantidadAntigua = rs.getInt(2);
-                            estado = 0;
-                        }
-                        //---------
-                        restante = rs.getInt(1) - (cantidadTerminada + cantidadAntigua);//Esta es la cantidad restante del proceso.
-                        //---------
-                        operarios = rs.getInt(3);//El numero de operarios que va a trabajar en el proceso.
-                        //---------
-//                int pasadas=rs.getInt(1)-restante;//El numero de las cantidades disponibles para que el otro proyecto las pueda trabajar.
-                        //---------
-                        // si el estado es dos o tres (2 o 3) procedera a realizar la actualización. 31344;2;3;16;1;1  
-                    }else{//Si el área de produccion es "3"=Ensamble o "2"=Teclados o "1"=Formato estandar entonces no va a realizar el calcular el estado del proceso desde el modelos sino desde la base de datos de una manera diferente.
                         estado=2;
-                    }
-                  //...
+                    //...
                 }else{
                     estado=0;
                 }
                 //Validar que el proceso si tenga cantidades para pasar...
                 if (estado != 0) {
                     //...
-                    Qry = "CALL PA_CalcularTiempoMinutos(?,?,?,?)";
+                    Qry = "CALL PA_CalcularTiempoEjecucionProceso(?,?,?)";
                     ps = con.prepareStatement(Qry);
-                    ps.setInt(1, numeroOrden);
-                    ps.setInt(2, idDetalle);
-                    ps.setInt(3, idLector);
-                    ps.setInt(4, area);
+                    ps.setInt(1, idDetalle);
+                    ps.setInt(2, idLector);
+                    ps.setInt(3, area);
                     rs = ps.executeQuery();
                     rs.next();
-                    T_Total = convertirHorasAMinutos(rs.getString(1).split(":"), rs.getString(2).split(":"), operarios);
+                    //Esto se puede hacer directamente desde la base de datos sin necesidad de llamar a una funcion en el modelo.
+                    T_Total = convertirHorasAMinutosYSumarTiempos(rs.getString("timpo_total_proceso").split(":"), rs.getString("tiempo_ejecucion").split(":"));
                     //...
                     Qry = "CALL PA_PausarTomaDeTiempoDeProcesos(?,?,?,?,?,?,?,?,?,?)";//NOTA: Para el área de ensamble se van a enviar dos procesos el cual al primero se le van a restar las cantidades terminadas y al segundo se le van a sumar las cantidades terminadas
                     ps = con.prepareStatement(Qry);
@@ -132,8 +96,7 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
                     ps.setInt(2, idDetalle);
                     ps.setInt(3, idLector);
                     ps.setInt(4, area);
-                    ps.setString(5, String.valueOf(T_Total));
-//                    ps.setInt(6, (cantidadTerminada+cantidadAntigua));
+                    ps.setString(5, T_Total);//<- Este parametro ya no va a ser necesarioString.valueOf(T_Total)
                     ps.setInt(6, cantidadTerminada);
                     ps.setInt(7, cantidadAntigua);
                     ps.setInt(8, estado);
@@ -141,6 +104,7 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
                     ps.setInt(10, procesoPasoCantidades);
                     ps.execute();//Respuesta es igual a True para poder agregar los botones, Ya no es necesario esta respuesta para buscar los botones
                     res=true;
+                    //Revisar estos tres metodos para ver como se puede optimizar su funcionamiento<--
                     //Promedio de producto por minuto.
                     cantidadProductoMinuto(idDetalle, area, idLector);
                     //Tiempo total del proceso.
@@ -152,39 +116,26 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
                 } else {
                     res = false;
                     //Se enviara desde acá el mensaje al lector diciendo que la cantidad para el proyecto no es la adecuada(Al celular)...................................
-//                 enviarMensajeCelular("Mensaje", cps);//Mensaje para el celular
-                    //Esta por definir por que medio se enviara el mensaje al celular.
+//                 enviarMensajeCelular("Mensaje", cps);//Mensaje para el celular v2.0
+                    //El mensaje a celular se retornara mediante un HTTPresponse...
                 }
             } else {
                 //Si no existe se ejecutara el procedimiento para iniciar o renaudar el tiempo
                 //...
-                if(area==3 || area==1){//Validar que este proyecto ya se tenga un proceso selccionado para iniciar
-                    //Para ensamble: Validar que si no tiene un orden establecido en los procesos no se puede iniciar ningun proceso de ensamble
-//                    Pendiente realizar esta validacion
-                    Qry = "SELECT FU_ValidarProcesoInicioAreasProduccion(?,?,?)";//Pendiente generar la funcion
+                if(area!=4){//El área tiene que ser diferente al "4"=Almacen
+                    //Validar que el procesos que se quiere iniciar tenca cantidades para procesar
+                    Qry = "SELECT FU_ValidarCantidadProcesoAreasProduccion(?,?,?);";
                     ps = con.prepareStatement(Qry);
                     ps.setInt(1, idDetalle);
-                    ps.setInt(2, area);
-                    ps.setInt(3, idLector);
+                    ps.setInt(2, idLector);
+                    ps.setInt(3 ,area);
                     rs = ps.executeQuery();
-                    rs.next();
-                    if(rs.getInt(1)==1){//Si tiene selccionado el proceso inicial de ensamble retornara un 1 si no retornara un 0
-                        //Para ensamble: Validar si tiene cantidades para procesar, sino tiene entonces no se iniciaria el proceso.
-                        Qry = "SELECT FU_ValidarCantidadProcesoAreasProduccion(?,?,?);";
-                        ps = con.prepareStatement(Qry);
-                        ps.setInt(1, idDetalle);
-                        ps.setInt(2, idLector);
-                        ps.setInt(3 ,area);
-                        rs = ps.executeQuery();
-                        if (rs.next()) {
-                            if (Integer.parseInt(rs.getString(1)) > 0) {
-                                accion = true;
-                            } else {
-                                accion = false;
-                            }
+                    if (rs.next()) {
+                        if (Integer.parseInt(rs.getString(1)!=null?rs.getString(1):"0") > 0) {
+                            accion = true;
+                        } else {
+                            accion = false;
                         }
-                    }else{
-                        accion=false;
                     }
                 }
                 //...
@@ -212,7 +163,7 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
         }
         return res;
     }
-
+    // Esto va a cambiar <--
     public boolean pararTiempoAlmacen(int orden, int detalle, int cantidad, int detalleproducto, int proceso) {
         try {
             conexion = new Conexion(1);
@@ -259,7 +210,7 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
 
             } else {
                 //Mensaje que la cantidad no es la optima para realizar el procedimiento(Al computador).............................
-
+                // ...
             }
             //Pendiente.........................................................
             //Cerrar conexiones
@@ -289,18 +240,14 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
                 ps.executeQuery();
             } else {
                 //Actualizar el tiempo total por unidad a null
+                // ...
             }
-            //Cierre de conexiones
-            //No se puede cerra la conexion desde acá
-//            conexion.cerrar(rs);
-//            conexion.destruir();
-//            ps.close();
-//            con.close();
+            // ...
         } catch (Exception e) {
 //            JOptionPane.showMessageDialog(null, "Error! " + e);
         }
     }
-
+// Esto lo puede realizar la base de datos
     private String totalTiempoProyectoyProducto(ResultSet crsT) {
         int minutos = 0;
         int segundos = 0;
@@ -325,7 +272,7 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
         return cadena;
     }
 
-    public void actualizarTotalTiempoProyecto(int detalle, int negocio) {
+    public void actualizarTotalTiempoProyecto(int detalle, int area) {
         try {
             conexion = new Conexion(1);
             conexion.establecerConexion();
@@ -334,7 +281,7 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
             String Qry = "CALL PA_TiempoProceso(?,?)";
             ps = con.prepareStatement(Qry);
             ps.setInt(1, detalle);
-            ps.setInt(2, negocio);
+            ps.setInt(2, area);
             rs = ps.executeQuery();
             String cadena = totalTiempoProyectoyProducto(rs);
 
@@ -405,24 +352,20 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
 
         return resultado;
     }
-
-    private String convertirHorasAMinutos(String total[], String hora[], int operarios) {
-        int h = 0, m = 0, s = 0, ma = 0, sa = 0;
-        String tiempoMS = "";
-        //Horas, minutos y segundos
+// Lo que hace esta funcion lo puede realizar la base de datos directamente
+    private String convertirHorasAMinutosYSumarTiempos(String total[], String hora[]) {
+        int h, m, s, ma, sa;
+        //Horas, minutos y segundos nuevo tiempo
         h = Integer.parseInt(hora[0]);
         m = Integer.parseInt(hora[1]);
         s = Integer.parseInt(hora[2]);
-        //Minutos y segundos antiguos
+        //Minutos antigos y segundos antiguos
         ma = Integer.parseInt(total[0]);
         sa = Integer.parseInt(total[1]);
         if (h >= 1) {
             //Vamos a convertir las horas en minutos siempre y cuando las horas sean mayores a 0 le sumaremos los minutos antiguos.
             m += (h * 60);
         }
-        //Tiempo * Numero de operarios----------------------------------------->
-        m = m * operarios;//Se multiplican los minutos trabajados por la cantidad de operarios que trabajaron en ese proceso de un proyecto asignado.
-        s = s * operarios;//Igualmente se hace con los segundos.
         //--------------------------------------------------------------------->
         //Sumamos los segundos nuevos con los segundos antiguos
         s += sa;
@@ -431,9 +374,8 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
             s = (s - 60);
             m += 1;
         }
-        tiempoMS = ((m <= 9) ? "0" : "") + m + ":" + ((s <= 9) ? "0" : "") + s;
-
-        return tiempoMS;
+        // Tiempo convertido a Minutos y segundos    
+        return ((m <= 9) ? "0" : "") + m + ":" + ((s <= 9) ? "0" : "") + s;
     }
 
     public CachedRowSet consultarProyectosEnEjecucion(int negocio) {

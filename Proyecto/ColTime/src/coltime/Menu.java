@@ -1841,10 +1841,11 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
         //Esta validacion queda mejor a nivel de la base de datos o del modelo...
 //        if (infoP.length == 6 || (infoP.length == 7 && ((!infoP[6].equals("0") && !infoP[3].equals("18")) || ((infoP[6].equals("0") || !infoP[6].equals("18")) && infoP[3].equals("18"))))) {
         Proyecto validar = new Proyecto();
+        // Se validara primero el permiso que tiene el ususario para leer los códigos QR de esta orden y despues se validara si la orden existe o esta parada.
         if (validar.validarEliminacion(Integer.parseInt(infoP[0]))) {//Valido si la orden esta eliminada o no
             if (validar.validarEjecucionOParada(Integer.parseInt(infoP[0]))) {//Valida que la orden no este parada
                 //#--------------------------------------------------------------------------------------------------
-                if ((infoP.length == 6 && cargo!=3) || (cargo==3 || cargo==2 && infoP.length == 7)) {//Se valida que si se lea el codigo QR que es necesario
+                if ((infoP.length == 6 && cargo==2) || (cargo!=2 && infoP.length == 7)) {//Se valida que si se lea el codigo QR que es necesario
                     switch (Integer.parseInt(infoP[2])) {
                         //Se tiene que validar el estado del proyecto a ver si permite o no registrar la toma de tiempo.
                         case 1:
