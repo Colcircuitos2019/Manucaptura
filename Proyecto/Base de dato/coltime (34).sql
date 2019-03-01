@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 28-02-2019 a las 22:08:32
+-- Tiempo de generación: 01-03-2019 a las 22:17:01
 -- Versión del servidor: 10.1.29-MariaDB
 -- Versión de PHP: 7.2.0
 
@@ -28,22 +28,23 @@ DELIMITER $$
 --
 CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_ActualizarProductoPorMinuto` (IN `detalle` INT, IN `area` INT, IN `lector` INT, IN `tiempo` VARCHAR(20))  NO SQL
 BEGIN
-IF area=1 THEN
+# ...
+IF area=1 THEN # Formato estandar - FE
 
-UPDATE detalle_formato_estandar d SET d.tiempo_por_unidad=tiempo WHERE d.idDetalle_proyecto=detalle AND d.idproceso=lector;
+	UPDATE detalle_formato_estandar d SET d.tiempo_por_unidad=tiempo WHERE d.idDetalle_proyecto=detalle AND d.idproceso=lector;
 
 ELSE
- IF area=2 THEN
+ IF area=2 THEN # Teclados - TE
   
- UPDATE detalle_teclados d SET d.tiempo_por_unidad=tiempo WHERE d.idDetalle_proyecto=detalle AND d.idproceso=lector;
+ 	UPDATE detalle_teclados d SET d.tiempo_por_unidad=tiempo WHERE d.idDetalle_proyecto=detalle AND d.idproceso=lector;
  
- ELSE
+ ELSE # Ensamble - EN
   
- UPDATE detalle_ensamble d SET d.tiempo_por_unidad=tiempo WHERE d.idDetalle_proyecto=detalle AND d.idproceso=lector;
+ 	UPDATE detalle_ensamble d SET d.tiempo_por_unidad=tiempo WHERE d.idDetalle_proyecto=detalle AND d.idproceso=lector;
  
  END IF;
 END IF;
-
+# ...
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_ActualizarTiempoTotalPorUnidad` (IN `detalle` INT, IN `tiempo` VARCHAR(20))  NO SQL
@@ -98,20 +99,41 @@ SELECT timpo_total_proceso, (SELECT sec_to_time(time_to_sec(tiempo_ejecucion) * 
 ELSE
  IF area=2 THEN
  
-SET idDetalleProceso=(SELECT t.idDetalle_teclados from detalle_teclados t JOIN detalle_proyecto d on t.idDetalle_proyecto=d.idDetalle_proyecto where d.idDetalle_proyecto=detalle and t.idproceso=lector);
+	SET idDetalleProceso=(SELECT t.idDetalle_teclados from detalle_teclados t JOIN detalle_proyecto d on t.idDetalle_proyecto=d.idDetalle_proyecto where d.idDetalle_proyecto=detalle and t.idproceso=lector);
 
- UPDATE detalle_teclados t SET  t.hora_terminacion=now() WHERE t.idDetalle_teclados=idDetalleProceso;
+	UPDATE detalle_teclados t SET  t.hora_terminacion=now() WHERE t.idDetalle_teclados=idDetalleProceso;
 
-SELECT t.tiempo_total_por_proceso,TIME_FORMAT(TIMEDIFF(t.hora_terminacion,t.hora_ejecucion),'%H:%i:%s') as diferencia from detalle_teclados t JOIN detalle_proyecto d on t.idDetalle_proyecto=d.idDetalle_proyecto where d.proyecto_numero_orden=numOrden AND d.idDetalle_proyecto=detalle and t.idproceso=lector and t.estado=4;
+	# Tiempo total del proceso
+	SET timpo_total_proceso = (SELECT t.tiempo_total_por_proceso from detalle_teclados t WHERE t.idDetalle_teclados=idDetalleProceso);
+
+	# Tiempo de ejecucion del proceso <- Este formato de tiempo que le estoy asignando no me sirve. Ver la forma de modificarlo a 00:00
+	SET tiempo_ejecucion = (SELECT TIME_FORMAT(TIMEDIFF(t.hora_terminacion,t.hora_ejecucion),'%H:%i:%s') from detalle_teclados t WHERE t.idDetalle_teclados = idDetalleProceso);
+
+	# Numero de operarios que trabajan en el proceso de la OP
+	SET numero_operarios = (SELECT t.noperarios FROM detalle_teclados t WHERE t.idDetalle_teclados = idDetalleProceso);
+
+	SELECT timpo_total_proceso, (SELECT sec_to_time(time_to_sec(tiempo_ejecucion) * numero_operarios)) AS tiempo_ejecucion;
+
+#SELECT t.tiempo_total_por_proceso,TIME_FORMAT(TIMEDIFF(t.hora_terminacion,t.hora_ejecucion),'%H:%i:%s') as diferencia from detalle_teclados t JOIN detalle_proyecto d on t.idDetalle_proyecto=d.idDetalle_proyecto where d.proyecto_numero_orden=numOrden AND d.idDetalle_proyecto=detalle and t.idproceso=lector and t.estado=4;
 
  ELSE
   IF area=3 THEN
   
-  SET idDetalleProceso=(SELECT f.idDetalle_ensamble from detalle_ensamble f JOIN detalle_proyecto d on f.idDetalle_proyecto=d.idDetalle_proyecto where d.idDetalle_proyecto=detalle and f.idproceso=lector);
+  	SET idDetalleProceso=(SELECT e.idDetalle_ensamble from detalle_ensamble e JOIN detalle_proyecto d on f.idDetalle_proyecto=d.idDetalle_proyecto where d.idDetalle_proyecto=detalle and e.idproceso=lector);
 
- UPDATE detalle_ensamble f SET  f.hora_terminacion=now() WHERE f.idDetalle_ensamble=idDetalleProceso;
+ 	UPDATE detalle_ensamble e SET  e.hora_terminacion=now() WHERE e.idDetalle_ensamble=idDetalleProceso;
   
-  SELECT f.tiempo_total_por_proceso,TIME_FORMAT(TIMEDIFF(f.hora_terminacion,f.hora_ejecucion),'%H:%i:%s') as diferencia from detalle_ensamble f JOIN detalle_proyecto d on f.idDetalle_proyecto=d.idDetalle_proyecto where d.proyecto_numero_orden=numOrden AND d.idDetalle_proyecto=detalle and f.idproceso=lector and f.estado=4;
+  # Tiempo total del proceso
+	SET timpo_total_proceso = (SELECT e.tiempo_total_por_proceso from detalle_ensamble e WHERE e.idDetalle_ensamble=idDetalleProceso);
+
+	# Tiempo de ejecucion del proceso <- Este formato de tiempo que le estoy asignando no me sirve. Ver la forma de modificarlo a 00:00
+	SET tiempo_ejecucion = (SELECT TIME_FORMAT(TIMEDIFF(e.hora_terminacion,e.hora_ejecucion),'%H:%i:%s') from detalle_ensamble e WHERE e.idDetalle_ensamble = idDetalleProceso);
+
+	# Numero de operarios que trabajan en el proceso de la OP
+	SET numero_operarios = (SELECT e.noperarios FROM detalle_ensamble e WHERE e.idDetalle_ensamble = idDetalleProceso);
+
+	SELECT timpo_total_proceso, (SELECT sec_to_time(time_to_sec(tiempo_ejecucion) * numero_operarios)) AS tiempo_ejecucion;
+  #SELECT f.tiempo_total_por_proceso,TIME_FORMAT(TIMEDIFF(f.hora_terminacion,f.hora_ejecucion),'%H:%i:%s') as diferencia from detalle_ensamble f JOIN detalle_proyecto d on f.idDetalle_proyecto=d.idDetalle_proyecto where d.proyecto_numero_orden=numOrden AND d.idDetalle_proyecto=detalle and f.idproceso=lector and f.estado=4;
   
   END IF;
  
@@ -833,6 +855,21 @@ UPDATE proyecto p SET p.eliminacion=0 WHERE p.numero_orden=orden;
 
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_EliminarProcesosProducto` (IN `idDetalleProducto` INT, IN `area` TINYINT(1))  NO SQL
+BEGIN
+
+IF area = 1 THEN# Formato estandar 
+	DELETE FROM detalle_formato_estandar WHERE idDetalle_formato_estandar=idDetalleProducto;
+ELSE
+ IF area = 2 THEN # teclados
+ 	DELETE FROM detalle_teclados WHERE idDetalle_teclados=idDetalleProducto;
+ ELSE # Ensamble
+ 	DELETE FROM detalle_ensamble WHERE idDetalle_ensamble=idDetalleProducto;
+ END IF; # <- Queda pendiente el area de almacen    
+END IF;
+
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_EliminarProductosNoConformes` (IN `orden` INT, IN `tipo` INT, IN `area` INT)  NO SQL
 BEGIN
 
@@ -1019,7 +1056,7 @@ END$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_InformeNTE` ()  NO SQL
 BEGIN
 
-SELECT dp.proyecto_numero_orden,dp.canitadad_total,p.nombre_proceso,t.noperarios,t.estado,pp.tipo_proyecto,t.cantidad_terminada,t.cantidadProceso,t.orden FROM detalle_teclados t LEFT JOIN detalle_proyecto dp ON t.idDetalle_proyecto=dp.idDetalle_proyecto LEFT JOIN procesos p ON t.idproceso=p.idproceso JOIN proyecto pp ON dp.proyecto_numero_orden=pp.numero_orden WHERE pp.estado!=3 AND pp.eliminacion!=0 AND dp.idArea=2 ORDER BY dp.proyecto_numero_orden;
+SELECT dp.proyecto_numero_orden,dp.canitadad_total,p.nombre_proceso,t.noperarios,t.estado,pp.tipo_proyecto,t.cantidad_terminada,t.cantidadProceso,t.orden FROM detalle_teclados t LEFT JOIN detalle_proyecto dp ON t.idDetalle_proyecto=dp.idDetalle_proyecto LEFT JOIN procesos p ON t.idproceso=p.idproceso JOIN proyecto pp ON dp.proyecto_numero_orden=pp.numero_orden WHERE pp.estado!=3 AND dp.estado!=3 AND pp.eliminacion!=0 AND dp.idArea=2 ORDER BY dp.proyecto_numero_orden;
 
 END$$
 
@@ -1349,13 +1386,8 @@ UPDATE detalle_formato_estandar f SET f.cantidadProceso=(CONVERT(f.cantidadProce
   #...
 ELSE
  IF busqueda=2 THEN
- 
- #SET id=(SELECT f.idDetalle_teclados from detalle_teclados f JOIN detalle_proyecto d on f.idDetalle_proyecto=d.idDetalle_proyecto where d.proyecto_numero_orden=orden AND d.idDetalle_proyecto=detalle and f.idproceso=lector and f.estado=4);
- 
- #UPDATE detalle_teclados f SET  f.estado=est, f.tiempo_total_proceso=tiempo, f.cantidad_terminada=(cantidadTerminada+cantidadAntiguaTermianda),f.restantes=res,f.noperarios=0 WHERE f.idDetalle_teclados=id ;
- 
- #...
-  IF procesoPasar=0 AND lector!=14 THEN
+ #... El proceso final se tiene que buscar el proceso con orden mayor para saber que ese es el proceso final.
+  IF procesoPasar=0 AND lector!=14 THEN# El proceso final es Calidad TE
   	SET cantidadTerminada=0;
   END IF;
   #...
@@ -1502,11 +1534,11 @@ SELECT d.tiempo_total_por_proceso,d.cantidad_terminada FROM detalle_formato_esta
 ELSE
  IF area=2 THEN
 
-SELECT d.tiempo_total_proceso,d.cantidad_terminada FROM detalle_teclados d WHERE d.idDetalle_proyecto=detalle AND d.idproceso=lector AND d.estado=3;
+SELECT t.tiempo_total_proceso,t.cantidad_terminada FROM detalle_teclados t WHERE t.idDetalle_proyecto=detalle AND t.idproceso=lector AND t.estado=3;
 
  ELSE
   
- SELECT d.tiempo_total_por_proceso,d.cantidad_terminada FROM detalle_ensamble d WHERE d.idDetalle_proyecto=detalle AND d.idproceso=lector AND d.estado=3;
+ SELECT e.tiempo_total_por_proceso, e.cantidad_terminada FROM detalle_ensamble e WHERE e.idDetalle_proyecto=detalle AND e.idproceso=lector AND e.estado=3;
  
  END IF;
 END IF;
@@ -1587,147 +1619,6 @@ set detalle=((SELECT dd.idDetalle_proyecto from detalle_proyecto dd WHERE dd.pro
 END IF;
 
 INSERT INTO `detalle_ensamble`(`idDetalle_proyecto`, `idproceso`) VALUES (detalle,proceso);
-
-END$$
-
-CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_RegistrarDetalleFormatoEstandar` (IN `orden` INT, IN `tipo` INT, IN `ubic` VARCHAR(25))  NO SQL
-BEGIN
-DECLARE material varchar(3);
-DECLARE antisolder int;
-declare ruteo int;
-declare detalle int;
-
- IF ubic='' THEN
-set detalle=((SELECT dd.idDetalle_proyecto from detalle_proyecto dd WHERE dd.proyecto_numero_orden=(orden) AND dd.idProducto=tipo AND dd.idArea=1 AND dd.ubicacion is null));
-
- ELSE
- 
-set detalle=((SELECT dd.idDetalle_proyecto from detalle_proyecto dd WHERE dd.proyecto_numero_orden=(orden) AND dd.idProducto=tipo AND dd.idArea=1 AND dd.ubicacion=ubic));
-
- END IF;
-
-
-
-IF tipo=2 THEN
-INSERT INTO `detalle_formato_estandar`(`tiempo_por_unidad`, `tiempo_total_por_proceso`, `cantidad_terminada`, `idDetalle_proyecto`, `idproceso`, `estado`) VALUES
-('00:00','00:00','0',detalle,1,1);
-
-INSERT INTO `detalle_formato_estandar`(`tiempo_por_unidad`, `tiempo_total_por_proceso`, `cantidad_terminada`, `idDetalle_proyecto`, `idproceso`, `estado`) VALUES
-('00:00','00:00','0',detalle,3,1);
-
-INSERT INTO `detalle_formato_estandar`(`tiempo_por_unidad`, `tiempo_total_por_proceso`, `cantidad_terminada`, `idDetalle_proyecto`, `idproceso`, `estado`) VALUES
-('00:00','00:00','0',detalle,4,1);
-
-INSERT INTO `detalle_formato_estandar`(`tiempo_por_unidad`, `tiempo_total_por_proceso`, `cantidad_terminada`, `idDetalle_proyecto`, `idproceso`, `estado`) VALUES
-('00:00','00:00','0',detalle,5,1);
-
-INSERT INTO `detalle_formato_estandar`(`tiempo_por_unidad`, `tiempo_total_por_proceso`, `cantidad_terminada`, `idDetalle_proyecto`, `idproceso`, `estado`) VALUES
-('00:00','00:00','0',detalle,7,1);
-
-INSERT INTO `detalle_formato_estandar`(`tiempo_por_unidad`, `tiempo_total_por_proceso`, `cantidad_terminada`, `idDetalle_proyecto`, `idproceso`, `estado`) VALUES
-('00:00','00:00','0',detalle,8,1);
-
-INSERT INTO `detalle_formato_estandar`(`tiempo_por_unidad`, `tiempo_total_por_proceso`, `cantidad_terminada`, `idDetalle_proyecto`, `idproceso`, `estado`) VALUES
-('00:00','00:00','0',detalle,9,1);
-
-INSERT INTO `detalle_formato_estandar`(`tiempo_por_unidad`, `tiempo_total_por_proceso`, `cantidad_terminada`, `idDetalle_proyecto`, `idproceso`, `estado`) VALUES
-('00:00','00:00','0',detalle,10,1);
-ELSE
-IF tipo=3 or tipo=4 THEN
- INSERT INTO `detalle_formato_estandar`(`tiempo_por_unidad`, `tiempo_total_por_proceso`, `cantidad_terminada`, `idDetalle_proyecto`, `idproceso`, `estado`) VALUES
-('00:00','00:00','0',detalle,1,1);
-
-INSERT INTO `detalle_formato_estandar`(`tiempo_por_unidad`, `tiempo_total_por_proceso`, `cantidad_terminada`, `idDetalle_proyecto`, `idproceso`, `estado`) VALUES
-('00:00','00:00','0',detalle,4,1);
-ELSE
-   IF tipo=6 THEN
-#Perforado
- INSERT INTO `detalle_formato_estandar`(`tiempo_por_unidad`, `tiempo_total_por_proceso`, `cantidad_terminada`, `idDetalle_proyecto`, `idproceso`, `estado`) VALUES
-('00:00','00:00','0',detalle,1,1);
-#Caminos
- INSERT INTO `detalle_formato_estandar`(`tiempo_por_unidad`, `tiempo_total_por_proceso`, `cantidad_terminada`, `idDetalle_proyecto`, `idproceso`, `estado`) VALUES
-('00:00','00:00','0',detalle,3,1);
-#Quemado
- INSERT INTO `detalle_formato_estandar`(`tiempo_por_unidad`, `tiempo_total_por_proceso`, `cantidad_terminada`, `idDetalle_proyecto`, `idproceso`, `estado`) VALUES
-('00:00','00:00','0',detalle,4,1);
-ELSE
-     IF tipo=1 or tipo=7 THEN
- INSERT INTO `detalle_formato_estandar`(`tiempo_por_unidad`, `tiempo_total_por_proceso`, `cantidad_terminada`, `idDetalle_proyecto`, `idproceso`, `estado`) VALUES
-('00:00','00:00','0',detalle,1,1);
-
-
-set material=(SELECT d.material from detalle_proyecto d WHERE d.proyecto_numero_orden=(orden) AND d.idDetalle_proyecto=detalle);
-
-
-IF material="TH" THEN
- INSERT INTO `detalle_formato_estandar`(`tiempo_por_unidad`, `tiempo_total_por_proceso`, `cantidad_terminada`, `idDetalle_proyecto`, `idproceso`, `estado`) VALUES
-('00:00','00:00','0',detalle,2,1);
-END IF;
-
-
- INSERT INTO `detalle_formato_estandar`(`tiempo_por_unidad`, `tiempo_total_por_proceso`, `cantidad_terminada`, `idDetalle_proyecto`, `idproceso`, `estado`) VALUES
-('00:00','00:00','0',detalle,3,1);
-
- INSERT INTO `detalle_formato_estandar`(`tiempo_por_unidad`, `tiempo_total_por_proceso`, `cantidad_terminada`, `idDetalle_proyecto`, `idproceso`, `estado`) VALUES
-('00:00','00:00','0',detalle,4,1);
-
-INSERT INTO `detalle_formato_estandar`(`tiempo_por_unidad`, `tiempo_total_por_proceso`, `cantidad_terminada`, `idDetalle_proyecto`, `idproceso`, `estado`) VALUES
-('00:00','00:00','0',detalle,5,1);
-
-     IF tipo=1 THEN
-set antisolder=(SELECT antisolderC from proyecto where numero_orden=(SELECT proyecto_numero_orden from detalle_proyecto WHERE idDetalle_proyecto=detalle));
-
-set ruteo=(SELECT ruteoC from proyecto where numero_orden=(SELECT proyecto_numero_orden from detalle_proyecto WHERE idDetalle_proyecto=detalle));
-
- IF antisolder=1 THEN
- INSERT INTO `detalle_formato_estandar`(`tiempo_por_unidad`, `tiempo_total_por_proceso`, `cantidad_terminada`, `idDetalle_proyecto`, `idproceso`, `estado`) VALUES
-('00:00','00:00','0',detalle,6,1);
- END IF;
- 
-INSERT INTO `detalle_formato_estandar`(`tiempo_por_unidad`, `tiempo_total_por_proceso`, `cantidad_terminada`, `idDetalle_proyecto`, `idproceso`, `estado`) VALUES
-('00:00','00:00','0',detalle,7,1);
-
- INSERT INTO `detalle_formato_estandar`(`tiempo_por_unidad`, `tiempo_total_por_proceso`, `cantidad_terminada`, `idDetalle_proyecto`, `idproceso`, `estado`) VALUES
-('00:00','00:00','0',detalle,8,1);
-
-  IF ruteo=1 THEN
- INSERT INTO `detalle_formato_estandar`(`tiempo_por_unidad`, `tiempo_total_por_proceso`, `cantidad_terminada`, `idDetalle_proyecto`, `idproceso`, `estado`) VALUES
-('00:00','00:00','0',detalle,9,1);
- END IF;
-     END IF;
-          IF tipo=7 THEN
-          
-set antisolder=(SELECT antisolderP from proyecto where numero_orden=(SELECT proyecto_numero_orden from detalle_proyecto WHERE idDetalle_proyecto=detalle));
-
-set ruteo=(SELECT ruteoP from proyecto where numero_orden=(SELECT proyecto_numero_orden from detalle_proyecto WHERE idDetalle_proyecto=detalle));
- IF antisolder=1 THEN
- INSERT INTO `detalle_formato_estandar`(`tiempo_por_unidad`, `tiempo_total_por_proceso`, `cantidad_terminada`, `idDetalle_proyecto`, `idproceso`, `estado`) VALUES
-('00:00','00:00','0',detalle,6,1);
- END IF;
-INSERT INTO `detalle_formato_estandar`(`tiempo_por_unidad`, `tiempo_total_por_proceso`, `cantidad_terminada`, `idDetalle_proyecto`, `idproceso`, `estado`) VALUES
-('00:00','00:00','0',detalle,7,1);
-
- INSERT INTO `detalle_formato_estandar`(`tiempo_por_unidad`, `tiempo_total_por_proceso`, `cantidad_terminada`, `idDetalle_proyecto`, `idproceso`, `estado`) VALUES
-('00:00','00:00','0',detalle,8,1);
-
-  IF ruteo=1 THEN
-INSERT INTO `detalle_formato_estandar`(`tiempo_por_unidad`, `tiempo_total_por_proceso`, `cantidad_terminada`, `idDetalle_proyecto`, `idproceso`, `estado`) VALUES
-('00:00','00:00','0',detalle,9,1);
- END IF;
-          END IF;
-INSERT INTO `detalle_formato_estandar`(`tiempo_por_unidad`, `tiempo_total_por_proceso`, `cantidad_terminada`, `idDetalle_proyecto`, `idproceso`, `estado`) VALUES
-('00:00','00:00','0',detalle,10,1);
-   END IF;
-  END IF;
- END IF;
-END IF;
-
-SET tipo= (SELECT COUNT(*) FROM detalle_formato_estandar d WHERE  d.idDetalle_proyecto=detalle AND d.estado=1);
-
-
-UPDATE detalle_proyecto SET pro_porIniciar=tipo WHERE idDetalle_proyecto=detalle;
-
-CALL PA_CambiarEstadoDeProductos(1,detalle);
 
 END$$
 
@@ -1875,17 +1766,16 @@ UPDATE usuario u SET u.sesion=sec WHERE u.numero_documento=ced;
 
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_TiempoProceso` (IN `detalle` INT, IN `area` INT)  NO SQL
+CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_TiempoEjecucionProceso` (IN `idDetalleProducto` INT, IN `area` INT)  NO SQL
 BEGIN
 
-IF area=1 THEN
-SELECT df.tiempo_total_por_proceso FROM detalle_formato_estandar df WHERE df.idDetalle_proyecto=detalle AND df.estado!=1;
-
+IF area=1 THEN# Formato estandar - FE
+	SELECT df.tiempo_total_por_proceso FROM detalle_formato_estandar df WHERE df.idDetalle_proyecto=idDetalleProducto AND df.estado!=1;
 ELSE
- IF area=2 THEN
-  SELECT dt.tiempo_total_proceso FROM detalle_teclados dt WHERE dt.idDetalle_proyecto=detalle AND dt.estado!=1;
- ELSE
-  SELECT de.tiempo_total_por_proceso FROM detalle_ensamble de WHERE de.idDetalle_proyecto=detalle AND de.estado!=1;
+ IF area=2 THEN# Teclados - TE
+    SELECT dt.tiempo_total_por_proceso FROM detalle_teclados dt WHERE dt.idDetalle_proyecto=idDetalleProducto AND dt.estado!=1;
+ ELSE# Ensamble - EN
+    SELECT de.tiempo_total_por_proceso FROM detalle_ensamble de WHERE de.idDetalle_proyecto=idDetalleProducto AND de.estado!=1;
  END IF;
 END IF;
 
@@ -2301,11 +2191,14 @@ RETURN 1;
 END IF;
 END$$
 
-CREATE DEFINER=`root`@`localhost` FUNCTION `FU_ModificarDetalleProyecto` (`orden` INT, `idDetalle` INT, `cantidad` VARCHAR(6), `material` VARCHAR(6), `area` INT, `ubicacion` VARCHAR(25)) RETURNS TINYINT(1) NO SQL
+CREATE DEFINER=`root`@`localhost` FUNCTION `FU_ModificarInfoDetalleProyecto` (`num_orden` VARCHAR(11), `idDetalleProducto` INT, `cantidad` VARCHAR(6), `material` VARCHAR(6), `area` INT, `ubicacion` VARCHAR(25)) RETURNS TINYINT(1) NO SQL
 BEGIN
-UPDATE detalle_proyecto dp SET dp.canitadad_total=cantidad,dp.material=material,dp.ubicacion=ubicacion WHERE idDetalle_proyecto=idDetalle and proyecto_numero_orden=orden;
-CALL PA_CambiarEstadoDeProductos(area,idDetalle);
-RETURN 1;
+# ...
+  UPDATE detalle_proyecto dp SET dp.canitadad_total=cantidad,dp.material=material,dp.ubicacion=ubicacion WHERE dp.idDetalle_proyecto=idDetalleProducto and dp.proyecto_numero_orden=num_orden;
+# ...
+  #CALL PA_CambiarEstadoDeProductos(area,idDetalleProducto);
+  RETURN 1;
+# ...
 END$$
 
 CREATE DEFINER=`root`@`localhost` FUNCTION `FU_RegistrarDetalleProyecto` (`orden` INT(11), `tipoNegocio` VARCHAR(20), `cantidad` VARCHAR(6), `area` VARCHAR(20), `estado` TINYINT(1), `material` VARCHAR(6), `pnc` TINYINT(1), `ubic` VARCHAR(30)) RETURNS TINYINT(1) NO SQL
@@ -3055,7 +2948,11 @@ INSERT INTO `detalle_ensamble` (`idDetalle_ensamble`, `tiempo_por_unidad`, `tiem
 (321, '00:00', '00:00', '0', NULL, NULL, 343, 15, 1, NULL, NULL, 0, 0, '0'),
 (322, '00:00', '00:00', '0', NULL, NULL, 343, 16, 1, NULL, NULL, 0, 0, '0'),
 (323, '00:00', '00:00', '0', NULL, NULL, 343, 17, 1, NULL, NULL, 0, 0, '0'),
-(324, '00:00', '00:00', '0', NULL, NULL, 343, 18, 1, NULL, NULL, 0, 0, '0');
+(324, '00:00', '00:00', '0', NULL, NULL, 343, 18, 1, NULL, NULL, 0, 0, '0'),
+(325, '00:00', '00:00', '0', NULL, NULL, 366, 15, 1, NULL, NULL, 0, 0, '0'),
+(326, '00:00', '00:00', '0', NULL, NULL, 366, 16, 1, NULL, NULL, 0, 0, '0'),
+(327, '00:00', '00:00', '0', NULL, NULL, 366, 17, 1, NULL, NULL, 0, 0, '0'),
+(328, '00:00', '00:00', '0', NULL, NULL, 366, 18, 1, NULL, NULL, 0, 0, '0');
 
 -- --------------------------------------------------------
 
@@ -3147,7 +3044,31 @@ INSERT INTO `detalle_formato_estandar` (`idDetalle_formato_estandar`, `tiempo_po
 (61, '00:00', '00:00', '0', NULL, NULL, 359, 7, 1, NULL, NULL, 0, 7, '0'),
 (62, '00:00', '00:00', '0', NULL, NULL, 359, 8, 1, NULL, NULL, 0, 8, '0'),
 (63, '00:00', '00:00', '0', NULL, NULL, 359, 9, 1, NULL, NULL, 0, 9, '0'),
-(64, '00:00', '00:00', '0', NULL, NULL, 359, 10, 1, NULL, NULL, 0, 10, '0');
+(64, '00:00', '00:00', '0', NULL, NULL, 359, 10, 1, NULL, NULL, 0, 10, '0'),
+(65, '00:00', '00:00', '0', NULL, NULL, 361, 1, 1, NULL, NULL, 0, 1, '2'),
+(66, '00:00', '00:00', '0', NULL, NULL, 361, 3, 1, NULL, NULL, 0, 2, '0'),
+(67, '00:00', '00:00', '0', NULL, NULL, 361, 4, 1, NULL, NULL, 0, 3, '0'),
+(68, '00:00', '00:00', '0', NULL, NULL, 361, 5, 1, NULL, NULL, 0, 4, '0'),
+(69, '00:00', '00:00', '0', NULL, NULL, 361, 7, 1, NULL, NULL, 0, 5, '0'),
+(70, '00:00', '00:00', '0', NULL, NULL, 361, 8, 1, NULL, NULL, 0, 6, '0'),
+(71, '00:00', '00:00', '0', NULL, NULL, 361, 10, 1, NULL, NULL, 0, 7, '0'),
+(72, '00:00', '00:00', '0', NULL, NULL, 362, 1, 1, NULL, NULL, 0, 1, '1'),
+(73, '00:00', '00:00', '0', NULL, NULL, 362, 4, 1, NULL, NULL, 0, 2, '0'),
+(74, '00:00', '00:00', '0', NULL, NULL, 363, 1, 1, NULL, NULL, 0, 1, '10'),
+(75, '00:00', '00:00', '0', NULL, NULL, 363, 3, 1, NULL, NULL, 0, 2, '0'),
+(76, '00:00', '00:00', '0', NULL, NULL, 363, 4, 1, NULL, NULL, 0, 3, '0'),
+(77, '00:00', '00:00', '0', NULL, NULL, 363, 5, 1, NULL, NULL, 0, 4, '0'),
+(78, '00:00', '00:00', '0', NULL, NULL, 363, 6, 1, NULL, NULL, 0, 5, '0'),
+(79, '00:00', '00:00', '0', NULL, NULL, 363, 7, 1, NULL, NULL, 0, 6, '0'),
+(80, '00:00', '00:00', '0', NULL, NULL, 363, 8, 1, NULL, NULL, 0, 7, '0'),
+(81, '00:00', '00:00', '0', NULL, NULL, 363, 10, 1, NULL, NULL, 0, 8, '0'),
+(82, '00:00', '05:49', '5', '2019-03-01', NULL, 364, 1, 2, '2019-03-01 11:53:13', '2019-03-01 11:54:23', 0, 1, '5'),
+(83, '00:00', '00:00', '0', NULL, NULL, 364, 3, 1, NULL, NULL, 0, 2, '5'),
+(84, '00:00', '00:00', '0', NULL, NULL, 364, 4, 1, NULL, NULL, 0, 3, '0'),
+(85, '00:00', '00:00', '0', NULL, NULL, 364, 5, 1, NULL, NULL, 0, 4, '0'),
+(86, '00:00', '00:00', '0', NULL, NULL, 364, 7, 1, NULL, NULL, 0, 5, '0'),
+(87, '00:00', '00:00', '0', NULL, NULL, 364, 8, 1, NULL, NULL, 0, 6, '0'),
+(88, '00:00', '00:00', '0', NULL, NULL, 364, 10, 1, NULL, NULL, 0, 7, '0');
 
 -- --------------------------------------------------------
 
@@ -3484,13 +3405,19 @@ INSERT INTO `detalle_proyecto` (`idDetalle_proyecto`, `idProducto`, `canitadad_t
 (351, 3, '3', 'FV', 32333, 1, 2, 0, NULL, 1, 0, 0, 1, '00:37', '00:00', NULL, NULL),
 (352, 6, '4', NULL, 32333, 1, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL),
 (353, 1, '5', 'TH', 32333, 1, 2, 0, NULL, 9, 0, 1, 0, '00:40', '00:00', NULL, NULL),
-(354, 5, '10', NULL, 32333, 2, 1, 0, NULL, 4, 0, 0, 0, '00:00', '00:00', NULL, NULL),
-(355, 2, '1', 'FV', 32334, 1, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL),
-(356, 4, '2', 'FV', 32334, 1, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL),
-(357, 3, '3', 'FV', 32334, 1, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL),
-(358, 6, '4', NULL, 32334, 1, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL),
-(359, 1, '5', 'TH', 32334, 1, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL),
-(360, 5, '2', NULL, 32334, 2, 1, 0, NULL, 4, 0, 0, 0, '00:00', '00:00', NULL, NULL);
+(354, 5, '10', NULL, 32333, 2, 2, 0, NULL, 3, 0, 1, 0, '00:00', '00:00', NULL, NULL),
+(355, 2, '1', 'FV', 32334, 1, 3, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', '2019-03-01 07:16:21', NULL),
+(356, 4, '2', 'FV', 32334, 1, 3, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', '2019-03-01 07:16:21', NULL),
+(357, 3, '3', 'FV', 32334, 1, 3, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', '2019-03-01 07:16:21', NULL),
+(358, 6, '4', '', 32334, 1, 3, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', '2019-03-01 07:16:21', NULL),
+(359, 1, '5', 'TH', 32334, 1, 3, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', '2019-03-01 07:16:21', NULL),
+(360, 5, '2', '', 32334, 2, 1, 0, NULL, 4, 0, 0, 0, '00:00', '00:00', NULL, NULL),
+(361, 2, '2', 'FV', 32335, 1, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL),
+(362, 3, '1', 'FV', 32335, 1, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL),
+(363, 1, '10', 'FV', 32335, 1, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL),
+(364, 2, '10', 'FV', 32336, 1, 2, 0, NULL, 6, 0, 1, 0, '05:49', '00:00', NULL, NULL),
+(365, 5, '1', NULL, 32336, 2, 1, 0, NULL, 4, 0, 0, 0, '00:00', '00:00', NULL, NULL),
+(366, 1, '1', NULL, 32336, 3, 1, 0, NULL, 4, 0, 0, 0, '00:00', '00:00', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -3532,14 +3459,18 @@ INSERT INTO `detalle_teclados` (`idDetalle_teclados`, `tiempo_por_unidad`, `tiem
 (10, '00:00', '00:00', '0', NULL, NULL, 342, 12, 1, NULL, NULL, 0, 0, '0'),
 (11, '00:00', '01:24', '7', '2019-02-28', '2019-02-28', 342, 13, 3, '2019-02-28 09:00:23', '2019-02-28 09:00:51', 0, 0, '0'),
 (12, '00:00', '01:01', '12', '2019-02-28', '2019-02-28', 342, 14, 3, '2019-02-28 09:01:46', '2019-02-28 09:02:01', 0, 0, '0'),
-(13, '00:00', '00:00', '0', NULL, NULL, 354, 11, 1, NULL, NULL, 0, 0, '0'),
+(13, '00:00', '17:05', '0', '2019-03-01', NULL, 354, 11, 2, '2019-03-01 06:49:26', '2019-03-01 07:06:31', 0, 1, '10'),
 (14, '00:00', '00:00', '0', NULL, NULL, 354, 12, 1, NULL, NULL, 0, 0, '0'),
 (15, '00:00', '00:00', '0', NULL, NULL, 354, 13, 1, NULL, NULL, 0, 0, '0'),
 (16, '00:00', '00:00', '0', NULL, NULL, 354, 14, 1, NULL, NULL, 0, 0, '0'),
 (17, '00:00', '00:00', '0', NULL, NULL, 360, 11, 1, NULL, NULL, 0, 0, '0'),
 (18, '00:00', '00:00', '0', NULL, NULL, 360, 12, 1, NULL, NULL, 0, 0, '0'),
 (19, '00:00', '00:00', '0', NULL, NULL, 360, 13, 1, NULL, NULL, 0, 0, '0'),
-(20, '00:00', '00:00', '0', NULL, NULL, 360, 14, 1, NULL, NULL, 0, 0, '0');
+(20, '00:00', '00:00', '0', NULL, NULL, 360, 14, 1, NULL, NULL, 0, 0, '0'),
+(21, '00:00', '00:00', '0', NULL, NULL, 365, 11, 1, NULL, NULL, 0, 1, '1'),
+(22, '00:00', '00:00', '0', NULL, NULL, 365, 12, 1, NULL, NULL, 0, 0, '0'),
+(23, '00:00', '00:00', '0', NULL, NULL, 365, 13, 1, NULL, NULL, 0, 0, '0'),
+(24, '00:00', '00:00', '0', NULL, NULL, 365, 14, 1, NULL, NULL, 0, 0, '0');
 
 -- --------------------------------------------------------
 
@@ -4044,9 +3975,12 @@ INSERT INTO `proyecto` (`numero_orden`, `usuario_numero_documento`, `nombre_clie
 (32329, '981130', 'juan david marulanda paniagua', 'prueba de desarrollo numero 6', 'RQT', 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, '2019-02-23 09:17:28', '2019-02-15', '2019-02-28 08:18:17', 1, 1, 3, 0, 0, 1, 1, NULL, NULL, NULL, NULL, NULL, 'A tiempo', NULL),
 (32330, '981130', 'juan david marulanda', 'prueba de desarrollo numero 8', 'Normal', 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, '2019-02-25 10:40:57', '2019-02-01', '2019-02-27 10:24:28', 0, 0, 3, 0, 0, 1, 1, NULL, NULL, NULL, NULL, NULL, 'A tiempo', NULL),
 (32331, '981130', 'Juan David Marulanda Paniagua', 'Prueba de desarrollo numero 1', 'Normal', 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, '2019-02-28 07:14:00', '2019-02-01', NULL, 1, 1, 4, 1, 0, 1, 1, '2019-02-01', '2019-02-16', NULL, NULL, NULL, 'A tiempo', NULL),
-(32332, '981130', 'Juan david marulanda paniagua', 'Correccion de desarrollo', 'Normal', 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, '2019-02-28 09:16:00', '2019-02-22', NULL, 0, 0, 1, 1, 1, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(32333, '981130', 'Juan David Marulanda', 'Prueba de desarrollo registro de procesos de los productos del proyecto', 'Normal', 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, '2019-02-28 09:42:06', '2019-02-01', NULL, 1, 1, 2, 0, 0, 1, 1, NULL, NULL, NULL, NULL, NULL, 'A tiempo', NULL),
-(32334, '981130', 'Juan David Marulanda Paniagua', 'Prueba de desarrollo registro de procesos de los productos', 'RQT', 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, '2019-02-28 09:55:23', '2019-02-22', NULL, 1, 1, 1, 0, 0, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+(32332, '981130', 'Juan david marulanda paniagua', 'Correccion de desarrollo', 'Normal', 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, '2019-02-28 09:16:00', '2019-02-22', NULL, 0, 0, 1, 1, 1, 1, 1, NULL, NULL, NULL, NULL, '', NULL, NULL),
+(32333, '981130', 'Juan David Marulanda', 'Prueba de desarrollo registro de procesos de los productos del proyecto', 'Normal', 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, '2019-02-28 09:42:06', '2019-02-01', NULL, 1, 1, 2, 0, 0, 0, 1, NULL, NULL, NULL, NULL, NULL, 'A tiempo', NULL),
+(32334, '981130', 'Juan David Marulanda Paniagua', 'Prueba de desarrollo registro de procesos de los productos', 'RQT', 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, '2019-02-28 09:55:23', '2019-02-22', NULL, 1, 1, 2, 0, 0, 0, 1, NULL, NULL, NULL, NULL, '', 'A tiempo', NULL),
+(32335, '981130', 'Juan David Marulanda', 'Demostración de las funcionalidades del sistema.', 'Quick', 1, 1, 0, 1, 0, 1, 1, 0, 0, 0, '2019-03-01 09:59:37', '2019-03-18', NULL, 0, 1, 1, 0, 0, 0, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `proyecto` (`numero_orden`, `usuario_numero_documento`, `nombre_cliente`, `nombre_proyecto`, `tipo_proyecto`, `FE`, `TE`, `IN`, `pcb_FE`, `pcb_TE`, `Conversor`, `Repujado`, `troquel`, `stencil`, `lexan`, `fecha_ingreso`, `fecha_entrega`, `fecha_salidal`, `ruteoC`, `antisolderC`, `estado`, `antisolderP`, `ruteoP`, `eliminacion`, `parada`, `entregaCircuitoFEoGF`, `entregaCOMCircuito`, `entregaPCBFEoGF`, `entregaPCBCom`, `novedades`, `estadoEmpresa`, `NFEE`) VALUES
+(32336, '981130', 'Juan David Marulanda Paniagua', 'Demostracion de funcionalidades', 'Normal', 1, 1, 1, 0, 0, 1, 0, 0, 0, 1, '2019-03-01 10:33:38', '2019-03-02', NULL, 0, 0, 2, 0, 0, 1, 1, NULL, NULL, NULL, NULL, NULL, 'A tiempo', NULL);
 
 -- --------------------------------------------------------
 
@@ -4087,7 +4021,7 @@ INSERT INTO `usuario` (`numero_documento`, `tipo_documento`, `nombres`, `apellid
 ('43975208', 'CC', 'GLORIA ', 'JARAMILLO ', 2, '', 1, '43975208', 1, 'kbdnsdlciq'),
 ('71268332', 'CC', 'Adimaro', 'Montoya', 3, '', 0, '71268332', 0, '1vr8s4th-@'),
 ('981130', 'CC', 'Juan David', 'Marulanda Paniagua', 4, '', 1, '98113053240juan', 0, '1u-hyppy60'),
-('98113053240', 'CC', 'Juan david', 'Marulanda Paniagua', 2, '', 1, '98113053240', 1, 'ue2282qgo1'),
+('98113053240', 'CC', 'Juan david', 'Marulanda Paniagua', 2, '', 1, '98113053240', 0, 'ue2282qgo1'),
 ('98699433', 'CC', 'ANDRES CAMILO', 'BUITRAGO GÓMEZ', 1, '', 1, '98699433', 0, 'ñkzrv7l@uh'),
 ('98765201', 'CC', 'EDISSON ANDRES', 'BARAHONA CASTRILLON', 6, '', 1, '98765201', 0, 'q1-4i3i99t');
 
@@ -4117,7 +4051,7 @@ INSERT INTO `usuariopuerto` (`documentousario`, `usuarioPuerto`, `rutaQRs`, `est
 ('98765201', 'COM1', '\\\\servidor\\Proyectos2\\3 - QR\\', 0),
 ('1216714539', 'COM5', '\\\\servidor\\Proyectos2\\3 - QR\\', 0),
 ('1152697088', 'COM5', '\\\\servidor\\Proyectos2\\3 - QR\\', 0),
-('98113053240', 'COM5', NULL, 1),
+('98113053240', 'COM8', NULL, 1),
 ('123456789', 'COM7', NULL, 0),
 ('1020479554', 'COM9', NULL, 0);
 
@@ -4259,25 +4193,25 @@ ALTER TABLE `condicion_producto`
 -- AUTO_INCREMENT de la tabla `detalle_ensamble`
 --
 ALTER TABLE `detalle_ensamble`
-  MODIFY `idDetalle_ensamble` smallint(6) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=325;
+  MODIFY `idDetalle_ensamble` smallint(6) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=329;
 
 --
 -- AUTO_INCREMENT de la tabla `detalle_formato_estandar`
 --
 ALTER TABLE `detalle_formato_estandar`
-  MODIFY `idDetalle_formato_estandar` smallint(6) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=65;
+  MODIFY `idDetalle_formato_estandar` smallint(6) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=89;
 
 --
 -- AUTO_INCREMENT de la tabla `detalle_proyecto`
 --
 ALTER TABLE `detalle_proyecto`
-  MODIFY `idDetalle_proyecto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=361;
+  MODIFY `idDetalle_proyecto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=367;
 
 --
 -- AUTO_INCREMENT de la tabla `detalle_teclados`
 --
 ALTER TABLE `detalle_teclados`
-  MODIFY `idDetalle_teclados` smallint(6) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `idDetalle_teclados` smallint(6) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT de la tabla `procesos`
@@ -4301,7 +4235,7 @@ ALTER TABLE `producto`
 -- AUTO_INCREMENT de la tabla `proyecto`
 --
 ALTER TABLE `proyecto`
-  MODIFY `numero_orden` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32335;
+  MODIFY `numero_orden` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32337;
 
 --
 -- Restricciones para tablas volcadas

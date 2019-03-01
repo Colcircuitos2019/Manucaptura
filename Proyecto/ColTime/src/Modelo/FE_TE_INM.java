@@ -24,7 +24,7 @@ public class FE_TE_INM {
     boolean res;
     String orden = "";
     String fecha = "";
-    String T_Total = "";
+    String Tiempo_Total = "";
     int cantidadAntigua = 0;
     int estado = 0;
     boolean accion=true;
@@ -33,8 +33,7 @@ public class FE_TE_INM {
     //No se te olvide tener en cuenta el id del lector y concatenar a la informacion despues de leer el código QR***
     //Depurar esta seccion de còdigo para optimizarlo...
 public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetalle, int area, int idLector, int cantidadTerminada, int operarios, PrintStream myPS, int procesoPasoCantidades) {
-        //Falta hacer que se puedan poner varias tomas de tiempo del mismo proceso al mismo tiempo.
-        //Realizar una validacion adicional, el sistema no me va a dejar iniciar la toma de tiempo del proceso si no se le a pasado cantidades terminadas de un proceso anterior. Tener en cuenta teclados.
+        // Queda pendiente la toma de tiempos del área de almacen
         try {
             conexion = new Conexion(1);
             conexion.establecerConexion();
@@ -50,7 +49,7 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
             rs.next();
             if (rs.getBoolean(1)) {//Pausar O IniciarToma de tiempos
                 //-------------------------------------------------------------->
-                // Queda pendiente la forma de realizar la toma de tiempos del área del almacen
+                // Queda pendiente la forma de realizar la toma de tiempos del área del almacen!!!!
                 if(area != 4){
                     //Validar que la cantidad ingresada por el operario sea igual o menor a la cantidad que tiene disponible este proceso para trabajar
                     Qry = "SELECT FU_ValidarCantidadProcesoAreasProduccion(?,?,?);";
@@ -68,10 +67,10 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
                     }   
                 }
                 //...
-                int restante=0;
+                int cantidadProceso=0;
                 //...
-                if(accion){
-                    // Queda pendiente la toma de tiempos del área de almacen
+                if(accion){ //Pendiente revisar que se pueda eliminar esto... hasta acá se llego el día 01/03/2019
+                    
                         estado=2;
                     //...
                 }else{
@@ -87,31 +86,34 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
                     ps.setInt(3, area);
                     rs = ps.executeQuery();
                     rs.next();
-                    //Esto se puede hacer directamente desde la base de datos sin necesidad de llamar a una funcion en el modelo.
-                    T_Total = convertirHorasAMinutosYSumarTiempos(rs.getString("timpo_total_proceso").split(":"), rs.getString("tiempo_ejecucion").split(":"));
-                    //...
-                    Qry = "CALL PA_PausarTomaDeTiempoDeProcesos(?,?,?,?,?,?,?,?,?,?)";//NOTA: Para el área de ensamble se van a enviar dos procesos el cual al primero se le van a restar las cantidades terminadas y al segundo se le van a sumar las cantidades terminadas
+                    //Factor de conversion de hora HH:MM:SS a MM:SS y suma de tiempos.
+                    Tiempo_Total = convertirHorasAMinutosYSumarTiempos(rs.getString("timpo_total_proceso").split(":"), rs.getString("tiempo_ejecucion").split(":"));
+                    // ...
+                    //Si el proceso que pasa la cantidades es igual al proceso que recibe las cantidades entonces el proceso al que pasa las cantidades va a ser 0
+                    if(idLector == procesoPasoCantidades){//Se hace para evitar que me coloque las cantidades terminadas en el mismo proceso
+                       procesoPasoCantidades = 0;   
+                    }
+                    // ...
+                    Qry = "CALL PA_PausarTomaDeTiempoDeProcesos(?,?,?,?,?,?,?,?,?,?)";// <- Revisar procedimiento almacenado para eliminar el parametro de estado.
                     ps = con.prepareStatement(Qry);
                     ps.setInt(1, numeroOrden);
                     ps.setInt(2, idDetalle);
                     ps.setInt(3, idLector);
                     ps.setInt(4, area);
-                    ps.setString(5, T_Total);//<- Este parametro ya no va a ser necesarioString.valueOf(T_Total)
+                    ps.setString(5, Tiempo_Total);
                     ps.setInt(6, cantidadTerminada);
                     ps.setInt(7, cantidadAntigua);
                     ps.setInt(8, estado);
-                    ps.setInt(9, restante);//Cantidad de productos restantes!!
+                    ps.setInt(9, cantidadProceso);
                     ps.setInt(10, procesoPasoCantidades);
                     ps.execute();//Respuesta es igual a True para poder agregar los botones, Ya no es necesario esta respuesta para buscar los botones
                     res=true;
-                    //Revisar estos tres metodos para ver como se puede optimizar su funcionamiento<--
-                    //Promedio de producto por minuto.
-                    cantidadProductoMinuto(idDetalle, area, idLector);
-                    //Tiempo total del proceso.
-                    actualizarTotalTiempoProyecto(idDetalle, area);
-                    //Timepo total por unidad...
-                    totalTiempoPorUnidad(idDetalle, area);
-                    //Si no cumple la condición va a retornar un falso y monstrara una mensaje de advertencia.
+                    // ...
+                    calcularPromedioProductoPorMinuto(idDetalle, area, idLector);
+                    // ...
+                    calculatTiempoTotalProducto(idDetalle, area);
+                    // ...
+                    calcularTiempoTotalPorUnidad(idDetalle, area);
                     //...
                 } else {
                     res = false;
@@ -147,7 +149,7 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
                     ps.setInt(3, idLector);
                     ps.setInt(4, area);
                     ps.setInt(5, operarios);
-                    res = !ps.execute();//Respuesta es igual a True para poder agregar los botones  
+                    res = !ps.execute();// retorna true si la funcion fue ejecutada correctamente  
                 }else{
                     res=false;
                 }
@@ -157,13 +159,14 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
             conexion.destruir();
             conexion.cerrar(rs);
             ps.close();
-            System.gc();//Garbage collector...
+            //Garbage collector...
+            System.gc();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "Error! " + e);
         }
         return res;
     }
-    // Esto va a cambiar <--
+    // Esto va a cambiar <-- Pendiente
     public boolean pararTiempoAlmacen(int orden, int detalle, int cantidad, int detalleproducto, int proceso) {
         try {
             conexion = new Conexion(1);
@@ -224,7 +227,7 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
         return res;//Falta asignarle este true a una variable
     }
 
-    public void totalTiempoPorUnidad(int detalle, int negocio) {
+    public void calcularTiempoTotalPorUnidad(int detalle, int negocio) {
         try {
             String Qry = "CALL PA_ValidarEstadoProyecto(?,?)";
             ps = con.prepareStatement(Qry);
@@ -232,6 +235,7 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
             ps.setInt(2, negocio);
             rs = ps.executeQuery();
             String tiempoTotalProducto = totalTiempoProyectoyProducto(rs);
+            // ...
             if (!tiempoTotalProducto.equals("00:00")) {
                 Qry = "CALL PA_ActualizarTiempoTotalPorUnidad(?,?)";
                 ps = con.prepareStatement(Qry);
@@ -247,15 +251,15 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
 //            JOptionPane.showMessageDialog(null, "Error! " + e);
         }
     }
-// Esto lo puede realizar la base de datos
+    
+//  Esto lo puede realizar la base de datos
     private String totalTiempoProyectoyProducto(ResultSet crsT) {
         int minutos = 0;
         int segundos = 0;
         String tiempo[] = null;
-        String cadena = "00:00";
         try {
             while (crsT.next()) {
-                tiempo = crsT.getString(1).split(":");
+                tiempo = crsT.getString(1).split(":");// o=Minutos y 1=Segundos
                 segundos += Integer.parseInt(tiempo[1]);
                 minutos += Integer.parseInt(tiempo[0]);
             }
@@ -264,66 +268,63 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
                 minutos++;
                 segundos = segundos - 60;
             }
-            //Cadena de String
-            cadena = (((minutos <= 9) ? "0" : "") + minutos + ":" + ((segundos <= 9) ? "0" : "") + segundos);
         } catch (Exception e) {
-            //Mensaje de error---
+            //JOptionPane.showMessageDialog(null,"Error: " + e);
         }
-        return cadena;
+        // ...
+        return construirCadenaDeTiempo(minutos, segundos);
     }
 
-    public void actualizarTotalTiempoProyecto(int detalle, int area) {
+    public void calculatTiempoTotalProducto(int idDetalle, int area) {
         try {
             conexion = new Conexion(1);
             conexion.establecerConexion();
             con = conexion.getConexion();
 //          Query------------------------------------------------------------>
-            String Qry = "CALL PA_TiempoProceso(?,?)";
+            String Qry = "CALL PA_TiempoEjecucionProceso(?,?)";
             ps = con.prepareStatement(Qry);
-            ps.setInt(1, detalle);
+            ps.setInt(1, idDetalle);
             ps.setInt(2, area);
             rs = ps.executeQuery();
             String cadena = totalTiempoProyectoyProducto(rs);
-
-            //Código...
+            //...
             Qry = "CALL PA_ActualizarTiempoTotalProducto(?,?)";
             ps = con.prepareStatement(Qry);
-            ps.setInt(1, detalle);
+            ps.setInt(1, idDetalle);
             ps.setString(2, cadena);
             ps.execute();
             //...
-            //No se puede ejecutar el cierre de conexiones
-            //Cierre de conexiones
-//            conexion.cerrar(rs);
-//            conexion.destruir();
-//            ps.close();
-//            con.close();
         } catch (Exception e) {
 //            JOptionPane.showMessageDialog(null, "Error! " + e);
         }
     }
 
-    private void cantidadProductoMinuto(int detalle, int negocio, int lector) {
+    private String construirCadenaDeTiempo(int minutos, int segundos){
+        //Cadena de String Hora Formato MM:SS 00:00
+        return (((minutos <= 9) ? "0" : "") + minutos + ":" + ((segundos <= 9) ? "0" : "") + segundos); 
+    }
+    
+    private void calcularPromedioProductoPorMinuto(int idDetalleProyecto, int area, int idLector) {
         try {
             conexion = new Conexion(1);
             conexion.establecerConexion();
             con = conexion.getConexion();
-//            Query------------------------------------------------------------>
+//          Query------------------------------------------------------------>
             String Qry = "CALL PA_PromedioProductoPorMinuto(?,?,?)";
             ps = con.prepareStatement(Qry);
-            ps.setInt(1, detalle);
-            ps.setInt(2, negocio);
-            ps.setInt(3, lector);
+            ps.setInt(1, idDetalleProyecto);
+            ps.setInt(2, area);
+            ps.setInt(3, idLector);
             rs = ps.executeQuery();
-
+            // ...
             if (rs.next()) {
-                String timeP = porMinuto(rs.getString(1), Integer.parseInt(rs.getString(2)));
-                //Código...
+                String timeP = procesoPorMinuto(rs.getString(1), Integer.parseInt(rs.getString(2)));
+                //...
                 Qry = "CALL PA_ActualizarProductoPorMinuto(?,?,?,?)";
                 ps = con.prepareStatement(Qry);
-                ps.setInt(1, detalle);
-                ps.setInt(2, negocio);
-                ps.setInt(3, lector);
+                ps.setInt(1, idDetalleProyecto);
+                ps.setInt(2, area);
+                ps.setInt(3, idLector);
                 ps.setString(4, timeP);
                 ps.execute();
                 //...
@@ -333,24 +334,22 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
         }
     }
 
-    public String porMinuto(String timepo, int cantidad) {
-        String ms[] = timepo.split(":");
+    public String procesoPorMinuto(String timepo, int cantidad) {
+        String ms[] = timepo.split(":");// 0= Minutos, 1= Segundos
         //Se convierte todo en segundos
         int segundos = (Integer.parseInt(ms[0]) * 60) + Integer.parseInt(ms[1]);
-        //Se realiza el promedio
-        int promedioEntero = (int) Math.ceil(segundos / cantidad);
+        //Promedio de tiempo en segundos
+        segundos = (int) Math.ceil(segundos / cantidad);
         //Se convertira a minutos y segundos otra vez...
-        String resultado = "";
         int minutos = 0;
-        while (promedioEntero >= 60) {
+        while (segundos >= 60) {
 
             minutos++;
-            promedioEntero = promedioEntero - 60;
+            segundos = segundos - 60;
 
         }
-        resultado = ((minutos <= 9) ? "0" : "") + minutos + ":" + ((promedioEntero <= 9) ? "0" : "") + promedioEntero;
-
-        return resultado;
+        // ...
+        return construirCadenaDeTiempo(minutos, segundos);
     }
 // Lo que hace esta funcion lo puede realizar la base de datos directamente
     private String convertirHorasAMinutosYSumarTiempos(String total[], String hora[]) {

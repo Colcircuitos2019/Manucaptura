@@ -104,7 +104,7 @@ public class DetalleProyectoM {
                 rs.next();
                 if (rs.getInt(1) != 0) {
                     //Se modifica siempre y cuando el proyecto tenga un PNC ya registrado en la misma ubicacion
-                    modificarPNC(numerOrden, rs.getInt(1), cantidad, material, negocio, tipoProducto, procesoPNC);
+                    modificarDetalleProyectos(numerOrden, rs.getInt(1), cantidad, material, negocio, tipoProducto, procesoPNC);
                 } else {
                     //Si no se registra el producto no conforme desde 0 
                     Qry = "SELECT FU_RegistrarDetalleProyecto(?,?,?,?,?,?,?,?)";
@@ -143,7 +143,7 @@ public class DetalleProyectoM {
                         idTipoProducto = numeroDelTipo(tipoProducto);
                     }
                     //...
-                    if (negocio.equals("IN")) {//tener en cuenta que los procesos se ban a traer de la tabla procesos dependiendo del tipo de negocio!!
+                    if (negocio.equals("IN")) {// Ya no se van a registrar PNC para los productos de EN
                         //Se registran los procesos de IN para este subproyecto.
                         Qry = "CALL PA_ConsultarIDProcesosTEYEN(?)";//Se van a consultar lo procesos de IN.
                         ps = con.prepareStatement(Qry);
@@ -172,7 +172,7 @@ public class DetalleProyectoM {
                             ps.setString(3, procesoPNC);
                         }
                         ps.execute();
-                    } else if (negocio.equals("TE")) {//tener en cuenta que los procesos se ban a traer de la tabla procesos dependiendo del tipo de negocio!!
+                    } else if (negocio.equals("TE")) {// Ya no se van a registrar PNC para los productos de TE
                         //Se registran los procesos de TE para este subproyecto. 
                         Qry = "CALL PA_ConsultarIDProcesosTEYEN(?)";//Se van a consultar lo procesos de EN.
                         ps = con.prepareStatement(Qry);
@@ -202,7 +202,7 @@ public class DetalleProyectoM {
                             ps.setString(3, procesoPNC);
                         }
                         ps.execute();
-                    } else if (negocio.equals("FE")) {//tener en cuenta que los procesos se ban a traer de la tabla procesos dependiendo del tipo de negocio!!
+                    } else if (negocio.equals("FE")) { // Unicamente los PNC aplican para los productos de FE
                         //Se registran los procesos de FE para este subproyecto.
                         //Se valida que sea GF.
                         if (material.equals("GF")) {//Negocio del almacen
@@ -218,18 +218,7 @@ public class DetalleProyectoM {
                             ps.setInt(3, 20);//Proceso de GF "20"
                             ps.execute();
                         } else {//tener en cuenta que los procesos se van a traer de la tabla procesos dependiendo del tipo de negocio!!
-                            
-                            //Este Procedure esta pendiente por eliminar.
-//                            Qry = "CALL PA_RegistrarDetalleFormatoEstandar(?,?,?)";//Registrar los procesos queda pendiente para desarrollar.....................................................................................
-//                            ps = con.prepareStatement(Qry);
-//                            ps.setInt(1, Integer.parseInt(numerOrden));
-//                            ps.setInt(2, tipo);
-//                            if (ubicacion == null) {
-//                                ps.setString(3, "");
-//                            } else {
-//                                ps.setString(3, ubicacion);
-//                            }
-//                            ps.execute();
+                            // ...
                             Qry = "SELECT FU_ConsultarelIDDetalledelproductoFE(?,?,?) as idDetalleProducto;";//
                             ps = con.prepareStatement(Qry);
                             ps.setString(1, numerOrden);
@@ -262,7 +251,7 @@ public class DetalleProyectoM {
                                 ps.setInt(2, idDetalleProducto); //idDetalleProyecto
                                 ps.setInt(3, rs.getInt("orden"));
                                 ps.execute();
-                            }//<------- hasta acá llegue el día 22/02/2019
+                            }
                         }
                     } else {//Negocio del almacen Para registrar los compoennetes
                         //tener en cuenta que los procesos se van a traer de la tabla procesos dependiendo del tipo de negocio!!
@@ -279,7 +268,7 @@ public class DetalleProyectoM {
                     }
                 }
             } else if (op == 2) {
-                modificarPNC(numerOrden, id, cantidad, material, negocio, tipoProducto, procesoPNC);
+                modificarDetalleProyectos(numerOrden, id, cantidad, material, negocio, tipoProducto, procesoPNC);
             }
             //Cierre de conexiones
             conexion.cerrar(rs);
@@ -391,38 +380,77 @@ public class DetalleProyectoM {
         return res;
     }
 //----------------------------------------------
-
-    private void modificarPNC(String numerOrden, int id, String cantidad, String material, String negocio, String tipoNegocio, String ubicacion) {
+// Pendiente seguir desarrollando
+    private void modificarDetalleProyectos(String numerOrden, int idDetalleProyecto, String cantidad, String material, String area, String tipoProducto, String procesoPNC) {
         //PreparedSteamate y detalle----------------------------------->
         try {
-            String Qry = "SELECT FU_ModificarDetalleProyecto(?,?,?,?,?,?)";
+            String Qry = "";
+            int idTipoProducto = numeroDelTipo(tipoProducto);
+            //1-Modificar la informacion del producto detalle del proyecto
+            Qry = "SELECT FU_ModificarDetalleProyecto(?,?,?,?,?,?)";
             ps = con.prepareStatement(Qry);
             ps.setInt(1, Integer.parseInt(numerOrden));
-            ps.setInt(2, id);
+            ps.setInt(2, idDetalleProyecto);
             ps.setString(3, cantidad);
             ps.setString(4, material);
             if (material.equals("GF")) {
                 ps.setInt(5, 4);
             } else {
-                if (negocio.equals("FE")) {
+                if (area.equals("FE")) { //Formato estandar
                     ps.setInt(5, 1);
-                } else if (negocio.equals("TE")) {
+                } else if (area.equals("TE")) { //Teclados
                     ps.setInt(5, 2);
-                } else if (negocio.equals("IN")) {
+                } else if (area.equals("IN")) { //Ensamble
                     ps.setInt(5, 3);
                 }
             }
-            ps.setString(6, ubicacion);
+            ps.setString(6, procesoPNC);
             rs = ps.executeQuery();
             rs.next();
             res = rs.getBoolean(1);
+            // 2- Eliminar los procesos del producto del proyecto siempre y cuando <-Pendiente
+            Qry="CALL PA_EliminarProcesosProducto(?);"; // <-Pendiente continuar
+            ps = con.prepareStatement(Qry);
+            ps.setInt(1 ,idDetalleProyecto);
+            rs = ps.executeQuery();
+            // ...
+            Qry = "SELECT FU_ClasificarCondicionProductoFE(?,?,?,?) as idCondicional";//
+            ps = con.prepareStatement(Qry);
+            ps.setString(1, numerOrden);
+            ps.setInt(2, idTipoProducto);
+            ps.setString(3, (procesoPNC == null ? "" : procesoPNC));
+            ps.setString(4, material);
+            rs = ps.executeQuery();
+            rs.next();
+            // ...
+            int idCondicional = rs.getInt("idCondicional");
+            // Consultar los procesos del producto que cumplio con la condición.
+            Qry = "CALL PA_ConsultarProcesosProducto(?);";
+            ps = con.prepareStatement(Qry);
+            ps.setInt(1, idCondicional);
+            rs = ps.executeQuery();
+            // ...
+            while (rs.next()) { //Registrar los procesos de FE que tendra el producto
+                Qry = "CALL PA_RegistrarProcesosProductoFE(?,?,?);";
+                ps = con.prepareStatement(Qry);
+                ps.setInt(1, rs.getInt("idProceso"));
+                ps.setInt(2, idDetalleProyecto);
+                ps.setInt(3, rs.getInt("orden"));
+                ps.execute();
+            }
+            // ...................................................................................................
+            
             if (!material.equals("GF")) {
-                if (negocio.equals("FE") && (tipoNegocio.equals("Circuito") || tipoNegocio.equals("PCB"))) {
+                // ...
+                if (area.equals("FE") && (tipoProducto.equals("Circuito") || tipoProducto.equals("PCB"))) {
                     //Modificar procesos de formato estandar
+                    //Consultar condicion que aplica para esta modificación
+                    
+                    //Validar que procesos se van a modificar
                     Qry = "CALL PA_ModificarDetalleFormatoEstandar(?,?,?)";
                     ps = con.prepareStatement(Qry);
                     ps.setInt(1, Integer.parseInt(numerOrden));
-                    ps.setInt(2, id);
+                    ps.setInt(2, idDetalleProyecto);
                     ps.setString(3, material.trim());
                     rs = ps.executeQuery();
                 }
@@ -432,6 +460,7 @@ public class DetalleProyectoM {
             ps.close();
             con.close();
         } catch (Exception e) {
+            JOptionPane.showMessageDialog(null,"Error: " + e);
         }
     }
 
@@ -747,9 +776,10 @@ public class DetalleProyectoM {
             //Cierre de conexiones
             FE_TE_INM produccion = new FE_TE_INM();
             //Se actualiza la suma total de tiempos totales de procesos
-            produccion.actualizarTotalTiempoProyecto(detalleproducto, negocio);
+            produccion.calculatTiempoTotalProducto(detalleproducto, negocio);
             //Se actualiza el total de producto por minuto siempre y cuando el estado del producto sea terminado
-            produccion.totalTiempoPorUnidad(detalleproducto, negocio);
+            produccion.calcularTiempoTotalPorUnidad(detalleproducto, negocio);
+            //...
             conexion.cerrar(rs);
             conexion.destruir();
             ps.close();
