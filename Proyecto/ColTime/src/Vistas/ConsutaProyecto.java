@@ -40,8 +40,8 @@ public class ConsutaProyecto extends javax.swing.JFrame {
     int cantidadRegistros = 0;
     CachedRowSet crs;
     //Botones de radio
-    String encabezado1[] = {"idDetalle", "Negocio", "Tipo de negocio", "Cantidad", "Estado", "Material"};//Detalle del proyecto
-    String encabezado2[] = {"idDetalle", "Negocio", "Tipo de negocio", "Cantidad", "Ubicación", "Estado"};//PNC
+    String encabezado1[] = {"idDetalle", "Negocio", "Producto", "Cantidad", "Estado", "Material"};//Detalle del proyecto
+    String encabezado2[] = {"idDetalle", "Negocio", "Producto", "Cantidad", "Ubicación", "Estado"};//PNC
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents

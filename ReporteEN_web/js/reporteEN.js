@@ -1,5 +1,6 @@
 $(document).ready(function() {
 // Consultar información
+// produccion($("#cantActualizaciones").text());
 setInterval("produccion($(\"#cantActualizaciones\").text())" ,1000);
 // produccion($("#cantActualizaciones").text());
 
@@ -66,6 +67,7 @@ function produccion(cont) {
 				})
 				.done(function(cuerpo) {
 					// ...
+					console.log(cuerpo);
 					$("#contentTable").empty();
 					$("#contentTable").html("<table id=\"reporte\" class=\"display\" style=\"width:100%\">"+
 		 		        						"<thead class=\"encabezado\">"+

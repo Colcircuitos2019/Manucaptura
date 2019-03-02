@@ -117,9 +117,9 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
     public static PrintStream myPS;
     ButtonGroup grupoCom = null;
     //Variables estaticas de conexion
-    public static String IP="192.168.4.173:3306";
-    public static String user= "coluser";//coluser juanDavidM
-    public static String pass= "";// 123
+    public static String IP="192.168.4.1:3306";
+    public static String user= "juanDavidM";// coluser
+    public static String pass= "123";//
             
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -1845,7 +1845,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
         if (validar.validarEliminacion(Integer.parseInt(infoP[0]))) {//Valido si la orden esta eliminada o no
             if (validar.validarEjecucionOParada(Integer.parseInt(infoP[0]))) {//Valida que la orden no este parada
                 //#--------------------------------------------------------------------------------------------------
-                if ((infoP.length == 6 && cargo!=2) || (cargo==2 && infoP.length == 7 || infoP.length == 6)) {//Se valida que si se lea el codigo QR que es necesario
+                if ((infoP.length == 6 && cargo!=2) || (cargo==2 && infoP.length == 7 || infoP.length == 6) || (cargo==3 && infoP.length == 7)) {//Se valida que si se lea el codigo QR que es necesario
                     switch (Integer.parseInt(infoP[2])) {
                         //Se tiene que validar el estado del proyecto a ver si permite o no registrar la toma de tiempo.
                         case 1:

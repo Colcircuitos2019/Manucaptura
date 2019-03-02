@@ -1167,7 +1167,7 @@ public class proyecto extends javax.swing.JPanel {
     }//GEN-LAST:event_btnBuscarActionPerformed
 
     private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
-        modificarProyecto(0);//Modifica preguntando
+        //modificarProyecto(0);//Modifica preguntando<- Queda pendiente  
     }//GEN-LAST:event_btnUpdateActionPerformed
 
     private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed

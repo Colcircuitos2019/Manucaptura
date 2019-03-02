@@ -26,10 +26,6 @@ public class Procesos_1 extends javax.swing.JPanel {
         btnNuevo.setEnabled(true);
         btnGuardar.setEnabled(false);
         btnUpdate.setEnabled(false);
-        btnDelete.setVisible(true);
-        btnDelete.setEnabled(false);
-        btnActivar.setEnabled(false);
-        btnActivar.setVisible(false);
         jLID.setText("ID");
     }
 
@@ -49,13 +45,14 @@ public class Procesos_1 extends javax.swing.JPanel {
         btnNuevo = new javax.swing.JButton();
         btnGuardar = new javax.swing.JButton();
         btnUpdate = new javax.swing.JButton();
-        btnDelete = new javax.swing.JButton();
-        btnActivar = new javax.swing.JButton();
         cbArea2 = new elaprendiz.gui.comboBox.ComboBoxRound();
         jCheckBox1 = new javax.swing.JCheckBox();
         jCheckBox2 = new javax.swing.JCheckBox();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTFE = new javax.swing.JTable();
+        btnNuevo1 = new javax.swing.JButton();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        jTable2 = new javax.swing.JTable();
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -118,7 +115,7 @@ public class Procesos_1 extends javax.swing.JPanel {
             }
         });
         jPanel5.add(btnNuevo);
-        btnNuevo.setBounds(0, 0, 57, 47);
+        btnNuevo.setBounds(0, 0, 40, 48);
 
         btnGuardar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/save_proyect.png"))); // NOI18N
         btnGuardar.setBorderPainted(false);
@@ -133,7 +130,7 @@ public class Procesos_1 extends javax.swing.JPanel {
             }
         });
         jPanel5.add(btnGuardar);
-        btnGuardar.setBounds(59, 0, 57, 49);
+        btnGuardar.setBounds(40, 0, 40, 48);
 
         btnUpdate.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/update.png"))); // NOI18N
         btnUpdate.setBorderPainted(false);
@@ -146,33 +143,7 @@ public class Procesos_1 extends javax.swing.JPanel {
             }
         });
         jPanel5.add(btnUpdate);
-        btnUpdate.setBounds(118, 0, 60, 49);
-
-        btnDelete.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/delete.png"))); // NOI18N
-        btnDelete.setBorderPainted(false);
-        btnDelete.setContentAreaFilled(false);
-        btnDelete.setFocusPainted(false);
-        btnDelete.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/img/delete1 (2).png"))); // NOI18N
-        btnDelete.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnDeleteActionPerformed(evt);
-            }
-        });
-        jPanel5.add(btnDelete);
-        btnDelete.setBounds(180, 0, 58, 49);
-
-        btnActivar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/chek-user.png"))); // NOI18N
-        btnActivar.setBorderPainted(false);
-        btnActivar.setContentAreaFilled(false);
-        btnActivar.setFocusPainted(false);
-        btnActivar.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/img/chek-user1.png"))); // NOI18N
-        btnActivar.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnActivarActionPerformed(evt);
-            }
-        });
-        jPanel5.add(btnActivar);
-        btnActivar.setBounds(180, 0, 60, 49);
+        btnUpdate.setBounds(80, 0, 40, 48);
 
         cbArea2.setForeground(new java.awt.Color(102, 102, 102));
         cbArea2.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Seleccione...", "Formato estandar", "Teclados", "Ensamble" }));
@@ -199,7 +170,7 @@ public class Procesos_1 extends javax.swing.JPanel {
         jTFE.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jTFE.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null},
+                {"1", "Circuito", "TH", "SI", "NO"},
                 {null, null, null, null, null},
                 {null, null, null, null, null},
                 {null, null, null, null, null}
@@ -218,11 +189,6 @@ public class Procesos_1 extends javax.swing.JPanel {
         jTFE.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         jTFE.setShowHorizontalLines(false);
         jTFE.setShowVerticalLines(false);
-        jTFE.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mousePressed(java.awt.event.MouseEvent evt) {
-                jTFEMousePressed(evt);
-            }
-        });
         jScrollPane1.setViewportView(jTFE);
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
@@ -232,9 +198,7 @@ public class Procesos_1 extends javax.swing.JPanel {
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addComponent(jScrollPane1)
-                        .addContainerGap())
+                    .addComponent(jScrollPane1)
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addGroup(jPanel3Layout.createSequentialGroup()
@@ -244,16 +208,16 @@ public class Procesos_1 extends javax.swing.JPanel {
                             .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                 .addComponent(jLabel4)
                                 .addComponent(cbArea, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 28, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 34, Short.MAX_VALUE)
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(cbArea2, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(jPanel3Layout.createSequentialGroup()
                                 .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 114, Short.MAX_VALUE)
                                 .addComponent(jLID)))
-                        .addGap(79, 79, 79)
-                        .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, 237, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(45, 45, 45))))
+                        .addGap(212, 212, 212)
+                        .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, 125, Short.MAX_VALUE)))
+                .addContainerGap())
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -262,22 +226,50 @@ public class Procesos_1 extends javax.swing.JPanel {
                     .addComponent(jLID)
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addContainerGap()
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel4)
-                            .addComponent(jLabel3))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(cbArea, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(cbArea2, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(22, 22, 22)
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jCheckBox1)
-                            .addComponent(jCheckBox2)))
-                    .addComponent(jPanel5, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(jLabel4)
+                                    .addComponent(jLabel3))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(cbArea, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(cbArea2, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(22, 22, 22)
+                                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(jCheckBox1)
+                                    .addComponent(jCheckBox2)))
+                            .addComponent(jPanel5, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 172, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
+
+        btnNuevo1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/add_Proyect.png"))); // NOI18N
+        btnNuevo1.setBorderPainted(false);
+        btnNuevo1.setContentAreaFilled(false);
+        btnNuevo1.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnNuevo1.setFocusPainted(false);
+        btnNuevo1.setFocusable(false);
+        btnNuevo1.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/img/add_prpyect_roll.png"))); // NOI18N
+        btnNuevo1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnNuevo1ActionPerformed(evt);
+            }
+        });
+
+        jTable2.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        jScrollPane3.setViewportView(jTable2);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -285,7 +277,14 @@ public class Procesos_1 extends javax.swing.JPanel {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(btnNuevo1, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -293,7 +292,11 @@ public class Procesos_1 extends javax.swing.JPanel {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(310, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 208, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 45, Short.MAX_VALUE)
+                .addComponent(btnNuevo1)
+                .addContainerGap())
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -325,44 +328,16 @@ public class Procesos_1 extends javax.swing.JPanel {
 
     }//GEN-LAST:event_btnUpdateActionPerformed
 
-    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
-    }//GEN-LAST:event_btnDeleteActionPerformed
-
-    private void btnActivarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnActivarActionPerformed
-    }//GEN-LAST:event_btnActivarActionPerformed
-
     private void btnNuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoActionPerformed
     }//GEN-LAST:event_btnNuevoActionPerformed
-
-    private void activarBotonesEliminacion(int op) {
-        if (op == 1) {
-            btnDelete.setEnabled(true);
-            btnDelete.setVisible(true);
-            btnActivar.setEnabled(false);
-            btnActivar.setVisible(false);
-        } else {
-            btnDelete.setEnabled(false);
-            btnDelete.setVisible(false);
-            btnActivar.setEnabled(true);
-            btnActivar.setVisible(true);
-        }
-    }
-    private void jTFEMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTFEMousePressed
-        //Falta Hacer el mejoramiento a este modulo
-        seleccionarProceso(jTFE);
-        btnUpdate.setEnabled(false);//True
-        activarBotonesEliminacion(jTFE.getValueAt(jTFE.getSelectedRow(), 2).toString().equals("Activo") ? 1 : 0);
-        estadoCampos(true);
-        btnGuardar.setEnabled(false);
-        //...
-        //Los procesos de FE no se pueden modificar hasta realizar la proxima versión del sistema de información 
-        btnDelete.setEnabled(false);
-        btnActivar.setEnabled(false);
-    }//GEN-LAST:event_jTFEMousePressed
 
     private void cbArea2ItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cbArea2ItemStateChanged
         // TODO add your handling code here:
     }//GEN-LAST:event_cbArea2ItemStateChanged
+
+    private void btnNuevo1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevo1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnNuevo1ActionPerformed
 
     private void seleccionarProceso(JTable tabla) {
     }
@@ -389,10 +364,9 @@ public class Procesos_1 extends javax.swing.JPanel {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    public static javax.swing.JButton btnActivar;
-    public static javax.swing.JButton btnDelete;
     private javax.swing.JButton btnGuardar;
     public static javax.swing.JButton btnNuevo;
+    public static javax.swing.JButton btnNuevo1;
     public static javax.swing.JButton btnUpdate;
     public static elaprendiz.gui.comboBox.ComboBoxRound cbArea;
     public static elaprendiz.gui.comboBox.ComboBoxRound cbArea2;
@@ -406,8 +380,10 @@ public class Procesos_1 extends javax.swing.JPanel {
     private javax.swing.JPanel jPanel5;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTable jTFE;
     private javax.swing.JTable jTable1;
+    private javax.swing.JTable jTable2;
     // End of variables declaration//GEN-END:variables
  @Override
     protected void finalize() throws Throwable {

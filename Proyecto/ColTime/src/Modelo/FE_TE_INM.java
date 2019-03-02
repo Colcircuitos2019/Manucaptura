@@ -69,15 +69,8 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
                 //...
                 int cantidadProceso=0;
                 //...
-                if(accion){ //Pendiente revisar que se pueda eliminar esto... hasta acá se llego el día 01/03/2019
-                    
-                        estado=2;
-                    //...
-                }else{
-                    estado=0;
-                }
                 //Validar que el proceso si tenga cantidades para pasar...
-                if (estado != 0) {
+                if (accion) {
                     //...
                     Qry = "CALL PA_CalcularTiempoEjecucionProceso(?,?,?)";
                     ps = con.prepareStatement(Qry);
@@ -94,7 +87,7 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
                        procesoPasoCantidades = 0;   
                     }
                     // ...
-                    Qry = "CALL PA_PausarTomaDeTiempoDeProcesos(?,?,?,?,?,?,?,?,?,?)";// <- Revisar procedimiento almacenado para eliminar el parametro de estado.
+                    Qry = "CALL PA_PausarTomaDeTiempoDeProcesos(?,?,?,?,?,?,?,?,?)";// <- Revisar procedimiento almacenado para eliminar el parametro de estado.
                     ps = con.prepareStatement(Qry);
                     ps.setInt(1, numeroOrden);
                     ps.setInt(2, idDetalle);
@@ -103,9 +96,8 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
                     ps.setString(5, Tiempo_Total);
                     ps.setInt(6, cantidadTerminada);
                     ps.setInt(7, cantidadAntigua);
-                    ps.setInt(8, estado);
-                    ps.setInt(9, cantidadProceso);
-                    ps.setInt(10, procesoPasoCantidades);
+                    ps.setInt(8, cantidadProceso);
+                    ps.setInt(9, procesoPasoCantidades);
                     ps.execute();//Respuesta es igual a True para poder agregar los botones, Ya no es necesario esta respuesta para buscar los botones
                     res=true;
                     // ...
@@ -116,7 +108,7 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
                     calcularTiempoTotalPorUnidad(idDetalle, area);
                     //...
                 } else {
-                    res = false;
+                    res = accion;
                     //Se enviara desde acá el mensaje al lector diciendo que la cantidad para el proyecto no es la adecuada(Al celular)...................................
 //                 enviarMensajeCelular("Mensaje", cps);//Mensaje para el celular v2.0
                     //El mensaje a celular se retornara mediante un HTTPresponse...
