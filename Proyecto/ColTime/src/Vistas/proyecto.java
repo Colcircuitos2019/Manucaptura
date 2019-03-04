@@ -41,7 +41,7 @@ public class proyecto extends javax.swing.JPanel {
             Notificacion1.setVisible(false);
             GenerarQR.setEnabled(false);
             btnTomaTiempos.setVisible(false);
-            visibilidadID();//Pendiente para realizar mañana!
+            visibilidadLabelID();
             limites();
             jREjecucion.setEnabled(false);
             jRParada.setEnabled(false);
@@ -88,7 +88,7 @@ public class proyecto extends javax.swing.JPanel {
         editor4.setEditable(false);
     }
 
-    private void visibilidadID() {
+    private void visibilidadLabelID() {
         jLIDConversor.setVisible(false);
         jLIDTroquel.setVisible(false);
         jLIDRepujado.setVisible(false);

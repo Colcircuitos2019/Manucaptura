@@ -37,32 +37,6 @@ public class ProyectoQR implements Runnable {
     @Override
     public void run() {
         proyectoQR();
-//        int abierto = 1;
-//        while (abierto == 1) {
-//            String valor = proyectoQR();
-//            if (!this.pro.disponibilidad) {
-//                break;
-//            }
-//            if (puertoProyecto == 1) {
-//                puertoProyecto = 0;
-//                llenarCamposFormProyectos(valor);
-//                abierto = 1;
-//            } else {
-//                //No se pudo establecer la conexión con el puerto COM, desea cambiarlo o volver a intentar? 
-//                if (JOptionPane.showOptionDialog(null, "No se pudo establecer la conexión con el puerto COM, ¿desea volver a intentarlo?",
-//                        "seleccione...", JOptionPane.YES_NO_CANCEL_OPTION,
-//                        JOptionPane.QUESTION_MESSAGE, null,// null para icono por defecto.
-//                        new Object[]{"SI", "NO"}, "SI") == 0) {
-//                    abierto = 1;
-//                } else {
-//                    abierto = 0;
-//                    //QRProyecto.isInterrupted();
-//                }
-//            }
-//        }
-//        obj.jLEstado.setText("Desactivado");
-//        obj.jLEstado.setForeground(new Color(255,0,51));//red
-//        obj.lector = null;
     }
 
     private void proyectoQR() {
@@ -107,10 +81,6 @@ public class ProyectoQR implements Runnable {
 //                            String sub = valor.substring(0, 1);
                             System.out.println(valorQR);
                             //...
-//                            String cadenaCompleata = "";
-//                            cadenaCompleata = cadenaCompleata + valor + "\n";
-//                            System.out.println(cadenaCompleata);
-//                            System.out.println(valor.split(";").length + " " + valor);
                             if (Character.isDigit(valorQR.charAt(1))) {
                                 //Procesar informacion QR
                                 llenarCamposFormProyectos(valorQR);
@@ -153,29 +123,8 @@ public class ProyectoQR implements Runnable {
         String nombreCliente = "";
 //      String valor[] = null;
         try {
-//            String cadena = "";
-//            if (valor.length == 26) {
-//                for (int i = 1; i <= 4; i++) {
-//                    if (i == 4) {
-//                        cadena = cadena + valor[i];
-//                    } else {
-//                        cadena = cadena + valor[i] + "/";
-//                    }
-//                }
-//            }
-            //...
-//            System.out.println(QRProyecto.split(";").length);
             //...
             if (QRProyecto.split(";").length == 26) {//La longitud del vector siempre va a ser 26
-//                valor = QRProyecto.split("/");//Quita el primer "/" de la trama ingresada
-//                //...
-//                for (int i = 1; i <= 4; i++) {
-//                    if (i == 4) {
-//                        cadena = cadena + valor[i];
-//                    } else {
-//                        cadena = cadena + valor[i] + "/";
-//                    }
-//                }
                 //Envio de información...
                 String InformacionProyecto[] = QRProyecto.split(";");
                 obj.jTNorden.setText(InformacionProyecto[0]);//Numero de orden
@@ -265,7 +214,7 @@ public class ProyectoQR implements Runnable {
                         obj.jDFechaEntregaFECOM.setDate(formatoDelTexto.parse(InformacionProyecto[23]));//Fecha de entrega de los componentes del circuito_FE:
                     }
                     obj.jDFechaEntregaFECOM.setVisible(true);
-                    obj.jLCircuitoFE.setVisible(true);
+                    obj.jLCircuitoFE.setVisible(true); 
                     if (!InformacionProyecto[22].equals("null")) {
                         obj.jDFechaEntregaFE.setDate(formatoDelTexto.parse(InformacionProyecto[22]));//Fecha de entrega del Circuito_FE(TH,FV,GF) a ensamble:
                     }
@@ -279,7 +228,6 @@ public class ProyectoQR implements Runnable {
                 obj.accionBtnGuardarProyecto();
                 //...
             } else {
-                //Mensaje...
                 //Al QR del proyecto le falta información para poder realizar el registro
                 new rojerusan.RSNotifyAnimated("¡Alerta!", "El código QR esta mal estructurado.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.ERROR).setVisible(true);
             }
@@ -294,7 +242,7 @@ public class ProyectoQR implements Runnable {
     protected void finalize() throws Throwable {
         super.finalize(); //To change body of generated methods, choose Tools | Templates.
     }
-//    Trama que me envia el modulo wifi al puerto COM.
+// Trama que me envia el modulo wifi al puerto COM.
 //GET /29359;Micro-Hom-Cali-S.A.S;Control-Planta;FE/TE;Normal;15/02/2018;2;null;null;null;null;null;no;no;null;null;no;no;null;null;null;null;null;null;null;null HTTP/1.1
 //.Host: 192.168.4.1
 //.Connection: keep-alive

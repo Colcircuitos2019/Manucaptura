@@ -117,9 +117,9 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
     public static PrintStream myPS;
     ButtonGroup grupoCom = null;
     //Variables estaticas de conexion
-    public static String IP="192.168.4.1:3306";
-    public static String user= "juanDavidM";// coluser
-    public static String pass= "123";//
+    public static String IP="192.168.4.173:3306";
+    public static String user= "coluser";// juanDavidM coluser
+    public static String pass= "";// 123
             
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -1787,7 +1787,6 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
                 new rojerusan.RSNotifyAnimated("¡Alerta!", "La ruta especificada no esta bien estructurada.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.ERROR).setVisible(true);
             }            
         }
-//       System.out.println(path);
     }//GEN-LAST:event_rutaQRActionPerformed
 //Metodos de la clase menu----------------------------------------------------->
 //...
