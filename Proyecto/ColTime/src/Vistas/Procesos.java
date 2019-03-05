@@ -8,7 +8,7 @@ import rojerusan.RSNotifyAnimated;
 
 public class Procesos extends javax.swing.JPanel {
 
-    public Procesos() {
+    public Procesos() {// Toda esta clase va a cambiar!!
         initComponents();
         consultarProcesos();
         jLID.setVisible(false);
@@ -579,7 +579,7 @@ public class Procesos extends javax.swing.JPanel {
         String mensaje1 = "";
         String mensaje2 = "";
         Controlador.Procesos obj = new Controlador.Procesos();
-        if (obj.cambiarEstadoProcesos(op, Integer.parseInt(jLID.getText()))) {//"0" es para cambiar el estado a inactivo
+        if (obj.cambiarEstadoProcesos(Integer.parseInt(jLID.getText()))) {//"0" es para cambiar el estado a inactivo
             //Mensaje de exito!!
             mensaje1 = "Listo!";
             if (op == 1) {
@@ -651,7 +651,7 @@ public class Procesos extends javax.swing.JPanel {
         boolean res = false;
         if (!jTNombreProceso.getText().equals("") && cbArea.getSelectedIndex() != 0) {
             Controlador.Procesos obj = new Controlador.Procesos();
-            if (obj.guardarModificarProcesos(op, jTNombreProceso.getText(), cbArea.getSelectedIndex(), id)) {//"1" es para guardar la infomación,Nombre del proceso y area del proceso.
+            if (obj.guardarModificarProcesos(op, jTNombreProceso.getText(), cbArea.getSelectedIndex())) {//"1" es para guardar la infomación,Nombre del proceso y area del proceso.
                 //Mensaje de exito!!
                 res = true;
                 if (op == 1) {//Registrar

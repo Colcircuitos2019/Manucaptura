@@ -28,16 +28,15 @@ public class ProcesosM {
     ResultSet rs = null;
     boolean res = false;
 
-    public boolean guardarModificarProcesosM(int op, String nombre, int area, int id) {
+    public boolean guardarModificarProcesosM(int idProceso, String nombreProceso, int area) {
         try {
             conexion = new Conexion(1);
             conexion.establecerConexion();
             con = conexion.getConexion();
-            pps = con.prepareStatement("SELECT FU_RegistrarModificarProcesos(?,?,?,?)");//op,nombre del proceso y area a la que aplica.
-            pps.setInt(1, op);
-            pps.setString(2, nombre);
+            pps = con.prepareStatement("SELECT FU_RegistrarModificarProcesos(?,?,?)");//op,nombre del proceso y area a la que aplica.
+            pps.setInt(1, idProceso);
+            pps.setString(2, nombreProceso);
             pps.setInt(3, area);
-            pps.setInt(4, id);
             rs = pps.executeQuery();
             rs.next();
             res = rs.getBoolean(1);
@@ -72,14 +71,13 @@ public class ProcesosM {
         return crs;
     }
 
-    public boolean cambiarEstadoProcesosM(int estado, int id) {
+    public boolean cambiarEstadoProcesosM(int idProceso) {
         try {
             conexion = new Conexion(1);
             conexion.establecerConexion();
             con = conexion.getConexion();
-            pps = con.prepareStatement("SELECT FU_CambiarEstadoProcesos(?,?)");//op,nombre del proceso y area a la que aplica.
-            pps.setInt(1, id);
-            pps.setInt(2, estado);
+            pps = con.prepareStatement("SELECT FU_CambiarEstadoProcesos(?)");//op,nombre del proceso y area a la que aplica.
+            pps.setInt(1, idProceso);
             rs = pps.executeQuery();
             rs.next();
             res = rs.getBoolean(1);

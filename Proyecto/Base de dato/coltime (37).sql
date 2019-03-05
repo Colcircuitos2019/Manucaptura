@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 02-03-2019 a las 17:56:36
+-- Tiempo de generación: 05-03-2019 a las 22:15:00
 -- Versión del servidor: 10.1.29-MariaDB
 -- Versión de PHP: 7.2.0
 
@@ -340,6 +340,17 @@ SELECT total;
 
 END$$
 
+CREATE DEFINER=`` PROCEDURE `PA_ConsultarCondicionesProductos` (IN `idCondicion` INT)  NO SQL
+BEGIN
+#Falta agregar el campo del área a la que aplica el producto
+IF idCondicion = 0 THEN# Consultar todos
+	SELECT cp.idCondicion, p.nombre, cp.material, cp.antisorder, cp.ruteo, EXISTS(SELECT * FROM procesos_producto pp WHERE pp.idCondicion=cp.idCondicion) AS asignado FROM  condicion_producto cp JOIN producto p ON cp.idProducto=p.idproducto;
+ELSE# Consultar por idCondicion
+	SELECT cp.idCondicion, p.nombre, cp.material, cp.antisorder, cp.ruteo, EXISTS(SELECT * FROM procesos_producto pp WHERE pp.idCondicion=cp.idCondicion) AS asignado FROM  condicion_producto cp JOIN producto p ON cp.idProducto=p.idproducto WHERE cp.idCondicion=idCondicion;
+END IF;
+
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_ConsultarDetalleProyecto` (IN `orden` VARCHAR(10), IN `estado` INT)  NO SQL
 BEGIN
 
@@ -419,9 +430,10 @@ BEGIN
 
 IF area=0 THEN
 #Consultar todos los procesos en general
-SELECT * FROM procesos p ORDER BY p.idproceso ASC;
+	SELECT * FROM procesos p ORDER BY p.idproceso ASC;
 ELSE
-SELECT p.nombre_proceso FROM procesos p WHERE p.idArea=area ORDER BY p.idproceso ASC;
+# Consultar por área de produccion
+	SELECT p.nombre_proceso,p.idproceso,p.estado FROM procesos p WHERE p.idArea=area ORDER BY p.idproceso ASC;
 END IF;
 
 END$$
@@ -1882,10 +1894,17 @@ RETURN 0;
 END IF;
 END$$
 
-CREATE DEFINER=`root`@`localhost` FUNCTION `FU_CambiarEstadoProcesos` (`id` INT, `estado` INT) RETURNS TINYINT(1) NO SQL
+CREATE DEFINER=`root`@`localhost` FUNCTION `FU_CambiarEstadoProcesos` (`idProceso` INT) RETURNS TINYINT(1) NO SQL
 BEGIN
+# Agregar validación, Para modifiacr el estado de un proceso a desactivado se necesita que el procesos no este seleccionado para ningun producto.
+IF EXISTS(SELECT * FROM procesos p WHERE p.idproceso=idProceso AND p.estado=1) THEN # Activo
+#Desactivar
+	UPDATE procesos p SET p.estado=0 WHERE p.idproceso=idProceso;
+ELSE
+#Activar
+	UPDATE procesos p SET p.estado=1 WHERE p.idproceso=idProceso;
+END IF;
 
-UPDATE procesos p SET p.estado=estado WHERE p.idproceso=id;
 RETURN 1;
 
 END$$
@@ -2210,14 +2229,14 @@ RETURN 1;
 END IF;
 END$$
 
-CREATE DEFINER=`root`@`localhost` FUNCTION `FU_RegistrarModificarProcesos` (`op` INT, `nombre` VARCHAR(30), `area` INT, `id` INT) RETURNS TINYINT(1) NO SQL
+CREATE DEFINER=`root`@`localhost` FUNCTION `FU_RegistrarModificarProcesos` (`idProceso` INT, `nombre` VARCHAR(30), `area` INT) RETURNS TINYINT(1) NO SQL
 BEGIN
 
-IF op=1 THEN
+IF idProceso=0 THEN
 INSERT INTO `procesos`(`nombre_proceso`, `estado`, `idArea`) VALUES (nombre,1,area);
 RETURN 1;
 else
-UPDATE procesos p SET p.nombre_proceso=nombre,p.idArea=area WHERE p.idproceso=id;
+UPDATE procesos p SET p.nombre_proceso=nombre,p.idArea=area WHERE p.idproceso=idProceso;
 RETURN 1;
 END IF;
 
@@ -2594,6 +2613,21 @@ CREATE TABLE `detalle_formato_estandar` (
   `cantidadProceso` varchar(10) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+--
+-- Volcado de datos para la tabla `detalle_formato_estandar`
+--
+
+INSERT INTO `detalle_formato_estandar` (`idDetalle_formato_estandar`, `tiempo_por_unidad`, `tiempo_total_por_proceso`, `cantidad_terminada`, `fecha_inicio`, `fecha_fin`, `idDetalle_proyecto`, `idproceso`, `estado`, `hora_ejecucion`, `hora_terminacion`, `noperarios`, `orden`, `cantidadProceso`) VALUES
+(1, '00:00', '00:00', '0', NULL, NULL, 1, 1, 1, NULL, NULL, 0, 1, '50'),
+(2, '00:00', '00:00', '0', NULL, NULL, 1, 2, 1, NULL, NULL, 0, 2, '0'),
+(3, '00:00', '00:00', '0', NULL, NULL, 1, 3, 1, NULL, NULL, 0, 3, '0'),
+(4, '00:00', '00:00', '0', NULL, NULL, 1, 4, 1, NULL, NULL, 0, 4, '0'),
+(5, '00:00', '00:00', '0', NULL, NULL, 1, 5, 1, NULL, NULL, 0, 5, '0'),
+(6, '00:00', '00:00', '0', NULL, NULL, 1, 6, 1, NULL, NULL, 0, 6, '0'),
+(7, '00:00', '00:00', '0', NULL, NULL, 1, 7, 1, NULL, NULL, 0, 7, '0'),
+(8, '00:00', '00:00', '0', NULL, NULL, 1, 8, 1, NULL, NULL, 0, 8, '0'),
+(9, '00:00', '00:00', '0', NULL, NULL, 1, 10, 1, NULL, NULL, 0, 9, '0');
+
 -- --------------------------------------------------------
 
 --
@@ -2619,6 +2653,13 @@ CREATE TABLE `detalle_proyecto` (
   `fecha_salida` datetime DEFAULT NULL,
   `lider_proyecto` varchar(13) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Volcado de datos para la tabla `detalle_proyecto`
+--
+
+INSERT INTO `detalle_proyecto` (`idDetalle_proyecto`, `idProducto`, `canitadad_total`, `material`, `proyecto_numero_orden`, `idArea`, `estado`, `PNC`, `ubicacion`, `pro_porIniciar`, `pro_Ejecucion`, `pro_Pausado`, `pro_Terminado`, `tiempo_total`, `Total_timepo_Unidad`, `fecha_salida`, `lider_proyecto`) VALUES
+(1, 1, '50', 'TH', 32402, 1, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -2680,7 +2721,8 @@ INSERT INTO `procesos` (`idproceso`, `nombre_proceso`, `estado`, `idArea`) VALUE
 (17, 'Control Calidad', 1, 3),
 (18, 'Empaque', 1, 3),
 (19, 'Componentes', 1, 4),
-(20, 'GF', 1, 4);
+(20, 'GF', 1, 4),
+(21, 'Prueba de FE', 0, 2);
 
 -- --------------------------------------------------------
 
@@ -2920,6 +2962,13 @@ CREATE TABLE `proyecto` (
   `NFEE` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+--
+-- Volcado de datos para la tabla `proyecto`
+--
+
+INSERT INTO `proyecto` (`numero_orden`, `usuario_numero_documento`, `nombre_cliente`, `nombre_proyecto`, `tipo_proyecto`, `FE`, `TE`, `IN`, `pcb_FE`, `pcb_TE`, `Conversor`, `Repujado`, `troquel`, `stencil`, `lexan`, `fecha_ingreso`, `fecha_entrega`, `fecha_salidal`, `ruteoC`, `antisolderC`, `estado`, `antisolderP`, `ruteoP`, `eliminacion`, `parada`, `entregaCircuitoFEoGF`, `entregaCOMCircuito`, `entregaPCBFEoGF`, `entregaPCBCom`, `novedades`, `estadoEmpresa`, `NFEE`) VALUES
+(32402, '981130', 'GLOBUS SISTEMAS S.A.S ', 'CONV_TTL_RS232 ', 'RQT', 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, '2019-03-04 11:35:43', '2019-03-11', NULL, 0, 1, 1, 0, 0, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+
 -- --------------------------------------------------------
 
 --
@@ -3137,13 +3186,13 @@ ALTER TABLE `detalle_ensamble`
 -- AUTO_INCREMENT de la tabla `detalle_formato_estandar`
 --
 ALTER TABLE `detalle_formato_estandar`
-  MODIFY `idDetalle_formato_estandar` smallint(6) NOT NULL AUTO_INCREMENT;
+  MODIFY `idDetalle_formato_estandar` smallint(6) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT de la tabla `detalle_proyecto`
 --
 ALTER TABLE `detalle_proyecto`
-  MODIFY `idDetalle_proyecto` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `idDetalle_proyecto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de la tabla `detalle_teclados`
@@ -3155,7 +3204,7 @@ ALTER TABLE `detalle_teclados`
 -- AUTO_INCREMENT de la tabla `procesos`
 --
 ALTER TABLE `procesos`
-  MODIFY `idproceso` tinyint(4) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `idproceso` tinyint(4) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT de la tabla `procesos_producto`
@@ -3173,7 +3222,7 @@ ALTER TABLE `producto`
 -- AUTO_INCREMENT de la tabla `proyecto`
 --
 ALTER TABLE `proyecto`
-  MODIFY `numero_orden` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `numero_orden` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32403;
 
 --
 -- Restricciones para tablas volcadas
