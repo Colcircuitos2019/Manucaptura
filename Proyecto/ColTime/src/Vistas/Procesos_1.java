@@ -2,6 +2,7 @@ package Vistas;
 
 import Controlador.Condicion_producto;
 import javax.sql.rowset.CachedRowSet;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import rojerusan.RSNotifyAnimated;
@@ -11,7 +12,10 @@ public class Procesos_1 extends javax.swing.JPanel {// Dimensiones 905x673
     public Procesos_1() {
         initComponents();
         consultarCondicionesProductosProcesos(0);
-//        consultarProcesosArea();
+        consultarProcesosArea();
+        desactivarFormularioCondicionesProducto(false);
+        consultarProductos();
+        habilitaraODesabilitarBotonesCondicionProducto(1);
         //...
     }
     // Variables
@@ -29,20 +33,18 @@ public class Procesos_1 extends javax.swing.JPanel {// Dimensiones 905x673
         jPanel3 = new javax.swing.JPanel();
         jLID = new javax.swing.JLabel();
         jPanel5 = new javax.swing.JPanel();
-        btnNuevo = new javax.swing.JButton();
-        btnGuardar = new javax.swing.JButton();
-        btnUpdate = new javax.swing.JButton();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jTCondicion = new javax.swing.JTable();
+        btnNuevaCondicionProducto = new javax.swing.JButton();
+        btnGuardarCondicionProducto = new javax.swing.JButton();
+        btnUpdateCondicionProducto = new javax.swing.JButton();
         jPanel6 = new javax.swing.JPanel();
-        cbArea = new elaprendiz.gui.comboBox.ComboBoxRound();
+        cbProducto = new elaprendiz.gui.comboBox.ComboBoxRound();
         jLabel4 = new javax.swing.JLabel();
-        cbArea2 = new elaprendiz.gui.comboBox.ComboBoxRound();
+        cbMaterial = new elaprendiz.gui.comboBox.ComboBoxRound();
         jLabel3 = new javax.swing.JLabel();
-        cbArea3 = new elaprendiz.gui.comboBox.ComboBoxRound();
+        cbArea = new elaprendiz.gui.comboBox.ComboBoxRound();
         jLabel5 = new javax.swing.JLabel();
-        jCheckBox2 = new javax.swing.JCheckBox();
-        jCheckBox1 = new javax.swing.JCheckBox();
+        jCheckRuteo = new javax.swing.JCheckBox();
+        jCheckAntisolder = new javax.swing.JCheckBox();
         jPanel2 = new javax.swing.JPanel();
         jTBProcesos = new javax.swing.JTabbedPane();
         jScrollPane3 = new javax.swing.JScrollPane();
@@ -60,6 +62,16 @@ public class Procesos_1 extends javax.swing.JPanel {// Dimensiones 905x673
         btnGuardar1 = new javax.swing.JButton();
         btnUpdate1 = new javax.swing.JButton();
         btnNuevo2 = new javax.swing.JButton();
+        jScrollPane8 = new javax.swing.JScrollPane();
+        jTCondicionProducto = new javax.swing.JTable(){
+            public boolean isCellEditable(int rowIndex, int colIndex) {
+                if(colIndex == 2){
+                    return true;
+                }else{
+                    return false;
+                }
+            }
+        };
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -96,89 +108,88 @@ public class Procesos_1 extends javax.swing.JPanel {// Dimensiones 905x673
         jPanel3.setBackground(new java.awt.Color(255, 255, 255));
         jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Condicion producto", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 18), new java.awt.Color(128, 128, 131))); // NOI18N
 
-        jLID.setText("ID");
+        jLID.setText("0");
 
         jPanel5.setBackground(new java.awt.Color(255, 255, 255));
         jPanel5.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(204, 204, 204))); // NOI18N
         jPanel5.setLayout(null);
 
-        btnNuevo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/add_Proyect.png"))); // NOI18N
-        btnNuevo.setBorderPainted(false);
-        btnNuevo.setContentAreaFilled(false);
-        btnNuevo.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        btnNuevo.setFocusPainted(false);
-        btnNuevo.setFocusable(false);
-        btnNuevo.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/img/add_prpyect_roll.png"))); // NOI18N
-        btnNuevo.addActionListener(new java.awt.event.ActionListener() {
+        btnNuevaCondicionProducto.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/add_Proyect.png"))); // NOI18N
+        btnNuevaCondicionProducto.setBorderPainted(false);
+        btnNuevaCondicionProducto.setContentAreaFilled(false);
+        btnNuevaCondicionProducto.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnNuevaCondicionProducto.setFocusPainted(false);
+        btnNuevaCondicionProducto.setFocusable(false);
+        btnNuevaCondicionProducto.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/img/add_prpyect_roll.png"))); // NOI18N
+        btnNuevaCondicionProducto.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnNuevoActionPerformed(evt);
+                btnNuevaCondicionProductoActionPerformed(evt);
             }
         });
-        jPanel5.add(btnNuevo);
-        btnNuevo.setBounds(0, 0, 40, 48);
+        jPanel5.add(btnNuevaCondicionProducto);
+        btnNuevaCondicionProducto.setBounds(0, 0, 40, 48);
 
-        btnGuardar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/save_proyect.png"))); // NOI18N
-        btnGuardar.setBorderPainted(false);
-        btnGuardar.setContentAreaFilled(false);
-        btnGuardar.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        btnGuardar.setFocusPainted(false);
-        btnGuardar.setFocusable(false);
-        btnGuardar.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/img/save_roll.png"))); // NOI18N
-        btnGuardar.addActionListener(new java.awt.event.ActionListener() {
+        btnGuardarCondicionProducto.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/save_proyect.png"))); // NOI18N
+        btnGuardarCondicionProducto.setBorderPainted(false);
+        btnGuardarCondicionProducto.setContentAreaFilled(false);
+        btnGuardarCondicionProducto.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnGuardarCondicionProducto.setFocusPainted(false);
+        btnGuardarCondicionProducto.setFocusable(false);
+        btnGuardarCondicionProducto.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/img/save_roll.png"))); // NOI18N
+        btnGuardarCondicionProducto.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnGuardarActionPerformed(evt);
+                btnGuardarCondicionProductoActionPerformed(evt);
             }
         });
-        jPanel5.add(btnGuardar);
-        btnGuardar.setBounds(40, 0, 40, 48);
+        jPanel5.add(btnGuardarCondicionProducto);
+        btnGuardarCondicionProducto.setBounds(40, 0, 40, 48);
 
-        btnUpdate.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/update.png"))); // NOI18N
-        btnUpdate.setBorderPainted(false);
-        btnUpdate.setContentAreaFilled(false);
-        btnUpdate.setFocusPainted(false);
-        btnUpdate.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/img/update1.png"))); // NOI18N
-        btnUpdate.addActionListener(new java.awt.event.ActionListener() {
+        btnUpdateCondicionProducto.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/update.png"))); // NOI18N
+        btnUpdateCondicionProducto.setBorderPainted(false);
+        btnUpdateCondicionProducto.setContentAreaFilled(false);
+        btnUpdateCondicionProducto.setFocusPainted(false);
+        btnUpdateCondicionProducto.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/img/update1.png"))); // NOI18N
+        btnUpdateCondicionProducto.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnUpdateActionPerformed(evt);
+                btnUpdateCondicionProductoActionPerformed(evt);
             }
         });
-        jPanel5.add(btnUpdate);
-        btnUpdate.setBounds(80, 0, 40, 48);
-
-        jTCondicion = new javax.swing.JTable(){
-            public boolean isCellEditable(int rowIndex, int colIndex) {
-                if(colIndex == 4 && colIndex == 5 && colIndex == 6){
-                    return true;
-                }else{
-                    return false; //Disallow the editing of any cell
-                }
-            }
-        };
-        jTCondicion.setAutoCreateRowSorter(true);
-        jTCondicion.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        jTCondicion.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-
-            },
-            new String [] {
-                "ID Condicion", "Area", "Producto", "Material", "Antisolder", "Ruteo", "¿Asignado procesos?"
-            }
-        ));
-        jTCondicion.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        jTCondicion.setDropMode(javax.swing.DropMode.INSERT_ROWS);
-        jTCondicion.setFocusable(false);
-        jTCondicion.setIntercellSpacing(new java.awt.Dimension(0, 0));
-        jTCondicion.setName("FE"); // NOI18N
-        jTCondicion.setRowHeight(18);
-        jTCondicion.setSelectionBackground(new java.awt.Color(63, 179, 255));
-        jTCondicion.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        jScrollPane1.setViewportView(jTCondicion);
+        jPanel5.add(btnUpdateCondicionProducto);
+        btnUpdateCondicionProducto.setBounds(40, 0, 40, 48);
 
         jPanel6.setBackground(new java.awt.Color(255, 255, 255));
         jPanel6.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder()));
 
+        cbProducto.setForeground(new java.awt.Color(102, 102, 102));
+        cbProducto.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Seleccione..." }));
+        cbProducto.setColorDeBorde(new java.awt.Color(204, 204, 204));
+        cbProducto.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
+        cbProducto.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                cbProductoItemStateChanged(evt);
+            }
+        });
+
+        jLabel4.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        jLabel4.setForeground(new java.awt.Color(128, 128, 131));
+        jLabel4.setText("Productos:");
+
+        cbMaterial.setForeground(new java.awt.Color(102, 102, 102));
+        cbMaterial.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Seleccione...", "TH", "FV" }));
+        cbMaterial.setColorDeBorde(new java.awt.Color(204, 204, 204));
+        cbMaterial.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
+        cbMaterial.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                cbMaterialItemStateChanged(evt);
+            }
+        });
+
+        jLabel3.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        jLabel3.setForeground(new java.awt.Color(128, 128, 131));
+        jLabel3.setText("Material:");
+
         cbArea.setForeground(new java.awt.Color(102, 102, 102));
-        cbArea.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Seleccione...", "Formato estandar", "Teclados", "Ensamble" }));
+        cbArea.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Seleccione...", "Formato estandar - FE", "Teclados - TE", "Ensamble - EN" }));
         cbArea.setColorDeBorde(new java.awt.Color(204, 204, 204));
         cbArea.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
         cbArea.addItemListener(new java.awt.event.ItemListener() {
@@ -187,43 +198,15 @@ public class Procesos_1 extends javax.swing.JPanel {// Dimensiones 905x673
             }
         });
 
-        jLabel4.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        jLabel4.setForeground(new java.awt.Color(128, 128, 131));
-        jLabel4.setText("Productos:");
-
-        cbArea2.setForeground(new java.awt.Color(102, 102, 102));
-        cbArea2.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Seleccione...", "Formato estandar", "Teclados", "Ensamble" }));
-        cbArea2.setColorDeBorde(new java.awt.Color(204, 204, 204));
-        cbArea2.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
-        cbArea2.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                cbArea2ItemStateChanged(evt);
-            }
-        });
-
-        jLabel3.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        jLabel3.setForeground(new java.awt.Color(128, 128, 131));
-        jLabel3.setText("Material:");
-
-        cbArea3.setForeground(new java.awt.Color(102, 102, 102));
-        cbArea3.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Seleccione...", "Formato estandar", "Teclados", "Ensamble" }));
-        cbArea3.setColorDeBorde(new java.awt.Color(204, 204, 204));
-        cbArea3.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
-        cbArea3.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                cbArea3ItemStateChanged(evt);
-            }
-        });
-
         jLabel5.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel5.setForeground(new java.awt.Color(128, 128, 131));
         jLabel5.setText("Área:");
 
-        jCheckBox2.setBackground(new java.awt.Color(255, 255, 255));
-        jCheckBox2.setText("Ruteo");
+        jCheckRuteo.setBackground(new java.awt.Color(255, 255, 255));
+        jCheckRuteo.setText("Ruteo");
 
-        jCheckBox1.setBackground(new java.awt.Color(255, 255, 255));
-        jCheckBox1.setText("Antisolder");
+        jCheckAntisolder.setBackground(new java.awt.Color(255, 255, 255));
+        jCheckAntisolder.setText("Antisolder");
 
         javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
         jPanel6.setLayout(jPanel6Layout);
@@ -233,21 +216,21 @@ public class Procesos_1 extends javax.swing.JPanel {// Dimensiones 905x673
                 .addContainerGap()
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel6Layout.createSequentialGroup()
-                        .addComponent(jCheckBox1)
+                        .addComponent(jCheckAntisolder)
                         .addGap(67, 67, 67)
-                        .addComponent(jCheckBox2))
+                        .addComponent(jCheckRuteo))
                     .addGroup(jPanel6Layout.createSequentialGroup()
                         .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel4)
-                            .addComponent(cbArea, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(cbProducto, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(18, 18, 18)
                         .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(cbArea2, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(cbMaterial, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(18, 18, 18)
                         .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(cbArea3, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addComponent(cbArea, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap(25, Short.MAX_VALUE))
         );
         jPanel6Layout.setVerticalGroup(
@@ -258,19 +241,19 @@ public class Procesos_1 extends javax.swing.JPanel {// Dimensiones 905x673
                     .addGroup(jPanel6Layout.createSequentialGroup()
                         .addComponent(jLabel5)
                         .addGap(6, 6, 6)
-                        .addComponent(cbArea3, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(cbArea, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel6Layout.createSequentialGroup()
                         .addComponent(jLabel3)
                         .addGap(5, 5, 5)
-                        .addComponent(cbArea2, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(cbMaterial, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel6Layout.createSequentialGroup()
                         .addComponent(jLabel4)
                         .addGap(5, 5, 5)
-                        .addComponent(cbArea, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(cbProducto, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jCheckBox1)
-                    .addComponent(jCheckBox2))
+                    .addComponent(jCheckAntisolder)
+                    .addComponent(jCheckRuteo))
                 .addContainerGap(14, Short.MAX_VALUE))
         );
 
@@ -281,29 +264,27 @@ public class Procesos_1 extends javax.swing.JPanel {// Dimensiones 905x673
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addGap(14, 14, 14)
                 .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(20, 20, 20)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLID)
-                    .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(26, 30, Short.MAX_VALUE))
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane1)
-                .addContainerGap())
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addGap(20, 20, 20)
+                        .addComponent(jLID)
+                        .addContainerGap(149, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(51, 51, 51))))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addGap(6, 6, 6)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addGap(30, 30, 30)
-                        .addComponent(jLID)
-                        .addGap(6, 6, 6)
-                        .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(7, 7, 7)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 172, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(jPanel3Layout.createSequentialGroup()
+                            .addGap(30, 30, 30)
+                            .addComponent(jLID))))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -510,7 +491,7 @@ public class Procesos_1 extends javax.swing.JPanel {// Dimensiones 905x673
         jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Seleccion de procesos", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 14), new java.awt.Color(128, 128, 131))); // NOI18N
         jPanel4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jTCondicion = new javax.swing.JTable(){
+        jTCondicionProducto = new javax.swing.JTable(){
             public boolean isCellEditable(int rowIndex, int colIndex) {
                 return false; //Disallow the editing of any cell
             }
@@ -585,6 +566,29 @@ public class Procesos_1 extends javax.swing.JPanel {// Dimensiones 905x673
         });
         jPanel4.add(btnNuevo2, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 230, 40, -1));
 
+        jTCondicionProducto.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jTCondicionProducto.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "ID Condicion", "Area", "Producto", "Material", "Antisolder", "Ruteo", "¿Asignacion proceso?"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Boolean.class, java.lang.Boolean.class, java.lang.Boolean.class
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        });
+        jTCondicionProducto.setOpaque(false);
+        jTCondicionProducto.setRowHeight(18);
+        jTCondicionProducto.setSelectionBackground(new java.awt.Color(63, 179, 255));
+        jTCondicionProducto.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        jScrollPane8.setViewportView(jTCondicionProducto);
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -596,7 +600,8 @@ public class Procesos_1 extends javax.swing.JPanel {// Dimensiones 905x673
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, 460, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, 383, Short.MAX_VALUE))
+                    .addComponent(jScrollPane8, javax.swing.GroupLayout.Alignment.TRAILING))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -604,11 +609,13 @@ public class Procesos_1 extends javax.swing.JPanel {// Dimensiones 905x673
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, 288, Short.MAX_VALUE)
-                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane8, javax.swing.GroupLayout.DEFAULT_SIZE, 161, Short.MAX_VALUE)
+                .addGap(23, 23, 23)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, 288, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -629,32 +636,33 @@ public class Procesos_1 extends javax.swing.JPanel {// Dimensiones 905x673
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void cbAreaItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cbAreaItemStateChanged
-    }//GEN-LAST:event_cbAreaItemStateChanged
+    private void cbProductoItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cbProductoItemStateChanged
+    }//GEN-LAST:event_cbProductoItemStateChanged
 
-    private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
+    private void btnGuardarCondicionProductoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarCondicionProductoActionPerformed
+        registrarModificarCondicionesProducto();
+    }//GEN-LAST:event_btnGuardarCondicionProductoActionPerformed
 
-    }//GEN-LAST:event_btnGuardarActionPerformed
+    private void btnUpdateCondicionProductoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateCondicionProductoActionPerformed
 
-    private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
+    }//GEN-LAST:event_btnUpdateCondicionProductoActionPerformed
 
-    }//GEN-LAST:event_btnUpdateActionPerformed
+    private void btnNuevaCondicionProductoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevaCondicionProductoActionPerformed
+        desactivarFormularioCondicionesProducto(true);
+    }//GEN-LAST:event_btnNuevaCondicionProductoActionPerformed
 
-    private void btnNuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoActionPerformed
-    }//GEN-LAST:event_btnNuevoActionPerformed
-
-    private void cbArea2ItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cbArea2ItemStateChanged
+    private void cbMaterialItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cbMaterialItemStateChanged
         // TODO add your handling code here:
-    }//GEN-LAST:event_cbArea2ItemStateChanged
+    }//GEN-LAST:event_cbMaterialItemStateChanged
 
     private void btnNuevoProcesoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoProcesoActionPerformed
           mostrarVistaGestionProcesos(0,"");
           //jDialog1 Pendiente ver como se muestra esto desde acá 
     }//GEN-LAST:event_btnNuevoProcesoActionPerformed
 
-    private void cbArea3ItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cbArea3ItemStateChanged
+    private void cbAreaItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cbAreaItemStateChanged
         // TODO add your handling code here:
-    }//GEN-LAST:event_cbArea3ItemStateChanged
+    }//GEN-LAST:event_cbAreaItemStateChanged
 
     private void btnGuardar1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardar1ActionPerformed
         // TODO add your handling code here:
@@ -716,36 +724,65 @@ public class Procesos_1 extends javax.swing.JPanel {// Dimensiones 905x673
         formulario.setVisible(true);
     }
     
+    private void registrarModificarCondicionesProducto(){
+        Condicion_producto condicion = new Condicion_producto();
+        try {
+            condicion.registrarModificarCondicionProducto(Integer.parseInt(jLID.getText()), cbProducto.getSelectedIndex(), cbArea.getSelectedIndex(),String.valueOf(cbMaterial.getSelectedItem()), jCheckAntisolder.isSelected(), jCheckAntisolder.isSelected());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    private void consultarProductos(){
+        // ...
+        Condicion_producto condicion = new Condicion_producto();
+        // ...
+        try {
+            CachedRowSet crs = condicion.consultarProductos();
+            String names_productos="Seleccione...;";
+            while(crs.next()){
+                names_productos+=crs.getString("nombre")+";";
+            }
+            names_productos = names_productos.substring(0,names_productos.length()-2);
+            DefaultComboBoxModel itemsProducto = new DefaultComboBoxModel(names_productos.split(";"));
+            cbProducto.setModel(itemsProducto);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        // ...
+    }
+    
     private void consultarCondicionesProductosProcesos(int idCondicion){
         Condicion_producto condicion = new Condicion_producto();
         try {
-          CachedRowSet crs = condicion.consultarCondicionesProductos(idCondicion);
-          Object[] cuerpoTabla = new Object[7];
-          DefaultTableModel contenido = new DefaultTableModel(null, new String[]{"ID Condicion", "Área", "Producto", "Material", "Antisolder", "Ruteo", "¿Procesos asignados?"}){
-              Class[] types = new Class[]{
-                  java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Boolean.class, java.lang.Boolean.class, java.lang.Boolean.class
-              };
-              // ...
-              public Class getColumnClass(int columnIndex) {
-                  return types[columnIndex];
-              }
-          };
-          // ...
-          while(crs.next()){
-              cuerpoTabla[0]= crs.getString("idCondicion");
-              cuerpoTabla[1]= crs.getString("nombre");
-              cuerpoTabla[2]= crs.getString("nombre");
-              cuerpoTabla[3]= crs.getString("material");
-              cuerpoTabla[4]= crs.getBoolean("antisorder");
-              cuerpoTabla[5]= crs.getBoolean("ruteo");
-              cuerpoTabla[6]= crs.getBoolean("asignado");
+            CachedRowSet crs = condicion.consultarCondicionesProductos(idCondicion);
+             Object[] cuerpoTabla = new Object[7];
+         // ...
+            DefaultTableModel contenido = new DefaultTableModel(null, new String[]{"ID Condicion1", "Área", "Producto", "Material", "Antisolder", "Ruteo", "¿Procesos asignados?"}){
+                Class[] types = new Class[]{
+                   java.lang.Object.class,java.lang.Object.class,java.lang.Object.class,java.lang.Object.class,java.lang.Boolean.class,java.lang.Boolean.class,java.lang.Boolean.class
+                };
+               
+                public Class getColumnClass(int columnIndex) {
+                    return types[columnIndex];
+                }
+            };
+        // ...
+            while(crs.next()){
+                cuerpoTabla[0]= crs.getString("idCondicion");
+                cuerpoTabla[1]= crs.getString("area");
+                cuerpoTabla[2]= crs.getString("nombre");
+                cuerpoTabla[3]= crs.getString("material");
+                cuerpoTabla[4]= crs.getBoolean("antisorder");
+                cuerpoTabla[5]= crs.getBoolean("ruteo");
+                cuerpoTabla[6]= crs.getBoolean("asignado");
               
-              contenido.addRow(cuerpoTabla);
-          }
-          // ...
-          jTCondicion.setModel(contenido);
-          jTCondicion.updateUI();
-          
+                contenido.addRow(cuerpoTabla);
+            }
+            // ...
+            jTCondicionProducto.setModel(contenido);// No me esta agregando la información en el jTable <- 05/03/2019 Estipular una metodologia Scrum
+            jTCondicionProducto.updateUI();
+            // ...
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -765,6 +802,7 @@ public class Procesos_1 extends javax.swing.JPanel {// Dimensiones 905x673
         };
         Object registro[]= new Object[3];
         // ...
+//        tabla = jTCondicionProducto;
         tabla = clasificarTablaProcesos();
         // ...
         Controlador.Procesos procesos = new Controlador.Procesos();
@@ -813,20 +851,43 @@ public class Procesos_1 extends javax.swing.JPanel {// Dimensiones 905x673
         return tabla;
     }
     
+    private void desactivarFormularioCondicionesProducto(boolean estado){
+        cbProducto.setEnabled(estado);
+        cbArea.setEnabled(estado);
+        cbMaterial.setEnabled(estado);
+        jCheckAntisolder.setEnabled(estado);
+        jCheckRuteo.setEnabled(estado);
+    }
+    
+    private void habilitaraODesabilitarBotonesCondicionProducto(int accion){
+        boolean btnGuardar = true;
+        boolean btnUpdate = true;
+        if(accion == 1){//Activar boton guardar y desactivar boton actualizar
+            btnGuardar = true;
+            btnUpdate = false;
+        }else{// Desactivar boton guardar y activar boton actualizar
+            btnGuardar = false;
+            btnUpdate = true;
+        }
+        btnGuardarCondicionProducto.setEnabled(btnGuardar);
+        btnGuardarCondicionProducto.setVisible(btnGuardar);
+        btnUpdateCondicionProducto.setEnabled(btnUpdate);
+        btnUpdateCondicionProducto.setVisible(btnUpdate);
+    }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnGuardar;
     private javax.swing.JButton btnGuardar1;
-    public static javax.swing.JButton btnNuevo;
+    private javax.swing.JButton btnGuardarCondicionProducto;
+    public static javax.swing.JButton btnNuevaCondicionProducto;
     public static javax.swing.JButton btnNuevo2;
     public static javax.swing.JButton btnNuevoProceso;
-    public static javax.swing.JButton btnUpdate;
     public static javax.swing.JButton btnUpdate1;
+    public static javax.swing.JButton btnUpdateCondicionProducto;
     public static elaprendiz.gui.comboBox.ComboBoxRound cbArea;
-    public static elaprendiz.gui.comboBox.ComboBoxRound cbArea2;
-    public static elaprendiz.gui.comboBox.ComboBoxRound cbArea3;
-    private javax.swing.JCheckBox jCheckBox1;
-    private javax.swing.JCheckBox jCheckBox2;
+    public static elaprendiz.gui.comboBox.ComboBoxRound cbMaterial;
+    public static elaprendiz.gui.comboBox.ComboBoxRound cbProducto;
+    private javax.swing.JCheckBox jCheckAntisolder;
+    private javax.swing.JCheckBox jCheckRuteo;
     private javax.swing.JDialog jDialog1;
     private javax.swing.JLabel jLID;
     private javax.swing.JLabel jLabel3;
@@ -838,15 +899,15 @@ public class Procesos_1 extends javax.swing.JPanel {// Dimensiones 905x673
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel6;
-    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JScrollPane jScrollPane6;
     private javax.swing.JScrollPane jScrollPane7;
+    private javax.swing.JScrollPane jScrollPane8;
     private javax.swing.JTabbedPane jTBProcesos;
-    private javax.swing.JTable jTCondicion;
+    private javax.swing.JTable jTCondicionProducto;
     private javax.swing.JTable jTEN;
     private javax.swing.JTable jTFE;
     private javax.swing.JTable jTGlobal;

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 05-03-2019 a las 22:15:00
+-- Tiempo de generación: 06-03-2019 a las 18:36:51
 -- Versión del servidor: 10.1.29-MariaDB
 -- Versión de PHP: 7.2.0
 
@@ -344,9 +344,9 @@ CREATE DEFINER=`` PROCEDURE `PA_ConsultarCondicionesProductos` (IN `idCondicion`
 BEGIN
 #Falta agregar el campo del área a la que aplica el producto
 IF idCondicion = 0 THEN# Consultar todos
-	SELECT cp.idCondicion, p.nombre, cp.material, cp.antisorder, cp.ruteo, EXISTS(SELECT * FROM procesos_producto pp WHERE pp.idCondicion=cp.idCondicion) AS asignado FROM  condicion_producto cp JOIN producto p ON cp.idProducto=p.idproducto;
+	SELECT cp.idCondicion, cp.area, p.nombre, cp.material, cp.antisorder, cp.ruteo, EXISTS(SELECT * FROM procesos_producto pp WHERE pp.idCondicion=cp.idCondicion) AS asignado FROM  condicion_producto cp JOIN producto p ON cp.idProducto=p.idproducto;
 ELSE# Consultar por idCondicion
-	SELECT cp.idCondicion, p.nombre, cp.material, cp.antisorder, cp.ruteo, EXISTS(SELECT * FROM procesos_producto pp WHERE pp.idCondicion=cp.idCondicion) AS asignado FROM  condicion_producto cp JOIN producto p ON cp.idProducto=p.idproducto WHERE cp.idCondicion=idCondicion;
+	SELECT cp.idCondicion, cp.area, p.nombre, cp.material, cp.antisorder, cp.ruteo, EXISTS(SELECT * FROM procesos_producto pp WHERE pp.idCondicion=cp.idCondicion) AS asignado FROM  condicion_producto cp JOIN producto p ON cp.idProducto=p.idproducto WHERE cp.idCondicion=idCondicion;
 END IF;
 
 END$$
@@ -458,6 +458,13 @@ BEGIN
 #...
 SELECT * FROM procesos WHERE idArea=op AND estado=1;
 #...
+END$$
+
+CREATE DEFINER=`` PROCEDURE `PA_ConsultarProductos` ()  NO SQL
+BEGIN
+
+	SELECT * FROM producto p;
+
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_ConsultarProyectosEliminados` ()  NO SQL
@@ -1668,6 +1675,23 @@ INSERT INTO `detalle_teclados`(`idDetalle_proyecto`, `idproceso`)VALUES
 
 END$$
 
+CREATE DEFINER=`` PROCEDURE `PA_RegistrarModificarCondicionProducto` (IN `idCondicion` TINYINT, IN `producto` TINYINT, IN `area` TINYINT, IN `material` VARCHAR(2), IN `antisolder` TINYINT(1), IN `ruteo` TINYINT(1))  NO SQL
+BEGIN
+
+IF EXISTS(SELECT * FROM condicion_producto cp WHERE cp.idCondicion=idCondicion) THEN# Actualizar
+
+	UPDATE `condicion_producto` SET `idProducto`=producto,`area`=area,`material`=material,`antisorder`=antisolder,`ruteo`=ruteo WHERE `idCondicion`=idCondicion;	
+
+ELSE# Registrar
+
+	INSERT INTO `condicion_producto`(`idProducto`, `area`, `material`, `antisorder`, `ruteo`) VALUES (producto,area,material,antisolder,ruteo);
+
+END IF;
+
+SELECT 1 AS respuesta;
+
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_RegistrarModificarPuertoSerialUsuario` (IN `documento` VARCHAR(13), IN `com` VARCHAR(6))  NO SQL
 BEGIN
 
@@ -1813,6 +1837,13 @@ IF EXISTS(SELECT * FROM detalle_proyecto dp WHERE dp.estado=3 AND dp.idDetalle_p
   END IF;
  END IF;
 END IF;
+
+END$$
+
+CREATE DEFINER=`` PROCEDURE `PA_validarExistenciaOtraMismaCondicionProducto` (IN `idCondicion` INT, IN `producto` TINYINT(4), IN `area` TINYINT(1), IN `material` VARCHAR(3), IN `antisolder` TINYINT(1), IN `ruteo` TINYINT(1))  NO SQL
+BEGIN
+
+SELECT EXISTS(SELECT * FROM condicion_producto cp WHERE cp.idProducto=producto AND cp.area=area AND cp.material=material AND cp.antisorder=antisolder AND cp.ruteo=ruteo AND cp.idCondicion!=idCondicion) AS respuesta;
 
 END$$
 
@@ -2536,6 +2567,7 @@ INSERT INTO `cargo` (`idcargo`, `nombre`) VALUES
 CREATE TABLE `condicion_producto` (
   `idCondicion` tinyint(4) NOT NULL,
   `idProducto` tinyint(4) NOT NULL,
+  `area` varchar(2) DEFAULT NULL,
   `material` varchar(3) DEFAULT NULL,
   `antisorder` tinyint(1) NOT NULL,
   `ruteo` tinyint(1) NOT NULL
@@ -2545,27 +2577,27 @@ CREATE TABLE `condicion_producto` (
 -- Volcado de datos para la tabla `condicion_producto`
 --
 
-INSERT INTO `condicion_producto` (`idCondicion`, `idProducto`, `material`, `antisorder`, `ruteo`) VALUES
-(1, 1, 'TH', 1, 1),
-(2, 1, 'FV', 1, 1),
-(3, 1, 'TH', 0, 0),
-(4, 1, 'TH', 1, 0),
-(5, 1, 'TH', 0, 1),
-(6, 1, 'FV', 0, 0),
-(7, 1, 'FV', 1, 0),
-(8, 1, 'FV', 0, 1),
-(9, 6, NULL, 0, 0),
-(10, 4, NULL, 0, 0),
-(11, 3, NULL, 0, 0),
-(12, 2, NULL, 0, 1),
-(13, 7, 'TH', 1, 1),
-(14, 7, 'TH', 0, 0),
-(15, 7, 'TH', 1, 0),
-(16, 7, 'TH', 0, 1),
-(17, 7, 'FV', 1, 1),
-(18, 7, 'FV', 0, 0),
-(19, 7, 'FV', 1, 0),
-(20, 7, 'FV', 0, 1);
+INSERT INTO `condicion_producto` (`idCondicion`, `idProducto`, `area`, `material`, `antisorder`, `ruteo`) VALUES
+(1, 1, '1', 'TH', 1, 1),
+(2, 1, '1', 'FV', 1, 1),
+(3, 1, '1', 'TH', 0, 0),
+(4, 1, '1', 'TH', 1, 0),
+(5, 1, '1', 'TH', 0, 1),
+(6, 1, '1', 'FV', 0, 0),
+(7, 1, '1', 'FV', 1, 0),
+(8, 1, '1', 'FV', 0, 1),
+(9, 6, '1', NULL, 0, 0),
+(10, 4, '1', NULL, 0, 0),
+(11, 3, '1', NULL, 0, 0),
+(12, 2, '1', NULL, 0, 1),
+(13, 7, '1', 'TH', 1, 1),
+(14, 7, '1', 'TH', 0, 0),
+(15, 7, '1', 'TH', 1, 0),
+(16, 7, '1', 'TH', 0, 1),
+(17, 7, '1', 'FV', 1, 1),
+(18, 7, '1', 'FV', 0, 0),
+(19, 7, '1', 'FV', 1, 0),
+(20, 7, '1', 'FV', 0, 1);
 
 -- --------------------------------------------------------
 
@@ -3007,7 +3039,7 @@ INSERT INTO `usuario` (`numero_documento`, `tipo_documento`, `nombres`, `apellid
 ('43263856', 'CC', 'Paula Andrea', 'Lopez Gutierrrez', 1, '', 1, '43263856', 0, 'cxcx03ñkf4'),
 ('43975208', 'CC', 'GLORIA ', 'JARAMILLO ', 2, '', 1, '43975208', 1, 'kbdnsdlciq'),
 ('71268332', 'CC', 'Adimaro', 'Montoya', 3, '', 0, '71268332', 0, '1vr8s4th-@'),
-('981130', 'CC', 'Juan David', 'Marulanda Paniagua', 4, '', 1, '98113053240juan', 0, '1u-hyppy60'),
+('981130', 'CC', 'Juan David', 'Marulanda Paniagua', 4, '', 1, '98113053240juan', 1, '1u-hyppy60'),
 ('98113053240', 'CC', 'Juan david', 'Marulanda Paniagua', 2, '', 1, '98113053240', 0, 'ue2282qgo1'),
 ('98699433', 'CC', 'ANDRES CAMILO', 'BUITRAGO GÓMEZ', 1, '', 1, '98699433', 0, 'ñkzrv7l@uh'),
 ('98765201', 'CC', 'EDISSON ANDRES', 'BARAHONA CASTRILLON', 6, '', 1, '98765201', 0, 'q1-4i3i99t');

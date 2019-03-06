@@ -16,13 +16,27 @@ public class Condicion_producto {
         return modelo.consultarCondicionesProductosM(idCondicion);
     }
     
+    public CachedRowSet consultarProductos(){
+        Condicion_productoM modelo = new Condicion_productoM();
+        return modelo.consultarProductosM();
+    }
+    
     public boolean cambiarEstadoCondicionProducto(){
         
         return true;
     }
     
-    public boolean registrarModificarCondicionProducto(){
-        
-        return true;
+    public int registrarModificarCondicionProducto(int idCondicion, int producto, int area,String material, boolean antisolder, boolean ruteo){
+        //1= Registrado correctamente, 0=No se pudo registrar, 2= la condicion ya existe
+        Condicion_productoM modelo = new Condicion_productoM();
+        // Validar la existencia de otra condicion igual...
+        if(modelo.validarExistenciaOtraMismaCondicionProducto(idCondicion, producto, area, material, antisolder, ruteo)){
+            // ...
+            return modelo.registrarModificarCondicionProductoM(idCondicion, producto, area, material, antisolder, ruteo);
+//            return 1;
+        }else{
+            return 2;
+        }
     }
+    
 }
