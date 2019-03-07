@@ -26,7 +26,7 @@ class reporteTEM extends CI_Model
 	{
 		$this->load->database();
 
-		$query = $this->db->query("CALL PA_ConsultarEstadoLecturaFacilitador('1017156424');");
+		$query = $this->db->query("CALL PA_ConsultarEstadoLecturaFacilitador('43975208');");
 
 		$result = $query->row();
 

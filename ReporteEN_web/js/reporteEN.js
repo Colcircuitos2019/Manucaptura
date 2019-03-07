@@ -8,7 +8,7 @@ setInterval("produccion($(\"#cantActualizaciones\").text())" ,1000);
 setInterval("estadoDelServidorDB()",1000);
 	
 // Consultar el estado de lectura del facilitador a cargo.
-estadoLectura();
+setInterval("estadoLectura()",1200);
 
 });
 
@@ -67,7 +67,7 @@ function produccion(cont) {
 				})
 				.done(function(cuerpo) {
 					// ...
-					console.log(cuerpo);
+					// console.log(cuerpo);
 					$("#contentTable").empty();
 					$("#contentTable").html("<table id=\"reporte\" class=\"display\" style=\"width:100%\">"+
 		 		        						"<thead class=\"encabezado\">"+

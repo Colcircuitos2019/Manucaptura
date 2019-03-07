@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 06-03-2019 a las 18:36:51
+-- Tiempo de generación: 07-03-2019 a las 22:37:42
 -- Versión del servidor: 10.1.29-MariaDB
 -- Versión de PHP: 7.2.0
 
@@ -688,6 +688,16 @@ ELSE
 SELECT '' AS vacio;
 
 END IF;
+
+END$$
+
+CREATE DEFINER=`` PROCEDURE `PA_ConsultarSeleccionDeProcesoCondicionProducto` (IN `idCondicion` INT)  NO SQL
+BEGIN
+
+DECLARE area tinyint(1);
+SET area = (SELECT cp.area FROM condicion_producto cp WHERE cp.idCondicion=idCondicion);
+
+SELECT p.idproceso,p.nombre_proceso,(EXISTS(SELECT pp.orden FROM procesos_producto pp WHERE pp.idProceso=p.idproceso AND pp.idCondicion=idCondicion)) AS seleccion, (SELECT pp.orden FROM procesos_producto pp WHERE pp.idProceso=p.idproceso AND pp.idCondicion=idCondicion) AS orden, (SELECT pp.idProceso_producto FROM procesos_producto pp WHERE pp.idProceso=p.idproceso AND pp.idCondicion=idCondicion) AS idProceso_producto FROM procesos p WHERE p.idArea=area AND p.estado=1;
 
 END$$
 
@@ -1675,12 +1685,12 @@ INSERT INTO `detalle_teclados`(`idDetalle_proyecto`, `idproceso`)VALUES
 
 END$$
 
-CREATE DEFINER=`` PROCEDURE `PA_RegistrarModificarCondicionProducto` (IN `idCondicion` TINYINT, IN `producto` TINYINT, IN `area` TINYINT, IN `material` VARCHAR(2), IN `antisolder` TINYINT(1), IN `ruteo` TINYINT(1))  NO SQL
+CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_RegistrarModificarCondicionProducto` (IN `idCondicion` INT, IN `producto` TINYINT, IN `area` TINYINT, IN `material` VARCHAR(2), IN `antisolder` TINYINT(1), IN `ruteo` TINYINT(1))  NO SQL
 BEGIN
 
 IF EXISTS(SELECT * FROM condicion_producto cp WHERE cp.idCondicion=idCondicion) THEN# Actualizar
-
-	UPDATE `condicion_producto` SET `idProducto`=producto,`area`=area,`material`=material,`antisorder`=antisolder,`ruteo`=ruteo WHERE `idCondicion`=idCondicion;	
+ 
+	UPDATE condicion_producto p SET p.idProducto=producto,p.area=area,p.material=material,p.antisorder=antisolder,p.ruteo=ruteo WHERE p.idCondicion=idCondicion;	
 
 ELSE# Registrar
 
@@ -1840,7 +1850,7 @@ END IF;
 
 END$$
 
-CREATE DEFINER=`` PROCEDURE `PA_validarExistenciaOtraMismaCondicionProducto` (IN `idCondicion` INT, IN `producto` TINYINT(4), IN `area` TINYINT(1), IN `material` VARCHAR(3), IN `antisolder` TINYINT(1), IN `ruteo` TINYINT(1))  NO SQL
+CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_validarExistenciaOtraMismaCondicionProducto` (IN `idCondicion` INT, IN `producto` TINYINT(4), IN `area` TINYINT(1), IN `material` VARCHAR(3), IN `antisolder` TINYINT(1), IN `ruteo` TINYINT(1))  NO SQL
 BEGIN
 
 SELECT EXISTS(SELECT * FROM condicion_producto cp WHERE cp.idProducto=producto AND cp.area=area AND cp.material=material AND cp.antisorder=antisolder AND cp.ruteo=ruteo AND cp.idCondicion!=idCondicion) AS respuesta;
@@ -2568,7 +2578,7 @@ CREATE TABLE `condicion_producto` (
   `idCondicion` tinyint(4) NOT NULL,
   `idProducto` tinyint(4) NOT NULL,
   `area` varchar(2) DEFAULT NULL,
-  `material` varchar(3) DEFAULT NULL,
+  `material` varchar(3) NOT NULL DEFAULT '0',
   `antisorder` tinyint(1) NOT NULL,
   `ruteo` tinyint(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -2579,25 +2589,9 @@ CREATE TABLE `condicion_producto` (
 
 INSERT INTO `condicion_producto` (`idCondicion`, `idProducto`, `area`, `material`, `antisorder`, `ruteo`) VALUES
 (1, 1, '1', 'TH', 1, 1),
-(2, 1, '1', 'FV', 1, 1),
-(3, 1, '1', 'TH', 0, 0),
-(4, 1, '1', 'TH', 1, 0),
-(5, 1, '1', 'TH', 0, 1),
-(6, 1, '1', 'FV', 0, 0),
-(7, 1, '1', 'FV', 1, 0),
-(8, 1, '1', 'FV', 0, 1),
-(9, 6, '1', NULL, 0, 0),
-(10, 4, '1', NULL, 0, 0),
-(11, 3, '1', NULL, 0, 0),
-(12, 2, '1', NULL, 0, 1),
-(13, 7, '1', 'TH', 1, 1),
-(14, 7, '1', 'TH', 0, 0),
-(15, 7, '1', 'TH', 1, 0),
-(16, 7, '1', 'TH', 0, 1),
-(17, 7, '1', 'FV', 1, 1),
-(18, 7, '1', 'FV', 0, 0),
-(19, 7, '1', 'FV', 1, 0),
-(20, 7, '1', 'FV', 0, 1);
+(2, 1, '1', 'TH', 0, 0),
+(3, 1, '3', '0', 0, 0),
+(4, 5, '2', '0', 0, 0);
 
 -- --------------------------------------------------------
 
@@ -2774,155 +2768,8 @@ CREATE TABLE `procesos_producto` (
 --
 
 INSERT INTO `procesos_producto` (`idProceso_producto`, `idCondicion`, `orden`, `idProceso`) VALUES
-(1, 1, '1', 1),
-(2, 1, '2', 2),
-(3, 1, '3', 3),
-(4, 1, '4', 4),
-(5, 1, '5', 5),
-(6, 1, '6', 6),
-(7, 1, '7', 7),
-(8, 1, '8', 8),
-(9, 1, '9', 9),
-(10, 1, '10', 10),
-(11, 2, '1', 1),
-(12, 2, '2', 3),
-(14, 2, '3', 4),
-(15, 2, '4', 5),
-(16, 2, '5', 6),
-(17, 2, '6', 7),
-(18, 2, '7', 8),
-(19, 2, '8', 9),
-(20, 2, '9', 10),
-(21, 3, '1', 1),
-(22, 3, '2', 2),
-(23, 3, '3', 3),
-(24, 3, '4', 4),
-(25, 3, '5', 5),
-(26, 3, '6', 7),
-(27, 3, '7', 8),
-(28, 3, '8', 10),
-(29, 4, '1', 1),
-(30, 4, '2', 2),
-(31, 4, '3', 3),
-(32, 4, '4', 4),
-(33, 4, '5', 5),
-(34, 4, '6', 6),
-(35, 4, '7', 7),
-(36, 4, '8', 8),
-(37, 4, '9', 10),
-(38, 5, '1', 1),
-(39, 5, '2', 2),
-(40, 5, '3', 3),
-(41, 5, '4', 4),
-(42, 5, '5', 5),
-(43, 5, '6', 6),
-(44, 5, '7', 7),
-(45, 5, '8', 8),
-(46, 5, '9', 10),
-(47, 6, '1', 1),
-(48, 6, '2', 3),
-(49, 6, '3', 4),
-(50, 6, '4', 5),
-(51, 6, '5', 7),
-(52, 6, '6', 8),
-(53, 6, '7', 10),
-(54, 7, '1', 1),
-(55, 7, '2', 3),
-(56, 7, '3', 4),
-(57, 7, '4', 5),
-(58, 7, '5', 6),
-(59, 7, '6', 7),
-(60, 7, '7', 8),
-(61, 7, '8', 10),
-(62, 8, '1', 1),
-(63, 8, '2', 3),
-(64, 8, '3', 4),
-(65, 8, '4', 5),
-(66, 8, '5', 7),
-(67, 8, '6', 8),
-(68, 8, '7', 9),
-(69, 8, '8', 10),
-(70, 9, '1', 1),
-(71, 9, '2', 3),
-(72, 9, '3', 4),
-(73, 10, '1', 1),
-(74, 10, '2', 4),
-(75, 11, '1', 1),
-(77, 11, '2', 4),
-(78, 12, '1', 1),
-(79, 12, '2', 3),
-(80, 12, '3', 4),
-(81, 12, '4', 5),
-(82, 12, '5', 7),
-(83, 12, '6', 8),
-(84, 12, '7', 10),
-(85, 13, '1', 1),
-(86, 13, '2', 2),
-(87, 13, '3', 3),
-(88, 13, '4', 4),
-(89, 13, '5', 5),
-(90, 13, '6', 6),
-(91, 13, '7', 7),
-(92, 13, '8', 8),
-(93, 13, '9', 9),
-(94, 13, '10', 10),
-(95, 14, '1', 1),
-(96, 14, '2', 3),
-(97, 14, '3', 4),
-(98, 14, '4', 5),
-(99, 14, '5', 7),
-(100, 14, '6', 8),
-(101, 14, '7', 10),
-(102, 15, '1', 1),
-(103, 15, '2', 2),
-(104, 15, '3', 3),
-(105, 15, '4', 4),
-(106, 15, '5', 5),
-(107, 15, '6', 6),
-(108, 15, '7', 7),
-(109, 15, '8', 8),
-(110, 15, '9', 10),
-(111, 16, '1', 1),
-(112, 16, '2', 2),
-(113, 16, '3', 3),
-(114, 16, '4', 4),
-(115, 16, '5', 5),
-(116, 16, '6', 7),
-(117, 16, '7', 8),
-(118, 16, '8', 9),
-(119, 16, '9', 10),
-(120, 17, '1', 1),
-(121, 17, '2', 3),
-(122, 17, '3', 4),
-(123, 17, '4', 5),
-(124, 17, '5', 6),
-(125, 17, '6', 7),
-(126, 17, '7', 8),
-(127, 17, '8', 9),
-(128, 17, '9', 10),
-(129, 18, '1', 1),
-(130, 18, '2', 3),
-(131, 18, '3', 4),
-(132, 18, '4', 5),
-(133, 18, '5', 7),
-(134, 18, '6', 8),
-(135, 18, '8', 10),
-(136, 19, '1', 1),
-(137, 19, '2', 3),
-(138, 19, '3', 4),
-(139, 19, '4', 5),
-(140, 19, '5', 6),
-(141, 19, '6', 7),
-(142, 19, '7', 8),
-(143, 19, '8', 10),
-(144, 20, '1', 1),
-(145, 20, '2', 3),
-(146, 20, '3', 4),
-(147, 20, '4', 5),
-(148, 20, '5', 7),
-(149, 20, '6', 8),
-(150, 20, '7', 9),
-(151, 20, '8', 10);
+(1, 1, '2', 1),
+(2, 2, '1', 1);
 
 -- --------------------------------------------------------
 
@@ -3040,7 +2887,7 @@ INSERT INTO `usuario` (`numero_documento`, `tipo_documento`, `nombres`, `apellid
 ('43975208', 'CC', 'GLORIA ', 'JARAMILLO ', 2, '', 1, '43975208', 1, 'kbdnsdlciq'),
 ('71268332', 'CC', 'Adimaro', 'Montoya', 3, '', 0, '71268332', 0, '1vr8s4th-@'),
 ('981130', 'CC', 'Juan David', 'Marulanda Paniagua', 4, '', 1, '98113053240juan', 1, '1u-hyppy60'),
-('98113053240', 'CC', 'Juan david', 'Marulanda Paniagua', 2, '', 1, '98113053240', 0, 'ue2282qgo1'),
+('98113053240', 'CC', 'Juan david', 'Marulanda Paniagua', 3, '', 1, '98113053240', 0, 'ue2282qgo1'),
 ('98699433', 'CC', 'ANDRES CAMILO', 'BUITRAGO GÓMEZ', 1, '', 1, '98699433', 0, 'ñkzrv7l@uh'),
 ('98765201', 'CC', 'EDISSON ANDRES', 'BARAHONA CASTRILLON', 6, '', 1, '98765201', 0, 'q1-4i3i99t');
 
@@ -3070,7 +2917,7 @@ INSERT INTO `usuariopuerto` (`documentousario`, `usuarioPuerto`, `rutaQRs`, `est
 ('98765201', 'COM1', '\\\\servidor\\Proyectos2\\3 - QR\\', 0),
 ('1216714539', 'COM5', '\\\\servidor\\Proyectos2\\3 - QR\\', 0),
 ('1152697088', 'COM5', '\\\\servidor\\Proyectos2\\3 - QR\\', 0),
-('98113053240', 'COM5', NULL, 0),
+('98113053240', 'COM5', NULL, 1),
 ('123456789', 'COM7', NULL, 0),
 ('1020479554', 'COM9', NULL, 0);
 
@@ -3206,7 +3053,7 @@ ALTER TABLE `cargo`
 -- AUTO_INCREMENT de la tabla `condicion_producto`
 --
 ALTER TABLE `condicion_producto`
-  MODIFY `idCondicion` tinyint(4) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `idCondicion` tinyint(4) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de la tabla `detalle_ensamble`
@@ -3242,7 +3089,7 @@ ALTER TABLE `procesos`
 -- AUTO_INCREMENT de la tabla `procesos_producto`
 --
 ALTER TABLE `procesos_producto`
-  MODIFY `idProceso_producto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=152;
+  MODIFY `idProceso_producto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `producto`

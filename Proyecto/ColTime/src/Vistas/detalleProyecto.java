@@ -4,7 +4,6 @@ import Controlador.DetalleProyecto;
 import Controlador.Empleado;
 import Controlador.FE_TE_IN;
 import Controlador.Tabla;
-import java.util.ArrayList;
 import javax.sql.rowset.CachedRowSet;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;

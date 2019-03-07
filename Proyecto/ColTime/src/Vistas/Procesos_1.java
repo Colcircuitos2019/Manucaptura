@@ -1,10 +1,15 @@
 package Vistas;
 
 import Controlador.Condicion_producto;
+import Controlador.RenderProcesos;
+import java.awt.Color;
+import java.awt.Font;
 import javax.sql.rowset.CachedRowSet;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
 import rojerusan.RSNotifyAnimated;
 
 public class Procesos_1 extends javax.swing.JPanel {// Dimensiones 905x673
@@ -13,8 +18,9 @@ public class Procesos_1 extends javax.swing.JPanel {// Dimensiones 905x673
         initComponents();
         consultarCondicionesProductosProcesos(0);
         consultarProcesosArea();
-        desactivarFormularioCondicionesProducto(false);
+        estadoFormularioCondicionesProducto(false);
         consultarProductos();
+        jLID.setVisible(false);
         habilitaraODesabilitarBotonesCondicionProducto(1);
         //...
     }
@@ -31,7 +37,6 @@ public class Procesos_1 extends javax.swing.JPanel {// Dimensiones 905x673
         jDialog1 = new javax.swing.JDialog();
         jPanel1 = new javax.swing.JPanel();
         jPanel3 = new javax.swing.JPanel();
-        jLID = new javax.swing.JLabel();
         jPanel5 = new javax.swing.JPanel();
         btnNuevaCondicionProducto = new javax.swing.JButton();
         btnGuardarCondicionProducto = new javax.swing.JButton();
@@ -45,23 +50,65 @@ public class Procesos_1 extends javax.swing.JPanel {// Dimensiones 905x673
         jLabel5 = new javax.swing.JLabel();
         jCheckRuteo = new javax.swing.JCheckBox();
         jCheckAntisolder = new javax.swing.JCheckBox();
+        jLabel12 = new javax.swing.JLabel();
+        jLabel13 = new javax.swing.JLabel();
+        jLID = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
         jTBProcesos = new javax.swing.JTabbedPane();
         jScrollPane3 = new javax.swing.JScrollPane();
-        jTFE = new javax.swing.JTable();
+        jTFE = new javax.swing.JTable(){
+            public boolean isCellEditable(int rowIndex, int colIndex) {
+                if(colIndex == 2){
+                    return true;
+                }else{
+                    return false;
+                }
+            }
+        };
         jScrollPane5 = new javax.swing.JScrollPane();
-        jTTE = new javax.swing.JTable();
+        jTTE = new javax.swing.JTable(){
+            public boolean isCellEditable(int rowIndex, int colIndex) {
+                if(colIndex == 2){
+                    return true;
+                }else{
+                    return false;
+                }
+            }
+        };
         jScrollPane6 = new javax.swing.JScrollPane();
-        jTEN = new javax.swing.JTable();
+        jTEN = new javax.swing.JTable(){
+            public boolean isCellEditable(int rowIndex, int colIndex) {
+                if(colIndex == 2){
+                    return true;
+                }else{
+                    return false;
+                }
+            }
+        };
         jScrollPane7 = new javax.swing.JScrollPane();
-        jTGlobal = new javax.swing.JTable();
+        jTGlobal = new javax.swing.JTable(){
+            public boolean isCellEditable(int rowIndex, int colIndex) {
+                if(colIndex == 2){
+                    return true;
+                }else{
+                    return false;
+                }
+            }
+        };
         btnNuevoProceso = new javax.swing.JButton();
         jPanel4 = new javax.swing.JPanel();
         jScrollPane4 = new javax.swing.JScrollPane();
-        jTable3 = new javax.swing.JTable();
+        jTSeleeccionProcesos = new javax.swing.JTable(){
+            public boolean isCellEditable(int rowIndex, int colIndex) {
+                if(colIndex == 3 || colIndex == 2){
+                    return true; //Disallow the editing of any cell
+                }else{
+                    return false; //Disallow the editing of any cell
+                }
+            }
+        };
         btnGuardar1 = new javax.swing.JButton();
         btnUpdate1 = new javax.swing.JButton();
-        btnNuevo2 = new javax.swing.JButton();
         jScrollPane8 = new javax.swing.JScrollPane();
         jTCondicionProducto = new javax.swing.JTable(){
             public boolean isCellEditable(int rowIndex, int colIndex) {
@@ -107,8 +154,6 @@ public class Procesos_1 extends javax.swing.JPanel {// Dimensiones 905x673
 
         jPanel3.setBackground(new java.awt.Color(255, 255, 255));
         jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Condicion producto", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 18), new java.awt.Color(128, 128, 131))); // NOI18N
-
-        jLID.setText("0");
 
         jPanel5.setBackground(new java.awt.Color(255, 255, 255));
         jPanel5.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(204, 204, 204))); // NOI18N
@@ -208,29 +253,51 @@ public class Procesos_1 extends javax.swing.JPanel {// Dimensiones 905x673
         jCheckAntisolder.setBackground(new java.awt.Color(255, 255, 255));
         jCheckAntisolder.setText("Antisolder");
 
+        jLabel12.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        jLabel12.setForeground(new java.awt.Color(255, 51, 51));
+        jLabel12.setText("*");
+
+        jLabel13.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        jLabel13.setForeground(new java.awt.Color(255, 51, 51));
+        jLabel13.setText("*");
+
+        jLID.setText("0");
+
         javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
         jPanel6.setLayout(jPanel6Layout);
         jPanel6Layout.setHorizontalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel6Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(jPanel6Layout.createSequentialGroup()
                         .addComponent(jCheckAntisolder)
                         .addGap(67, 67, 67)
-                        .addComponent(jCheckRuteo))
+                        .addComponent(jCheckRuteo)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jLID))
                     .addGroup(jPanel6Layout.createSequentialGroup()
+                        .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel6Layout.createSequentialGroup()
+                                .addComponent(cbProducto, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(cbMaterial, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18))
+                            .addGroup(jPanel6Layout.createSequentialGroup()
+                                .addGap(1, 1, 1)
+                                .addComponent(jLabel12)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 67, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(70, 70, 70)))
                         .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel4)
-                            .addComponent(cbProducto, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(cbMaterial, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(cbArea, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addComponent(cbArea, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createSequentialGroup()
+                                .addComponent(jLabel13)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(40, 40, 40)))))
                 .addContainerGap(25, Short.MAX_VALUE))
         );
         jPanel6Layout.setVerticalGroup(
@@ -239,21 +306,25 @@ public class Procesos_1 extends javax.swing.JPanel {// Dimensiones 905x673
                 .addContainerGap()
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(jPanel6Layout.createSequentialGroup()
-                        .addComponent(jLabel5)
+                        .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel5)
+                            .addComponent(jLabel3)
+                            .addComponent(jLabel13))
                         .addGap(6, 6, 6)
                         .addComponent(cbArea, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(cbMaterial, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel6Layout.createSequentialGroup()
-                        .addComponent(jLabel3)
-                        .addGap(5, 5, 5)
-                        .addComponent(cbMaterial, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel6Layout.createSequentialGroup()
-                        .addComponent(jLabel4)
-                        .addGap(5, 5, 5)
+                        .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel4)
+                            .addComponent(jLabel12))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(cbProducto, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jCheckAntisolder)
-                    .addComponent(jCheckRuteo))
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(jCheckAntisolder)
+                        .addComponent(jCheckRuteo))
+                    .addComponent(jLID))
                 .addContainerGap(14, Short.MAX_VALUE))
         );
 
@@ -264,27 +335,19 @@ public class Procesos_1 extends javax.swing.JPanel {// Dimensiones 905x673
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addGap(14, 14, 14)
                 .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addGap(20, 20, 20)
-                        .addComponent(jLID)
-                        .addContainerGap(149, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(51, 51, 51))))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 42, Short.MAX_VALUE)
+                .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(51, 51, 51))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addGap(6, 6, 6)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGroup(jPanel3Layout.createSequentialGroup()
-                            .addGap(30, 30, 30)
-                            .addComponent(jLID))))
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addGap(30, 30, 30)
+                        .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -303,15 +366,7 @@ public class Procesos_1 extends javax.swing.JPanel {// Dimensiones 905x673
             }
         });
 
-        jTFE = new javax.swing.JTable(){
-            public boolean isCellEditable(int rowIndex, int colIndex) {
-                if(colIndex == 2){
-                    return true;
-                }else{
-                    return false;
-                }
-            }
-        };
+        jTFE.setAutoCreateRowSorter(true);
         jTFE.setFont(new java.awt.Font("Tahoma", 0, 12));
         jTFE.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -336,6 +391,7 @@ public class Procesos_1 extends javax.swing.JPanel {// Dimensiones 905x673
                 return canEdit [columnIndex];
             }
         });
+        jTFE.setFillsViewportHeight(true);
         jTFE.setName("FE"); // NOI18N
         jTFE.setRowHeight(18);
         jTFE.setSelectionBackground(new java.awt.Color(63, 179, 255));
@@ -349,15 +405,7 @@ public class Procesos_1 extends javax.swing.JPanel {// Dimensiones 905x673
 
         jTBProcesos.addTab("FE", jScrollPane3);
 
-        jTTE = new javax.swing.JTable(){
-            public boolean isCellEditable(int rowIndex, int colIndex) {
-                if(colIndex == 2){
-                    return true;
-                }else{
-                    return false;
-                }
-            }
-        };
+        jTTE.setAutoCreateRowSorter(true);
         jTTE.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         jTTE.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -375,6 +423,7 @@ public class Procesos_1 extends javax.swing.JPanel {// Dimensiones 905x673
                 return types [columnIndex];
             }
         });
+        jTTE.setFillsViewportHeight(true);
         jTTE.setName("TE"); // NOI18N
         jTTE.setRowHeight(18);
         jTTE.setSelectionBackground(new java.awt.Color(63, 179, 255));
@@ -387,15 +436,7 @@ public class Procesos_1 extends javax.swing.JPanel {// Dimensiones 905x673
 
         jTBProcesos.addTab("TE", jScrollPane5);
 
-        jTEN = new javax.swing.JTable(){
-            public boolean isCellEditable(int rowIndex, int colIndex) {
-                if(colIndex == 2){
-                    return true;
-                }else{
-                    return false;
-                }
-            }
-        };
+        jTEN.setAutoCreateRowSorter(true);
         jTEN.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         jTEN.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -420,6 +461,7 @@ public class Procesos_1 extends javax.swing.JPanel {// Dimensiones 905x673
                 return canEdit [columnIndex];
             }
         });
+        jTEN.setFillsViewportHeight(true);
         jTEN.setName("EN"); // NOI18N
         jTEN.setRowHeight(18);
         jTEN.setSelectionBackground(new java.awt.Color(63, 179, 255));
@@ -432,15 +474,7 @@ public class Procesos_1 extends javax.swing.JPanel {// Dimensiones 905x673
 
         jTBProcesos.addTab("EN", jScrollPane6);
 
-        jTGlobal = new javax.swing.JTable(){
-            public boolean isCellEditable(int rowIndex, int colIndex) {
-                if(colIndex == 2){
-                    return true;
-                }else{
-                    return false;
-                }
-            }
-        };
+        jTGlobal.setAutoCreateRowSorter(true);
         jTGlobal.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         jTGlobal.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -458,6 +492,7 @@ public class Procesos_1 extends javax.swing.JPanel {// Dimensiones 905x673
                 return types [columnIndex];
             }
         });
+        jTGlobal.setFillsViewportHeight(true);
         jTGlobal.setName("GBL"); // NOI18N
         jTGlobal.setRowHeight(18);
         jTGlobal.setSelectionBackground(new java.awt.Color(63, 179, 255));
@@ -491,38 +526,29 @@ public class Procesos_1 extends javax.swing.JPanel {// Dimensiones 905x673
         jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Seleccion de procesos", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 14), new java.awt.Color(128, 128, 131))); // NOI18N
         jPanel4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jTCondicionProducto = new javax.swing.JTable(){
-            public boolean isCellEditable(int rowIndex, int colIndex) {
-                return false; //Disallow the editing of any cell
-            }
-        };
-        jTable3.setModel(new javax.swing.table.DefaultTableModel(
+        jTSeleeccionProcesos.setAutoCreateRowSorter(true);
+        jTSeleeccionProcesos.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {"1", "Perforado",  new Boolean(true)},
-                {"2", "Quimicos", null},
-                {"3", "Caminos",  new Boolean(true)},
-                {"4", "Quemado", null},
-                {"5", "C.C.TH", null},
-                {"6", "Screen", null},
-                {"7", "Estañado", null},
-                {"8", "CC2", null},
-                {"9", "Ruteo", null},
-                {"10", "Maquinas", null}
+
             },
             new String [] {
-                "ID Proceso", "Nombre del proceso", "Orden"
+                "ID Proceso", "Nombre del proceso", "Orden", "Seleccionado", "ID seleccionP"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.Object.class, java.lang.Object.class, java.lang.Boolean.class
+                java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Boolean.class, java.lang.Object.class
             };
 
             public Class getColumnClass(int columnIndex) {
                 return types [columnIndex];
             }
         });
-        jTable3.setRowHeight(18);
-        jScrollPane4.setViewportView(jTable3);
+        jTSeleeccionProcesos.setFillsViewportHeight(true);
+        jTSeleeccionProcesos.setFocusTraversalPolicyProvider(true);
+        jTSeleeccionProcesos.setFocusable(false);
+        jTSeleeccionProcesos.setRowHeight(18);
+        jTSeleeccionProcesos.setSelectionBackground(new java.awt.Color(63, 179, 255));
+        jScrollPane4.setViewportView(jTSeleeccionProcesos);
 
         jPanel4.add(jScrollPane4, new org.netbeans.lib.awtextra.AbsoluteConstraints(16, 30, 430, 190));
 
@@ -552,20 +578,7 @@ public class Procesos_1 extends javax.swing.JPanel {// Dimensiones 905x673
         });
         jPanel4.add(btnUpdate1, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 230, 40, -1));
 
-        btnNuevo2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/add_Proyect.png"))); // NOI18N
-        btnNuevo2.setBorderPainted(false);
-        btnNuevo2.setContentAreaFilled(false);
-        btnNuevo2.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        btnNuevo2.setFocusPainted(false);
-        btnNuevo2.setFocusable(false);
-        btnNuevo2.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/img/add_prpyect_roll.png"))); // NOI18N
-        btnNuevo2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnNuevo2ActionPerformed(evt);
-            }
-        });
-        jPanel4.add(btnNuevo2, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 230, 40, -1));
-
+        jTCondicionProducto.setAutoCreateRowSorter(true);
         jTCondicionProducto.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         jTCondicionProducto.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -583,10 +596,16 @@ public class Procesos_1 extends javax.swing.JPanel {// Dimensiones 905x673
                 return types [columnIndex];
             }
         });
-        jTCondicionProducto.setOpaque(false);
+        jTCondicionProducto.setFillsViewportHeight(true);
+        jTCondicionProducto.setFocusable(false);
         jTCondicionProducto.setRowHeight(18);
         jTCondicionProducto.setSelectionBackground(new java.awt.Color(63, 179, 255));
         jTCondicionProducto.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        jTCondicionProducto.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                jTCondicionProductoMouseReleased(evt);
+            }
+        });
         jScrollPane8.setViewportView(jTCondicionProducto);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
@@ -610,7 +629,7 @@ public class Procesos_1 extends javax.swing.JPanel {// Dimensiones 905x673
                 .addContainerGap()
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane8, javax.swing.GroupLayout.DEFAULT_SIZE, 161, Short.MAX_VALUE)
+                .addComponent(jScrollPane8, javax.swing.GroupLayout.DEFAULT_SIZE, 159, Short.MAX_VALUE)
                 .addGap(23, 23, 23)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -644,11 +663,12 @@ public class Procesos_1 extends javax.swing.JPanel {// Dimensiones 905x673
     }//GEN-LAST:event_btnGuardarCondicionProductoActionPerformed
 
     private void btnUpdateCondicionProductoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateCondicionProductoActionPerformed
-
+        registrarModificarCondicionesProducto();
     }//GEN-LAST:event_btnUpdateCondicionProductoActionPerformed
 
     private void btnNuevaCondicionProductoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevaCondicionProductoActionPerformed
-        desactivarFormularioCondicionesProducto(true);
+        estadoFormularioCondicionesProducto(true);
+        limpiarFormularioCondicionesProducto();
     }//GEN-LAST:event_btnNuevaCondicionProductoActionPerformed
 
     private void cbMaterialItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cbMaterialItemStateChanged
@@ -672,10 +692,6 @@ public class Procesos_1 extends javax.swing.JPanel {// Dimensiones 905x673
         // TODO add your handling code here:
     }//GEN-LAST:event_btnUpdate1ActionPerformed
 
-    private void btnNuevo2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevo2ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btnNuevo2ActionPerformed
-
     private void jTBProcesosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTBProcesosMouseClicked
         consultarProcesosArea();
     }//GEN-LAST:event_jTBProcesosMouseClicked
@@ -695,6 +711,33 @@ public class Procesos_1 extends javax.swing.JPanel {// Dimensiones 905x673
     private void jTGlobalMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTGlobalMouseReleased
        ejecutarAccionesSeleecionTabla(evt);
     }//GEN-LAST:event_jTGlobalMouseReleased
+
+    private void jTCondicionProductoMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTCondicionProductoMouseReleased
+        if(!evt.isPopupTrigger()){
+            if(evt.getClickCount() == 2){ // Editar condición de producto
+                int row = jTCondicionProducto.getSelectedRow();
+                if (row > -1) {
+                    jLID.setText(String.valueOf(jTCondicionProducto.getValueAt(row, 0)));// ID de la condición
+                    cbArea.setSelectedItem(String.valueOf(jTCondicionProducto.getValueAt(row, 1)));// Área
+                    cbProducto.setSelectedItem(jTCondicionProducto.getValueAt(row, 2));// Producto
+                    cbMaterial.setSelectedItem(String.valueOf(jTCondicionProducto.getValueAt(row, 3)));// Material
+                    jCheckAntisolder.setSelected(jTCondicionProducto.getValueAt(row, 4).equals("SI") ? true : false);// Antisolder
+                    jCheckRuteo.setSelected(jTCondicionProducto.getValueAt(row, 4).equals("SI") ? true : false);// Ruteo
+                    // ...
+                    habilitaraODesabilitarBotonesCondicionProducto(0);
+                    estadoFormularioCondicionesProducto(true);
+                }    
+            }else{ // Seleecion de procesos para las condiciones de productos
+                // ...
+                estadoFormularioCondicionesProducto(false);
+                habilitaraODesabilitarBotonesCondicionProducto(0);
+                limpiarFormularioCondicionesProducto();
+                // Consultar procesos pertenecientes al área donde se va a trabajar el producto cuando se cumpla esta condición... 
+                consultarProcesosProductoCondicion(String.valueOf(jTCondicionProducto.getValueAt(jTCondicionProducto.getSelectedRow(), 0)));
+                // ...
+            }
+        }
+    }//GEN-LAST:event_jTCondicionProductoMouseReleased
 
     private void ejecutarAccionesSeleecionTabla(java.awt.event.MouseEvent evt){
         JTable tabla = clasificarTablaProcesos();
@@ -725,9 +768,77 @@ public class Procesos_1 extends javax.swing.JPanel {// Dimensiones 905x673
     }
     
     private void registrarModificarCondicionesProducto(){
+        if(cbProducto.getSelectedIndex()>0 && cbArea.getSelectedIndex()>0){
+            String[] botones = {" SI ", " NO "};
+            int accion = JOptionPane.showOptionDialog(null, "¿seguro desea realizar esta acción?", "Seguridad", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null/*icono*/, botones, botones[0]);
+            // ...
+            if (accion == 0) {
+                Condicion_producto condicion = new Condicion_producto();
+                try {
+                    //1= Registrado correctamente o modificado, 0=No se pudo registrar, 2= la condicion ya existe
+                    int respuesta = condicion.registrarModificarCondicionProducto(Integer.parseInt(jLID.getText()), cbProducto.getSelectedIndex(), cbArea.getSelectedIndex(), (cbMaterial.getSelectedIndex() > 0 ? String.valueOf(cbMaterial.getSelectedItem()) : "0"), jCheckAntisolder.isSelected(), jCheckAntisolder.isSelected());
+                    String mensaje = "", titulo = "";
+                    int tipo = 0;
+                    switch (respuesta) {
+                        case 0:
+                            mensaje = "No se pudo realizar la acción correctamente.";
+                            titulo = "Alerta!!";
+                            tipo = 0;
+                            break;
+                        case 1:
+                            mensaje = "La acción se realizo correctamente.";
+                            titulo = "Realizado!";
+                            tipo = 1;
+                            consultarCondicionesProductosProcesos(0);
+                            estadoFormularioCondicionesProducto(false);
+                            limpiarFormularioCondicionesProducto();
+                            break;
+                        case 2:
+                            mensaje = "Esta condicion ya existe.";
+                            titulo = "Alerta!!";
+                            tipo = 2;
+                            break;
+                    }
+                    new rojerusan.RSNotifyAnimated(titulo, mensaje, 6, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, (tipo == 0 ? RSNotifyAnimated.TypeNotify.ERROR : (tipo == 1 ? RSNotifyAnimated.TypeNotify.SUCCESS : RSNotifyAnimated.TypeNotify.WARNING))).setVisible(true);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                // ...
+            }            
+        }else{
+            new rojerusan.RSNotifyAnimated("Alerta!", "Falta algun campo obligatorio por diligenciar...", 6, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.WARNING).setVisible(true);
+        }
+        // ...
+    }
+    
+    private void consultarProcesosProductoCondicion(String idCondicion){ 
         Condicion_producto condicion = new Condicion_producto();
         try {
-            condicion.registrarModificarCondicionProducto(Integer.parseInt(jLID.getText()), cbProducto.getSelectedIndex(), cbArea.getSelectedIndex(),String.valueOf(cbMaterial.getSelectedItem()), jCheckAntisolder.isSelected(), jCheckAntisolder.isSelected());
+            Object[] cuerpoTabla= new Object[5];
+            CachedRowSet crs = condicion.consultarProcesosSeleeccionCondicionProducto(idCondicion);
+            jTSeleeccionProcesos.setDefaultRenderer(Object.class, new RenderProcesos());
+            DefaultTableModel informacion = new DefaultTableModel(null,new String[]{"ID procesos","Nombre del proceso","Orden","Seleccionado","ID seleccionP"}){
+                Class[] types = new Class[]{
+                    java.lang.Object.class,java.lang.Object.class,java.lang.Object.class,java.lang.Boolean.class,java.lang.Object.class
+                };
+              
+                public Class getColumnClass(int columnIndex){
+                  return types[columnIndex];
+                }
+            };
+            //...
+            while(crs.next()){
+               cuerpoTabla[0] = crs.getInt("idproceso");
+               cuerpoTabla[1] = crs.getString("nombre_proceso");
+               cuerpoTabla[2] = crs.getInt("orden");
+               cuerpoTabla[3] = crs.getBoolean("seleccion");
+               cuerpoTabla[4] = crs.getInt("idProceso_producto");
+               
+               informacion.addRow(cuerpoTabla);
+            }
+            // ... 
+            jTSeleeccionProcesos.setModel(informacion);
+            jTSeleeccionProcesos.updateUI();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -757,8 +868,9 @@ public class Procesos_1 extends javax.swing.JPanel {// Dimensiones 905x673
         try {
             CachedRowSet crs = condicion.consultarCondicionesProductos(idCondicion);
              Object[] cuerpoTabla = new Object[7];
+             jTCondicionProducto.setDefaultRenderer(Object.class, new RenderProcesos());
          // ...
-            DefaultTableModel contenido = new DefaultTableModel(null, new String[]{"ID Condicion1", "Área", "Producto", "Material", "Antisolder", "Ruteo", "¿Procesos asignados?"}){
+            DefaultTableModel contenido = new DefaultTableModel(null, new String[]{"ID Condicion", "Área", "Producto", "Material", "Antisolder", "Ruteo", "¿Procesos asignados?"}){
                 Class[] types = new Class[]{
                    java.lang.Object.class,java.lang.Object.class,java.lang.Object.class,java.lang.Object.class,java.lang.Boolean.class,java.lang.Boolean.class,java.lang.Boolean.class
                 };
@@ -767,10 +879,15 @@ public class Procesos_1 extends javax.swing.JPanel {// Dimensiones 905x673
                     return types[columnIndex];
                 }
             };
+            // ...
+            jTCondicionProducto.getTableHeader().setFont(new Font("Arial",1,13));
         // ...
+        int area =0;
             while(crs.next()){
+                
                 cuerpoTabla[0]= crs.getString("idCondicion");
-                cuerpoTabla[1]= crs.getString("area");
+                area= crs.getInt("area");
+                cuerpoTabla[1]= (area==1?"Formato estandar - FE":(area==2?"Teclados - TE":"Ensamble - EN"));
                 cuerpoTabla[2]= crs.getString("nombre");
                 cuerpoTabla[3]= crs.getString("material");
                 cuerpoTabla[4]= crs.getBoolean("antisorder");
@@ -791,6 +908,7 @@ public class Procesos_1 extends javax.swing.JPanel {// Dimensiones 905x673
     public void consultarProcesosArea(){
         JTable tabla=null;
         int index = jTBProcesos.getSelectedIndex() + 1;
+        // ...
         DefaultTableModel ObjectTBL = new DefaultTableModel(null, header){
             Class[] types = new Class[]{
                 java.lang.Object.class, java.lang.Object.class, java.lang.Boolean.class
@@ -802,8 +920,8 @@ public class Procesos_1 extends javax.swing.JPanel {// Dimensiones 905x673
         };
         Object registro[]= new Object[3];
         // ...
-//        tabla = jTCondicionProducto;
         tabla = clasificarTablaProcesos();
+        tabla.setDefaultRenderer(Object.class, new RenderProcesos());
         // ...
         Controlador.Procesos procesos = new Controlador.Procesos();
         informacion = procesos.consultarProcesos(index);
@@ -851,12 +969,22 @@ public class Procesos_1 extends javax.swing.JPanel {// Dimensiones 905x673
         return tabla;
     }
     
-    private void desactivarFormularioCondicionesProducto(boolean estado){
+    private void estadoFormularioCondicionesProducto(boolean estado){
         cbProducto.setEnabled(estado);
         cbArea.setEnabled(estado);
         cbMaterial.setEnabled(estado);
         jCheckAntisolder.setEnabled(estado);
         jCheckRuteo.setEnabled(estado);
+    }
+    
+    private void limpiarFormularioCondicionesProducto(){
+        cbProducto.setSelectedIndex(0);
+        cbArea.setSelectedIndex(0);
+        cbMaterial.setSelectedIndex(0);
+        jCheckAntisolder.setSelected(false);
+        jCheckRuteo.setSelected(false);
+        jLID.setText("0");
+        habilitaraODesabilitarBotonesCondicionProducto(1);
     }
     
     private void habilitaraODesabilitarBotonesCondicionProducto(int accion){
@@ -879,7 +1007,6 @@ public class Procesos_1 extends javax.swing.JPanel {// Dimensiones 905x673
     private javax.swing.JButton btnGuardar1;
     private javax.swing.JButton btnGuardarCondicionProducto;
     public static javax.swing.JButton btnNuevaCondicionProducto;
-    public static javax.swing.JButton btnNuevo2;
     public static javax.swing.JButton btnNuevoProceso;
     public static javax.swing.JButton btnUpdate1;
     public static javax.swing.JButton btnUpdateCondicionProducto;
@@ -890,6 +1017,8 @@ public class Procesos_1 extends javax.swing.JPanel {// Dimensiones 905x673
     private javax.swing.JCheckBox jCheckRuteo;
     private javax.swing.JDialog jDialog1;
     private javax.swing.JLabel jLID;
+    private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
@@ -911,11 +1040,12 @@ public class Procesos_1 extends javax.swing.JPanel {// Dimensiones 905x673
     private javax.swing.JTable jTEN;
     private javax.swing.JTable jTFE;
     private javax.swing.JTable jTGlobal;
+    private javax.swing.JTable jTSeleeccionProcesos;
     private javax.swing.JTable jTTE;
     private javax.swing.JTable jTable1;
-    private javax.swing.JTable jTable3;
     // End of variables declaration//GEN-END:variables
- @Override
+ 
+    @Override
     protected void finalize() throws Throwable {
         super.finalize(); //To change body of generated methods, choose Tools | Templates.
     }

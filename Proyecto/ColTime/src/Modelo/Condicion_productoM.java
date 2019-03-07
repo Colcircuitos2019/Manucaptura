@@ -63,6 +63,28 @@ public class Condicion_productoM {
         }
         return crs;
     }
+    public CachedRowSet consultarProcesosSeleeccionCondicionProductoM(int idCondicion){
+        try {
+            Conexion conexion = new Conexion(1);
+            conexion.establecerConexion();
+            con = conexion.getConexion();
+            // ... 
+            Qry = "CALL PA_ConsultarSeleccionDeProcesoCondicionProducto(?);";
+            ps = con.prepareStatement(Qry);
+            ps.setInt(1,idCondicion);
+            rs = ps.executeQuery();
+            crs = new CachedRowSetImpl();
+            crs.populate(rs);
+            //...
+            conexion.destruir();
+            conexion.cerrar(rs);
+            con.close();
+            ps.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return crs;
+    }
     // ...
     public int registrarModificarCondicionProductoM(int idCondicion, int producto, int area,String material, boolean antisolder, boolean ruteo) {
         int respuesta = 0;
@@ -71,7 +93,7 @@ public class Condicion_productoM {
             conexion.establecerConexion();
             con = conexion.getConexion();
             // ... 
-            Qry = "CALL PA_RegistrarModificarCondicionProducto(?,?,?,?,?);";// PEndiente por crear el procedure
+            Qry = "CALL PA_RegistrarModificarCondicionProducto(?,?,?,?,?,?);";
             ps = con.prepareStatement(Qry);
             ps.setInt(1, idCondicion);
             ps.setInt(2, producto);
@@ -100,7 +122,7 @@ public class Condicion_productoM {
             Conexion conexion = new Conexion(1);
             conexion.establecerConexion();
             con = conexion.getConexion();
-            // ... 
+            // ...
             Qry = "CALL PA_validarExistenciaOtraMismaCondicionProducto(?,?,?,?,?,?);";
             ps = con.prepareStatement(Qry);
             ps.setInt(1, idCondicion);
@@ -121,5 +143,10 @@ public class Condicion_productoM {
             e.printStackTrace();
         }
         return respuesta;
+    }
+    
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize(); //To change body of generated methods, choose Tools | Templates.
     }
 }

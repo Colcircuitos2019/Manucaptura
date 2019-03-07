@@ -7,7 +7,7 @@ setInterval("produccion($(\"#cantActualizaciones\").text())" ,1000);
 setInterval("estadoDelServidorDB()",1000);
 	
 // Consultar el estado de lectura del facilitador a cargo.
-estadoLectura();
+setInterval("estadoLectura()",1200);
 
 });
 
