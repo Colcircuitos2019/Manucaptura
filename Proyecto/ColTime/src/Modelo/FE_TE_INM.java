@@ -154,7 +154,7 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
             //Garbage collector...
             System.gc();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Error! " + e);
+//            JOptionPane.showMessageDialog(null, "Error! " + e);
         }
         return res;
     }

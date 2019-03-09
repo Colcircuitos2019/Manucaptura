@@ -113,7 +113,7 @@ public class generarXlsx {
                 sheet.addCell(new jxl.write.Label(x, y, "Producto", hFormat));
             }
             // ...
-            Procesos proc=new Procesos();
+            Condicion_producto proc=new Condicion_producto();// Pendiente revisar <-----
             //Consultar los nombre de los procesos del área...
             CachedRowSet crsP=proc.consultarProcesos(area);
             ArrayList<String> nombreProcesos=new ArrayList<String>();//Nombre de todos los proceso del área

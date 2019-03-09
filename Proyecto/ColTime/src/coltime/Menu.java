@@ -15,9 +15,7 @@ import Vistas.ControlDelTiempo;
 import Vistas.DetallesAreaInfo;
 import Vistas.Producciones;
 import Vistas.Inicio;
-import Vistas.Inicio1;
-import Vistas.Procesos;
-import Vistas.Procesos_1;
+import Vistas.Procesos_Condicion;
 import Vistas.Usuarios1;
 import Vistas.proyecto;
 import Vistas.proyecto1;
@@ -1578,7 +1576,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
             btn6.setColorPressed(cor);
         }
         if (!jPContenido.getComponent(0).getName().equals("Procesos")) {
-            new CambiaPanel(jPContenido, new Procesos());
+            new CambiaPanel(jPContenido, new Procesos_Condicion());
             if (pro != null) {
                 pro.disponibilidad = false;
                 pro = null;
@@ -1756,13 +1754,13 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
             btn7.setColorPressed(cor);
         }
         if (!jPContenido.getComponent(0).getName().equals("operarios")) {
-            new CambiaPanel(jPContenido, new Procesos_1());// Inicio1
-            Vistas.proyecto pro = new proyecto();
-
-            if (pro != null) {
-                pro.disponibilidad = false;
-                pro = null;
-            }
+//            new CambiaPanel(jPContenido, new Procesos_Condicion());
+//            Vistas.proyecto pro = new proyecto();
+//
+//            if (pro != null) {
+//                pro.disponibilidad = false;
+//                pro = null;
+//            }
         }       
     }//GEN-LAST:event_btn7ActionPerformed
 

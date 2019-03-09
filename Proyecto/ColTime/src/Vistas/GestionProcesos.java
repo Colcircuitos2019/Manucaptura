@@ -19,9 +19,9 @@ public class GestionProcesos extends javax.swing.JDialog {
      */
     private int area;
     private int idProceso;
-    private Procesos_1 parentt; 
+    private Procesos_Condicion parentt; 
     // ...
-    public GestionProcesos(java.awt.Frame parent, boolean modal, int idProceso, int area, String nombreProceso, Procesos_1 parentt) {
+    public GestionProcesos(java.awt.Frame parent, boolean modal, int idProceso, int area, String nombreProceso, Procesos_Condicion parentt) {
         super(parent, modal);
         initComponents();
         esconderBoton(idProceso);
@@ -58,9 +58,6 @@ public class GestionProcesos extends javax.swing.JDialog {
         jTNombreProceso.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 jTNombreProcesoKeyPressed(evt);
-            }
-            public void keyReleased(java.awt.event.KeyEvent evt) {
-                jTNombreProcesoKeyReleased(evt);
             }
             public void keyTyped(java.awt.event.KeyEvent evt) {
                 jTNombreProcesoKeyTyped(evt);
@@ -115,10 +112,6 @@ public class GestionProcesos extends javax.swing.JDialog {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jTNombreProcesoKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTNombreProcesoKeyReleased
-        
-    }//GEN-LAST:event_jTNombreProcesoKeyReleased
-
     private void jTNombreProcesoKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTNombreProcesoKeyTyped
         char cara = evt.getKeyChar();
         if (Character.isDigit(cara) || evt.getKeyChar() == '|') {
@@ -146,7 +139,7 @@ public class GestionProcesos extends javax.swing.JDialog {
                 JOptionPane.QUESTION_MESSAGE, null,// null para icono por defecto.
                 new Object[]{"SI", "NO"}, "SI") == 0) {
                 // ...
-                Controlador.Procesos ObjGestionProcesos = new Controlador.Procesos();
+                Controlador.Condicion_producto ObjGestionProcesos = new Controlador.Condicion_producto();
                 boolean respuesta = ObjGestionProcesos.guardarModificarProcesos(IDProcesos, jTNombreProceso.getText(), area);
                     // ...
             if (respuesta) {

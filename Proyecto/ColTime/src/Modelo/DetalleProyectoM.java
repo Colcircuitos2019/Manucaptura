@@ -86,7 +86,7 @@ public class DetalleProyectoM {
     }
 
     //Este metodo también funcionara para registrar y modificar los productos no conformes PNC.
-    public boolean registrar_Detalle_Proycto(String cantidad, String negocio, String tipoProducto, int estado, String numerOrden, String material, int op, int id, int pnc, String procesoPNC) {
+    public boolean registrar_Detalle_Proycto(String cantidad, String area, String tipoProducto, int estado, String numerOrden, String material, int op, int id, int pnc, String procesoPNC) {
         try {
             conexion = new Conexion(1);
             conexion.establecerConexion();
@@ -104,17 +104,17 @@ public class DetalleProyectoM {
                 rs.next();
                 if (rs.getInt(1) != 0) {
                     //Se modifica siempre y cuando el proyecto tenga un PNC ya registrado en la misma ubicacion
-                    modificarDetalleProyectos(numerOrden, rs.getInt(1), cantidad, material, negocio, tipoProducto, procesoPNC);
+                    modificarDetalleProyectos(numerOrden, rs.getInt(1), cantidad, material, area, tipoProducto, procesoPNC);
                 } else {
                     //Si no se registra el producto no conforme desde 0 
                     Qry = "SELECT FU_RegistrarDetalleProyecto(?,?,?,?,?,?,?,?)";
                     ps = con.prepareStatement(Qry);
                     ps.setInt(1, Integer.parseInt(numerOrden));
-                    if (material.equals("GF")) {
+                    if (material.equals("GF")) { // Ya no se va a trabajar con una área de almacen, sino que almacen pasa a ser trabajado como un proceso.
                         //No se permitiran registrar productos no conformes de GF ni de componentes
-                        if (negocio.equals("FE") && tipoProducto.equals("PCB")) {//Gran formato de la PCB del teclado
+                        if (area.equals("FE") && tipoProducto.equals("PCB")) {//Gran formato de la PCB del teclado
                             ps.setString(2, "PCB GF");
-                        } else if (negocio.equals("FE") && tipoProducto.equals("Circuito")) {
+                        } else if (area.equals("FE") && tipoProducto.equals("Circuito")) {
                             ps.setString(2, "Circuito GF");
                         }
                         ps.setString(3, cantidad);
@@ -126,7 +126,7 @@ public class DetalleProyectoM {
                     } else {
                         ps.setString(2, tipoProducto);
                         ps.setString(3, cantidad);
-                        ps.setString(4, negocio);
+                        ps.setString(4, area);
                         ps.setInt(5, estado);
                         ps.setString(6, material);
                         ps.setInt(7, pnc);
@@ -139,136 +139,195 @@ public class DetalleProyectoM {
                     //Ebadir esta función siemmpre y cuando el negocio sea Almacen.
                     //Tipo de negocio
                     int idTipoProducto = 0;
-                    if (!negocio.equals("ALMACEN")) {
+                    if (!area.equals("ALMACEN")) {
                         idTipoProducto = numeroDelTipo(tipoProducto);
                     }
                     //...
-                    if (negocio.equals("IN")) {// Ya no se van a registrar PNC para los productos de EN
-                        //Se registran los procesos de IN para este subproyecto.
-                        Qry = "CALL PA_ConsultarIDProcesosTEYEN(?)";//Se van a consultar lo procesos de IN.
-                        ps = con.prepareStatement(Qry);
-                        ps.setInt(1, 3);//Área Ensamble
-                        rs = ps.executeQuery();
-                        while (rs.next()) {//Se registran todos los procesos
-                            Qry = "CALL PA_RegistrarDetalleEnsamble(?,?,?,?)";
-                            ps = con.prepareStatement(Qry);
-                            ps.setInt(1, Integer.parseInt(numerOrden));
-                            ps.setInt(2, idTipoProducto);
-                            if (procesoPNC == null) {
-                                ps.setString(3, "");
-                            } else {
-                                ps.setString(3, procesoPNC);
+                    switch(area){
+                        case "FE": // Formato estandar
+                            // ...
+                            //Se registran los procesos de FE para este subproyecto.
+                            if (material.equals("GF")) { // Se valida que sea GF.
+                            //Negocio del almacen
+                                //Se registran los procesos de GF en el almacen y se inicia la toma de tiempos. 
+                                Qry = "CALL PA_RegistrarDetalleAlmacen(?,?,?)";
+                                ps = con.prepareStatement(Qry);
+                                ps.setInt(1, Integer.parseInt(numerOrden));
+                                if (area.equals("FE") && tipoProducto.equals("PCB")) {//Gran formato de la PCB del teclado
+                                    ps.setInt(2, 9);
+                                } else if (area.equals("FE") && tipoProducto.equals("Circuito")) {
+                                    ps.setInt(2, 8);
+                                }
+                                ps.setInt(3, 20);//Proceso de GF "20"
+                                ps.execute();
+                            } else {//tener en cuenta que los procesos se van a traer de la tabla procesos dependiendo del tipo de negocio!!
+                                // ...
+                                //Registro de Procesos del producto del área de formato estandar - FE
+                                registrarProcesosAreaProducto(numerOrden, idTipoProducto, procesoPNC, material, 1);
+                                // ...
                             }
-                            ps.setInt(4, rs.getInt(1));
-                            ps.execute();
-                        }
-                        Qry = "CALL PA_DetalleDeLosProcesosDeEnsamble(?,?,?)";//Me cuenta los procesos del producto y me actualiza el estado del proyecto.
-                        ps = con.prepareStatement(Qry);
-                        ps.setInt(1, Integer.parseInt(numerOrden));
-                        ps.setInt(2, idTipoProducto);
-                        if (procesoPNC == null) {
-                            ps.setString(3, "");
-                        } else {
-                            ps.setString(3, procesoPNC);
-                        }
-                        ps.execute();
-                    } else if (negocio.equals("TE")) {// Ya no se van a registrar PNC para los productos de TE
-                        //Se registran los procesos de TE para este subproyecto. 
-                        Qry = "CALL PA_ConsultarIDProcesosTEYEN(?)";//Se van a consultar lo procesos de EN.
-                        ps = con.prepareStatement(Qry);
-                        ps.setInt(1, 2);//Área Teclados
-                        rs = ps.executeQuery();
-                        while (rs.next()) {
-                            Qry = "CALL PA_RegistrarDetalleTeclados(?,?,?,?)";
-                            ps = con.prepareStatement(Qry);
-                            ps.setInt(1, Integer.parseInt(numerOrden));
-                            ps.setInt(2, idTipoProducto);
-                            if (procesoPNC == null) {
-                                ps.setString(3, "");
-                            } else {
-                                ps.setString(3, procesoPNC);
-                            }
-                            ps.setInt(4, rs.getInt(1));
-                            ps.execute();
-                        }
-                        //Verificacion del producto no conforme de TE
-                        Qry = "CALL PA_DetalleDeLosProcesosDeTeclados(?,?,?)";
-                        ps = con.prepareStatement(Qry);
-                        ps.setInt(1, Integer.parseInt(numerOrden));
-                        ps.setInt(2, idTipoProducto);
-                        if (procesoPNC == null) {
-                            ps.setString(3, "");
-                        } else {
-                            ps.setString(3, procesoPNC);
-                        }
-                        ps.execute();
-                    } else if (negocio.equals("FE")) { // Unicamente los PNC aplican para los productos de FE
-                        //Se registran los procesos de FE para este subproyecto.
-                        //Se valida que sea GF.
-                        if (material.equals("GF")) {//Negocio del almacen
-                            //Se registran los procesos de GF en el almacen y se inicia la toma de tiempos. 
+                            // ...
+                            break;
+                        case "TE": // Teclados
+                            //Registro de Procesos del producto del área de Teclados - TE
+                            registrarProcesosAreaProducto(numerOrden, idTipoProducto, procesoPNC, material, 2);
+                            break;
+                        case "IN": // Ensamble
+                            // ...
+                            //Registro de Procesos del producto del área de Teclados - TE
+                            registrarProcesosAreaProducto(numerOrden, idTipoProducto, procesoPNC, material,3);
+                            // ...
+                            break;
+                        default: // Almacen
+                            //tener en cuenta que los procesos se van a traer de la tabla procesos dependiendo del tipo de negocio!!
                             Qry = "CALL PA_RegistrarDetalleAlmacen(?,?,?)";
                             ps = con.prepareStatement(Qry);
                             ps.setInt(1, Integer.parseInt(numerOrden));
-                            if (negocio.equals("FE") && tipoProducto.equals("PCB")) {//Gran formato de la PCB del teclado
-                                ps.setInt(2, 9);
-                            } else if (negocio.equals("FE") && tipoProducto.equals("Circuito")) {
-                                ps.setInt(2, 8);
+                            if (tipoProducto.equals("Circuito COM")) {//Componentes de circuito.
+                                ps.setInt(2, 10);
+                            } else if (tipoProducto.equals("PCB COM")) {//Componentes de PCB.
+                                ps.setInt(2, 11);
                             }
-                            ps.setInt(3, 20);//Proceso de GF "20"
+                            ps.setInt(3, 19);//Proceso de componentes "19".
                             ps.execute();
-                        } else {//tener en cuenta que los procesos se van a traer de la tabla procesos dependiendo del tipo de negocio!!
-                            // ...
-                            Qry = "SELECT FU_ConsultarelIDDetalledelproductoFE(?,?,?) as idDetalleProducto;";//
-                            ps = con.prepareStatement(Qry);
-                            ps.setString(1, numerOrden);
-                            ps.setInt(2, idTipoProducto);
-                            ps.setString(3, (procesoPNC==null?"":procesoPNC));
-                            rs = ps.executeQuery();
-                            rs.next();
-                            int idDetalleProducto = rs.getInt(1);
-//                          Consultar el ID de la condicion que se cumple para la asignacion de los procesos del producto...
-                            Qry = "SELECT FU_ClasificarCondicionProductoFE(?,?,?,?) as idCondicional";//
-                            ps = con.prepareStatement(Qry);
-                            ps.setString(1, numerOrden);
-                            ps.setInt(2, idTipoProducto);
-                            ps.setString(3, (procesoPNC==null?"":procesoPNC));
-                            ps.setString(4, material);
-                            rs = ps.executeQuery();
-                            rs.next();
-                            // ...
-                            int idCondicional = rs.getInt("idCondicional");
-                            // Consultar los procesos del producto que cumplio con la condición.
-                            Qry = "CALL PA_ConsultarProcesosProducto(?);";
-                            ps = con.prepareStatement(Qry);
-                            ps.setInt(1, idCondicional);
-                            rs = ps.executeQuery();
-                            // ...
-                            while(rs.next()){ //Registrar los procesos de FE que tendra el producto
-                                Qry = "CALL PA_RegistrarProcesosProductoFE(?,?,?);";
-                                ps = con.prepareStatement(Qry);
-                                ps.setInt(1, rs.getInt("idProceso"));
-                                ps.setInt(2, idDetalleProducto); //idDetalleProyecto
-                                ps.setInt(3, rs.getInt("orden"));
-                                ps.execute();
-                            }
-                        }
-                    } else {//Negocio del almacen Para registrar los compoennetes
-                        //tener en cuenta que los procesos se van a traer de la tabla procesos dependiendo del tipo de negocio!!
-                        Qry = "CALL PA_RegistrarDetalleAlmacen(?,?,?)";
-                        ps = con.prepareStatement(Qry);
-                        ps.setInt(1, Integer.parseInt(numerOrden));
-                        if (tipoProducto.equals("Circuito COM")) {//Componentes de circuito.
-                            ps.setInt(2, 10);
-                        } else if (tipoProducto.equals("PCB COM")) {//Componentes de PCB.
-                            ps.setInt(2, 11);
-                        }
-                        ps.setInt(3, 19);//Proceso de componentes "19".
-                        ps.execute();
+                            break;
                     }
+//                    if (area.equals("IN")) {// Ya no se van a registrar PNC para los productos de EN
+//                        //Se registran los procesos de IN para este subproyecto.
+//                        Qry = "CALL PA_ConsultarIDProcesosTEYEN(?)";//Se van a consultar lo procesos de IN.
+//                        ps = con.prepareStatement(Qry);
+//                        ps.setInt(1, 3);//Área Ensamble
+//                        rs = ps.executeQuery();
+//                        while (rs.next()) {//Se registran todos los procesos
+//                            Qry = "CALL PA_RegistrarDetalleEnsamble(?,?,?,?)";
+//                            ps = con.prepareStatement(Qry);
+//                            ps.setInt(1, Integer.parseInt(numerOrden));
+//                            ps.setInt(2, idTipoProducto);
+//                            if (procesoPNC == null) {
+//                                ps.setString(3, "");
+//                            } else {
+//                                ps.setString(3, procesoPNC);
+//                            }
+//                            ps.setInt(4, rs.getInt(1));
+//                            ps.execute();
+//                        }
+//                        Qry = "CALL PA_DetalleDeLosProcesosDeEnsamble(?,?,?)";//Me cuenta los procesos del producto y me actualiza el estado del proyecto.
+//                        ps = con.prepareStatement(Qry);
+//                        ps.setInt(1, Integer.parseInt(numerOrden));
+//                        ps.setInt(2, idTipoProducto);
+//                        if (procesoPNC == null) {
+//                            ps.setString(3, "");
+//                        } else {
+//                            ps.setString(3, procesoPNC);
+//                        }
+//                        ps.execute();
+//                        //Registro de Procesos del producto del área de Teclados - TE
+//                        registrarProcesosAreaProducto(numerOrden, idTipoProducto, procesoPNC, material,1);
+//                        
+//                    } else if (area.equals("TE")) {// Ya no se van a registrar PNC para los productos de TE
+//                        //Se registran los procesos de TE para este subproyecto. 
+//                        Qry = "CALL PA_ConsultarIDProcesosTEYEN(?)";//Se van a consultar lo procesos de TE.
+//                        ps = con.prepareStatement(Qry);
+//                        ps.setInt(1, 2);//Área Teclados
+//                        rs = ps.executeQuery();
+//                        while (rs.next()) {
+//                            Qry = "CALL PA_RegistrarDetalleTeclados(?,?,?,?)";
+//                            ps = con.prepareStatement(Qry);
+//                            ps.setInt(1, Integer.parseInt(numerOrden));
+//                            ps.setInt(2, idTipoProducto);
+//                            if (procesoPNC == null) {
+//                                ps.setString(3, "");
+//                            } else {
+//                                ps.setString(3, procesoPNC);
+//                            }
+//                            ps.setInt(4, rs.getInt(1));
+//                            ps.execute();
+//                        }
+//                        //Verificacion del producto no conforme de TE
+//                        Qry = "CALL PA_DetalleDeLosProcesosDeTeclados(?,?,?)";
+//                        ps = con.prepareStatement(Qry);
+//                        ps.setInt(1, Integer.parseInt(numerOrden));
+//                        ps.setInt(2, idTipoProducto);
+//                        if (procesoPNC == null) {
+//                            ps.setString(3, "");
+//                        } else {
+//                            ps.setString(3, procesoPNC);
+//                        }
+//                        ps.execute();
+//                        //Registro de Procesos del producto del área de Teclados - TE
+//                        registrarProcesosAreaProducto(numerOrden, idTipoProducto, procesoPNC, material,1);
+//                        
+//                    } else if (area.equals("FE")) { // Unicamente los PNC aplican para los productos de FE
+//                        //Se registran los procesos de FE para este subproyecto.
+//                        //Se valida que sea GF.
+//                        if (material.equals("GF")) {//Negocio del almacen
+//                            //Se registran los procesos de GF en el almacen y se inicia la toma de tiempos. 
+//                            Qry = "CALL PA_RegistrarDetalleAlmacen(?,?,?)";
+//                            ps = con.prepareStatement(Qry);
+//                            ps.setInt(1, Integer.parseInt(numerOrden));
+//                            if (area.equals("FE") && tipoProducto.equals("PCB")) {//Gran formato de la PCB del teclado
+//                                ps.setInt(2, 9);
+//                            } else if (area.equals("FE") && tipoProducto.equals("Circuito")) {
+//                                ps.setInt(2, 8);
+//                            }
+//                            ps.setInt(3, 20);//Proceso de GF "20"
+//                            ps.execute();
+//                        } else {//tener en cuenta que los procesos se van a traer de la tabla procesos dependiendo del tipo de negocio!!
+//                            // ...
+//                            //Registro de Procesos del producto del área de formato estandar - FE
+//                            registrarProcesosAreaProducto(numerOrden, idTipoProducto, procesoPNC, material,1);
+////                            Qry = "SELECT FU_ConsultarelIDDetalledelproductoArea(?,?,?,?) as idDetalleProducto;";//
+////                            ps = con.prepareStatement(Qry);
+////                            ps.setString(1, numerOrden);
+////                            ps.setInt(2, idTipoProducto);
+////                            ps.setString(3, (procesoPNC==null?"":procesoPNC));
+////                            ps.setInt(4, 1);
+////                            rs = ps.executeQuery();
+////                            rs.next();
+////                            int idDetalleProducto = rs.getInt(1);
+//////                          Consultar el ID de la condicion que se cumple para la asignacion de los procesos del producto...
+////                            Qry = "SELECT FU_ClasificarCondicionProductoFE(?,?,?,?) as idCondicional";//
+////                            ps = con.prepareStatement(Qry);
+////                            ps.setString(1, numerOrden);
+////                            ps.setInt(2, idTipoProducto);
+////                            ps.setString(3, (procesoPNC==null?"":procesoPNC));
+////                            ps.setString(4, material);
+////                            rs = ps.executeQuery();
+////                            rs.next();
+////                            // ...
+////                            int idCondicional = rs.getInt("idCondicional");
+////                            // Consultar los procesos del producto que cumplio con la condición.
+////                            Qry = "CALL PA_ConsultarProcesosProducto(?);";
+////                            ps = con.prepareStatement(Qry);
+////                            ps.setInt(1, idCondicional);
+////                            rs = ps.executeQuery();
+////                            // ...
+////                            while(rs.next()){ //Registrar los procesos de FE que tendra el producto
+////                                Qry = "CALL PA_RegistrarProcesosProductoFE(?,?,?);";
+////                                ps = con.prepareStatement(Qry);
+////                                ps.setInt(1, rs.getInt("idProceso"));
+////                                ps.setInt(2, idDetalleProducto); //idDetalleProyecto
+////                                ps.setInt(3, rs.getInt("orden"));
+////                                ps.setInt(3, 1);
+////                                ps.execute();
+////                            }
+//                        }
+//                    } else {//Área del almacen Para registrar los compoennetes
+//                        //tener en cuenta que los procesos se van a traer de la tabla procesos dependiendo del tipo de negocio!!
+//                        Qry = "CALL PA_RegistrarDetalleAlmacen(?,?,?)";
+//                        ps = con.prepareStatement(Qry);
+//                        ps.setInt(1, Integer.parseInt(numerOrden));
+//                        if (tipoProducto.equals("Circuito COM")) {//Componentes de circuito.
+//                            ps.setInt(2, 10);
+//                        } else if (tipoProducto.equals("PCB COM")) {//Componentes de PCB.
+//                            ps.setInt(2, 11);
+//                        }
+//                        ps.setInt(3, 19);//Proceso de componentes "19".
+//                        ps.execute();
+//                    }
                 }
             } else if (op == 2) {
-                modificarDetalleProyectos(numerOrden, id, cantidad, material, negocio, tipoProducto, procesoPNC);
+                modificarDetalleProyectos(numerOrden, id, cantidad, material, area, tipoProducto, procesoPNC);
             }
             //Cierre de conexiones
             conexion.cerrar(rs);
@@ -279,6 +338,52 @@ public class DetalleProyectoM {
             JOptionPane.showMessageDialog(null, "¡Error!" + e);
         }
         return res;
+    }
+    
+    private void registrarProcesosAreaProducto(String numerOrden, int idTipoProducto, String procesoPNC, String material, int area){
+        // ...
+        String Qry="";
+        try {
+            Qry = "SELECT FU_ConsultarelIDDetalledelproductoArea(?,?,?,?) as idDetalleProducto;";
+            ps = con.prepareStatement(Qry);
+            ps.setString(1, numerOrden);
+            ps.setInt(2, idTipoProducto);
+            ps.setString(3, (procesoPNC == null ? "" : procesoPNC));
+            ps.setInt(4, area);
+            rs = ps.executeQuery();
+            rs.next();
+            int idDetalleProducto = rs.getInt(1);
+            //Consultar el ID de la condicion que se cumple para la asignacion de los procesos del producto...
+            Qry = "SELECT FU_ClasificarCondicionProductoFE(?,?,?,?,?) as idCondicional";//
+            ps = con.prepareStatement(Qry);
+            ps.setString(1, numerOrden);
+            ps.setInt(2, idTipoProducto);
+            ps.setString(3, (procesoPNC == null ? "" : procesoPNC));
+            ps.setString(4, material);
+            ps.setInt(5, area);
+            rs = ps.executeQuery();
+            rs.next();
+            // ...
+            int idCondicional = rs.getInt("idCondicional");
+            // Consultar los procesos del producto que cumplio con la condición.
+            Qry = "CALL PA_ConsultarProcesosProducto(?);";
+            ps = con.prepareStatement(Qry);
+            ps.setInt(1, idCondicional);
+            rs = ps.executeQuery();
+            // ...
+            while (rs.next()) { //Registrar los procesos de FE que tendra el producto
+                Qry = "CALL PA_RegistrarProcesosProductoFE(?,?,?,?);";
+                ps = con.prepareStatement(Qry);
+                ps.setInt(1, rs.getInt("idProceso"));
+                ps.setInt(2, idDetalleProducto); //idDetalleProyecto
+                ps.setInt(3, rs.getInt("orden"));
+                ps.setInt(4, area);
+                ps.execute();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        // ...
     }
 
     private int numeroDelTipo(String tipoNegocio) {
