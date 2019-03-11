@@ -792,7 +792,7 @@ public class Procesos_Condicion extends javax.swing.JPanel {// Dimensiones 905x6
                         respuesta = controlador.registrarModificarSeleccionDeProcesosCondicionProducto(
                                 convertirObjetoAInteger(jTSeleeccionProcesos.getValueAt(i, 0)),// idProceso
                                 convertirObjetoAInteger(jLIDCondicion.getText()), // idCondicion
-                                convertirObjetoAInteger(jTSeleeccionProcesos.getValueAt(i, 2)), // Orden
+                                (!jLArea.getText().equals("1")?0:convertirObjetoAInteger(jTSeleeccionProcesos.getValueAt(i, 2))), // Orden
                                 convertirObjetoAInteger(jTSeleeccionProcesos.getValueAt(i, 4)) // idProceso_producto
                         );
                     } else {
@@ -822,18 +822,25 @@ public class Procesos_Condicion extends javax.swing.JPanel {// Dimensiones 905x6
     }
     
     private boolean validarAsignacionDeOrdenProcesos(){
-        if(jLArea.getText().equals("1")){ // Esta validacion solo aplica para los productos que van hacer procesadas en el área de Formato Estandar - FE
+        // Esta validacion solo aplica para los productos que van hacer procesadas en el área de Formato Estandar - FE
+        if(jLArea.getText().equals("1")){
             ArrayList<Integer> orden = new ArrayList();
             int OrdenProceso = 0;
             for (int i = 0; i < jTSeleeccionProcesos.getRowCount(); i++) {
 
-                if (Boolean.parseBoolean(String.valueOf(jTSeleeccionProcesos.getValueAt(i, 3)))) {
-                    OrdenProceso = convertirObjetoAInteger(jTSeleeccionProcesos.getValueAt(i, 2));
-                    if (OrdenProceso > 0) {
-                        orden.add(OrdenProceso);
-                    } else {
-                        return false; // No cumple el orden necesario
-                    }
+                if (Boolean.parseBoolean(String.valueOf(jTSeleeccionProcesos.getValueAt(i, 3)))) { // Proceso Seleecionado
+                    
+                    if(validarValorSeaUnEntero(String.valueOf(jTSeleeccionProcesos.getValueAt(i, 2)))){
+                        
+                        OrdenProceso = convertirObjetoAInteger(jTSeleeccionProcesos.getValueAt(i, 2));
+                        if (OrdenProceso > 0) {
+                            orden.add(OrdenProceso);
+                        } else {
+                            return false; // No cumple el orden necesario
+                        }
+                        
+                    }                            
+                    
                 }
 
             }
@@ -872,7 +879,22 @@ public class Procesos_Condicion extends javax.swing.JPanel {// Dimensiones 905x6
         }
         // ...
         return true;//Cumple el orden -> validación ejecutada correctamente
-    } 
+    }
+    
+    private boolean validarValorSeaUnEntero(String cadenaNumeros){
+        boolean respuesta = false;
+         for (int i = 0; i < cadenaNumeros.length(); i++) {
+            
+            if(!Character.isDigit(cadenaNumeros.charAt(i))){//No es un numero
+                respuesta = false;
+                break;
+            }else{
+                respuesta = true;
+            }
+             
+        }
+        return respuesta;
+    }
     
     private void validarExistenciaProcesoSeleccionadoTabla(){
         boolean respuesta = false;

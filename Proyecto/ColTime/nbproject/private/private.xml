@@ -4,11 +4,19 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/C:/Users/sis.informacion01/Desktop/proyecto/coltimeZ/Proyecto%20col_time/Proyecto/ColTime/src/Controlador/RenderProcesos.java</file>
+            <file>file:/C:/Users/sis.informacion01/Desktop/proyecto/coltimeZ/Proyecto%20col_time/Proyecto/ColTime/src/Controlador/generarXlsx.java</file>
+            <file>file:/C:/Users/sis.informacion01/Desktop/proyecto/coltimeZ/Proyecto%20col_time/Proyecto/ColTime/src/Modelo/DetalleProyectoM.java</file>
+            <file>file:/C:/Users/sis.informacion01/Desktop/proyecto/coltimeZ/Proyecto%20col_time/Proyecto/ColTime/src/Vistas/GestionProcesos.java</file>
             <file>file:/C:/Users/sis.informacion01/Desktop/proyecto/coltimeZ/Proyecto%20col_time/Proyecto/ColTime/src/Controlador/Condicion_producto.java</file>
-            <file>file:/C:/Users/sis.informacion01/Desktop/proyecto/coltimeZ/Proyecto%20col_time/Proyecto/ColTime/src/Vistas/detalleProyecto.java</file>
-            <file>file:/C:/Users/sis.informacion01/Desktop/proyecto/coltimeZ/Proyecto%20col_time/Proyecto/ColTime/src/Modelo/Condicion_productoM.java</file>
             <file>file:/C:/Users/sis.informacion01/Desktop/proyecto/coltimeZ/Proyecto%20col_time/Proyecto/ColTime/src/Modelo/UsuarioM.java</file>
-            <file>file:/C:/Users/sis.informacion01/Desktop/proyecto/coltimeZ/Proyecto%20col_time/Proyecto/ColTime/src/Vistas/Procesos_1.java</file>
+            <file>file:/C:/Users/sis.informacion01/Desktop/proyecto/coltimeZ/Proyecto%20col_time/Proyecto/ColTime/src/Vistas/Procesos_Condicion.java</file>
+            <file>file:/C:/Users/sis.informacion01/Desktop/proyecto/coltimeZ/Proyecto%20col_time/Proyecto/ColTime/src/Vistas/proyecto.java</file>
+            <file>file:/C:/Users/sis.informacion01/Desktop/proyecto/coltimeZ/Proyecto%20col_time/Proyecto/ColTime/src/Controlador/DetalleProyecto.java</file>
+            <file>file:/C:/Users/sis.informacion01/Desktop/proyecto/coltimeZ/Proyecto%20col_time/Proyecto/ColTime/src/Controlador/FE_TE_IN.java</file>
+            <file>file:/C:/Users/sis.informacion01/Desktop/proyecto/coltimeZ/Proyecto%20col_time/Proyecto/ColTime/src/Modelo/ProcesosM.java</file>
+            <file>file:/C:/Users/sis.informacion01/Desktop/proyecto/coltimeZ/Proyecto%20col_time/Proyecto/ColTime/src/Modelo/FE_TE_INM.java</file>
+            <file>file:/C:/Users/sis.informacion01/Desktop/proyecto/coltimeZ/Proyecto%20col_time/Proyecto/ColTime/src/coltime/Menu.java</file>
+            <file>file:/C:/Users/sis.informacion01/Desktop/proyecto/coltimeZ/Proyecto%20col_time/Proyecto/ColTime/src/Modelo/Condicion_productoM.java</file>
         </group>
     </open-files>
 </project-private>

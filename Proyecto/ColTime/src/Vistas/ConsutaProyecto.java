@@ -29,8 +29,6 @@ public class ConsutaProyecto extends javax.swing.JFrame {
         TPNC.getTableHeader().setReorderingAllowed(false);//Tabla producto no conforme(PNC)
         TProyecto.getTableHeader().setReorderingAllowed(false);//Tabla proyecto
         TDetalle.getTableHeader().setReorderingAllowed(false);//Tabla detalle del proyecto
-//        System.out.println("width: " + jPEncabezado.getWidth() + "\n"
-//                + "Heigth: " + jPEncabezado.getHeight());
     }
     //Variables globales
     int posX = 0;
@@ -581,8 +579,8 @@ public class ConsutaProyecto extends javax.swing.JFrame {
                         String fet[] = TProyecto.getValueAt(f, 4).toString().split(" ");
                         obj.jLIngreso.setText(fet[0]);
                         fechaEntrega = fecha.parse(TProyecto.getValueAt(f, 5).toString());
-                        obj.jDentrega.setDate(fechaEntrega);
-                        obj.cbTipo.setSelectedItem(TProyecto.getValueAt(f, 8).toString());
+                        obj.jDeEntrega.setDate(fechaEntrega);
+                        obj.cbTipoEjecucion.setSelectedItem(TProyecto.getValueAt(f, 8).toString());
                         //Estado proyecto
                         if (TProyecto.getValueAt(f, 22).toString() != null && !TProyecto.getValueAt(f, 22).toString().equals("null")) {//Estado del proyecto
                             obj.jPEstadoProyecto.setVisible(true);
@@ -639,25 +637,6 @@ public class ConsutaProyecto extends javax.swing.JFrame {
                             obj.btnUpdate.setEnabled(false);
                         }
 
-                        //Tipos de negocios implicados
-                        if (TProyecto.getValueAt(f, 9).toString().equals("true") && TProyecto.getValueAt(f, 10).toString().equals("false") && TProyecto.getValueAt(f, 11).toString().equals("false")) {
-                            obj.cbNegocio.setSelectedIndex(1);
-                        }
-                        if (TProyecto.getValueAt(f, 9).toString().equals("false") && TProyecto.getValueAt(f, 10).toString().equals("true") && TProyecto.getValueAt(f, 11).toString().equals("false")) {
-                            obj.cbNegocio.setSelectedIndex(2);
-                        }
-                        if (TProyecto.getValueAt(f, 9).toString().equals("false") && TProyecto.getValueAt(f, 10).toString().equals("false") && TProyecto.getValueAt(f, 11).toString().equals("true")) {
-                            obj.cbNegocio.setSelectedIndex(3);
-                        }
-                        if (TProyecto.getValueAt(f, 9).toString().equals("true") && TProyecto.getValueAt(f, 10).toString().equals("true") && TProyecto.getValueAt(f, 11).toString().equals("false")) {
-                            obj.cbNegocio.setSelectedIndex(4);
-                        }
-                        if (TProyecto.getValueAt(f, 9).toString().equals("true") && TProyecto.getValueAt(f, 10).toString().equals("false") && TProyecto.getValueAt(f, 11).toString().equals("true")) {
-                            obj.cbNegocio.setSelectedIndex(5);
-                        }
-                        if (TProyecto.getValueAt(f, 9).toString().equals("true") && TProyecto.getValueAt(f, 10).toString().equals("true") && TProyecto.getValueAt(f, 11).toString().equals("true")) {
-                            obj.cbNegocio.setSelectedIndex(6);
-                        }
                         //RuteoC y antisolderC
                         if (TProyecto.getValueAt(f, 12).toString().equals("true")) {
                             obj.jCRuteoC.setSelected(true);
@@ -895,13 +874,6 @@ public class ConsutaProyecto extends javax.swing.JFrame {
                 }
             }
         }
-        if (count == 0) {
-            //Permite editar el tipo de negocío.
-            obj.cbNegocio.setEnabled(true);
-        } else {
-            //No permiti editar el tipo de negocío.
-            obj.cbNegocio.setEnabled(false);
-        }
     }
 
     private void estadoModificacion(int row, JCheckBox check, TextFieldRoundBackground text) {
@@ -978,9 +950,8 @@ public class ConsutaProyecto extends javax.swing.JFrame {
         obj.btnNuevo.setEnabled(true);
         obj.jTNombreCliente.setEnabled(true);
         obj.jTNombreProyecto.setEnabled(true);
-        obj.jDentrega.setEnabled(true);
-        obj.cbNegocio.setEnabled(true);
-        obj.cbTipo.setEnabled(true);
+        obj.jDeEntrega.setEnabled(true);
+        obj.cbTipoEjecucion.setEnabled(true);
         obj.jTIntegracion.setEnabled(true);
         obj.jPInformacion.setBackground(new Color(255, 255, 255));
         obj.jPDetalles1.setBackground(new Color(255, 255, 255));
@@ -1023,15 +994,15 @@ public class ConsutaProyecto extends javax.swing.JFrame {
             crs = obj.consultar_ProyectoEliminados();
         } else {
             if (!numerOrden.equals("")) {
-                obj.setIdOrden(Integer.parseInt(numerOrden));
+                obj.setNum_orden(numerOrden);
             } else {
-                obj.setIdOrden(0);
+                obj.setNum_orden("");
             }
             obj.setNombreCliente(nombrecliente);
             obj.setNombreProyecto(nombreProyecto);
             obj.setFecha(fecha);
             String tipo = "";
-            if (jRIngreso.isSelected()) {
+            if (jRIngreso.isSelected()) {//<-- Remplazar esto por un switch
                 tipo = "Ingreso";
             } else if (jREntrega.isSelected()) {
                 tipo = "Entrega";
@@ -1042,49 +1013,60 @@ public class ConsutaProyecto extends javax.swing.JFrame {
             crs = obj.consultar_Proyecto(tipo);
         }
         try {
-            String v[] = {"N° Orden", "Registro de", "Nombre Cliente", "Nombre Proyecto", "Fecha Ingreso", "Fecha Entrega", "Fecha Salida", "Estado", "Tipo", "FE", "TE", "IN", "RuteoC", "AntisolderC", "RuteoP", "AntisolderP", "Parada", "Fecha1", "Fecha2", "Fecha3", "Fecha4", "Novedad", "EstadoProyec", "NFEE"};
-            DefaultTableModel model = new DefaultTableModel(null, v);
-            String v1[] = new String[24];
+            String row[] = {"N° Orden",
+                "Registro de",
+                "Nombre Cliente",
+                "Nombre Proyecto",
+                "Fecha Ingreso",
+                "Fecha Entrega",
+                "Fecha Salida",
+                "Estado",
+                "Tipo Ejecucion",
+                "Parada",
+                "Fecha1",
+                "Fecha2",
+                "Fecha3",
+                "Fecha4",
+                "Novedad",
+                "EstadoProyec",
+                "NFEE"};
+            DefaultTableModel model = new DefaultTableModel(null, row);
+            // ...
             while (crs.next()) {
                 cantidadRegistros++;
-                v1[0] = String.valueOf(crs.getInt(1));
-                v1[1] = crs.getString(2);
-                v1[2] = crs.getString(3);
-                v1[3] = crs.getString(4);
-                v1[4] = crs.getString(5);
-                v1[5] = crs.getString(6);
-                v1[6] = crs.getString(7);
-                if (crs.getBoolean(17)) {
-                    v1[7] = clasificarEstado(crs.getInt(8));//Estado
+                row[0] = crs.getString("numero_orden");
+                row[1] = crs.getString("nombres");
+                row[2] = crs.getString("nombre_cliente");
+                row[3] = crs.getString("nombre_proyecto");
+                row[4] = crs.getString("ingreso");
+                row[5] = crs.getString("fecha_entrega");
+                row[6] = crs.getString("salida");
+                if (crs.getBoolean("parada")) {// 17
+                    row[7] = clasificarEstado(crs.getInt("estado"));//Estado
                 } else {
-                    v1[7] = "Parada";
+                    row[7] = "Parada";
                 }
-                v1[8] = crs.getString(9);
-                v1[9] = String.valueOf(crs.getBoolean(10));
-                v1[10] = String.valueOf(crs.getBoolean(11));
-                v1[11] = String.valueOf(crs.getBoolean(12));
-                v1[12] = String.valueOf(crs.getBoolean(13));
-                v1[13] = String.valueOf(crs.getBoolean(14));
-                v1[14] = String.valueOf(crs.getBoolean(15));
-                v1[15] = String.valueOf(crs.getBoolean(16));
-                v1[16] = String.valueOf(crs.getBoolean(17) ? 1 : 0);
-                v1[17] = String.valueOf(crs.getString(18));//Fecha1
-                v1[18] = String.valueOf(crs.getString(19));//Fecha2
-                v1[19] = String.valueOf(crs.getString(20));//Fecha3
-                v1[20] = String.valueOf(crs.getString(21));//Fecha4
-                v1[21] = String.valueOf(crs.getString(22));//Novedad
-                v1[22] = String.valueOf(crs.getString(23));//Estado Proyecto
-                v1[23] = String.valueOf(crs.getString(24));//NFEE
-                model.addRow(v1);
+                row[8] = crs.getString("tipo_proyecto");
+                row[9] = String.valueOf(crs.getBoolean("parada"));
+                row[10] = String.valueOf(crs.getString("entregaCircuitoFEoGF"));//Fecha1
+                row[11] = String.valueOf(crs.getString("entregaCOMCircuito"));//Fecha2
+                row[12] = String.valueOf(crs.getString("entregaPCBFEoGF"));//Fecha3
+                row[13] = String.valueOf(crs.getString("entregaPCBCom"));//Fecha4
+                row[14] = String.valueOf(crs.getString("novedades"));//Novedad
+                row[15] = String.valueOf(crs.getString("estadoEmpresa"));//Estado Proyecto
+                row[16] = String.valueOf(crs.getString("NFEE"));//NFEE
+                //...
+                model.addRow(row);
             }
             //Cantidad de registros
             jTCantidadRegistros.setText(String.valueOf(cantidadRegistros));
             cantidadRegistros = 0;
             crs.close();
             TProyecto.setModel(model);
-            editarColumnasProyecto();
-            FormatoTabla ftProyect = new FormatoTabla(7);
-            TProyecto.setDefaultRenderer(Object.class, ftProyect);
+            // <---- Hasta acá llegue el día de hoy...
+//            editarColumnasProyecto();
+//            FormatoTabla ftProyect = new FormatoTabla(7);
+//            TProyecto.setDefaultRenderer(Object.class, ftProyect);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "¡Error! " + e);
         }

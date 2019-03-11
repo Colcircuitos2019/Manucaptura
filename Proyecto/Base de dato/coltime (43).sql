@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 09-03-2019 a las 17:45:38
+-- Tiempo de generación: 11-03-2019 a las 18:40:11
 -- Versión del servidor: 10.1.29-MariaDB
 -- Versión de PHP: 7.2.0
 
@@ -448,7 +448,7 @@ END$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_ConsultarProcesosProducto` (IN `idCondicional` INT)  NO SQL
 BEGIN
 
-SELECT c.idProceso,c.orden FROM procesos_producto c WHERE c.idCondicion=idCondicional;
+SELECT c.idProceso,c.orden,c.procesoFinal FROM procesos_producto c WHERE c.idCondicion=idCondicional;
 
 END$$
 
@@ -474,56 +474,56 @@ SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p
 
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_ConsultarProyectosEntrega` (IN `orden` INT, IN `nombreC` VARCHAR(45), IN `nombreP` VARCHAR(45), IN `fecha` VARCHAR(10))  NO SQL
+CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_ConsultarProyectosEntrega` (IN `orden` VARCHAR(11), IN `nombreC` VARCHAR(45), IN `nombreP` VARCHAR(45), IN `fecha` VARCHAR(10))  NO SQL
 BEGIN
 
 IF orden='' and nombreC='' and nombreP='' and fecha='' THEN
-SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.FE,p.TE,p.IN,p.ruteoC,p.antisolderC,p.ruteoP,p.antisolderP,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.eliminacion=1;
+SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.eliminacion=1;
 ELSE
   IF orden!='' and nombreC='' and nombreP='' and fecha='' THEN
-SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.FE,p.TE,p.IN,p.ruteoC,p.antisolderC,p.ruteoP,p.antisolderP,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.numero_orden LIKE concat(orden,'%') AND p.eliminacion=1;
+SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.numero_orden LIKE concat(orden,'%') AND p.eliminacion=1;
   ELSE 
     IF orden='' and nombreC!='' and nombreP='' and fecha='' THEN
-SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.FE,p.TE,p.IN,p.ruteoC,p.antisolderC,p.ruteoP,p.antisolderP,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.nombre_cliente LIKE concat(nombreC,'%') AND p.eliminacion=1;
+SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.nombre_cliente LIKE concat(nombreC,'%') AND p.eliminacion=1;
     ELSE
       IF orden='' and nombreC='' and nombreP!='' and fecha='' THEN
-SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.FE,p.TE,p.IN,p.ruteo,p.antisolder,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.nombre_proyecto LIKE concat(nombreP,'%') AND p.eliminacion=1;
+SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,oFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.nombre_proyecto LIKE concat(nombreP,'%') AND p.eliminacion=1;
        ELSE
          IF orden!='' and nombreC!='' and nombreP='' and fecha='' THEN
-SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.FE,p.TE,p.IN,p.ruteoC,p.antisolderC,p.ruteoP,p.antisolderP,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.numero_orden LIKE concat(orden,'%') AND p.nombre_cliente LIKE concat(nombreC,'%') AND p.eliminacion=1;
+SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.numero_orden LIKE concat(orden,'%') AND p.nombre_cliente LIKE concat(nombreC,'%') AND p.eliminacion=1;
 	      ELSE
             IF orden='' and nombreC!='' and nombreP!='' and fecha='' THEN
-SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.FE,p.TE,p.IN,p.ruteoC,p.antisolderC,p.ruteoP,p.antisolderP,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.nombre_cliente LIKE concat(nombreC,'%') AND p.nombre_proyecto LIKE concat(nombreP,'%') AND p.eliminacion=1;
+SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.nombre_cliente LIKE concat(nombreC,'%') AND p.nombre_proyecto LIKE concat(nombreP,'%') AND p.eliminacion=1;
             ELSE
               IF orden!='' and nombreC='' and nombreP!='' and fecha='' THEN
-SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.FE,p.TE,p.IN,p.ruteoC,p.antisolderC,p.ruteoP,p.antisolderP,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.numero_orden LIKE concat(orden,'%') AND p.nombre_proyecto LIKE concat(nombreP,'%') and 
+SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.numero_orden LIKE concat(orden,'%') AND p.nombre_proyecto LIKE concat(nombreP,'%') and 
 p.eliminacion=1;
               ELSE 
                 IF orden!='' and nombreC!='' and nombreP!='' and fecha='' THEN
-SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.FE,p.TE,p.IN,p.ruteoC,p.antisolderC,p.ruteoP,p.antisolderP,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.numero_orden LIKE concat(orden,'%') AND p.nombre_cliente LIKE concat(nombreC,'%') AND p.nombre_proyecto LIKE concat(nombreP,'%') AND p.eliminacion=1;
+SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.numero_orden LIKE concat(orden,'%') AND p.nombre_cliente LIKE concat(nombreC,'%') AND p.nombre_proyecto LIKE concat(nombreP,'%') AND p.eliminacion=1;
                 ELSE
                   IF orden='' and nombreC='' and nombreP='' and fecha!='' THEN
-SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.FE,p.TE,p.IN,p.ruteoC,p.antisolderC,p.ruteoP,p.antisolderP,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE DATE_FORMAT(p.fecha_entrega,'%Y-%m-%d')=fecha AND p.eliminacion=1;
+SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE DATE_FORMAT(p.fecha_entrega,'%Y-%m-%d')=fecha AND p.eliminacion=1;
 				  ELSE
                     IF orden!='' and nombreC='' and nombreP='' and fecha!='' THEN
-SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.FE,p.TE,p.IN,p.ruteoC,p.antisolderC,p.ruteoP,p.antisolderP,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.numero_orden LIKE concat(orden,'%') AND DATE_FORMAT(p.fecha_entrega,'%Y-%m-%d')=fecha AND p.eliminacion=1;
+SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.numero_orden LIKE concat(orden,'%') AND DATE_FORMAT(p.fecha_entrega,'%Y-%m-%d')=fecha AND p.eliminacion=1;
  					ELSE
                       IF orden='' and nombreC!='' and nombreP='' and fecha!='' THEN
-SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.FE,p.TE,p.IN,p.ruteoC,p.antisolderC,p.ruteoP,p.antisolderP,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.nombre_cliente LIKE concat(nombreC,'%') AND DATE_FORMAT(p.fecha_entrega,'%Y-%m-%d')=fecha AND p.eliminacion=1;                     					  ELSE
+SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.nombre_cliente LIKE concat(nombreC,'%') AND DATE_FORMAT(p.fecha_entrega,'%Y-%m-%d')=fecha AND p.eliminacion=1;                     					  ELSE
 					     IF orden='' and nombreC='' and nombreP!='' and fecha!='' THEN
-SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.FE,p.TE,p.IN,p.ruteoC,p.antisolderC,p.ruteoP,p.antisolderP,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.nombre_proyecto LIKE concat(nombreP,'%') AND DATE_FORMAT(p.fecha_entrega,'%Y-%m-%d')=fecha AND p.eliminacion=1;  
+SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.nombre_proyecto LIKE concat(nombreP,'%') AND DATE_FORMAT(p.fecha_entrega,'%Y-%m-%d')=fecha AND p.eliminacion=1;  
                           ELSE
                             IF orden!='' and nombreC!='' and nombreP='' and fecha!='' THEN
-SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.FE,p.TE,p.IN,p.ruteoC,p.antisolderC,p.ruteoP,p.antisolderP,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.nombre_cliente LIKE concat(nombreC,'%') AND p.numero_orden LIKE concat(orden,'%') AND DATE_FORMAT(p.fecha_entrega,'%Y-%m-%d')=fecha AND p.eliminacion=1;  
+SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.nombre_cliente LIKE concat(nombreC,'%') AND p.numero_orden LIKE concat(orden,'%') AND DATE_FORMAT(p.fecha_entrega,'%Y-%m-%d')=fecha AND p.eliminacion=1;  
 						     ELSE
                                IF orden!='' and nombreC='' and nombreP!='' and fecha!='' THEN
-SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.FE,p.TE,p.IN,p.ruteoC,p.antisolderC,p.ruteoP,p.antisolderP,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.nombre_proyecto LIKE concat(nombreP,'%') AND p.numero_orden LIKE concat(orden,'%') AND DATE_FORMAT(p.fecha_entrega,'%Y-%m-%d')=fecha AND p.eliminacion=1;  
+SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.nombre_proyecto LIKE concat(nombreP,'%') AND p.numero_orden LIKE concat(orden,'%') AND DATE_FORMAT(p.fecha_entrega,'%Y-%m-%d')=fecha AND p.eliminacion=1;  
                                ELSE
                                  IF orden='' and nombreC!='' and nombreP!='' and fecha!='' THEN
-SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.FE,p.TE,p.IN,p.ruteoC,p.antisolderC,p.ruteoP,p.antisolderP,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.nombre_cliente LIKE concat(nombreC,'%') AND p.nombre_proyecto LIKE concat(nombreP,'%') AND DATE_FORMAT(p.fecha_entrega,'%Y-%m-%d')=fecha AND p.eliminacion=1;
+SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.nombre_cliente LIKE concat(nombreC,'%') AND p.nombre_proyecto LIKE concat(nombreP,'%') AND DATE_FORMAT(p.fecha_entrega,'%Y-%m-%d')=fecha AND p.eliminacion=1;
                                  ELSE
                                    IF orden!='' and nombreC!='' and nombreP!='' and fecha!='' THEN 
-SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.FE,p.TE,p.IN,p.ruteoC,p.antisolderC,p.ruteoP,p.antisolderP,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.numero_orden LIKE concat(orden,'%') AND p.nombre_cliente LIKE concat(nombreC,'%') AND p.nombre_proyecto LIKE concat(nombreP,'%') AND DATE_FORMAT(p.fecha_entrega,'%Y-%m-%d')=fecha AND p.eliminacion=1;                                   
+SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.numero_orden LIKE concat(orden,'%') AND p.nombre_cliente LIKE concat(nombreC,'%') AND p.nombre_proyecto LIKE concat(nombreP,'%') AND DATE_FORMAT(p.fecha_entrega,'%Y-%m-%d')=fecha AND p.eliminacion=1;                                   
                                    END IF;
                                  END IF;
                                END IF;
@@ -542,55 +542,55 @@ SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p
 END IF;
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_ConsultarProyectosIngreso` (IN `orden` INT, IN `nombreC` VARCHAR(45), IN `nombreP` VARCHAR(45), IN `fecha` VARCHAR(10))  NO SQL
+CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_ConsultarProyectosIngreso` (IN `orden` VARCHAR(11), IN `nombreC` VARCHAR(45), IN `nombreP` VARCHAR(45), IN `fecha` VARCHAR(10))  NO SQL
 BEGIN 
 
 IF orden='' and nombreC='' and nombreP='' and fecha='' THEN
-SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.FE,p.TE,p.IN,p.ruteoC,p.antisolderC,p.ruteoP,p.antisolderP,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.eliminacion=1; 
+SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.eliminacion=1; 
 ELSE
   IF orden!='' and nombreC='' and nombreP='' and fecha='' THEN
-SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.FE,p.TE,p.IN,p.ruteoC,p.antisolderC,p.ruteoP,p.antisolderP,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.numero_orden LIKE concat(orden,'%') AND p.eliminacion=1;
+SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.numero_orden LIKE concat(orden,'%') AND p.eliminacion=1;
   ELSE 
     IF orden='' and nombreC!='' and nombreP='' and fecha='' THEN
-SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.FE,p.TE,p.IN,p.ruteoC,p.antisolderC,p.ruteoP,p.antisolderP,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.nombre_cliente LIKE concat(nombreC,'%') AND p.eliminacion=1;
+SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.nombre_cliente LIKE concat(nombreC,'%') AND p.eliminacion=1;
     ELSE
       IF orden='' and nombreC='' and nombreP!='' and fecha='' THEN
-SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.FE,p.TE,p.IN,p.ruteoC,p.antisolderC,p.ruteoP,p.antisolderP,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.nombre_proyecto LIKE concat(nombreP,'%') AND p.eliminacion=1;
+SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.nombre_proyecto LIKE concat(nombreP,'%') AND p.eliminacion=1;
        ELSE
          IF orden!='' and nombreC!='' and nombreP='' and fecha='' THEN
-SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.FE,p.TE,p.IN,p.ruteoC,p.antisolderC,p.ruteoP,p.antisolderP,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.numero_orden LIKE concat(orden,'%') AND p.nombre_cliente LIKE concat(nombreC,'%') AND p.eliminacion=1;
+SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.numero_orden LIKE concat(orden,'%') AND p.nombre_cliente LIKE concat(nombreC,'%') AND p.eliminacion=1;
 	      ELSE
             IF orden='' and nombreC!='' and nombreP!='' and fecha='' THEN
-SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.FE,p.TE,p.IN,p.ruteoC,p.antisolderC,p.ruteoP,p.antisolderP,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.nombre_cliente LIKE concat(nombreC,'%') AND p.nombre_proyecto LIKE concat(nombreP,'%') AND p.eliminacion=1;
+SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.nombre_cliente LIKE concat(nombreC,'%') AND p.nombre_proyecto LIKE concat(nombreP,'%') AND p.eliminacion=1;
             ELSE
               IF orden!='' and nombreC='' and nombreP!='' and fecha='' THEN
-SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.FE,p.TE,p.IN,p.ruteoC,p.antisolderC,p.ruteoP,p.antisolderP,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.numero_orden LIKE concat(orden,'%') AND p.nombre_proyecto LIKE concat(nombreP,'%') AND p.eliminacion=1;
+SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.numero_orden LIKE concat(orden,'%') AND p.nombre_proyecto LIKE concat(nombreP,'%') AND p.eliminacion=1;
               ELSE
                 IF orden!='' and nombreC!='' and nombreP!='' and fecha='' THEN
-SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.FE,p.TE,p.IN,p.ruteoC,p.antisolderC,p.ruteoP,p.antisolderP,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.numero_orden LIKE concat(orden,'%') AND p.nombre_cliente LIKE concat(nombreC,'%') AND p.nombre_proyecto LIKE concat(nombreP,'%') AND p.eliminacion=1;
+SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.numero_orden LIKE concat(orden,'%') AND p.nombre_cliente LIKE concat(nombreC,'%') AND p.nombre_proyecto LIKE concat(nombreP,'%') AND p.eliminacion=1;
                 ELSE
                   IF orden='' and nombreC='' and nombreP='' and fecha!='' THEN
-SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.FE,p.TE,p.IN,p.ruteoC,p.antisolderC,p.ruteoP,p.antisolderP,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE DATE_FORMAT(p.fecha_ingreso,'%Y-%m-%d')=fecha AND p.eliminacion=1;
+SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE DATE_FORMAT(p.fecha_ingreso,'%Y-%m-%d')=fecha AND p.eliminacion=1;
 				  ELSE
                     IF orden!='' and nombreC='' and nombreP='' and fecha!='' THEN
-SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.FE,p.TE,p.IN,p.ruteoC,p.antisolderC,p.ruteoP,p.antisolderP,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.numero_orden LIKE concat(orden,'%') AND DATE_FORMAT(p.fecha_ingreso,'%Y-%m-%d')=fecha AND p.eliminacion=1;
+SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.numero_orden LIKE concat(orden,'%') AND DATE_FORMAT(p.fecha_ingreso,'%Y-%m-%d')=fecha AND p.eliminacion=1;
  					ELSE
                       IF orden='' and nombreC!='' and nombreP='' and fecha!='' THEN
-SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.FE,p.TE,p.IN,p.ruteoC,p.antisolderC,p.ruteoP,p.antisolderP,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.nombre_cliente LIKE concat(nombreC,'%') AND DATE_FORMAT(p.fecha_ingreso,'%Y-%m-%d')=fecha AND p.eliminacion=1;                     					  ELSE
+SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.nombre_cliente LIKE concat(nombreC,'%') AND DATE_FORMAT(p.fecha_ingreso,'%Y-%m-%d')=fecha AND p.eliminacion=1;                     					  ELSE
 					     IF orden='' and nombreC='' and nombreP!='' and fecha!='' THEN
-SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.FE,p.TE,p.IN,p.ruteoC,p.antisolderC,p.ruteoP,p.antisolderP,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.nombre_proyecto LIKE concat(nombreP,'%') AND DATE_FORMAT(p.fecha_ingreso,'%Y-%m-%d')=fecha AND p.eliminacion=1;  
+SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.nombre_proyecto LIKE concat(nombreP,'%') AND DATE_FORMAT(p.fecha_ingreso,'%Y-%m-%d')=fecha AND p.eliminacion=1;  
                           ELSE
                             IF orden!='' and nombreC!='' and nombreP='' and fecha!='' THEN
-SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.FE,p.TE,p.IN,p.ruteoC,p.antisolderC,p.ruteoP,p.antisolderP,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.nombre_cliente LIKE concat(nombreC,'%') AND p.numero_orden LIKE concat(orden,'%') AND DATE_FORMAT(p.fecha_ingreso,'%Y-%m-%d')=fecha AND p.eliminacion=1;  
+SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.nombre_cliente LIKE concat(nombreC,'%') AND p.numero_orden LIKE concat(orden,'%') AND DATE_FORMAT(p.fecha_ingreso,'%Y-%m-%d')=fecha AND p.eliminacion=1;  
 						     ELSE
                                IF orden!='' and nombreC='' and nombreP!='' and fecha!='' THEN
-SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.FE,p.TE,p.IN,p.ruteoC,p.antisolderC,p.ruteoP,p.antisolderP,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.nombre_proyecto LIKE concat(nombreP,'%') AND p.numero_orden LIKE concat(orden,'%') AND DATE_FORMAT(p.fecha_ingreso,'%Y-%m-%d')=fecha AND p.eliminacion=1;  
+SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.nombre_proyecto LIKE concat(nombreP,'%') AND p.numero_orden LIKE concat(orden,'%') AND DATE_FORMAT(p.fecha_ingreso,'%Y-%m-%d')=fecha AND p.eliminacion=1;  
                                ELSE
                                  IF orden='' and nombreC!='' and nombreP!='' and fecha!='' THEN
-SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.FE,p.TE,p.IN,p.ruteoC,p.antisolderC,p.ruteoP,p.antisolderP,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.nombre_cliente LIKE concat(nombreC,'%') AND p.nombre_proyecto LIKE concat(nombreP,'%') AND DATE_FORMAT(p.fecha_ingreso,'%Y-%m-%d')=fecha AND p.eliminacion=1;
+SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.nombre_cliente LIKE concat(nombreC,'%') AND p.nombre_proyecto LIKE concat(nombreP,'%') AND DATE_FORMAT(p.fecha_ingreso,'%Y-%m-%d')=fecha AND p.eliminacion=1;
                                  ELSE
                                    IF orden!='' and nombreC!='' and nombreP!='' and fecha!='' THEN 
-SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.FE,p.TE,p.IN,p.ruteoC,p.antisolderC,p.ruteoP,p.antisolderP,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.numero_orden LIKE concat(orden,'%') AND p.nombre_cliente LIKE concat(nombreC,'%') AND p.nombre_proyecto LIKE concat(nombreP,'%') AND DATE_FORMAT(p.fecha_ingreso,'%Y-%m-%d')=fecha AND p.eliminacion=1;                                   
+SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.numero_orden LIKE concat(orden,'%') AND p.nombre_cliente LIKE concat(nombreC,'%') AND p.nombre_proyecto LIKE concat(nombreP,'%') AND DATE_FORMAT(p.fecha_ingreso,'%Y-%m-%d')=fecha AND p.eliminacion=1;                                   
                                    END IF;
                                  END IF;
                                END IF;
@@ -609,55 +609,55 @@ SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p
 END IF;
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_ConsultarProyectosSalida` (IN `orden` INT, IN `nombreC` VARCHAR(45), IN `nombreP` VARCHAR(45), IN `fecha` VARCHAR(10))  NO SQL
+CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_ConsultarProyectosSalida` (IN `orden` VARCHAR(11), IN `nombreC` VARCHAR(45), IN `nombreP` VARCHAR(45), IN `fecha` VARCHAR(10))  NO SQL
 BEGIN
 
 IF orden='' and nombreC='' and nombreP='' and fecha='' THEN
-SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.FE,p.TE,p.IN,p.ruteoC,p.antisolderC,p.ruteoP,p.antisolderP,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.eliminacion=1;
+SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.eliminacion=1;
 ELSE
   IF orden!='' and nombreC='' and nombreP='' and fecha='' THEN
-SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.FE,p.TE,p.IN,p.ruteoC,p.antisolderC,p.ruteoP,p.antisolderP,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.numero_orden LIKE concat(orden,'%') AND p.eliminacion=1;
+SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.numero_orden LIKE concat(orden,'%') AND p.eliminacion=1;
   ELSE 
     IF orden='' and nombreC!='' and nombreP='' and fecha='' THEN
-SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.FE,p.TE,p.IN,p.ruteoC,p.antisolderC,p.ruteoP,p.antisolderP,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.nombre_cliente LIKE concat(nombreC,'%') AND p.eliminacion=1;
+SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.nombre_cliente LIKE concat(nombreC,'%') AND p.eliminacion=1;
     ELSE
       IF orden='' and nombreC='' and nombreP!='' and fecha='' THEN
-SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.FE,p.TE,p.IN,p.ruteoC,p.antisolderC,p.ruteoP,p.antisolderP,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.nombre_proyecto LIKE concat(nombreP,'%') AND p.eliminacion=1;
+SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.nombre_proyecto LIKE concat(nombreP,'%') AND p.eliminacion=1;
        ELSE
          IF orden!='' and nombreC!='' and nombreP='' and fecha='' THEN
-SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.FE,p.TE,p.IN,p.ruteoC,p.antisolderC,p.ruteoP,p.antisolderP,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.numero_orden LIKE concat(orden,'%') AND p.nombre_cliente LIKE concat(nombreC,'%') AND p.eliminacion=1;
+SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.numero_orden LIKE concat(orden,'%') AND p.nombre_cliente LIKE concat(nombreC,'%') AND p.eliminacion=1;
 	      ELSE
             IF orden='' and nombreC!='' and nombreP!='' and fecha='' THEN
-SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.FE,p.TE,p.IN,p.ruteoC,p.antisolderC,p.ruteoP,p.antisolderP,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.nombre_cliente LIKE concat(nombreC,'%') AND p.nombre_proyecto LIKE concat(nombreP,'%') AND p.eliminacion=1;
+SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.nombre_cliente LIKE concat(nombreC,'%') AND p.nombre_proyecto LIKE concat(nombreP,'%') AND p.eliminacion=1;
             ELSE
               IF orden!='' and nombreC='' and nombreP!='' and fecha='' THEN
-SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.FE,p.TE,p.IN,p.ruteoC,p.antisolderC,p.ruteoP,p.antisolderP,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.numero_orden LIKE concat(orden,'%') AND p.nombre_proyecto LIKE concat(nombreP,'%') AND p.eliminacion=1;
+SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.numero_orden LIKE concat(orden,'%') AND p.nombre_proyecto LIKE concat(nombreP,'%') AND p.eliminacion=1;
               ELSE
                 IF orden!='' and nombreC!='' and nombreP!='' and fecha='' THEN
-SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.FE,p.TE,p.IN,p.ruteoC,p.antisolderC,p.ruteoP,p.antisolderP,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.numero_orden LIKE concat(orden,'%') AND p.nombre_cliente LIKE concat(nombreC,'%') AND p.nombre_proyecto LIKE concat(nombreP,'%') AND p.eliminacion=1;
+SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.numero_orden LIKE concat(orden,'%') AND p.nombre_cliente LIKE concat(nombreC,'%') AND p.nombre_proyecto LIKE concat(nombreP,'%') AND p.eliminacion=1;
                 ELSE
                   IF orden='' and nombreC='' and nombreP='' and fecha!='' THEN
-SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.FE,p.TE,p.IN,p.ruteoC,p.antisolderC,p.ruteoP,p.antisolderP,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE DATE_FORMAT(p.fecha_salidal,'%Y-%m-%d')=fecha AND p.eliminacion=1;
+SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE DATE_FORMAT(p.fecha_salidal,'%Y-%m-%d')=fecha AND p.eliminacion=1;
 				  ELSE
                     IF orden!='' and nombreC='' and nombreP='' and fecha!='' THEN
-SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.FE,p.TE,p.IN,p.ruteoC,p.antisolderC,p.ruteoP,p.antisolderP,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.numero_orden LIKE concat(orden,'%') AND DATE_FORMAT(p.fecha_salidal,'%Y-%m-%d')=fecha AND p.eliminacion=1;
+SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.numero_orden LIKE concat(orden,'%') AND DATE_FORMAT(p.fecha_salidal,'%Y-%m-%d')=fecha AND p.eliminacion=1;
  					ELSE
                       IF orden='' and nombreC!='' and nombreP='' and fecha!='' THEN
-SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.FE,p.TE,p.IN,p.ruteoC,p.antisolderC,p.ruteoP,p.antisolderP,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.nombre_cliente LIKE concat(nombreC,'%') AND DATE_FORMAT(p.fecha_salidal,'%Y-%m-%d')=fecha AND p.eliminacion=1;                     					  ELSE
+SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.nombre_cliente LIKE concat(nombreC,'%') AND DATE_FORMAT(p.fecha_salidal,'%Y-%m-%d')=fecha AND p.eliminacion=1;                     					  ELSE
 					     IF orden='' and nombreC='' and nombreP!='' and fecha!='' THEN
-SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.FE,p.TE,p.IN,p.ruteoC,p.antisolderC,p.ruteoP,p.antisolderP,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.nombre_proyecto LIKE concat(nombreP,'%') AND DATE_FORMAT(p.fecha_salidal,'%Y-%m-%d')=fecha AND p.eliminacion=1;  
+SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.nombre_proyecto LIKE concat(nombreP,'%') AND DATE_FORMAT(p.fecha_salidal,'%Y-%m-%d')=fecha AND p.eliminacion=1;  
                           ELSE
                             IF orden!='' and nombreC!='' and nombreP='' and fecha!='' THEN
-SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.FE,p.TE,p.IN,p.ruteoC,p.antisolderC,p.ruteoP,p.antisolderP,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.nombre_cliente LIKE concat(nombreC,'%') AND p.numero_orden LIKE concat(orden,'%') AND DATE_FORMAT(p.fecha_salidal,'%Y-%m-%d')=fecha AND p.eliminacion=1;  
+SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.nombre_cliente LIKE concat(nombreC,'%') AND p.numero_orden LIKE concat(orden,'%') AND DATE_FORMAT(p.fecha_salidal,'%Y-%m-%d')=fecha AND p.eliminacion=1;  
 						     ELSE
                                IF orden!='' and nombreC='' and nombreP!='' and fecha!='' THEN
-SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.FE,p.TE,p.IN,p.ruteoC,p.antisolderC,p.ruteoP,p.antisolderP,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.nombre_proyecto LIKE concat(nombreP,'%') AND p.numero_orden LIKE concat(orden,'%') AND DATE_FORMAT(p.fecha_salidal,'%Y-%m-%d')=fecha AND p.eliminacion=1;  
+SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.nombre_proyecto LIKE concat(nombreP,'%') AND p.numero_orden LIKE concat(orden,'%') AND DATE_FORMAT(p.fecha_salidal,'%Y-%m-%d')=fecha AND p.eliminacion=1;  
                                ELSE
                                  IF orden='' and nombreC!='' and nombreP!='' and fecha!='' THEN
-SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.FE,p.TE,p.IN,p.ruteoC,p.antisolderC,p.ruteoP,p.antisolderP,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.nombre_cliente LIKE concat(nombreC,'%') AND p.nombre_proyecto LIKE concat(nombreP,'%') AND DATE_FORMAT(p.fecha_salidal,'%Y-%m-%d')=fecha AND p.eliminacion=1;
+SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.nombre_cliente LIKE concat(nombreC,'%') AND p.nombre_proyecto LIKE concat(nombreP,'%') AND DATE_FORMAT(p.fecha_salidal,'%Y-%m-%d')=fecha AND p.eliminacion=1;
                                  ELSE
                                    IF orden!='' and nombreC!='' and nombreP!='' and fecha!='' THEN 
-SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.FE,p.TE,p.IN,p.ruteoC,p.antisolderC,p.ruteoP,p.antisolderP,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.numero_orden LIKE concat(orden,'%') AND p.nombre_cliente LIKE concat(nombreC,'%') AND p.nombre_proyecto LIKE concat(nombreP,'%') AND DATE_FORMAT(p.fecha_salidal,'%Y-%m-%d')=fecha AND p.eliminacion=1;                                   
+SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as     ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.numero_orden LIKE concat(orden,'%') AND p.nombre_cliente LIKE concat(nombreC,'%') AND p.nombre_proyecto LIKE concat(nombreP,'%') AND DATE_FORMAT(p.fecha_salidal,'%Y-%m-%d')=fecha AND p.eliminacion=1;                                   
                                    END IF;
                                  END IF;
                                END IF;
@@ -1745,7 +1745,7 @@ SELECT 1 AS respuesta;
 
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_RegistrarProcesosProductoFE` (IN `idProceso` INT, IN `idDetalleProyecto` INT, IN `ordenEjecucion` TINYINT, IN `area` TINYINT(1))  NO SQL
+CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_RegistrarProcesosProductos` (IN `idProceso` INT, IN `idDetalleProyecto` INT, IN `ordenEjecucion` TINYINT, IN `area` TINYINT(1), IN `procesoFinal` TINYINT)  NO SQL
 BEGIN
 #
 IF area = 1 THEN # Formato estandar
@@ -1764,11 +1764,11 @@ ELSE
 
 	IF area = 2 THEN # Teclados
     
-    INSERT INTO `detalle_teclados`(`idDetalle_proyecto`, `idproceso`, `orden`, `cantidadProceso`) VALUES (idDetalleProyecto, idProceso, ordenEjecucion, 0);
+    	INSERT INTO `detalle_teclados`(`idDetalle_proyecto`, `idproceso`, `orden`, `cantidadProceso`,`proceso_final`) VALUES (idDetalleProyecto, idProceso, ordenEjecucion, 0, procesoFinal);
     
     ELSE # Ensamble
     
-    INSERT INTO `detalle_ensamble`(`idDetalle_proyecto`, `idproceso`, `orden`, `cantidadProceso`) VALUES (idDetalleProyecto, idProceso, ordenEjecucion, 0);
+    	INSERT INTO `detalle_ensamble`(`idDetalle_proyecto`, `idproceso`, `orden`, `cantidadProceso`,`proceso_final`) VALUES (idDetalleProyecto, idProceso, ordenEjecucion, 0, procesoFinal);
     
     END IF;
 
@@ -2327,24 +2327,19 @@ END IF;
 
 END$$
 
-CREATE DEFINER=`root`@`localhost` FUNCTION `FU_RegistrarModificarProyecto` (`doc` VARCHAR(13), `cliente` VARCHAR(150), `proyecto` VARCHAR(150), `tipo` VARCHAR(6), `fe` TINYINT(1), `te` TINYINT(1), `inte` TINYINT(1), `pcbfe` TINYINT(1), `pcbte` TINYINT(1), `conv` TINYINT(1), `rep` TINYINT(1), `tro` TINYINT(1), `st` TINYINT(1), `lexan` TINYINT(1), `entrega` VARCHAR(11), `ruteo` TINYINT(1), `anti` TINYINT(1), `norden` INT, `op` TINYINT(1), `ruteoP` TINYINT(1), `antiP` TINYINT(1), `fecha1` VARCHAR(11), `fecha2` VARCHAR(11), `fecha3` VARCHAR(11), `fecha4` VARCHAR(11), `novedad` VARCHAR(250), `estadopro` VARCHAR(13), `nfee` VARCHAR(11)) RETURNS TINYINT(11) NO SQL
+CREATE DEFINER=`root`@`localhost` FUNCTION `FU_RegistrarModificarProyecto` (`norden` VARCHAR(11), `doc` VARCHAR(13), `cliente` VARCHAR(150), `proyecto` VARCHAR(150), `tipo` VARCHAR(6), `entrega` VARCHAR(11), `accion` TINYINT(1), `fecha1` VARCHAR(11), `fecha2` VARCHAR(11), `fecha3` VARCHAR(11), `fecha4` VARCHAR(11), `novedad` VARCHAR(250), `estadopro` VARCHAR(13), `nfee` VARCHAR(11)) RETURNS TINYINT(11) NO SQL
 BEGIN
-DECLARE nov varchar(250);
 
-IF novedad='' THEN
- SET nov='';
-ELSE 
- SET nov=novedad;
+IF accion = 1 THEN # Registrar
+
+	INSERT INTO `proyecto`(`numero_orden`,`usuario_numero_documento`, `nombre_cliente`, `nombre_proyecto`, `tipo_proyecto`, `fecha_ingreso`, `fecha_entrega`, `estado`,`entregaCircuitoFEoGF`,`entregaCOMCircuito`,`entregaPCBFEoGF`,`entregaPCBCom`) VALUES (norden, doc, cliente, proyecto, tipo, (SELECT now()), entrega,1, fecha1, fecha2, fecha3, fecha4); 
+
+ELSE # Modificar
+	 UPDATE `proyecto` SET `nombre_cliente`=cliente, `nombre_proyecto`=proyecto, `tipo_proyecto`=tipo, `fecha_entrega`=entrega, `entregaCircuitoFEoGF`=fecha1, `entregaCOMCircuito`=fecha2, `entregaPCBFEoGF`=fecha3, `entregaPCBCom`=fecha4, `novedades`=novedad, `estadoEmpresa`=estadopro, `NFEE`=nfee WHERE numero_orden=norden;
+
 END IF;
 
-IF op=1 THEN
-
-INSERT INTO `proyecto`(`numero_orden`,`usuario_numero_documento`, `nombre_cliente`, `nombre_proyecto`, `tipo_proyecto`, `FE`, `TE`, `IN`, `pcb_FE`, `pcb_TE`, `Conversor`, `Repujado`, `troquel`, `stencil`, `lexan`, `fecha_ingreso`, `fecha_entrega`, `ruteoC`, `antisolderC`, `estado`,`ruteoP`,`antisolderP`,`entregaCircuitoFEoGF`,`entregaCOMCircuito`,`entregaPCBFEoGF`,`entregaPCBCom`) VALUES (norden,doc,cliente,proyecto,tipo,fe,te,inte,pcbfe,pcbte,conv,rep,tro,st,lexan,(SELECT now()),entrega,ruteo,anti,1,ruteoP,antiP,fecha1,fecha2,fecha3,fecha4); 
 RETURN 1;
-ELSE 
- UPDATE `proyecto` SET `nombre_cliente`=cliente,`nombre_proyecto`=proyecto,`tipo_proyecto`=tipo,`FE`=fe,`TE`=te,`IN`=inte,`pcb_FE`=pcbfe,`pcb_TE`=pcbte,`Conversor`=conv,`Repujado`=rep,`troquel`=tro,`stencil`=st,`lexan`=lexan,`fecha_entrega`=entrega,`ruteoC`=ruteo,`antisolderC`=anti,`ruteoP`=ruteoP,`antisolderP`=antiP,`entregaCircuitoFEoGF`=fecha1,`entregaCOMCircuito`=fecha2,`entregaPCBFEoGF`=fecha3,`entregaPCBCom`=fecha4,`novedades`=nov,`estadoEmpresa`=estadopro,`NFEE`=nfee WHERE numero_orden=norden;
-RETURN 1;
-END IF;
 
 END$$
 
@@ -2674,26 +2669,27 @@ CREATE TABLE `detalle_ensamble` (
   `hora_terminacion` varchar(19) DEFAULT NULL,
   `noperarios` tinyint(2) NOT NULL DEFAULT '0',
   `orden` tinyint(2) NOT NULL DEFAULT '0',
-  `cantidadProceso` varchar(10) NOT NULL DEFAULT '0'
+  `cantidadProceso` varchar(10) NOT NULL DEFAULT '0',
+  `proceso_final` tinyint(1) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Volcado de datos para la tabla `detalle_ensamble`
 --
 
-INSERT INTO `detalle_ensamble` (`idDetalle_ensamble`, `tiempo_por_unidad`, `tiempo_total_por_proceso`, `cantidad_terminada`, `fecha_inicio`, `fecha_fin`, `idDetalle_proyecto`, `idproceso`, `estado`, `hora_ejecucion`, `hora_terminacion`, `noperarios`, `orden`, `cantidadProceso`) VALUES
-(1, '00:00', '00:00', '0', NULL, NULL, 16, 15, 1, NULL, NULL, 0, 0, '0'),
-(2, '00:00', '00:00', '0', NULL, NULL, 16, 16, 1, NULL, NULL, 0, 0, '0'),
-(3, '00:00', '00:00', '0', NULL, NULL, 16, 17, 1, NULL, NULL, 0, 0, '0'),
-(4, '00:00', '00:00', '0', NULL, NULL, 16, 18, 1, NULL, NULL, 0, 0, '0'),
-(5, '00:00', '00:00', '0', NULL, NULL, 23, 15, 1, NULL, NULL, 0, 0, '0'),
-(6, '00:00', '00:00', '0', NULL, NULL, 23, 16, 1, NULL, NULL, 0, 0, '0'),
-(7, '00:00', '00:00', '0', NULL, NULL, 23, 17, 1, NULL, NULL, 0, 0, '0'),
-(8, '00:00', '00:00', '0', NULL, NULL, 23, 18, 1, NULL, NULL, 0, 0, '0'),
-(9, '00:00', '00:00', '0', NULL, NULL, 27, 15, 1, NULL, NULL, 0, 0, '0'),
-(10, '00:00', '00:00', '0', NULL, NULL, 27, 16, 1, NULL, NULL, 0, 0, '0'),
-(11, '00:00', '00:00', '0', NULL, NULL, 27, 17, 1, NULL, NULL, 0, 0, '0'),
-(12, '00:00', '00:00', '0', NULL, NULL, 27, 18, 1, NULL, NULL, 0, 0, '0');
+INSERT INTO `detalle_ensamble` (`idDetalle_ensamble`, `tiempo_por_unidad`, `tiempo_total_por_proceso`, `cantidad_terminada`, `fecha_inicio`, `fecha_fin`, `idDetalle_proyecto`, `idproceso`, `estado`, `hora_ejecucion`, `hora_terminacion`, `noperarios`, `orden`, `cantidadProceso`, `proceso_final`) VALUES
+(1, '00:00', '00:00', '0', NULL, NULL, 14, 15, 1, NULL, NULL, 0, 0, '0', 0),
+(2, '00:00', '00:00', '0', NULL, NULL, 14, 16, 1, NULL, NULL, 0, 0, '0', 0),
+(3, '00:00', '00:00', '0', NULL, NULL, 14, 17, 1, NULL, NULL, 0, 0, '0', 0),
+(4, '00:00', '00:00', '0', NULL, NULL, 14, 18, 1, NULL, NULL, 0, 0, '0', 1),
+(5, '00:00', '00:00', '0', NULL, NULL, 16, 15, 1, NULL, NULL, 0, 0, '0', 0),
+(6, '00:00', '00:00', '0', NULL, NULL, 16, 16, 1, NULL, NULL, 0, 0, '0', 0),
+(7, '00:00', '00:00', '0', NULL, NULL, 16, 17, 1, NULL, NULL, 0, 0, '0', 0),
+(8, '00:00', '00:00', '0', NULL, NULL, 16, 18, 1, NULL, NULL, 0, 0, '0', 1),
+(9, '00:00', '00:00', '0', NULL, NULL, 20, 15, 1, NULL, NULL, 0, 0, '0', 0),
+(10, '00:00', '00:00', '0', NULL, NULL, 20, 16, 1, NULL, NULL, 0, 0, '0', 0),
+(11, '00:00', '00:00', '0', NULL, NULL, 20, 17, 1, NULL, NULL, 0, 0, '0', 0),
+(12, '00:00', '00:00', '0', NULL, NULL, 20, 18, 1, NULL, NULL, 0, 0, '0', 1);
 
 -- --------------------------------------------------------
 
@@ -2723,79 +2719,52 @@ CREATE TABLE `detalle_formato_estandar` (
 --
 
 INSERT INTO `detalle_formato_estandar` (`idDetalle_formato_estandar`, `tiempo_por_unidad`, `tiempo_total_por_proceso`, `cantidad_terminada`, `fecha_inicio`, `fecha_fin`, `idDetalle_proyecto`, `idproceso`, `estado`, `hora_ejecucion`, `hora_terminacion`, `noperarios`, `orden`, `cantidadProceso`) VALUES
-(1, '00:00', '00:00', '0', NULL, NULL, 4, 1, 1, NULL, NULL, 0, 1, '15'),
-(2, '00:00', '00:00', '0', NULL, NULL, 4, 2, 1, NULL, NULL, 0, 2, '0'),
-(3, '00:00', '00:00', '0', NULL, NULL, 4, 3, 1, NULL, NULL, 0, 3, '0'),
-(4, '00:00', '00:00', '0', NULL, NULL, 4, 4, 1, NULL, NULL, 0, 4, '0'),
-(5, '00:00', '00:00', '0', NULL, NULL, 4, 5, 1, NULL, NULL, 0, 5, '0'),
-(6, '00:00', '00:00', '0', NULL, NULL, 4, 6, 1, NULL, NULL, 0, 6, '0'),
-(7, '00:00', '00:00', '0', NULL, NULL, 4, 7, 1, NULL, NULL, 0, 7, '0'),
-(8, '00:00', '00:00', '0', NULL, NULL, 4, 8, 1, NULL, NULL, 0, 8, '0'),
-(9, '00:00', '00:00', '0', NULL, NULL, 4, 9, 1, NULL, NULL, 0, 9, '0'),
-(10, '00:00', '00:00', '0', NULL, NULL, 4, 10, 1, NULL, NULL, 0, 10, '0'),
-(12, '00:00', '00:00', '0', NULL, NULL, 7, 1, 1, NULL, NULL, 0, 1, '15'),
-(13, '00:00', '00:00', '0', NULL, NULL, 7, 2, 1, NULL, NULL, 0, 2, '0'),
-(14, '00:00', '00:00', '0', NULL, NULL, 7, 3, 1, NULL, NULL, 0, 3, '0'),
-(15, '00:00', '00:00', '0', NULL, NULL, 7, 4, 1, NULL, NULL, 0, 4, '0'),
-(16, '00:00', '00:00', '0', NULL, NULL, 7, 5, 1, NULL, NULL, 0, 5, '0'),
-(17, '00:00', '00:00', '0', NULL, NULL, 7, 6, 1, NULL, NULL, 0, 6, '0'),
-(18, '00:00', '00:00', '0', NULL, NULL, 7, 7, 1, NULL, NULL, 0, 7, '0'),
-(19, '00:00', '00:00', '0', NULL, NULL, 7, 8, 1, NULL, NULL, 0, 8, '0'),
-(20, '00:00', '00:00', '0', NULL, NULL, 7, 9, 1, NULL, NULL, 0, 9, '0'),
-(21, '00:00', '00:00', '0', NULL, NULL, 7, 10, 1, NULL, NULL, 0, 10, '0'),
-(22, '00:00', '00:00', '0', NULL, NULL, 10, 1, 1, NULL, NULL, 0, 1, '15'),
-(23, '00:00', '00:00', '0', NULL, NULL, 10, 2, 1, NULL, NULL, 0, 2, '0'),
-(24, '00:00', '00:00', '0', NULL, NULL, 10, 3, 1, NULL, NULL, 0, 3, '0'),
-(25, '00:00', '00:00', '0', NULL, NULL, 10, 4, 1, NULL, NULL, 0, 4, '0'),
-(26, '00:00', '00:00', '0', NULL, NULL, 10, 5, 1, NULL, NULL, 0, 5, '0'),
-(27, '00:00', '00:00', '0', NULL, NULL, 10, 6, 1, NULL, NULL, 0, 6, '0'),
-(28, '00:00', '00:00', '0', NULL, NULL, 10, 7, 1, NULL, NULL, 0, 7, '0'),
-(29, '00:00', '00:00', '0', NULL, NULL, 10, 8, 1, NULL, NULL, 0, 8, '0'),
-(30, '00:00', '00:00', '0', NULL, NULL, 10, 9, 1, NULL, NULL, 0, 9, '0'),
-(31, '00:00', '00:00', '0', NULL, NULL, 10, 10, 1, NULL, NULL, 0, 10, '0'),
-(32, '00:00', '00:00', '0', NULL, NULL, 12, 1, 1, NULL, NULL, 0, 1, '15'),
-(33, '00:00', '00:00', '0', NULL, NULL, 12, 2, 1, NULL, NULL, 0, 2, '0'),
-(34, '00:00', '00:00', '0', NULL, NULL, 12, 3, 1, NULL, NULL, 0, 3, '0'),
-(35, '00:00', '00:00', '0', NULL, NULL, 12, 4, 1, NULL, NULL, 0, 4, '0'),
-(36, '00:00', '00:00', '0', NULL, NULL, 12, 5, 1, NULL, NULL, 0, 5, '0'),
-(37, '00:00', '00:00', '0', NULL, NULL, 12, 6, 1, NULL, NULL, 0, 6, '0'),
-(38, '00:00', '00:00', '0', NULL, NULL, 12, 7, 1, NULL, NULL, 0, 7, '0'),
-(39, '00:00', '00:00', '0', NULL, NULL, 12, 8, 1, NULL, NULL, 0, 8, '0'),
-(40, '00:00', '00:00', '0', NULL, NULL, 12, 9, 1, NULL, NULL, 0, 9, '0'),
-(41, '00:00', '00:00', '0', NULL, NULL, 12, 10, 1, NULL, NULL, 0, 10, '0'),
-(42, '00:00', '00:00', '0', NULL, NULL, 17, 1, 1, NULL, NULL, 0, 1, '20'),
-(43, '00:00', '00:00', '0', NULL, NULL, 17, 3, 1, NULL, NULL, 0, 2, '0'),
-(44, '00:00', '00:00', '0', NULL, NULL, 17, 4, 1, NULL, NULL, 0, 3, '0'),
-(45, '00:00', '00:00', '0', NULL, NULL, 17, 5, 1, NULL, NULL, 0, 4, '0'),
-(46, '00:00', '00:00', '0', NULL, NULL, 17, 7, 1, NULL, NULL, 0, 5, '0'),
-(47, '00:00', '00:00', '0', NULL, NULL, 17, 8, 1, NULL, NULL, 0, 6, '0'),
-(48, '00:00', '00:00', '0', NULL, NULL, 17, 9, 1, NULL, NULL, 0, 7, '0'),
-(49, '00:00', '00:00', '0', NULL, NULL, 17, 10, 1, NULL, NULL, 0, 8, '0'),
-(50, '00:00', '00:00', '0', NULL, NULL, 18, 1, 1, NULL, NULL, 0, 2, '25'),
-(51, '00:00', '00:00', '0', NULL, NULL, 18, 4, 1, NULL, NULL, 0, 1, '0'),
-(52, '00:00', '00:00', '0', NULL, NULL, 18, 10, 1, NULL, NULL, 0, 3, '0'),
-(53, '00:00', '00:00', '0', NULL, NULL, 19, 1, 1, NULL, NULL, 0, 2, '30'),
-(54, '00:00', '00:00', '0', NULL, NULL, 19, 4, 1, NULL, NULL, 0, 1, '0'),
-(55, '00:00', '00:00', '0', NULL, NULL, 19, 10, 1, NULL, NULL, 0, 3, '0'),
-(56, '00:00', '00:00', '0', NULL, NULL, 20, 1, 1, NULL, NULL, 0, 1, '1'),
-(57, '00:00', '00:00', '0', NULL, NULL, 20, 3, 1, NULL, NULL, 0, 2, '0'),
-(58, '00:00', '00:00', '0', NULL, NULL, 20, 4, 1, NULL, NULL, 0, 3, '0'),
-(59, '00:00', '00:00', '0', NULL, NULL, 20, 5, 1, NULL, NULL, 0, 4, '0'),
-(60, '00:00', '00:00', '0', NULL, NULL, 21, 1, 1, NULL, NULL, 0, 1, '15'),
-(61, '00:00', '00:00', '0', NULL, NULL, 21, 3, 1, NULL, NULL, 0, 2, '0'),
-(62, '00:00', '00:00', '0', NULL, NULL, 21, 4, 1, NULL, NULL, 0, 3, '0'),
-(63, '00:00', '00:00', '0', NULL, NULL, 21, 5, 1, NULL, NULL, 0, 4, '0'),
-(64, '00:00', '00:00', '0', NULL, NULL, 21, 6, 1, NULL, NULL, 0, 5, '0'),
-(65, '00:00', '00:00', '0', NULL, NULL, 21, 7, 1, NULL, NULL, 0, 6, '0'),
-(66, '00:00', '00:00', '0', NULL, NULL, 21, 8, 1, NULL, NULL, 0, 7, '0'),
-(67, '00:00', '00:00', '0', NULL, NULL, 21, 9, 1, NULL, NULL, 0, 8, '0'),
-(68, '00:00', '00:00', '0', NULL, NULL, 21, 10, 1, NULL, NULL, 0, 9, '0'),
-(69, '00:00', '00:00', '0', NULL, NULL, 24, 1, 1, NULL, NULL, 0, 2, '0'),
-(70, '00:00', '00:00', '0', NULL, NULL, 24, 4, 1, NULL, NULL, 0, 1, '10'),
-(71, '00:00', '00:00', '0', NULL, NULL, 24, 10, 1, NULL, NULL, 0, 3, '0'),
-(72, '00:00', '00:00', '0', NULL, NULL, 25, 1, 1, NULL, NULL, 0, 2, '0'),
-(73, '00:00', '00:00', '0', NULL, NULL, 25, 4, 1, NULL, NULL, 0, 1, '10'),
-(74, '00:00', '00:00', '0', NULL, NULL, 25, 10, 1, NULL, NULL, 0, 3, '0');
+(1, '00:00', '00:00', '0', NULL, NULL, 8, 1, 1, NULL, NULL, 0, 1, '10'),
+(2, '00:00', '00:00', '0', NULL, NULL, 8, 3, 1, NULL, NULL, 0, 2, '0'),
+(3, '00:00', '00:00', '0', NULL, NULL, 8, 4, 1, NULL, NULL, 0, 3, '0'),
+(4, '00:00', '00:00', '0', NULL, NULL, 8, 5, 1, NULL, NULL, 0, 4, '0'),
+(5, '00:00', '00:00', '0', NULL, NULL, 8, 7, 1, NULL, NULL, 0, 5, '0'),
+(6, '00:00', '00:00', '0', NULL, NULL, 8, 8, 1, NULL, NULL, 0, 6, '0'),
+(7, '00:00', '00:00', '0', NULL, NULL, 8, 9, 1, NULL, NULL, 0, 7, '0'),
+(8, '00:00', '00:00', '0', NULL, NULL, 8, 10, 1, NULL, NULL, 0, 8, '0'),
+(9, '00:00', '00:00', '0', NULL, NULL, 9, 1, 1, NULL, NULL, 0, 2, '0'),
+(10, '00:00', '00:00', '0', NULL, NULL, 9, 4, 1, NULL, NULL, 0, 1, '10'),
+(11, '00:00', '00:00', '0', NULL, NULL, 9, 10, 1, NULL, NULL, 0, 3, '0'),
+(12, '00:00', '00:00', '0', NULL, NULL, 10, 1, 1, NULL, NULL, 0, 2, '0'),
+(13, '00:00', '00:00', '0', NULL, NULL, 10, 4, 1, NULL, NULL, 0, 1, '2'),
+(14, '00:00', '00:00', '0', NULL, NULL, 10, 10, 1, NULL, NULL, 0, 3, '0'),
+(15, '00:00', '00:00', '0', NULL, NULL, 11, 1, 1, NULL, NULL, 0, 1, '3'),
+(16, '00:00', '00:00', '0', NULL, NULL, 11, 3, 1, NULL, NULL, 0, 2, '0'),
+(17, '00:00', '00:00', '0', NULL, NULL, 11, 4, 1, NULL, NULL, 0, 3, '0'),
+(18, '00:00', '00:00', '0', NULL, NULL, 11, 5, 1, NULL, NULL, 0, 4, '0'),
+(19, '00:00', '00:00', '0', NULL, NULL, 12, 1, 1, NULL, NULL, 0, 1, '4'),
+(20, '00:00', '00:00', '0', NULL, NULL, 12, 3, 1, NULL, NULL, 0, 2, '0'),
+(21, '00:00', '00:00', '0', NULL, NULL, 12, 4, 1, NULL, NULL, 0, 3, '0'),
+(22, '00:00', '00:00', '0', NULL, NULL, 12, 5, 1, NULL, NULL, 0, 4, '0'),
+(23, '00:00', '00:00', '0', NULL, NULL, 12, 6, 1, NULL, NULL, 0, 5, '0'),
+(24, '00:00', '00:00', '0', NULL, NULL, 12, 7, 1, NULL, NULL, 0, 6, '0'),
+(25, '00:00', '00:00', '0', NULL, NULL, 12, 8, 1, NULL, NULL, 0, 7, '0'),
+(26, '00:00', '00:00', '0', NULL, NULL, 12, 9, 1, NULL, NULL, 0, 8, '0'),
+(27, '00:00', '00:00', '0', NULL, NULL, 12, 10, 1, NULL, NULL, 0, 9, '0'),
+(28, '00:00', '00:00', '0', NULL, NULL, 15, 1, 1, NULL, NULL, 0, 1, '10'),
+(29, '00:00', '00:00', '0', NULL, NULL, 15, 3, 1, NULL, NULL, 0, 2, '0'),
+(30, '00:00', '00:00', '0', NULL, NULL, 15, 4, 1, NULL, NULL, 0, 3, '0'),
+(31, '00:00', '00:00', '0', NULL, NULL, 15, 5, 1, NULL, NULL, 0, 4, '0'),
+(32, '00:00', '00:00', '0', NULL, NULL, 15, 7, 1, NULL, NULL, 0, 5, '0'),
+(33, '00:00', '00:00', '0', NULL, NULL, 15, 8, 1, NULL, NULL, 0, 6, '0'),
+(34, '00:00', '00:00', '0', NULL, NULL, 15, 9, 1, NULL, NULL, 0, 7, '0'),
+(35, '00:00', '00:00', '0', NULL, NULL, 15, 10, 1, NULL, NULL, 0, 8, '0'),
+(36, '00:00', '00:00', '0', NULL, NULL, 17, 1, 1, NULL, NULL, 0, 1, '10'),
+(37, '00:00', '00:00', '0', NULL, NULL, 17, 3, 1, NULL, NULL, 0, 2, '0'),
+(38, '00:00', '00:00', '0', NULL, NULL, 17, 4, 1, NULL, NULL, 0, 3, '0'),
+(39, '00:00', '00:00', '0', NULL, NULL, 17, 5, 1, NULL, NULL, 0, 4, '0'),
+(40, '00:00', '00:00', '0', NULL, NULL, 17, 7, 1, NULL, NULL, 0, 5, '0'),
+(41, '00:00', '00:00', '0', NULL, NULL, 17, 8, 1, NULL, NULL, 0, 6, '0'),
+(42, '00:00', '00:00', '0', NULL, NULL, 17, 9, 1, NULL, NULL, 0, 7, '0'),
+(43, '00:00', '00:00', '0', NULL, NULL, 17, 10, 1, NULL, NULL, 0, 8, '0'),
+(44, '00:00', '00:00', '0', NULL, NULL, 18, 1, 1, NULL, NULL, 0, 2, '0'),
+(45, '00:00', '00:00', '0', NULL, NULL, 18, 4, 1, NULL, NULL, 0, 1, '10'),
+(46, '00:00', '00:00', '0', NULL, NULL, 18, 10, 1, NULL, NULL, 0, 3, '0');
 
 -- --------------------------------------------------------
 
@@ -2820,41 +2789,36 @@ CREATE TABLE `detalle_proyecto` (
   `tiempo_total` varchar(20) DEFAULT NULL,
   `Total_timepo_Unidad` varchar(20) DEFAULT NULL,
   `fecha_salida` datetime DEFAULT NULL,
-  `lider_proyecto` varchar(13) DEFAULT NULL
+  `lider_proyecto` varchar(13) DEFAULT NULL,
+  `antisolder` tinyint(1) DEFAULT '0',
+  `ruteo` tinyint(1) DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Volcado de datos para la tabla `detalle_proyecto`
 --
 
-INSERT INTO `detalle_proyecto` (`idDetalle_proyecto`, `idProducto`, `canitadad_total`, `material`, `proyecto_numero_orden`, `idArea`, `estado`, `PNC`, `ubicacion`, `pro_porIniciar`, `pro_Ejecucion`, `pro_Pausado`, `pro_Terminado`, `tiempo_total`, `Total_timepo_Unidad`, `fecha_salida`, `lider_proyecto`) VALUES
-(1, 7, '15', 'TH', 32340, 1, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL),
-(2, 5, '10', NULL, 32340, 2, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL),
-(3, 1, '5', NULL, 32340, 3, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL),
-(4, 7, '15', 'TH', 32341, 1, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL),
-(5, 5, '10', NULL, 32341, 2, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL),
-(6, 1, '5', NULL, 32341, 3, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL),
-(7, 7, '15', 'TH', 32342, 1, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL),
-(8, 5, '10', NULL, 32342, 2, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL),
-(9, 1, '5', NULL, 32342, 3, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL),
-(10, 7, '15', 'TH', 32343, 1, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL),
-(11, 5, '10', NULL, 32343, 2, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL),
-(12, 7, '15', 'TH', 32344, 1, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL),
-(13, 5, '10', NULL, 32344, 2, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL),
-(14, 1, '5', NULL, 32344, 3, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL),
-(15, 1, '5', NULL, 32345, 3, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL),
-(16, 1, '5', NULL, 32346, 3, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL),
-(17, 2, '20', 'FV', 32347, 1, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL),
-(18, 4, '25', 'FV', 32347, 1, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL),
-(19, 3, '30', 'FV', 32347, 1, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL),
-(20, 6, '1', NULL, 32347, 1, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL),
-(21, 7, '15', 'FV', 32347, 1, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL),
-(22, 5, '10', NULL, 32347, 2, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL),
-(23, 1, '5', NULL, 32347, 3, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL),
-(24, 4, '10', 'FV', 32348, 1, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL),
-(25, 3, '10', 'FV', 32348, 1, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL),
-(26, 5, '10', NULL, 32348, 2, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL),
-(27, 1, '5', NULL, 32348, 3, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL);
+INSERT INTO `detalle_proyecto` (`idDetalle_proyecto`, `idProducto`, `canitadad_total`, `material`, `proyecto_numero_orden`, `idArea`, `estado`, `PNC`, `ubicacion`, `pro_porIniciar`, `pro_Ejecucion`, `pro_Pausado`, `pro_Terminado`, `tiempo_total`, `Total_timepo_Unidad`, `fecha_salida`, `lider_proyecto`, `antisolder`, `ruteo`) VALUES
+(1, 2, '1', 'FV', 1, 1, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL, 0, 0),
+(2, 4, '2', 'FV', 1, 1, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL, 0, 0),
+(3, 3, '3', 'FV', 1, 1, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL, 0, 0),
+(4, 6, '4', NULL, 1, 1, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL, 0, 0),
+(5, 7, '6', 'FV', 1, 1, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL, 0, 0),
+(6, 5, '7', NULL, 1, 2, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL, 0, 0),
+(7, 1, '5', NULL, 1, 3, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL, 0, 0),
+(8, 2, '10', 'FV', 2, 1, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL, 0, 0),
+(9, 4, '10', 'FV', 2, 1, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL, 0, 0),
+(10, 3, '2', 'FV', 2, 1, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL, 0, 0),
+(11, 6, '3', NULL, 2, 1, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL, 0, 0),
+(12, 7, '4', 'FV', 2, 1, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL, 0, 0),
+(13, 5, '5', NULL, 2, 2, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL, 0, 0),
+(14, 1, '10', NULL, 2, 3, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL, 0, 0),
+(15, 2, '10', 'FV', 3, 1, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL, 0, 0),
+(16, 1, '5', NULL, 3, 3, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL, 0, 0),
+(17, 2, '10', 'FV', 4, 1, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL, 0, 0),
+(18, 3, '10', 'FV', 4, 1, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL, 0, 0),
+(19, 7, '10', 'FV', 4, 1, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL, 0, 0),
+(20, 1, '10', NULL, 4, 3, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL, 0, 0);
 
 -- --------------------------------------------------------
 
@@ -2876,26 +2840,19 @@ CREATE TABLE `detalle_teclados` (
   `hora_terminacion` varchar(19) DEFAULT NULL,
   `noperarios` tinyint(2) NOT NULL DEFAULT '0',
   `orden` tinyint(2) NOT NULL DEFAULT '0',
-  `cantidadProceso` varchar(10) NOT NULL DEFAULT '0'
+  `cantidadProceso` varchar(10) NOT NULL DEFAULT '0',
+  `proceso_final` tinyint(1) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Volcado de datos para la tabla `detalle_teclados`
 --
 
-INSERT INTO `detalle_teclados` (`idDetalle_teclados`, `tiempo_por_unidad`, `tiempo_total_por_proceso`, `cantidad_terminada`, `fecha_inicio`, `fecha_fin`, `idDetalle_proyecto`, `idproceso`, `estado`, `hora_ejecucion`, `hora_terminacion`, `noperarios`, `orden`, `cantidadProceso`) VALUES
-(2, '00:00', '00:00', '0', NULL, NULL, 13, 11, 1, NULL, NULL, 0, 0, '0'),
-(3, '00:00', '00:00', '0', NULL, NULL, 13, 12, 1, NULL, NULL, 0, 0, '0'),
-(4, '00:00', '00:00', '0', NULL, NULL, 13, 13, 1, NULL, NULL, 0, 0, '0'),
-(5, '00:00', '00:00', '0', NULL, NULL, 13, 14, 1, NULL, NULL, 0, 0, '0'),
-(6, '00:00', '00:00', '0', NULL, NULL, 22, 11, 1, NULL, NULL, 0, 0, '0'),
-(7, '00:00', '00:00', '0', NULL, NULL, 22, 12, 1, NULL, NULL, 0, 0, '0'),
-(8, '00:00', '00:00', '0', NULL, NULL, 22, 13, 1, NULL, NULL, 0, 0, '0'),
-(9, '00:00', '00:00', '0', NULL, NULL, 22, 14, 1, NULL, NULL, 0, 0, '0'),
-(10, '00:00', '00:00', '0', NULL, NULL, 26, 11, 1, NULL, NULL, 0, 0, '0'),
-(11, '00:00', '00:00', '0', NULL, NULL, 26, 12, 1, NULL, NULL, 0, 0, '0'),
-(12, '00:00', '00:00', '0', NULL, NULL, 26, 13, 1, NULL, NULL, 0, 0, '0'),
-(13, '00:00', '00:00', '0', NULL, NULL, 26, 14, 1, NULL, NULL, 0, 0, '0');
+INSERT INTO `detalle_teclados` (`idDetalle_teclados`, `tiempo_por_unidad`, `tiempo_total_por_proceso`, `cantidad_terminada`, `fecha_inicio`, `fecha_fin`, `idDetalle_proyecto`, `idproceso`, `estado`, `hora_ejecucion`, `hora_terminacion`, `noperarios`, `orden`, `cantidadProceso`, `proceso_final`) VALUES
+(1, '00:00', '00:00', '0', NULL, NULL, 13, 11, 1, NULL, NULL, 0, 0, '0', 0),
+(2, '00:00', '00:00', '0', NULL, NULL, 13, 12, 1, NULL, NULL, 0, 0, '0', 0),
+(3, '00:00', '00:00', '0', NULL, NULL, 13, 13, 1, NULL, NULL, 0, 0, '0', 0),
+(4, '00:00', '00:00', '0', NULL, NULL, 13, 14, 1, NULL, NULL, 0, 0, '0', 1);
 
 -- --------------------------------------------------------
 
@@ -2935,7 +2892,7 @@ INSERT INTO `procesos` (`idproceso`, `nombre_proceso`, `estado`, `idArea`) VALUE
 (18, 'Empaque', 1, 3),
 (19, 'Componentes', 1, 4),
 (20, 'GF', 1, 4),
-(21, 'Prueba de FE', 0, 2);
+(21, 'Prueba', 0, 2);
 
 -- --------------------------------------------------------
 
@@ -2960,7 +2917,7 @@ INSERT INTO `procesos_producto` (`idProceso_producto`, `idCondicion`, `orden`, `
 (8, 3, '0', 15, 0),
 (14, 3, '0', 16, 0),
 (15, 3, '0', 17, 0),
-(16, 3, '0', 18, 0),
+(16, 3, '0', 18, 1),
 (17, 1, '1', 1, 0),
 (18, 1, '2', 2, 0),
 (19, 1, '3', 3, 0),
@@ -2974,7 +2931,7 @@ INSERT INTO `procesos_producto` (`idProceso_producto`, `idCondicion`, `orden`, `
 (27, 4, '0', 11, 0),
 (28, 4, '0', 12, 0),
 (29, 4, '0', 13, 0),
-(30, 4, '0', 14, 0),
+(30, 4, '0', 14, 1),
 (31, 2, '2', 2, 0),
 (32, 2, '3', 3, 0),
 (33, 2, '4', 4, 0),
@@ -3160,24 +3117,10 @@ CREATE TABLE `proyecto` (
   `nombre_cliente` varchar(150) DEFAULT NULL,
   `nombre_proyecto` varchar(150) DEFAULT NULL,
   `tipo_proyecto` varchar(6) DEFAULT NULL,
-  `FE` tinyint(1) NOT NULL,
-  `TE` tinyint(1) NOT NULL,
-  `IN` tinyint(1) NOT NULL,
-  `pcb_FE` tinyint(1) NOT NULL,
-  `pcb_TE` tinyint(1) NOT NULL,
-  `Conversor` tinyint(1) NOT NULL,
-  `Repujado` tinyint(1) NOT NULL,
-  `troquel` tinyint(1) NOT NULL,
-  `stencil` tinyint(1) NOT NULL,
-  `lexan` tinyint(1) NOT NULL,
   `fecha_ingreso` datetime NOT NULL,
   `fecha_entrega` date DEFAULT NULL,
   `fecha_salidal` datetime DEFAULT NULL,
-  `ruteoC` tinyint(1) DEFAULT NULL,
-  `antisolderC` tinyint(1) DEFAULT NULL,
   `estado` tinyint(4) NOT NULL,
-  `antisolderP` tinyint(1) DEFAULT NULL,
-  `ruteoP` tinyint(1) DEFAULT NULL,
   `eliminacion` tinyint(1) DEFAULT '1',
   `parada` tinyint(1) DEFAULT '1',
   `entregaCircuitoFEoGF` date DEFAULT NULL,
@@ -3193,16 +3136,11 @@ CREATE TABLE `proyecto` (
 -- Volcado de datos para la tabla `proyecto`
 --
 
-INSERT INTO `proyecto` (`numero_orden`, `usuario_numero_documento`, `nombre_cliente`, `nombre_proyecto`, `tipo_proyecto`, `FE`, `TE`, `IN`, `pcb_FE`, `pcb_TE`, `Conversor`, `Repujado`, `troquel`, `stencil`, `lexan`, `fecha_ingreso`, `fecha_entrega`, `fecha_salidal`, `ruteoC`, `antisolderC`, `estado`, `antisolderP`, `ruteoP`, `eliminacion`, `parada`, `entregaCircuitoFEoGF`, `entregaCOMCircuito`, `entregaPCBFEoGF`, `entregaPCBCom`, `novedades`, `estadoEmpresa`, `NFEE`) VALUES
-(32340, '981130', 'Juan David Marulanda', 'Prueba de desarrollo registro de procesos producto', 'Normal', 1, 1, 1, 0, 1, 0, 0, 0, 0, 1, '2019-03-09 10:58:49', '2019-03-01', NULL, 0, 0, 1, 1, 1, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(32341, '981130', 'Juan David Marulanda', 'prueba de desarrollo', 'Normal', 1, 1, 1, 0, 1, 0, 0, 0, 0, 1, '2019-03-09 11:01:48', '2019-03-13', NULL, 0, 0, 1, 1, 1, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(32342, '981130', 'Prueba de desarollo', 'prueba de desarrollo', 'Normal', 1, 1, 1, 0, 1, 0, 0, 0, 0, 1, '2019-03-09 11:07:24', '2019-03-01', NULL, 0, 0, 1, 1, 1, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(32343, '981130', 'Prueba de desarrollo', 'prueba de desarrollo', 'Normal', 1, 1, 1, 0, 1, 0, 0, 0, 0, 1, '2019-03-09 11:12:03', '2019-03-02', NULL, 0, 0, 1, 1, 1, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(32344, '981130', 'Juan david marulanda', 'prueba de desarrollo numero 5', 'Normal', 1, 1, 1, 0, 1, 0, 0, 0, 0, 1, '2019-03-09 11:18:07', '2019-03-15', NULL, 0, 0, 1, 1, 1, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(32345, '981130', 'juan david marulanda', 'prueba de desarrolo numero 6', 'Normal', 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, '2019-03-09 11:21:01', '2019-03-23', NULL, 0, 0, 1, 0, 0, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(32346, '981130', 'juan david marulanda', 'prueba de desarrollo numero 7', 'Normal', 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, '2019-03-09 11:33:36', '2019-03-01', NULL, 0, 0, 1, 0, 0, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(32347, '981130', 'juan david marulanda', 'prueba de desarrollo definitiva ', 'Normal', 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, '2019-03-09 11:37:21', '2019-03-16', NULL, 0, 0, 1, 1, 1, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(32348, '981130', 'Juan David marulanda', 'prueba de desarrollo definitiva 8', 'Normal', 1, 1, 1, 0, 0, 0, 1, 1, 0, 1, '2019-03-09 11:42:19', '2019-03-29', NULL, 0, 0, 1, 0, 0, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `proyecto` (`numero_orden`, `usuario_numero_documento`, `nombre_cliente`, `nombre_proyecto`, `tipo_proyecto`, `fecha_ingreso`, `fecha_entrega`, `fecha_salidal`, `estado`, `eliminacion`, `parada`, `entregaCircuitoFEoGF`, `entregaCOMCircuito`, `entregaPCBFEoGF`, `entregaPCBCom`, `novedades`, `estadoEmpresa`, `NFEE`) VALUES
+(1, '981130', 'Juan david marulanda ', 'prueba de desarrollo numero 1', 'Normal', '2019-03-11 07:59:44', '2019-03-11', NULL, 1, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(2, '981130', 'juan david marulanda', 'prueba de desarrollo numero 2', 'Quick', '2019-03-11 08:12:30', '2019-03-11', NULL, 1, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(3, '981130', 'juan david marulanda', 'prueba de desarrollo numero 3', 'Normal', '2019-03-11 09:10:30', '2019-03-11', NULL, 1, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(4, '981130', 'juan david marulanda', 'prueba de desarrollo numero 7', 'Normal', '2019-03-11 11:42:25', '2019-03-01', NULL, 1, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -3421,19 +3359,19 @@ ALTER TABLE `detalle_ensamble`
 -- AUTO_INCREMENT de la tabla `detalle_formato_estandar`
 --
 ALTER TABLE `detalle_formato_estandar`
-  MODIFY `idDetalle_formato_estandar` smallint(6) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=75;
+  MODIFY `idDetalle_formato_estandar` smallint(6) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=47;
 
 --
 -- AUTO_INCREMENT de la tabla `detalle_proyecto`
 --
 ALTER TABLE `detalle_proyecto`
-  MODIFY `idDetalle_proyecto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
+  MODIFY `idDetalle_proyecto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT de la tabla `detalle_teclados`
 --
 ALTER TABLE `detalle_teclados`
-  MODIFY `idDetalle_teclados` smallint(6) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `idDetalle_teclados` smallint(6) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de la tabla `procesos`
@@ -3457,7 +3395,7 @@ ALTER TABLE `producto`
 -- AUTO_INCREMENT de la tabla `proyecto`
 --
 ALTER TABLE `proyecto`
-  MODIFY `numero_orden` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32349;
+  MODIFY `numero_orden` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- Restricciones para tablas volcadas

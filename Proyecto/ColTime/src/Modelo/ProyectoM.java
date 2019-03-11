@@ -179,45 +179,28 @@ public class ProyectoM {
         return crsP;
     }
 
-    public boolean registrar_Modificar_Proyecto(int norden, String comercial, String cliente, String proyecto, String tipo, boolean fe, boolean te, boolean in, boolean pcbfe,
-            boolean pcbte, boolean conversor, boolean repujado, boolean troquel, boolean stencil, boolean lexan, String fechaEntrega, boolean ruteo, boolean anti,
-            int op, boolean antisolderP, boolean ruteoP, String fechaCircuito1, String fechaCircuito2, String fechaPCB1, String fechaPCB2, String novedades,String estado,String NFEE) {
+    public boolean registrar_Modificar_Proyecto(String num_orden, String comercial, String cliente, String proyecto, String tipo, String fechaEntrega,int accion, String fechaCircuito1, String fechaCircuito2, String fechaPCB1, String fechaPCB2, String novedades, String estado, String nuevaFechaEntrega) {
         try {
             conexion = new Conexion(1);
             conexion.establecerConexion();
             con = conexion.getConexion();
             //Query------------------------------------------------------------>
-            String Qry = " SELECT FU_RegistrarModificarProyecto(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+            String Qry = " SELECT FU_RegistrarModificarProyecto(?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
             ps = con.prepareStatement(Qry);
-            ps.setString(1, comercial);
-            ps.setString(2, cliente);
-            ps.setString(3, proyecto);
-            ps.setString(4, tipo);
-            ps.setBoolean(5, fe);
-            ps.setBoolean(6, te);
-            ps.setBoolean(7, in);
-            ps.setBoolean(8, pcbfe);
-            ps.setBoolean(9, pcbte);
-            ps.setBoolean(10, conversor);
-            ps.setBoolean(11, repujado);
-            ps.setBoolean(12, troquel);
-            ps.setBoolean(13, stencil);
-            ps.setBoolean(14, lexan);
-            ps.setString(15, fechaEntrega);
-            ps.setBoolean(16, ruteo);
-            ps.setBoolean(17, anti);
-            ps.setInt(18, norden);
-            ps.setInt(19, op);//1) Registrar, 2)Modificar
-            ps.setBoolean(20, ruteoP);
-            ps.setBoolean(21, antisolderP);
-            //Fechas de entrega a áreas
-            ps.setString(22, fechaCircuito1);
-            ps.setString(23, fechaCircuito2);
-            ps.setString(24, fechaPCB1);
-            ps.setString(25, fechaPCB2);
-            ps.setString(26, novedades);
-            ps.setString(27, estado);
-            ps.setString(28, NFEE);
+            ps.setString(1, num_orden);
+            ps.setString(2, comercial);
+            ps.setString(3, cliente);
+            ps.setString(4, proyecto);
+            ps.setString(5, tipo);
+            ps.setString(6, fechaEntrega);
+            ps.setInt(7, accion);//1) Registrar, 2)Modificar
+            ps.setString(8, fechaCircuito1);
+            ps.setString(9, fechaCircuito2);
+            ps.setString(10, fechaPCB1);
+            ps.setString(11, fechaPCB2);
+            ps.setString(12, novedades);
+            ps.setString(13, estado);
+            ps.setString(14, nuevaFechaEntrega);
             //Ejecución del Query---------------------------------------------->
             rs = ps.executeQuery();
             if (rs.next()) {
@@ -231,71 +214,7 @@ public class ProyectoM {
             conexion.cerrar(rs);
             ps.close();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "¡Error!" + e);
-        }
-        return res;
-    }
-
-    public boolean registrarDetalleProyectoQRM(int orden, String area, String producto, String Cantidad, String Material, String ruteo, String antisolder) {
-        try {
-            conexion = new Conexion(1);
-            conexion.establecerConexion();
-            con = conexion.getConexion();
-            //Query------------------------------------------------------------>
-            String Qry = "CALL PA_RegistrarDetalleProyectoQR(?,?,?,?,?,?,?)";
-            ps = con.prepareStatement(Qry);
-            ps.setInt(1, orden);
-            ps.setInt(2, nArea(area));
-            ps.setInt(3, nProducto(producto));
-            ps.setString(4, Cantidad);
-            ps.setString(5, Material);
-            ps.setInt(6, (ruteo.equals("SI") ? 1 : 0));
-            ps.setInt(7, (antisolder.equals("SI") ? 1 : 0));
-            rs = ps.executeQuery();
-            rs.next();
-            res = rs.getBoolean(1);
-            if (res) {
-                //Procesos
-                if (area.equals("FE")) {
-                    //Formato estandar
-                    Qry = "CALL PA_RegistrarDetalleFormatoEstandar(?,?,?)";
-                    ps = con.prepareStatement(Qry);
-                    ps.setInt(1, orden);
-                    ps.setInt(2, nProducto(producto));
-                    ps.setString(3, "");
-                    ps.execute();
-                } else if (area.equals("TE")) {
-                    //Teclados
-                    for (int i = 11; i <= 14; i++) {
-                        Qry = "CALL PA_RegistrarDetalleTeclados(?,?,?,?)";
-                        ps = con.prepareStatement(Qry);
-                        ps.setInt(1, i);
-                        ps.setInt(2, orden);
-                        ps.setInt(3, nProducto(producto));
-                        ps.setString(4, "");
-                        ps.execute();
-                    }
-                } else if (area.equals("IN")) {
-                    //Ensamble
-                    for (int i = 15; i <= 21; i++) {
-                        Qry = "CALL PA_RegistrarDetalleEnsamble(?,?,?,?,?)";
-                        ps = con.prepareStatement(Qry);
-                        ps.setInt(1, i);
-                        ps.setInt(2, orden);
-                        ps.setInt(3, nProducto(producto));
-                        ps.setString(4, "");
-                        ps.setInt(5,Integer.parseInt(Cantidad));
-                        ps.execute();
-                    }
-                }
-            }
-            //Cierre de conexiones
-            conexion.cerrar(rs);
-            ps.close();
-            con.close();
-            conexion.destruir();
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "¡Error!" + e);
+            JOptionPane.showMessageDialog(null, "¡Error! Registro Modificacion info_proyecto: " + e);
         }
         return res;
     }
@@ -437,7 +356,8 @@ public class ProyectoM {
         return n;
     }
 
-    public CachedRowSet consultar_Proyecto(int numerOrden, String nombreCliente, String nombreProyecto, String fecha, String TipoFecha) {
+    public CachedRowSet consultar_Proyecto(String numerOrden, String nombreCliente, String nombreProyecto, String fecha, String TipoFecha) {
+        //Pendiente cambiar el tipo de dato el numero de orden en los procedimientos almacenados de la base de datos...<-------
         try {
             conexion = new Conexion(1);
             conexion.establecerConexion();
@@ -460,7 +380,7 @@ public class ProyectoM {
             }
             //...
             ps = con.prepareStatement(Qry);
-            ps.setInt(1, numerOrden);
+            ps.setString(1, numerOrden);
             ps.setString(2, nombreCliente);
             ps.setString(3, nombreProyecto);
             ps.setString(4, fecha);

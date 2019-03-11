@@ -136,7 +136,7 @@ public class DetalleProyectoM {
                     rs = ps.executeQuery();
                     rs.next();
                     res = rs.getBoolean(1);
-                    //Ebadir esta función siemmpre y cuando el negocio sea Almacen.
+                    //Evadir esta función siemmpre y cuando el negocio sea Almacen.
                     //Tipo de negocio
                     int idTipoProducto = 0;
                     if (!area.equals("ALMACEN")) {
@@ -372,12 +372,13 @@ public class DetalleProyectoM {
             rs = ps.executeQuery();
             // ...
             while (rs.next()) { //Registrar los procesos de FE que tendra el producto
-                Qry = "CALL PA_RegistrarProcesosProductoFE(?,?,?,?);";
+                Qry = "CALL PA_RegistrarProcesosProductos(?,?,?,?,?);";
                 ps = con.prepareStatement(Qry);
                 ps.setInt(1, rs.getInt("idProceso"));
                 ps.setInt(2, idDetalleProducto); //idDetalleProyecto
                 ps.setInt(3, rs.getInt("orden"));
                 ps.setInt(4, area);
+                ps.setInt(5, rs.getInt("procesoFinal"));
                 ps.execute();
             }
         } catch (Exception e) {

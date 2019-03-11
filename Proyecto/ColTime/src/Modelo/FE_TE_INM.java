@@ -5,9 +5,7 @@ import java.io.PrintStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.ArrayList;
 import javax.sql.rowset.CachedRowSet;
-import javax.swing.JOptionPane;
 
 public class FE_TE_INM {
 

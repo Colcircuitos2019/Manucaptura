@@ -1,7 +1,6 @@
 package Controlador;
 
 import Modelo.ProyectoM;
-import com.sun.rowset.CachedRowSetImpl;
 import javax.sql.rowset.CachedRowSet;
 
 public class Proyecto {
@@ -11,26 +10,20 @@ public class Proyecto {
 
     }
     //Variables----------------------------------------------------->
-    private CachedRowSet crsP = null;
     //Atributos de la clase proyecto-------------------------------->
-    private int idOrden;
-    private String nombreCliente = "";
-    private String nombreProyecto = "";
-    private String tipoProyecto = "";
-    private String negocio = "";
-    private String fecha = "";
-    private boolean FE = false;
-    private boolean TE = false;
-    private boolean IN = false;
-    private boolean detalles[] = new boolean[9];//Converosr,Repujado
-    private int estado;
-    private String fechaCiccuitoFEoGF = "";
-    private String fechaCiccuitoCOMFEoGF = "";
-    private String fechaPCBFEoGF = "";
-    private String fechaPCBCOMFEoGF = "";
-    private String novedadProyecto = "";
-    private String estadoPRoyecto = "";
-    private String NFEE = "";
+    private String num_orden="", 
+            nombreCliente = "", 
+            nombreProyecto = "",
+            tipoProyecto = "",
+            fecha = "",
+            fechaCiccuitoFEoGF = "",
+            fechaCiccuitoCOMFEoGF = "",
+            fechaPCBFEoGF = "",
+            fechaPCBCOMFEoGF = "",
+            novedadProyecto = "",
+            estadoPRoyecto = "",
+            NFEE = "";
+//    private int areaImplicadas = 0;
     //Get and set------------------------------------------------>
 
     public void setNFEE(String NFEE) {
@@ -45,12 +38,8 @@ public class Proyecto {
         this.novedadProyecto = novedadProyecto;
     }
 
-    public void setCrsP(CachedRowSet crsP) {
-        this.crsP = crsP;
-    }
-
-    public void setIdOrden(int idOrden) {
-        this.idOrden = idOrden;
+    public void setNum_orden(String num_orden) {
+        this.num_orden = num_orden;
     }
 
     public void setNombreCliente(String nombreCliente) {
@@ -65,32 +54,8 @@ public class Proyecto {
         this.tipoProyecto = tipoProyecto;
     }
 
-    public void setNegocio(String negocio) {
-        this.negocio = negocio;
-    }
-
     public void setFecha(String fecha) {
         this.fecha = fecha;
-    }
-
-    public void setFE(boolean FE) {
-        this.FE = FE;
-    }
-
-    public void setTE(boolean TE) {
-        this.TE = TE;
-    }
-
-    public void setIN(boolean IN) {
-        this.IN = IN;
-    }
-
-    public void setDetalles(boolean[] detalles) {
-        this.detalles = detalles;
-    }
-
-    public void setEstado(int estado) {
-        this.estado = estado;
     }
 
     public void setFechaCiccuitoFEoGF(String fechaCiccuitoFEoGF) {
@@ -126,26 +91,11 @@ public class Proyecto {
     }
 
     public boolean registrar_Modificar_Proyecto(String comercial, int op) {
-        ProyectoM obj = new ProyectoM();
-        String nego[] = negocio.split("/");
-        for (int i = 0; i < nego.length; i++) {
-            if (nego[i].equals("FE")) {
-                this.setFE(true);
-            } else if (nego[i].equals("TE")) {
-                this.setTE(true);
-            } else if (nego[i].equals("EN")) {//EN
-                this.setIN(true);
-            }
-        }
-        return obj.registrar_Modificar_Proyecto(idOrden, comercial, nombreCliente, nombreProyecto, tipoProyecto, FE, TE, IN, detalles[0], detalles[1], detalles[2], detalles[3], detalles[4], detalles[5], detalles[6], fecha, detalles[7], detalles[8], op, detalles[9], detalles[10],
-                fechaCiccuitoFEoGF, fechaCiccuitoCOMFEoGF, fechaPCBFEoGF, fechaPCBCOMFEoGF, novedadProyecto, estadoPRoyecto, NFEE);
+        ProyectoM modelo = new ProyectoM();
+        return modelo.registrar_Modificar_Proyecto(num_orden, comercial, nombreCliente, nombreProyecto, tipoProyecto, fecha,op,fechaCiccuitoFEoGF, fechaCiccuitoCOMFEoGF, fechaPCBFEoGF, fechaPCBCOMFEoGF, novedadProyecto, estadoPRoyecto, NFEE);
     }
 
     //Registrar mediante un lector de QR----------------------------------------
-    public boolean registrarDetalleProyectoQR(int orden, String area, String producto, String Cantidad, String Material, String ruteo, String antisolder) {
-        ProyectoM obj = new ProyectoM();
-        return obj.registrarDetalleProyectoQRM(orden, area, producto, Cantidad, Material, ruteo, antisolder);
-    }
 
     public boolean registrarProyectoQR(String infoP[], String comercial) {
         ProyectoM obj = new ProyectoM();
@@ -170,7 +120,7 @@ public class Proyecto {
 
     public CachedRowSet consultar_Proyecto(String tipo) {
         Modelo.ProyectoM obj = new Modelo.ProyectoM();
-        return obj.consultar_Proyecto(idOrden, nombreCliente, nombreProyecto, fecha, tipo);
+        return obj.consultar_Proyecto(num_orden, nombreCliente, nombreProyecto, fecha, tipo);
     }
 
     public CachedRowSet consultar_ProyectoEliminados() {
@@ -201,11 +151,7 @@ public class Proyecto {
         return obj.Consultar_informacion_para_el_QR(orden);
     }
 
-//    public CachedRowSet generar_Reportes() {//Falta generar los reportes
-//        ProyectoM obj=new ProyectoM();
-//        
-//    }
-    public boolean validarNumerOrden(int orden) {
+    public boolean validarExistenciaNumerOrden(int orden) {
         ProyectoM obj = new ProyectoM();
         return obj.validarNumerOrden(orden);
     }

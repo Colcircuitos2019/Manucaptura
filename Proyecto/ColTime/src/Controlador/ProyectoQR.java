@@ -22,7 +22,7 @@ public class ProyectoQR implements Runnable {
     Thread QRProyecto = null;
     public CommPort puerto = null;
     int puertoProyecto = 0;
-    proyecto obj = new proyecto();
+    proyecto viewProyecto = new proyecto();
     SimpleDateFormat formatoDelTexto = new SimpleDateFormat("yyyy/MM/dd");
     Menu menu = new Menu();
     proyecto pro = null;
@@ -56,8 +56,8 @@ public class ProyectoQR implements Runnable {
                     mySP.setSerialPortParams(115200, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
                     mySC = new Scanner(mySP.getInputStream());//Datos de entrada al puerto
                     ErrorConexionPuerto=1;
-                    obj.jLEstado.setText("Activado");
-                    obj.jLEstado.setForeground(new Color(51,204,0));//Green- estos colores pueden ser variables estaticas
+                    viewProyecto.jLEstado.setText("Activado");
+                    viewProyecto.jLEstado.setForeground(new Color(51,204,0));//Green- estos colores pueden ser variables estaticas
                     //----------------------------------------------------------
                     while (true) {
                         while (!mySC.hasNext()) {//Valida la informacion que va a ingresar!!
@@ -95,11 +95,11 @@ public class ProyectoQR implements Runnable {
             }
             //...
             if(puertoProyecto==0){
-                obj.jLEstado.setText("Desactivado");
-                obj.jLEstado.setForeground(new Color(255, 0, 51));//red
-                obj.lector = null;
+                viewProyecto.jLEstado.setText("Desactivado");
+                viewProyecto.jLEstado.setForeground(new Color(255, 0, 51));//red
+                viewProyecto.lector = null;
             }else{
-                obj.lector = null;
+                viewProyecto.lector = null;
             }
         } catch (Exception e) {
             //Error al leer por el puerto serial.
@@ -109,9 +109,9 @@ public class ProyectoQR implements Runnable {
                 JOptionPane.showMessageDialog(null, "El puerto " + menu.puertoActual + " esta abierto, por favor cierrelo para poder realizar la operación.");
             } else {
                 puerto.close();
-                obj.jLEstado.setText("Desactivado");
-                obj.jLEstado.setForeground(new Color(255, 0, 51));//red
-                obj.lector = null;
+                viewProyecto.jLEstado.setText("Desactivado");
+                viewProyecto.jLEstado.setForeground(new Color(255, 0, 51));//red
+                viewProyecto.lector = null;
             } 
         }
 //        return valorQR;
@@ -124,105 +124,103 @@ public class ProyectoQR implements Runnable {
 //      String valor[] = null;
         try {
             //...
-            if (QRProyecto.split(";").length == 26) {//La longitud del vector siempre va a ser 26
+            if (QRProyecto.split(";").length == 26) {//La longitud del vector siempre va a ser 26 <---- LA estructura del QR va a cambiar...
                 //Envio de información...
                 String InformacionProyecto[] = QRProyecto.split(";");
-                obj.jTNorden.setText(InformacionProyecto[0]);//Numero de orden
+                viewProyecto.jTNorden.setText(InformacionProyecto[0]);//Numero de orden
                 String infoC[] = InformacionProyecto[1].split("-");
                 for (int i = 0; i < infoC.length; i++) {
                     nombreCliente += infoC[i] + " ";
                 }
-                obj.jTNombreCliente.setText(nombreCliente);//Nombre del cliente
+                viewProyecto.jTNombreCliente.setText(nombreCliente);//Nombre del cliente
                 nombreCliente = "";
                 String infoP[] = InformacionProyecto[2].split("-");
                 for (int i = 0; i < infoP.length; i++) {
                     nombreCliente += infoP[i] + " ";
                 }
-                obj.jTNombreProyecto.setText(nombreCliente);//Nombre del proyecto
-                obj.cbNegocio.setSelectedItem(InformacionProyecto[3]);//Negocios implicados
-                obj.cbTipo.setSelectedItem(InformacionProyecto[4]);//Tipo de proyecto
-                obj.jDentrega.setDate(formatoDelTexto.parse(InformacionProyecto[5]));//Fecha de entrega al cliente
+                viewProyecto.jTNombreProyecto.setText(nombreCliente);//Nombre del proyecto
+                viewProyecto.cbTipoEjecucion.setSelectedItem(InformacionProyecto[4]);//Tipo de proyecto
+                viewProyecto.jDeEntrega.setDate(formatoDelTexto.parse(InformacionProyecto[5]));//Fecha de entrega al cliente
                 if (!InformacionProyecto[6].equals("null")) {//Conversor
-                    obj.jCConversor.setSelected(true);
-                    obj.jTConversor.setText(InformacionProyecto[6]);
-                    obj.jTConversor.setEnabled(true);
+                    viewProyecto.jCConversor.setSelected(true);
+                    viewProyecto.jTConversor.setText(InformacionProyecto[6]);
+                    viewProyecto.jTConversor.setEnabled(true);
                 }
                 if (!InformacionProyecto[7].equals("null")) {//Troquel
-                    obj.jCTroquel.setSelected(true);
-                    obj.jTTroquel.setText(InformacionProyecto[7]);
-                    obj.jTTroquel.setEnabled(true);
+                    viewProyecto.jCTroquel.setSelected(true);
+                    viewProyecto.jTTroquel.setText(InformacionProyecto[7]);
+                    viewProyecto.jTTroquel.setEnabled(true);
                 }
                 if (!InformacionProyecto[8].equals("null")) {//Repujado
-                    obj.jCRepujado.setSelected(true);
-                    obj.jTRepujado.setText(InformacionProyecto[8]);
-                    obj.jTRepujado.setEnabled(true);
+                    viewProyecto.jCRepujado.setSelected(true);
+                    viewProyecto.jTRepujado.setText(InformacionProyecto[8]);
+                    viewProyecto.jTRepujado.setEnabled(true);
                 }
                 if (!InformacionProyecto[9].equals("null")) {//Stencil
-                    obj.jCStencil.setSelected(true);
-                    obj.jTStencil.setText(InformacionProyecto[9]);
-                    obj.jTStencil.setEnabled(true);
+                    viewProyecto.jCStencil.setSelected(true);
+                    viewProyecto.jTStencil.setText(InformacionProyecto[9]);
+                    viewProyecto.jTStencil.setEnabled(true);
                 }
                 if (!InformacionProyecto[10].equals("null")) {//Circuito de FE
-                    obj.jCCircuito.setSelected(true);
-                    obj.jTCircuito.setText(InformacionProyecto[10]);
-                    obj.jTCircuito.setEnabled(true);
-                    obj.cbMaterialCircuito.setSelectedItem(InformacionProyecto[11]);
-                    obj.cbMaterialCircuito.setEnabled(true);
-                    obj.jCAntisolderC.setSelected(InformacionProyecto[12].toUpperCase().equals("SI"));
-                    obj.jCRuteoC.setSelected(InformacionProyecto[13].toUpperCase().equals("SI"));
+                    viewProyecto.jCCircuito.setSelected(true);
+                    viewProyecto.jTCircuito.setText(InformacionProyecto[10]);
+                    viewProyecto.jTCircuito.setEnabled(true);
+                    viewProyecto.cbMaterialCircuito.setSelectedItem(InformacionProyecto[11]);
+                    viewProyecto.cbMaterialCircuito.setEnabled(true);
+                    viewProyecto.jCAntisolderC.setSelected(InformacionProyecto[12].toUpperCase().equals("SI"));
+                    viewProyecto.jCRuteoC.setSelected(InformacionProyecto[13].toUpperCase().equals("SI"));
                 }
                 if (!InformacionProyecto[14].equals("null")) {//PCB TE
-                    obj.jCPCBTE.setSelected(true);
-                    obj.jTPCBTE.setText(InformacionProyecto[14]);
-                    obj.jTPCBTE.setEnabled(true);
-                    obj.cbMaterialPCBTE.setSelectedItem(InformacionProyecto[15]);
-                    obj.cbMaterialPCBTE.setEnabled(true);
-                    obj.jCAntisolderP.setSelected(InformacionProyecto[16].toUpperCase().equals("SI"));
-                    obj.jCRuteoP.setSelected(InformacionProyecto[17].toUpperCase().equals("SI"));
-                    obj.jRPCBCOM.setSelected(InformacionProyecto[18].toUpperCase().equals("SI"));
-                    obj.jRPCBCOM.setEnabled(true);
-                    obj.jRPIntegracion.setSelected(InformacionProyecto[19].toUpperCase().equals("SI"));
-                    obj.jRPIntegracion.setEnabled(true);
-                    if (obj.jRPCBCOM.isSelected()) {//Componentes de la PCB del teclado
-                        obj.jDFechaEntregaPCBCOMGF.setVisible(true);
+                    viewProyecto.jCPCBTE.setSelected(true);
+                    viewProyecto.jTPCBTE.setText(InformacionProyecto[14]);
+                    viewProyecto.jTPCBTE.setEnabled(true);
+                    viewProyecto.cbMaterialPCBTE.setSelectedItem(InformacionProyecto[15]);
+                    viewProyecto.cbMaterialPCBTE.setEnabled(true);
+                    viewProyecto.jCAntisolderP.setSelected(InformacionProyecto[16].toUpperCase().equals("SI"));
+                    viewProyecto.jCRuteoP.setSelected(InformacionProyecto[17].toUpperCase().equals("SI"));
+                    viewProyecto.jRPCBCOM.setSelected(InformacionProyecto[18].toUpperCase().equals("SI"));
+                    viewProyecto.jRPCBCOM.setEnabled(true);
+                    viewProyecto.jRPIntegracion.setSelected(InformacionProyecto[19].toUpperCase().equals("SI"));
+                    viewProyecto.jRPIntegracion.setEnabled(true);
+                    if (viewProyecto.jRPCBCOM.isSelected()) {//Componentes de la PCB del teclado
+                        viewProyecto.jDFechaEntregaPCBCOMGF.setVisible(true);
                         if (!InformacionProyecto[25].equals("null")) {
-                            obj.jDFechaEntregaPCBCOMGF.setDate(formatoDelTexto.parse(InformacionProyecto[25]));//Fecha de entrega de componentes de la PCB_TE:
+                            viewProyecto.jDFechaEntregaPCBCOMGF.setDate(formatoDelTexto.parse(InformacionProyecto[25]));//Fecha de entrega de componentes de la PCB_TE:
                         }
-                        obj.jLpcbGF.setVisible(true);
+                        viewProyecto.jLpcbGF.setVisible(true);
                     }
-                    if (obj.jRPIntegracion.isSelected()) {//Integración de la PCB del teclado 
-                        obj.jDFechaEntregaPCBGF.setVisible(true);
+                    if (viewProyecto.jRPIntegracion.isSelected()) {//Integración de la PCB del teclado 
+                        viewProyecto.jDFechaEntregaPCBGF.setVisible(true);
                         if (!InformacionProyecto[24].equals("null")) {
-                            obj.jDFechaEntregaPCBGF.setDate(formatoDelTexto.parse(InformacionProyecto[24]));//Fecha de entrega de la PCB_TE(TH,FV,GF)a ensamble:
+                            viewProyecto.jDFechaEntregaPCBGF.setDate(formatoDelTexto.parse(InformacionProyecto[24]));//Fecha de entrega de la PCB_TE(TH,FV,GF)a ensamble:
                         }
-                        obj.jLCircuitoGF.setVisible(true);
+                        viewProyecto.jLCircuitoGF.setVisible(true);
                     }
                 }
                 if (!InformacionProyecto[20].equals("null")) {//Teclado
-                    obj.jCTeclado.setSelected(true);
-                    obj.jTTeclado.setText(InformacionProyecto[20]);
-                    obj.jTTeclado.setEnabled(true);
+                    viewProyecto.jCTeclado.setSelected(true);
+                    viewProyecto.jTTeclado.setText(InformacionProyecto[20]);
+                    viewProyecto.jTTeclado.setEnabled(true);
                 }
                 if (!InformacionProyecto[21].equals("null")) {//Ensamble
-                    obj.jCIntegracion.setSelected(true);
-                    obj.jTIntegracion.setText(InformacionProyecto[21]);
-                    obj.jTIntegracion.setEnabled(true);
+                    viewProyecto.jCIntegracion.setSelected(true);
+                    viewProyecto.jTIntegracion.setText(InformacionProyecto[21]);
+                    viewProyecto.jTIntegracion.setEnabled(true);
                 }
-                if (obj.jCCircuito.isSelected() && obj.jCIntegracion.isSelected()) {//Esto se le conoce como integración.
-                    obj.jLComCircuitos.setVisible(true);
+                if (viewProyecto.jCCircuito.isSelected() && viewProyecto.jCIntegracion.isSelected()) {//Esto se le conoce como integración.(Una parte se encarga FE y otra parte se encarga EN)
+                    viewProyecto.jLComCircuitos.setVisible(true);
                     if (!InformacionProyecto[23].equals("null")) {
-                        obj.jDFechaEntregaFECOM.setDate(formatoDelTexto.parse(InformacionProyecto[23]));//Fecha de entrega de los componentes del circuito_FE:
+                        viewProyecto.jDFechaEntregaFECOM.setDate(formatoDelTexto.parse(InformacionProyecto[23]));//Fecha de entrega de los componentes del circuito_FE:
                     }
-                    obj.jDFechaEntregaFECOM.setVisible(true);
-                    obj.jLCircuitoFE.setVisible(true); 
+                    viewProyecto.jDFechaEntregaFECOM.setVisible(true);
+                    viewProyecto.jLCircuitoFE.setVisible(true); 
                     if (!InformacionProyecto[22].equals("null")) {
-                        obj.jDFechaEntregaFE.setDate(formatoDelTexto.parse(InformacionProyecto[22]));//Fecha de entrega del Circuito_FE(TH,FV,GF) a ensamble:
+                        viewProyecto.jDFechaEntregaFE.setDate(formatoDelTexto.parse(InformacionProyecto[22]));//Fecha de entrega del Circuito_FE(TH,FV,GF) a ensamble:
                     }
-                    obj.jDFechaEntregaFE.setVisible(true);
+                    viewProyecto.jDFechaEntregaFE.setVisible(true);
                 }
-                if (obj.jTNombreCliente.getText().length() > 0 && obj.jTNombreProyecto.getText().length() > 0 && obj.jDentrega.getDate() != null && !obj.cbNegocio.getSelectedItem().toString().equals("Seleccione...")
-                        && !obj.cbTipo.getSelectedItem().toString().equals("Seleccione...")) {
-                    obj.btnGuardar.setEnabled(true);
+                if (viewProyecto.jTNombreCliente.getText().length() > 0 && viewProyecto.jTNombreProyecto.getText().length() > 0 && viewProyecto.jDeEntrega.getDate() != null && !(viewProyecto.cbTipoEjecucion.getSelectedIndex() == 0)) {
+                    viewProyecto.btnGuardar.setEnabled(true);
                 }
                 //Me va a guardar directamente la informacion del proyecto
 //                obj.accionBtnGuardarProyecto();
@@ -234,7 +232,7 @@ public class ProyectoQR implements Runnable {
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "Error: " + e);
         }
-        obj.lector = null;
+        viewProyecto.lector = null;
         //Fin de la lectura del Código QR del proyecto.
     }
 
