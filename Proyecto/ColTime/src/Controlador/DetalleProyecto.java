@@ -99,9 +99,14 @@ public class DetalleProyecto {
     }
 
     //Consulta los detalles del proyecto
-    public CachedRowSet consultar_Detalle_Proyecto(String numerOrden, int estado) {
+    public CachedRowSet consultar_Detalle_Proyecto(String numerOrden) {
         DetalleProyectoM obj = new DetalleProyectoM();
-        return obj.consultar_Detalle_Proyecto(numerOrden, estado);
+        return obj.consultar_Detalle_Proyecto(numerOrden);
+    }
+    
+    public CachedRowSet consultarProcesosProducto(Object idDetalleProducto, Object area) {
+        DetalleProyectoM modelo = new DetalleProyectoM();
+        return modelo.consultarProcesosProductoM(String.valueOf(idDetalleProducto), String.valueOf(area));
     }
 
     //Consulta solo los procesos de  FE(Formato estandar).

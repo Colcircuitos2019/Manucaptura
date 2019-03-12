@@ -359,13 +359,13 @@ public class ConsultarPNC extends javax.swing.JFrame {
         return obj.consultarProcesosFE(detalle);
     }
 
-    private void consutarDetalle() {
+    private void consutarDetalle() {//<----- esto es posible que se pueda eliminar
         String encabezado1[] = {"idDetalle", "Negocio", "Tipo de negocio", "Cantidad", "Estado", "Material", "Ubicacion"};
         DefaultTableModel model1 = new DefaultTableModel(null, encabezado1);
         String v1[] = new String[7];
         try {
             DetalleProyecto obj = new DetalleProyecto();
-            crs = obj.consultar_Detalle_Proyecto(jTNorden.getText(), 1);
+            crs = obj.consultar_Detalle_Proyecto(jTNorden.getText());
             while (crs.next()) {
                 if (vista == 1) {
                     if (!crs.getBoolean(6)) {

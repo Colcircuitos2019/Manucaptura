@@ -54,7 +54,7 @@ public class Render extends DefaultTableCellRenderer {
                     btn.setActionCommand("1");//1
                 }
             }
-
+            // ...
             if (isSelected) {
                 btn.setForeground(table.getSelectionForeground());
                 btn.setBackground(table.getSelectionBackground());

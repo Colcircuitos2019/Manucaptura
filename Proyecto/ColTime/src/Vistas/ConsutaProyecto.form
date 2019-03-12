@@ -37,7 +37,7 @@
           <Group type="102" alignment="0" attributes="0">
               <Component id="jPEncabezado" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="jPanel4" pref="633" max="32767" attributes="0"/>
+              <Component id="jPanel4" pref="642" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -150,7 +150,7 @@
               <Color blue="83" green="80" red="80" type="rgb"/>
             </Property>
             <Property name="horizontalAlignment" type="int" value="0"/>
-            <Property name="text" type="java.lang.String" value="Tipo:"/>
+            <Property name="text" type="java.lang.String" value="-"/>
           </Properties>
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
@@ -412,7 +412,6 @@
               </Properties>
               <Events>
                 <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="jRSalidaMouseClicked"/>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jRSalidaActionPerformed"/>
               </Events>
               <Constraints>
                 <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
@@ -589,7 +588,7 @@
                       <Color blue="83" green="80" red="80" type="rgb"/>
                     </Property>
                     <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
-                      <Table columnCount="14" rowCount="4">
+                      <Table columnCount="17" rowCount="4">
                         <Column editable="true" title="Orden &#xb0;N" type="java.lang.Object"/>
                         <Column editable="true" title="Registro de" type="java.lang.Object"/>
                         <Column editable="true" title="Nombre Cliente" type="java.lang.Object"/>
@@ -598,32 +597,31 @@
                         <Column editable="true" title="Fecha Entrega" type="java.lang.Object"/>
                         <Column editable="true" title="Fecha Salida" type="java.lang.Object"/>
                         <Column editable="true" title="Estado" type="java.lang.Object"/>
-                        <Column editable="true" title="Tipo" type="java.lang.Object"/>
-                        <Column editable="true" title="FE" type="java.lang.Object"/>
-                        <Column editable="true" title="TE" type="java.lang.Object"/>
-                        <Column editable="true" title="IN" type="java.lang.Object"/>
-                        <Column editable="true" title="Ruteo" type="java.lang.Object"/>
-                        <Column editable="true" title="Antisolder" type="java.lang.Object"/>
+                        <Column editable="true" title="Tipo ejecucion" type="java.lang.Object"/>
+                        <Column editable="true" title="Parada" type="java.lang.Object"/>
+                        <Column editable="true" title="fecha1" type="java.lang.Object"/>
+                        <Column editable="true" title="fecha2" type="java.lang.Object"/>
+                        <Column editable="true" title="fecha3" type="java.lang.Object"/>
+                        <Column editable="true" title="fecha4" type="java.lang.Object"/>
+                        <Column editable="true" title="novedades" type="java.lang.Object"/>
+                        <Column editable="true" title="EstadoProyecto" type="java.lang.Object"/>
+                        <Column editable="true" title="NFEE" type="java.lang.Object"/>
                       </Table>
                     </Property>
                     <Property name="fillsViewportHeight" type="boolean" value="true"/>
                     <Property name="focusTraversalPolicyProvider" type="boolean" value="true"/>
-                    <Property name="gridColor" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                      <Color blue="ff" green="ff" red="ff" type="rgb"/>
-                    </Property>
                     <Property name="intercellSpacing" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
                       <Dimension value="[0, 0]"/>
                     </Property>
                     <Property name="name" type="java.lang.String" value="Proyecto" noResource="true"/>
                     <Property name="requestFocusEnabled" type="boolean" value="false"/>
-                    <Property name="rowHeight" type="int" value="17"/>
+                    <Property name="rowHeight" type="int" value="18"/>
                     <Property name="selectionBackground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                       <Color blue="ff" green="b3" red="3f" type="rgb"/>
                     </Property>
                     <Property name="selectionModel" type="javax.swing.ListSelectionModel" editor="org.netbeans.modules.form.editors2.JTableSelectionModelEditor">
                       <JTableSelectionModel selectionMode="0"/>
                     </Property>
-                    <Property name="showHorizontalLines" type="boolean" value="false"/>
                     <Property name="showVerticalLines" type="boolean" value="false"/>
                   </Properties>
                   <Events>
@@ -679,7 +677,7 @@
             </Property>
             <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
               <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-                <TitledBorder title="PNC">
+                <TitledBorder title="Procesos">
                   <Border PropertyName="innerBorder" info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
                     <TitledBorder>
                       <Color PropertyName="color" blue="99" green="99" red="99" type="rgb"/>
@@ -711,7 +709,7 @@
 
               <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
               <SubComponents>
-                <Component class="javax.swing.JTable" name="TPNC">
+                <Component class="javax.swing.JTable" name="jTProcesoProducto">
                   <Properties>
                     <Property name="autoCreateRowSorter" type="boolean" value="true"/>
                     <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
@@ -721,13 +719,12 @@
                       <Color blue="83" green="80" red="80" type="rgb"/>
                     </Property>
                     <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
-                      <Table columnCount="6" rowCount="4">
-                        <Column editable="true" title="idDetalle" type="java.lang.Object"/>
-                        <Column editable="true" title="Negocio" type="java.lang.Object"/>
-                        <Column editable="true" title="Tipo de negocio" type="java.lang.Object"/>
-                        <Column editable="true" title="Cantidad" type="java.lang.Object"/>
-                        <Column editable="true" title="Ubicaci&#xf3;n" type="java.lang.Object"/>
+                      <Table columnCount="5" rowCount="0">
+                        <Column editable="true" title="idProceso" type="java.lang.Object"/>
+                        <Column editable="true" title="Nombre" type="java.lang.Object"/>
                         <Column editable="true" title="Estado" type="java.lang.Object"/>
+                        <Column editable="true" title="Tiempo" type="java.lang.Object"/>
+                        <Column editable="true" title="Cantidad" type="java.lang.Object"/>
                       </Table>
                     </Property>
                     <Property name="columnModel" type="javax.swing.table.TableColumnModel" editor="org.netbeans.modules.form.editors2.TableColumnModelEditor">
@@ -777,17 +774,17 @@
                     <Property name="fillsViewportHeight" type="boolean" value="true"/>
                     <Property name="focusTraversalPolicyProvider" type="boolean" value="true"/>
                     <Property name="focusable" type="boolean" value="false"/>
-                    <Property name="gridColor" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                      <Color blue="ff" green="ff" red="ff" type="rgb"/>
-                    </Property>
                     <Property name="intercellSpacing" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
                       <Dimension value="[0, 0]"/>
                     </Property>
                     <Property name="name" type="java.lang.String" value="Detalle" noResource="true"/>
+                    <Property name="rowHeight" type="int" value="18"/>
                     <Property name="selectionBackground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                       <Color blue="ff" green="b3" red="3f" type="rgb"/>
                     </Property>
-                    <Property name="showHorizontalLines" type="boolean" value="false"/>
+                    <Property name="selectionModel" type="javax.swing.ListSelectionModel" editor="org.netbeans.modules.form.editors2.JTableSelectionModelEditor">
+                      <JTableSelectionModel selectionMode="0"/>
+                    </Property>
                     <Property name="showVerticalLines" type="boolean" value="false"/>
                     <Property name="tableHeader" type="javax.swing.table.JTableHeader" editor="org.netbeans.modules.form.editors2.JTableHeaderEditor">
                       <TableHeader reorderingAllowed="true" resizingAllowed="true"/>
@@ -795,7 +792,7 @@
                   </Properties>
                   <AuxValues>
                     <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new javax.swing.JTable()"/>
-                    <AuxValue name="JavaCodeGenerator_InitCodePre" type="java.lang.String" value="TPNC = new javax.swing.JTable(){&#xa;    public boolean isCellEditable(int rowIndex, int colIndex) {&#xa;        return false; //Disallow the editing of any cell&#xa;    }&#xa;};"/>
+                    <AuxValue name="JavaCodeGenerator_InitCodePre" type="java.lang.String" value="jTProcesoProducto = new javax.swing.JTable(){&#xa;    public boolean isCellEditable(int rowIndex, int colIndex) {&#xa;        return false; //Disallow the editing of any cell&#xa;    }&#xa;};"/>
                   </AuxValues>
                 </Component>
               </SubComponents>
@@ -809,7 +806,7 @@
             </Property>
             <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
               <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-                <TitledBorder title="Detalles delproyecto">
+                <TitledBorder title="Detalle del proyecto - Productos">
                   <Border PropertyName="innerBorder" info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
                     <TitledBorder>
                       <Color PropertyName="color" blue="99" green="99" red="99" type="rgb"/>
@@ -841,7 +838,7 @@
 
               <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
               <SubComponents>
-                <Component class="javax.swing.JTable" name="TDetalle">
+                <Component class="javax.swing.JTable" name="jTDetalleProductos">
                   <Properties>
                     <Property name="autoCreateRowSorter" type="boolean" value="true"/>
                     <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
@@ -851,34 +848,38 @@
                       <Color blue="83" green="80" red="80" type="rgb"/>
                     </Property>
                     <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
-                      <Table columnCount="6" rowCount="4">
+                      <Table columnCount="7" rowCount="0">
                         <Column editable="true" title="idDetalle" type="java.lang.Object"/>
-                        <Column editable="true" title="Negocio" type="java.lang.Object"/>
-                        <Column editable="true" title="Tipo de negocio" type="java.lang.Object"/>
+                        <Column editable="true" title="&#xc1;rea" type="java.lang.Object"/>
+                        <Column editable="true" title="Producto" type="java.lang.Object"/>
                         <Column editable="true" title="Cantidad" type="java.lang.Object"/>
                         <Column editable="true" title="Estado" type="java.lang.Object"/>
                         <Column editable="true" title="Material" type="java.lang.Object"/>
+                        <Column editable="true" title="PNC" type="java.lang.Object"/>
                       </Table>
                     </Property>
                     <Property name="fillsViewportHeight" type="boolean" value="true"/>
                     <Property name="focusTraversalPolicyProvider" type="boolean" value="true"/>
                     <Property name="focusable" type="boolean" value="false"/>
-                    <Property name="gridColor" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                      <Color blue="ff" green="ff" red="ff" type="rgb"/>
-                    </Property>
                     <Property name="intercellSpacing" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
                       <Dimension value="[0, 0]"/>
                     </Property>
                     <Property name="name" type="java.lang.String" value="Detalle" noResource="true"/>
+                    <Property name="rowHeight" type="int" value="18"/>
                     <Property name="selectionBackground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                       <Color blue="ff" green="b3" red="3f" type="rgb"/>
                     </Property>
-                    <Property name="showHorizontalLines" type="boolean" value="false"/>
+                    <Property name="selectionModel" type="javax.swing.ListSelectionModel" editor="org.netbeans.modules.form.editors2.JTableSelectionModelEditor">
+                      <JTableSelectionModel selectionMode="0"/>
+                    </Property>
                     <Property name="showVerticalLines" type="boolean" value="false"/>
                   </Properties>
+                  <Events>
+                    <EventHandler event="mouseReleased" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="jTDetalleProductosMouseReleased"/>
+                  </Events>
                   <AuxValues>
                     <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new javax.swing.JTable()"/>
-                    <AuxValue name="JavaCodeGenerator_InitCodePre" type="java.lang.String" value="TDetalle = new javax.swing.JTable(){&#xa;    public boolean isCellEditable(int rowIndex, int colIndex) {&#xa;        return false; //Disallow the editing of any cell&#xa;    }&#xa;};"/>
+                    <AuxValue name="JavaCodeGenerator_InitCodePre" type="java.lang.String" value="jTDetalleProductos = new javax.swing.JTable(){&#xa;    public boolean isCellEditable(int rowIndex, int colIndex) {&#xa;        return false; //Disallow the editing of any cell&#xa;    }&#xa;};"/>
                   </AuxValues>
                 </Component>
               </SubComponents>

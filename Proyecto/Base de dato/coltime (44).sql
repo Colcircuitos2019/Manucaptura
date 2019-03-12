@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 11-03-2019 a las 18:40:11
+-- Tiempo de generación: 12-03-2019 a las 22:15:35
 -- Versión del servidor: 10.1.29-MariaDB
 -- Versión de PHP: 7.2.0
 
@@ -351,14 +351,16 @@ END IF;
 
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_ConsultarDetalleProyecto` (IN `orden` VARCHAR(10), IN `estado` INT)  NO SQL
+CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_ConsultarDetalleProyecto` (IN `orden` VARCHAR(11))  NO SQL
 BEGIN
 
-IF estado=0 THEN
+/*IF estado=0 THEN
 SELECT d.idDetalle_proyecto,n.nom_area,t.nombre,d.canitadad_total,d.estado, d.PNC,d.ubicacion,d.material,p.parada FROM producto t  JOIN detalle_proyecto d on t.idProducto=d.idProducto JOIN area n on d.idArea=n.idArea JOIN proyecto p ON d.proyecto_numero_orden=p.numero_orden WHERE d.proyecto_numero_orden=orden;
 ELSE
 SELECT d.idDetalle_proyecto,n.nom_area,t.nombre,d.canitadad_total,d.estado, d.PNC,d.ubicacion,d.material,p.parada FROM producto t  JOIN detalle_proyecto d on t.idProducto=d.idProducto JOIN area n on d.idArea=n.idArea JOIN proyecto p ON d.proyecto_numero_orden=p.numero_orden WHERE d.proyecto_numero_orden=orden and p.eliminacion=1;
-END IF;
+END IF;*/
+
+SELECT d.idDetalle_proyecto,n.nom_area,t.nombre,d.canitadad_total,d.estado, d.PNC,d.material FROM producto t  JOIN detalle_proyecto d on t.idProducto=d.idProducto JOIN area n on d.idArea=n.idArea WHERE d.proyecto_numero_orden=orden;
 
 END$$
 
@@ -452,6 +454,29 @@ SELECT c.idProceso,c.orden,c.procesoFinal FROM procesos_producto c WHERE c.idCon
 
 END$$
 
+CREATE DEFINER=`` PROCEDURE `PA_ConsultarProcesosProductoProyecto` (IN `idDetalleProducto` VARCHAR(11), IN `area` VARCHAR(2))  NO SQL
+BEGIN
+
+IF area = "FE" THEN # Formato estandar - FE
+
+	SELECT f.idproceso,p.nombre_proceso,f.estado,f.tiempo_total_por_proceso,f.cantidadProceso FROM detalle_formato_estandar f JOIN procesos p ON f.idproceso=p.idproceso WHERE f.idDetalle_proyecto=idDetalleProducto;
+
+ELSE
+
+  IF area = "TE" THEN # Teclados - TE
+  
+  	SELECT t.idproceso, p.nombre_proceso, t.estado, t.tiempo_total_por_proceso, t.cantidadProceso FROM detalle_teclados t JOIN procesos p ON t.idproceso=p.idproceso WHERE t.idDetalle_proyecto=idDetalleProducto;
+  
+  ELSE # Ensamble - EN
+  
+  	SELECT e.idproceso,p.nombre_proceso,e.estado,e.tiempo_total_por_proceso,e.cantidadProceso FROM detalle_ensamble e JOIN procesos p ON e.idproceso=p.idproceso WHERE e.idDetalle_proyecto=idDetalleProducto;
+  
+  END IF;
+  
+END IF;
+
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_ConsultarPRocesosReporteENoTE` (IN `op` INT)  NO SQL
 BEGIN
 #Ensamble=3; teclados=2
@@ -470,7 +495,7 @@ END$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_ConsultarProyectosEliminados` ()  NO SQL
 BEGIN
 
-SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,e.nombre,p.tipo_proyecto,p.FE,p.TE,p.IN,p.ruteoC,p.antisolderC,p.ruteoP,p.antisolderP,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento LEFT JOIN estado e on p.estado=e.idestado WHERE p.eliminacion=0;
+SELECT p.numero_orden,u.nombres,p.nombre_cliente,p.nombre_proyecto,DATE_FORMAT(p.fecha_ingreso,'%d-%M-%Y %h:%i %p') as ingreso,p.fecha_entrega,DATE_FORMAT(p.fecha_salidal,'%d-%M-%Y %h:%i %p') as salida,p.estado,p.tipo_proyecto,p.parada,p.entregaCircuitoFEoGF,p.entregaCOMCircuito,p.entregaPCBFEoGF,p.entregaPCBCom,p.novedades,p.estadoEmpresa,p.NFEE FROM usuario u JOIN proyecto p ON u.numero_documento=p.usuario_numero_documento WHERE p.eliminacion=0;
 
 END$$
 
@@ -1425,7 +1450,7 @@ ELSE
  IF area=2 THEN
  #... El proceso final se tiene que buscar el proceso con orden mayor para saber que ese es el proceso final.
  # Remplazar el id del proceso final "FU_ConsultarUltimoProceso"
-  IF procesoPasar=0 AND idLector!=14 THEN# El proceso final es Calidad TE
+  IF procesoPasar=0 AND idLector!=(SELECT FU_ConsultarProcesoFinalSeleccionado(idDetalleProducto, area)) THEN# #Consultar el proceso final de la OP
   	SET cantidadTerminada=0;
   END IF;
   #...
@@ -1448,7 +1473,7 @@ ELSE
  ELSE
   IF area=3 THEN
   #...
-  IF procesoPasar=0 AND idLector!=18 THEN
+  IF procesoPasar=0 AND idLector!= (SELECT FU_ConsultarProcesoFinalSeleccionado(idDetalleProducto, area)) THEN #Consultar el proceso final de la OP
   	SET cantidadTerminada=0;
   END IF;
   #...
@@ -2146,6 +2171,21 @@ BEGIN
 # ...
 END$$
 
+CREATE DEFINER=`` FUNCTION `FU_ConsultarProcesoFinalSeleccionado` (`idDetalleProducto` INT, `area` TINYINT(1)) RETURNS INT(11) NO SQL
+BEGIN
+
+DECLARE proceso int;
+
+IF area = 2 THEN # Teclados
+	SET proceso = (SELECT t.idproceso FROM detalle_teclados t WHERE t.idDetalle_proyecto = idDetalleProducto AND t.proceso_final = 1);
+ELSE # Ensamble
+	SET proceso = (SELECT e.idproceso FROM detalle_ensamble e WHERE e.idDetalle_proyecto = idDetalleProducto AND e.proceso_final = 1);
+END IF;
+
+RETURN proceso;
+
+END$$
+
 CREATE DEFINER=`root`@`localhost` FUNCTION `FU_ConsultarUltimoProceso` (`idDetalleProducto` INT, `area` INT) RETURNS INT(11) NO SQL
 BEGIN
 DECLARE orden tinyint(2);
@@ -2580,7 +2620,7 @@ CREATE TABLE `area` (
 INSERT INTO `area` (`idArea`, `nom_area`) VALUES
 (1, 'FE'),
 (2, 'TE'),
-(3, 'IN'),
+(3, 'EN'),
 (4, 'ALMACEN');
 
 -- --------------------------------------------------------
@@ -2818,7 +2858,7 @@ INSERT INTO `detalle_proyecto` (`idDetalle_proyecto`, `idProducto`, `canitadad_t
 (17, 2, '10', 'FV', 4, 1, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL, 0, 0),
 (18, 3, '10', 'FV', 4, 1, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL, 0, 0),
 (19, 7, '10', 'FV', 4, 1, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL, 0, 0),
-(20, 1, '10', NULL, 4, 3, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL, 0, 0);
+(20, 1, '10', NULL, 4, 3, 4, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL, 0, 0);
 
 -- --------------------------------------------------------
 
@@ -3140,7 +3180,7 @@ INSERT INTO `proyecto` (`numero_orden`, `usuario_numero_documento`, `nombre_clie
 (1, '981130', 'Juan david marulanda ', 'prueba de desarrollo numero 1', 'Normal', '2019-03-11 07:59:44', '2019-03-11', NULL, 1, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (2, '981130', 'juan david marulanda', 'prueba de desarrollo numero 2', 'Quick', '2019-03-11 08:12:30', '2019-03-11', NULL, 1, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (3, '981130', 'juan david marulanda', 'prueba de desarrollo numero 3', 'Normal', '2019-03-11 09:10:30', '2019-03-11', NULL, 1, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(4, '981130', 'juan david marulanda', 'prueba de desarrollo numero 7', 'Normal', '2019-03-11 11:42:25', '2019-03-01', NULL, 1, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+(4, '981130', 'juan david marulanda', 'prueba de desarrollo numero 7', 'Normal', '2019-03-11 11:42:25', '2019-03-01', NULL, 1, 0, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 

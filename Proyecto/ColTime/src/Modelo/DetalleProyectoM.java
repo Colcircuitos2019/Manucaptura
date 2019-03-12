@@ -617,16 +617,15 @@ public class DetalleProyectoM {
         return crs;
     }
 
-    public CachedRowSet consultar_Detalle_Proyecto(String numeOrden, int estado) {
+    public CachedRowSet consultar_Detalle_Proyecto(String numeOrden) {
         try {
             conexion = new Conexion(1);
             conexion.establecerConexion();
             con = conexion.getConexion();
             //Query------------------------------------------------------------>
-            String Qry = "CALL PA_ConsultarDetalleProyecto(?,?)";
+            String Qry = "CALL PA_ConsultarDetalleProyecto(?)";
             ps = con.prepareStatement(Qry);
             ps.setString(1, numeOrden);
-            ps.setInt(2, estado);
             rs = ps.executeQuery();
             crs = new CachedRowSetImpl();
             crs.populate(rs);
@@ -637,6 +636,30 @@ public class DetalleProyectoM {
             con.close();
         } catch (Exception e) {
 //            JOptionPane.showMessageDialog(null, "¡Error!" + e);
+        }
+        return crs;
+    }
+    // 
+    public CachedRowSet consultarProcesosProductoM(String numeOrden, String area) {
+        try {
+            conexion = new Conexion(1);
+            conexion.establecerConexion();
+            con = conexion.getConexion();
+            //Query------------------------------------------------------------>
+            String Qry = "CALL PA_ConsultarProcesosProductoProyecto(?,?)";
+            ps = con.prepareStatement(Qry);
+            ps.setString(1, numeOrden);
+            ps.setString(2, area);
+            rs = ps.executeQuery();
+            crs = new CachedRowSetImpl();
+            crs.populate(rs);
+            //Cierre de conexiones
+            conexion.cerrar(rs);
+            conexion.destruir();
+            ps.close();
+            con.close();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return crs;
     }
@@ -659,7 +682,7 @@ public class DetalleProyectoM {
             ps.close();
             con.close();
         } catch (Exception e) {
-//            JOptionPane.showMessageDialog(null, "¡Error!" + e);
+            e.printStackTrace();
         }
         return crs;
     }
@@ -705,7 +728,7 @@ public class DetalleProyectoM {
             ps.close();
             con.close();
         } catch (Exception e) {
-//            JOptionPane.showMessageDialog(null, "¡Error!" + e);
+            e.printStackTrace();
         }
         return crs;
     }
@@ -771,7 +794,7 @@ public class DetalleProyectoM {
             ps.close();
             con.close();
         } catch (Exception e) {
-//            JOptionPane.showMessageDialog(null, "¡Error!" + e);
+            e.printStackTrace();
         }
         return res;
     }

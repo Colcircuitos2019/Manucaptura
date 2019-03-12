@@ -51,7 +51,6 @@ public class proyecto extends javax.swing.JPanel {
     public proyecto(int accion) {
         if (accion == 1) {
             initComponents();
-//            estadoInicialComponentesFormulario();
             visibilidadLabelID();
             ocultarFechas();
             componentesFechasNoEditables();
