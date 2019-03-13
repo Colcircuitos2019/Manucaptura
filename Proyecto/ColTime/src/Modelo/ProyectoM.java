@@ -31,7 +31,7 @@ public class ProyectoM {
             con = conexion.getConexion();
             //Query------------------------------------------------------------>
             String Qry = "";
-            if (op == 1) {
+            if (op == 1) { // Ejecutar nuevamente los procesos <-- ya no es necesario
                 Qry = "CALL PA_DetallesEnEjecucion(?,?)";
                 ps = con.prepareStatement(Qry);
                 ps.setInt(1, orden);

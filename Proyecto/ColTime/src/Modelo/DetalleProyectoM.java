@@ -86,14 +86,14 @@ public class DetalleProyectoM {
     }
 
     //Este metodo también funcionara para registrar y modificar los productos no conformes PNC.
-    public boolean registrar_Detalle_Proycto(String cantidad, String area, String tipoProducto, int estado, String numerOrden, String material, int op, int id, int pnc, String procesoPNC) {
+    public boolean registrar_Detalle_Proycto(String cantidad, String area, String tipoProducto, int estado, String numerOrden, String material, int accion, int id, int pnc, String procesoPNC) {
         try {
             conexion = new Conexion(1);
             conexion.establecerConexion();
             con = conexion.getConexion();
             //Query------------------------------------------------------------>
             String Qry = "";
-            if (op == 1) { // OP = 1 Tiene un PNC, OP != 1 No tiene PNC
+            if (accion == 1) { // OP = 1 Tiene un PNC, OP != 1 No tiene PNC
                 //Se valida si el proyecto ya tenia antecedentes registrados en esa misma ubicacion----
                 Qry = "CALL PA_ValidarUbicacionPNC(?,?,?)";
                 ps = con.prepareStatement(Qry);
@@ -326,7 +326,7 @@ public class DetalleProyectoM {
 //                        ps.execute();
 //                    }
                 }
-            } else if (op == 2) {
+            } else if (accion == 2) {
                 modificarDetalleProyectos(numerOrden, id, cantidad, material, area, tipoProducto, procesoPNC);
             }
             //Cierre de conexiones
@@ -430,7 +430,7 @@ public class DetalleProyectoM {
         return tipo;
     }
 
-    public boolean validarEliminacionModificarM(int orden, int negocio, int tipo, int detalle, int accion) {//El busqueda no es necesario
+    public boolean validarEliminacionModificarM(int orden, int area, int tipoProducto, int idDetalleProducto, int accion) {//El busqueda no es necesario
         //PA_EliminarProductosNoConformes(?,?,?)
         try {
             String Qry = "";
@@ -442,11 +442,11 @@ public class DetalleProyectoM {
                 //Validar la eliminación de solo un detalle PNC
                 Qry = "SELECT FU_validarEliminacion(?,?,?,?)";
                 ps = con.prepareStatement(Qry);
-                ps.setInt(1, detalle);
+                ps.setInt(1, idDetalleProducto);
                 ps.setInt(2, orden);
-                ps.setInt(3, tipo);
-                ps.setInt(4, negocio);
-
+                ps.setInt(3, tipoProducto);
+                ps.setInt(4, area);
+                // ...
                 rs = ps.executeQuery();
                 rs.next();
                 res = rs.getBoolean(1);
@@ -455,16 +455,16 @@ public class DetalleProyectoM {
                 Qry = "CALL PA_EliminarProductosNoConformes(?,?,?)";
                 ps = con.prepareStatement(Qry);
                 ps.setInt(1, orden);
-                ps.setInt(2, tipo);
-                ps.setInt(3, negocio);
+                ps.setInt(2, tipoProducto);
+                ps.setInt(3, area);
                 rs = ps.executeQuery();
                 while (rs.next()) {
                     Qry = "SELECT FU_validarEliminacion(?,?,?,?)";
                     ps = con.prepareStatement(Qry);
                     ps.setInt(1, rs.getInt(1));
                     ps.setInt(2, orden);
-                    ps.setInt(3, tipo);
-                    ps.setInt(4, negocio);
+                    ps.setInt(3, tipoProducto);
+                    ps.setInt(4, area);
 
                     rs1 = ps.executeQuery();
                     rs1.next();
@@ -506,10 +506,11 @@ public class DetalleProyectoM {
                     ps.setInt(5, 1);
                 } else if (area.equals("TE")) { //Teclados
                     ps.setInt(5, 2);
-                } else if (area.equals("IN")) { //Ensamble
+                } else if (area.equals("EN")) { //Ensamble
                     ps.setInt(5, 3);
                 }
             }
+            // ...
             ps.setString(6, procesoPNC);
             rs = ps.executeQuery();
             rs.next();

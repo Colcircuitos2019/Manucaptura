@@ -32,7 +32,7 @@ public class proyecto extends javax.swing.JPanel {
     //De esta forma esta estructurado el QR de proyectos.
 //NumOrden; Nombre Cliente; Nombre Proyecto; Negocios implicados; Tipo de proyecto; Fecha de entrega al cliente; Cantidad del Conversos; Cantidad del Troque; Cantidad del Repujado; Cantidad del Stencil; Cantidad del Circuito_FE; Material del Circuito; ¿Antisolder del circuito_FE?; ¿Ruteo del circuito_FE?; Cantidad de la PCB_TE; Material de la PCB; ¿Antisolder de la PCB_TE?; ¿Ruteo de la PCB_TE?; Componentes de la PCB_TE; Integraciòn del PCB_TE; Cantidad de Teclados; Cantidad de ensamble; Fecha de entrega del Circuito_FE(TH,FV,GF) a ensamble; Fecha de entrega de los componentes del circuito_FE; Fecha de entrega de la PCB_TE(TH,FV,GF); Fecha de entrega de componentes de la PCB_TE  
     //Variables e instancias
-    static int op = 0;
+    static int accion = 0; //1=Registrar, 2=Modificar
     static int componentes = 0;
     boolean v[] = new boolean[12];
     int udm = 0, resol = 100, rot = 0;
@@ -65,7 +65,6 @@ public class proyecto extends javax.swing.JPanel {
                 lector = new ProyectoQR(this);
             }
         }
-        op = accion;
         limpiarCamposFormulario();
         //--------------------------------------------------------------------->
     }
@@ -1077,7 +1076,7 @@ public class proyecto extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnNuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoActionPerformed
-        op = 1;
+        accion = 1;
         activarComponentes();
         consultarUltimoNumeroDeOrdenDisponible();
         // ...
@@ -1088,29 +1087,28 @@ public class proyecto extends javax.swing.JPanel {
         jPEstadoProyecto.setVisible(false);
     }//GEN-LAST:event_btnNuevoActionPerformed
 
-
-    public void modificarProyecto(int op) {
-        if (op == 1) {
-            validarRegistro(2);
-        } else {
-            int seleccion = JOptionPane.showOptionDialog(null, "Seguro desea modificar este proyecto",
+    public void modificarInformacionProyecto() {
+//        if (op == 1) {
+//            validarFormularioDeProyecto(accion);
+//        } else {
+            int seleccion = JOptionPane.showOptionDialog(null, "¿Seguro desea modificar la información de este proyecto?",
                     "seleccione...", JOptionPane.YES_NO_CANCEL_OPTION,
                     JOptionPane.QUESTION_MESSAGE, null,// null para icono por defecto.
                     new Object[]{"SI", "NO"}, "SI");
             if (seleccion == 0) {
-                validarRegistro(2);
+                validarFormularioDeProyecto(accion);
             }
-        }
+//        }
     }
     
     private void btnBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarActionPerformed
-        ConsutaProyecto viewConsultar = new ConsutaProyecto();
+        ConsutaProyecto viewConsultar = new ConsutaProyecto(this);
         viewConsultar.setLocationRelativeTo(null);
         viewConsultar.setVisible(true);
     }//GEN-LAST:event_btnBuscarActionPerformed
 
     private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
-        //modificarProyecto(0);//Modifica preguntando<- Queda pendiente
+        modificarInformacionProyecto();//Modifica proyectos
     }//GEN-LAST:event_btnUpdateActionPerformed
 
     private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
@@ -1126,7 +1124,7 @@ public class proyecto extends javax.swing.JPanel {
                 new rojerusan.RSNotifyAnimated("¡Alerta!", "Este numero de orden ya existe.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.WARNING).setVisible(true);
             
             } else {
-                validarRegistro(1);
+                validarFormularioDeProyecto(1);
             }
         }   
         // ...
@@ -1144,7 +1142,7 @@ public class proyecto extends javax.swing.JPanel {
                 btnNuevo.setEnabled(true);
                 
             } else {
-                validarRegistro(1);
+                validarFormularioDeProyecto(accion);
             }
     }    
     
@@ -1188,7 +1186,7 @@ public class proyecto extends javax.swing.JPanel {
     }//GEN-LAST:event_jTIntegracionKeyTyped
 
     private void GenerarQRActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_GenerarQRActionPerformed
-        generarQR();
+        generarQRdeProduccion();
     }//GEN-LAST:event_GenerarQRActionPerformed
 
     private void btnTomaTiemposActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTomaTiemposActionPerformed
@@ -1415,7 +1413,7 @@ public class proyecto extends javax.swing.JPanel {
     }//GEN-LAST:event_jTPCBTEActionPerformed
 //Metodos---------------------------------------------------------------------->
 
-    private void cambiarEstadoProyectoEjecucionOParada(int op) {
+    private void cambiarEstadoProyectoEjecucionOParada(int op) {// Esto se va a modificar <----- Pendiente
         int seleccion = JOptionPane.showOptionDialog(null, (op == 1) ? "¿Seguro desea poner en ejecucion este numero de orden?" : "¿Seguro desea parar este numero de orden?",
                 "seleccione...", JOptionPane.YES_NO_CANCEL_OPTION,
                 JOptionPane.QUESTION_MESSAGE, null,// null para icono por defecto.
@@ -1424,7 +1422,7 @@ public class proyecto extends javax.swing.JPanel {
             if (estadoProyecto()) {
                 if (estadoDeOrden(op)) {
                     //Mensaje de cambio de estado todo un exito.
-                    modificarProyecto(1);//Modifica sin preguntar
+//                    modificarInformacionProyecto(1);//Modifica sin preguntar <-- Esto ya no se va a realizar acá...
                     //new rojerusan.RSNotifyAnimated("Listo!", "El estado del proyecto fue cambiado exitosamente.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.SUCCESS).setVisible(true);
                     limpiarCamposFormulario();
                     limpiarID();
@@ -1588,7 +1586,7 @@ public class proyecto extends javax.swing.JPanel {
         jDFechaEntregaPCBCOMGF.setVisible(false);
     }
 
-    private void generarQR() {
+    private void generarQRdeProduccion() {
         try {
             int cont = 0;
             //Validar o crear carpeta
@@ -1741,7 +1739,7 @@ public class proyecto extends javax.swing.JPanel {
         }
     }
 
-    private void validarRegistro(int op) {
+    private void validarFormularioDeProyecto(int op) {
         //Validar los campos principales del proyecto-------------------------->
         if (jDeEntrega.getDate() != null && cbTipoEjecucion.getSelectedIndex() > 0 && !jTNombreCliente.getText().equals("") && !jTNombreProyecto.getText().equals("") && contarRadiosPresionados() == validarCantidadesIngresadasProductos() && contarRadiosPresionados() > 0 && validarCantidadesIngresadasProductos() > 0 && validarFechaEntregaSiguienteProceso() && validarFechaEntregaPCB()) {
             //Ten en cuenta que se tiene que validar cuando se vaya a modificar estos mismos campos para saber si se elimina las fechas o no se eliminan.
@@ -1851,46 +1849,47 @@ public class proyecto extends javax.swing.JPanel {
     }
 
     private void registrarModificarInformacionDelProyecto(int accion) {
-        if (accion == 1) {
+        if (accion == 1) { // Registrar Proyecto
             //Para registrar no se tiene que validar los proyectos que no se pueden eliminar
-            botonRegistrarModificar();
-        } else if (accion == 2) {
+            accionRegistrarModificar();
+            // ...
+        } else if (accion == 2) { // Modificar Proyecto
             //Validar que los detalles del proyecto puedan ser modificados o si no el proyecto no va a poder ser modificado de ninguna manera.
             String v[] = new String[8];
             int i = 0;
             boolean res = true;
-            DetalleProyecto obj = new DetalleProyecto();
-            //|| jCCircuito.isSelected() == true
+            DetalleProyecto controladorProducto = new DetalleProyecto();
+            // ...
             if (!jLIDCircuito.getText().equals("0") && jCCircuito.isSelected() == false) {
-                v[i] = String.valueOf(obj.validarEliminacionModificar(1, Integer.parseInt(jTNorden.getText()), 1, 0, 1));
+                v[i] = String.valueOf(controladorProducto.validarEliminacionModificar(1, Integer.parseInt(jTNorden.getText()), 1, 0, 1));
                 i++;
             }
             if (!jLIDTeclado.getText().equals("0") && jCTeclado.isSelected() == false) {
-                v[i] = String.valueOf(obj.validarEliminacionModificar(2, Integer.parseInt(jTNorden.getText()), 5, 0, 1));
+                v[i] = String.valueOf(controladorProducto.validarEliminacionModificar(2, Integer.parseInt(jTNorden.getText()), 5, 0, 1));
                 i++;
             }
             if (!jLIDIntegracion.getText().equals("0") && jCIntegracion.isSelected() == false) {
-                v[i] = String.valueOf(obj.validarEliminacionModificar(3, Integer.parseInt(jTNorden.getText()), 1, 0, 1));
+                v[i] = String.valueOf(controladorProducto.validarEliminacionModificar(3, Integer.parseInt(jTNorden.getText()), 1, 0, 1));
                 i++;
             }
             if (!jLIDConversor.getText().equals("0") && jCConversor.isSelected() == false) {
-                v[i] = String.valueOf(obj.validarEliminacionModificar(1, Integer.parseInt(jTNorden.getText()), 2, 0, 1));
+                v[i] = String.valueOf(controladorProducto.validarEliminacionModificar(1, Integer.parseInt(jTNorden.getText()), 2, 0, 1));
                 i++;
             }
             if (!jLIDTroquel.getText().equals("0") && jCTroquel.isSelected() == false) {
-                v[i] = String.valueOf(obj.validarEliminacionModificar(1, Integer.parseInt(jTNorden.getText()), 4, 0, 1));
+                v[i] = String.valueOf(controladorProducto.validarEliminacionModificar(1, Integer.parseInt(jTNorden.getText()), 4, 0, 1));
                 i++;
             }
             if (!jLIDRepujado.getText().equals("0") && jCRepujado.isSelected() == false) {
-                v[i] = String.valueOf(obj.validarEliminacionModificar(1, Integer.parseInt(jTNorden.getText()), 3, 0, 1));
+                v[i] = String.valueOf(controladorProducto.validarEliminacionModificar(1, Integer.parseInt(jTNorden.getText()), 3, 0, 1));
                 i++;
             }
             if (!jLIDStencil.getText().equals("0") && jCStencil.isSelected() == false) {
-                v[i] = String.valueOf(obj.validarEliminacionModificar(1, Integer.parseInt(jTNorden.getText()), 6, 0, 1));
+                v[i] = String.valueOf(controladorProducto.validarEliminacionModificar(1, Integer.parseInt(jTNorden.getText()), 6, 0, 1));
                 i++;
             }
             if (!jLIDPCB.getText().equals("0") && jCPCBTE.isSelected() == false) {
-                v[i] = String.valueOf(obj.validarEliminacionModificar(1, Integer.parseInt(jTNorden.getText()), 7, 0, 1));
+                v[i] = String.valueOf(controladorProducto.validarEliminacionModificar(1, Integer.parseInt(jTNorden.getText()), 7, 0, 1));
                 i++;
             }
             //Se verifica que todos los proyectos se puedan eliminar, incluso los pnc
@@ -1906,12 +1905,14 @@ public class proyecto extends javax.swing.JPanel {
             }
             //si es true se podran eliminar todos los proyectos y podra seguir con la modificacion de la informacion del proyecto
             if (res) {
-                botonRegistrarModificar();
+                // ...
+                accionRegistrarModificar();
+                // ...
             } else {
                 //Se modificara solo la información filtraria y el detalle
                 new rojerusan.RSNotifyAnimated("¡Error!", "No se puede modificar el detalle de este proyecto porque ya esta en ejecución.", 8, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.ERROR).setVisible(true);
                 Controlador.Proyecto procet = new Controlador.Proyecto();
-                modificarInfoProyecto(procet);
+                asignacionDeInformacionAlObjetoProyecto(procet);
                 if (procet.registrar_Modificar_Proyecto(Menu.jDocumento.getText(), 2)) {//El dos es para poder modificar solo la informacion del proyecto
                     new rojerusan.RSNotifyAnimated("Listo!!", "La informacion filtraria del proyecto con el numero de orden: " + jTNorden.getText() + " fue modificado exitosamente.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.SUCCESS).setVisible(true);
                     limpiarID();
@@ -1926,7 +1927,7 @@ public class proyecto extends javax.swing.JPanel {
         }
     }
 
-    private void modificarInfoProyecto(Controlador.Proyecto obj) {
+    private void asignacionDeInformacionAlObjetoProyecto(Controlador.Proyecto obj) {
         obj.setNombreCliente(jTNombreCliente.getText());
         obj.setNombreProyecto(jTNombreProyecto.getText());
         obj.setTipoProyecto(cbTipoEjecucion.getSelectedItem().toString());
@@ -1979,23 +1980,27 @@ public class proyecto extends javax.swing.JPanel {
         }
     }
 
-    private void botonRegistrarModificar() {
-        Proyecto obj = new Proyecto();
-        modificarInfoProyecto(obj);//Informacion general del proyecto
+    private void accionRegistrarModificar() {
+        Proyecto obj = new Proyecto();// Controlador
+        asignacionDeInformacionAlObjetoProyecto(obj);//Informacion general del proyecto
         //Registrar o modificar la información del proyecto
-        if (obj.registrar_Modificar_Proyecto(Menu.jDocumento.getText(), op)) {
-            if (op == 1) {
+        if (obj.registrar_Modificar_Proyecto(Menu.jDocumento.getText(), accion)) {
+            //Estos dos se pueden resumir en un mismo código...Pendiente
+            if (accion == 1) {
                 
+                // Registrar el detalle del proyecto ()
                 if (RegistrarModificarDetalle(jTNorden.getText(), 1)) {
                     //Mensaje de exito
                     new rojerusan.RSNotifyAnimated("Listo!!", "El Proyecto con el numero de orden: " + jTNorden.getText() + " fue registrada exitosamente.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.SUCCESS).setVisible(true);
-                    generarQR();// <----- Pendiente reactivar el generar QR de los proyectos
+                    generarQRdeProduccion();
                     limpiarID();
                 } else {
                     //Mensaje de error
                     new rojerusan.RSNotifyAnimated("¡Error!", "El detalle no pudo ser registrado satisfactoriamente", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.ERROR).setVisible(true);
                 }
-            } else if (op == 2) {
+                
+            } else if (accion == 2) {
+                
                 //Modificar el detalle del proyecto
                 if (RegistrarModificarDetalle(jTNorden.getText(), 2)) {
                     //Mensaje de exito
@@ -2006,10 +2011,12 @@ public class proyecto extends javax.swing.JPanel {
                     //Mensaje de error
                     new rojerusan.RSNotifyAnimated("¡Error!", "El detalle no pudo ser modificado satisfactoriamente", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.ERROR).setVisible(true);
                 }
+                
             }
         } else {
             new rojerusan.RSNotifyAnimated("¡Error!", "El proyecto no pudo ser registrado.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.ERROR).setVisible(true);
         }
+        // ...
         System.gc();//Garbage collector
         limpiarCamposFormulario();
         estadoInicialComponentesFormulario();
@@ -2064,8 +2071,6 @@ public class proyecto extends javax.swing.JPanel {
         btnGuardar.setEnabled(false);
         GenerarQR.setEnabled(false);
         btnTomaTiempos.setVisible(false);
-        
-        
     }
 
     public void activarComponentes() {
@@ -2109,11 +2114,12 @@ public class proyecto extends javax.swing.JPanel {
     }
 
     private void validarCampos() {
-        if (op == 1) {
+        //Accion= 1-Registrar, 2-Modificar, 0-No realiza nada
+        if (accion > 0) {
             if (!jTNombreCliente.getText().equals("") && !jTNombreProyecto.getText().equals("") && cbTipoEjecucion.getSelectedIndex() > 0 && jDeEntrega.getDate() != null) {
-                btnGuardar.setEnabled(true);
+                (accion==1?btnGuardar:btnUpdate).setEnabled(true);
             } else {
-                btnGuardar.setEnabled(false);
+                (accion==1?btnGuardar:btnUpdate).setEnabled(false);
             }
         }
     }
@@ -2199,7 +2205,7 @@ public class proyecto extends javax.swing.JPanel {
         boolean res = false;
         int op1 = 0;
         //Falta validar que antes de eliminar un su proyecto si se puede eliminar o no
-        //Se registra el detalle del proyecto cuando el negocio es "FE/TE/IN"
+        //Se registra el detalle del proyecto cuando el negocio es "FE/TE/IN" <--- Este campo ya no se esta implementando
         
         //Registro de componentes Circuito COM
         if (jCCircuito.isSelected() && jCIntegracion.isSelected() && jLIDCircuitoCOM.getText().equals("0")) {// <----- esto en un futuro ya no se va a utilizar y todo lo relacionado con el área de almacen
@@ -2313,7 +2319,7 @@ public class proyecto extends javax.swing.JPanel {
             if (jCPCBTE.isSelected() && jRPIntegracion.isSelected() && jLIDPCBEN.getText().equals("0")) {
                 op1 = op;
                 op = 1;
-                res = subRegistrarModificarProyecto(obj, jTPCBTE.getText(), "IN", "Circuito-TE", numeroOrden, "", op, Integer.parseInt(jLIDPCBCOM.getText()));
+                res = subRegistrarModificarProyecto(obj, jTPCBTE.getText(), "EN", "Circuito-TE", numeroOrden, "", op, Integer.parseInt(jLIDPCBCOM.getText()));
                 op = op1;
             }
             //------------------------------------------------------------------------------------------------------------------------
@@ -2337,7 +2343,7 @@ public class proyecto extends javax.swing.JPanel {
                 op1 = op;
                 op = 1;
             }
-            res = subRegistrarModificarProyecto(obj, jTIntegracion.getText(), "IN", "Circuito", numeroOrden, "", op, Integer.parseInt(jLIDIntegracion.getText()));
+            res = subRegistrarModificarProyecto(obj, jTIntegracion.getText(), "EN", "Circuito", numeroOrden, "", op, Integer.parseInt(jLIDIntegracion.getText()));
             if (jLIDIntegracion.getText().equals("0")) {
                 op = op1;
             }
@@ -2437,7 +2443,7 @@ public class proyecto extends javax.swing.JPanel {
         obj9.setLimit(150);
     }
     
-    private void limpiarCamposFormulario() {
+    public void limpiarCamposFormulario() {
         Notificacion1.setVisible(false);
         jTNorden.setText("");
         jTNombreCliente.setText("");
@@ -2456,6 +2462,7 @@ public class proyecto extends javax.swing.JPanel {
         jCPCBTE.setSelected(false);
         jCTeclado.setSelected(false);
         jCStencil.setSelected(false);
+        jCIntegracion.setSelected(false);
         jTIntegracion.setText(" ");
         jTConversor.setText(" ");
         jTRepujado.setText(" ");
@@ -2492,7 +2499,7 @@ public class proyecto extends javax.swing.JPanel {
         jDFechaEntregaPCBCOMGF.setVisible(false);
     }
     
-    private void limpiarID() {
+    public void limpiarID() {
         jLIDConversor.setText("0");
         jLIDRepujado.setText("0");
         jLIDTroquel.setText("0");
@@ -2509,7 +2516,7 @@ public class proyecto extends javax.swing.JPanel {
         jLMaterialCircuito.setText("M");
     }
     
-    private void estadoBotonesSeleccionProductos(boolean estado) {// <- Pendiente por ser utilizada
+    public void estadoBotonesSeleccionProductos(boolean estado) {
         jCConversor.setEnabled(estado);
         jCTroquel.setEnabled(estado);
         jCRepujado.setEnabled(estado);
@@ -2541,16 +2548,16 @@ public class proyecto extends javax.swing.JPanel {
     private javax.swing.ButtonGroup estadoProyecto;
     public static javax.swing.JCheckBox jCAntisolderC;
     public static javax.swing.JCheckBox jCAntisolderP;
-    public static javax.swing.JCheckBox jCCircuito;
-    public static javax.swing.JCheckBox jCConversor;
-    public static javax.swing.JCheckBox jCIntegracion;
-    public static javax.swing.JCheckBox jCPCBTE;
-    public static javax.swing.JCheckBox jCRepujado;
+    public javax.swing.JCheckBox jCCircuito;
+    public javax.swing.JCheckBox jCConversor;
+    public javax.swing.JCheckBox jCIntegracion;
+    public javax.swing.JCheckBox jCPCBTE;
+    public javax.swing.JCheckBox jCRepujado;
     public static javax.swing.JCheckBox jCRuteoC;
     public static javax.swing.JCheckBox jCRuteoP;
-    public static javax.swing.JCheckBox jCStencil;
-    public static javax.swing.JCheckBox jCTeclado;
-    public static javax.swing.JCheckBox jCTroquel;
+    public javax.swing.JCheckBox jCStencil;
+    public javax.swing.JCheckBox jCTeclado;
+    public javax.swing.JCheckBox jCTroquel;
     public static com.toedter.calendar.JDateChooser jDFechaEntregaFE;
     public static com.toedter.calendar.JDateChooser jDFechaEntregaFECOM;
     public static com.toedter.calendar.JDateChooser jDFechaEntregaPCBCOMGF;
@@ -2562,19 +2569,19 @@ public class proyecto extends javax.swing.JPanel {
     public static javax.swing.JLabel jLCircuitoGF;
     public static javax.swing.JLabel jLComCircuitos;
     public static javax.swing.JLabel jLEstado;
-    public static javax.swing.JLabel jLIDCircuito;
+    public javax.swing.JLabel jLIDCircuito;
     public static javax.swing.JLabel jLIDCircuitoCOM;
     public static javax.swing.JLabel jLIDCircuitoGF;
-    public static javax.swing.JLabel jLIDConversor;
-    public static javax.swing.JLabel jLIDIntegracion;
-    public static javax.swing.JLabel jLIDPCB;
+    public javax.swing.JLabel jLIDConversor;
+    public javax.swing.JLabel jLIDIntegracion;
+    public javax.swing.JLabel jLIDPCB;
     public static javax.swing.JLabel jLIDPCBCOM;
     public static javax.swing.JLabel jLIDPCBEN;
     public static javax.swing.JLabel jLIDPCBGF;
-    public static javax.swing.JLabel jLIDRepujado;
-    public static javax.swing.JLabel jLIDStencil;
-    public static javax.swing.JLabel jLIDTeclado;
-    public static javax.swing.JLabel jLIDTroquel;
+    public javax.swing.JLabel jLIDRepujado;
+    public javax.swing.JLabel jLIDStencil;
+    public javax.swing.JLabel jLIDTeclado;
+    public javax.swing.JLabel jLIDTroquel;
     public static javax.swing.JLabel jLIngreso;
     public static javax.swing.JLabel jLMaterialCircuito;
     public static javax.swing.JLabel jLMaterialPCB;

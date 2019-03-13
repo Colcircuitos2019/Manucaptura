@@ -738,7 +738,7 @@ public class Procesos_Condicion extends javax.swing.JPanel {// Dimensiones 905x6
     private void jTSeleeccionProcesosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTSeleeccionProcesosMouseClicked
         if (!evt.isPopupTrigger()) {
             // Cuando se seleccione el CheckBox de la columna 4 se va activar la validacion
-            if(evt.getX() > 240 && evt.getX() <= 410){
+            if(evt.getX() > 240 && evt.getX() <= 410){ // Esto se puede hacer de una forma más sencilla <- Pendiente
                 validarExistenciaProcesoSeleccionadoTabla();
             }
         }
@@ -746,7 +746,7 @@ public class Procesos_Condicion extends javax.swing.JPanel {// Dimensiones 905x6
 
     private void ejecutarAccionesSeleecionTabla(java.awt.event.MouseEvent evt){
         JTable tabla = clasificarTablaProcesos();
-        if(!evt.isPopupTrigger() && tabla.getSelectedRow() > 0){
+        if(!evt.isPopupTrigger() && tabla.getSelectedRow() >= 0){
             int idProceso = Integer.parseInt(String.valueOf(tabla.getValueAt(tabla.getSelectedRow(), 0)));
             //Modificar el nombre del proceso
             if (evt.getClickCount() == 2 && tabla.getSelectedColumn() == 1) {
@@ -756,10 +756,23 @@ public class Procesos_Condicion extends javax.swing.JPanel {// Dimensiones 905x6
             //Cambiar el estado del proceso
             if (evt.getClickCount() == 1 && tabla.getSelectedColumn() == 2) {
                 Controlador.Condicion_producto procesos = new Controlador.Condicion_producto();
-                if(procesos.cambiarEstadoProcesos(idProceso)){
-                    new rojerusan.RSNotifyAnimated("Realizado!", "El cambio de estado fue realizado correctamente", 6, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.SUCCESS).setVisible(true);
+                // Validar que el proceso no ese seleeccionado para ningun producto...
+                if(!procesos.validarExistenciaProcesoSelecionado(idProceso)){
+                    
+                    if (procesos.cambiarEstadoProcesos(idProceso)) {
+                        
+                        new rojerusan.RSNotifyAnimated("Realizado!", "El cambio de estado fue realizado correctamente", 6, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.SUCCESS).setVisible(true);
+                    
+                    } else {
+                        
+                        new rojerusan.RSNotifyAnimated("Alerta!", "Ocurrio un problema a la hora de ejecutar la acción", 6, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.WARNING).setVisible(true);
+                    
+                    }  
+                    
                 }else{
-                    new rojerusan.RSNotifyAnimated("Alerta!", "Ocurrio un problema a la hora de ejecutar la acción", 6, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.WARNING).setVisible(true);
+                    
+                    new rojerusan.RSNotifyAnimated("Alerta!", "Este proceso esta asignado a un producto, no puede ser cambiado de estado.", 6, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.WARNING).setVisible(true);
+                    consultarProcesosArea();
                 }
             }   
         }

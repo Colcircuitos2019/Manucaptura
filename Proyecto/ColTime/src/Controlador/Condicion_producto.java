@@ -36,6 +36,12 @@ public class Condicion_producto {
         Condicion_productoM modelo = new Condicion_productoM();
         return modelo.cambiarEstadoProcesosM(idProceso);
     }
+    
+    public boolean validarExistenciaProcesoSelecionado(int idProceso) {
+        Condicion_productoM modelo = new Condicion_productoM();
+        return modelo.validarExistenciaProcesoSelecionadoM(idProceso);
+    }
+    
     // .................
     
     public CachedRowSet consultarProcesosSeleeccionCondicionProducto(String idCondicion){

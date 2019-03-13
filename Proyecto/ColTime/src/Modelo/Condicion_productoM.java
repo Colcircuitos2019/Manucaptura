@@ -259,6 +259,29 @@ public class Condicion_productoM {
             con.close();
             conexion.destruir();
         } catch (Exception e) {//Errores
+            e.printStackTrace();
+        }
+        return respuesta;
+    }
+    
+    public boolean validarExistenciaProcesoSelecionadoM(int idProceso) {
+        boolean respuesta = false;
+        try {
+            conexion = new Conexion(1);
+            conexion.establecerConexion();
+            con = conexion.getConexion();
+            ps = con.prepareStatement("SELECT FU_ValidarExistenciaProcesoSeleccionado(?)");
+            ps.setInt(1, idProceso);
+            rs = ps.executeQuery();
+            rs.next();
+            respuesta = rs.getBoolean(1);
+            //Cierre de conexiones
+            rs.close();
+            ps.close();
+            con.close();
+            conexion.destruir();
+        } catch (Exception e) {//Errores
+            e.printStackTrace();
         }
         return respuesta;
     }

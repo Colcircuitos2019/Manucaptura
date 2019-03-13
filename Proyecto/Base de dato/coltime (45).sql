@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 12-03-2019 a las 22:15:35
+-- Tiempo de generación: 13-03-2019 a las 18:46:42
 -- Versión del servidor: 10.1.29-MariaDB
 -- Versión de PHP: 7.2.0
 
@@ -360,7 +360,7 @@ ELSE
 SELECT d.idDetalle_proyecto,n.nom_area,t.nombre,d.canitadad_total,d.estado, d.PNC,d.ubicacion,d.material,p.parada FROM producto t  JOIN detalle_proyecto d on t.idProducto=d.idProducto JOIN area n on d.idArea=n.idArea JOIN proyecto p ON d.proyecto_numero_orden=p.numero_orden WHERE d.proyecto_numero_orden=orden and p.eliminacion=1;
 END IF;*/
 
-SELECT d.idDetalle_proyecto,n.nom_area,t.nombre,d.canitadad_total,d.estado, d.PNC,d.material FROM producto t  JOIN detalle_proyecto d on t.idProducto=d.idProducto JOIN area n on d.idArea=n.idArea WHERE d.proyecto_numero_orden=orden;
+SELECT d.idDetalle_proyecto,n.nom_area,t.nombre,d.canitadad_total,d.estado, d.PNC,d.material, d.antisolder, d.ruteo FROM producto t  JOIN detalle_proyecto d on t.idProducto=d.idProducto JOIN area n on d.idArea=n.idArea WHERE d.proyecto_numero_orden=orden;
 
 END$$
 
@@ -2543,6 +2543,16 @@ END IF;
 
 END$$
 
+CREATE DEFINER=`` FUNCTION `FU_ValidarExistenciaProcesoSeleccionado` (`idProceso` INT) RETURNS TINYINT(1) NO SQL
+BEGIN
+DECLARE respuesta int;
+
+	SET respuesta = EXISTS(SELECT * FROM procesos_producto p WHERE p.idProceso=idProceso);
+    
+	RETURN respuesta;
+    
+END$$
+
 CREATE DEFINER=`root`@`localhost` FUNCTION `FU_ValidarNumerOrden` (`orden` INT) RETURNS TINYINT(1) NO SQL
 BEGIN
 
@@ -2850,7 +2860,7 @@ INSERT INTO `detalle_proyecto` (`idDetalle_proyecto`, `idProducto`, `canitadad_t
 (9, 4, '10', 'FV', 2, 1, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL, 0, 0),
 (10, 3, '2', 'FV', 2, 1, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL, 0, 0),
 (11, 6, '3', NULL, 2, 1, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL, 0, 0),
-(12, 7, '4', 'FV', 2, 1, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL, 0, 0),
+(12, 7, '4', 'FV', 2, 1, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL, 1, 1),
 (13, 5, '5', NULL, 2, 2, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL, 0, 0),
 (14, 1, '10', NULL, 2, 3, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL, 0, 0),
 (15, 2, '10', 'FV', 3, 1, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL, 0, 0),
@@ -3177,10 +3187,10 @@ CREATE TABLE `proyecto` (
 --
 
 INSERT INTO `proyecto` (`numero_orden`, `usuario_numero_documento`, `nombre_cliente`, `nombre_proyecto`, `tipo_proyecto`, `fecha_ingreso`, `fecha_entrega`, `fecha_salidal`, `estado`, `eliminacion`, `parada`, `entregaCircuitoFEoGF`, `entregaCOMCircuito`, `entregaPCBFEoGF`, `entregaPCBCom`, `novedades`, `estadoEmpresa`, `NFEE`) VALUES
-(1, '981130', 'Juan david marulanda ', 'prueba de desarrollo numero 1', 'Normal', '2019-03-11 07:59:44', '2019-03-11', NULL, 1, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(1, '981130', 'Juan david marulanda ', 'prueba de desarrollo numero 1', 'Normal', '2019-03-11 07:59:44', '2019-03-11', NULL, 1, 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (2, '981130', 'juan david marulanda', 'prueba de desarrollo numero 2', 'Quick', '2019-03-11 08:12:30', '2019-03-11', NULL, 1, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (3, '981130', 'juan david marulanda', 'prueba de desarrollo numero 3', 'Normal', '2019-03-11 09:10:30', '2019-03-11', NULL, 1, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(4, '981130', 'juan david marulanda', 'prueba de desarrollo numero 7', 'Normal', '2019-03-11 11:42:25', '2019-03-01', NULL, 1, 0, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+(4, '981130', 'juan david marulanda', 'prueba de desarrollo numero 7', 'Normal', '2019-03-11 11:42:25', '2019-03-01', NULL, 1, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -3423,7 +3433,7 @@ ALTER TABLE `procesos`
 -- AUTO_INCREMENT de la tabla `procesos_producto`
 --
 ALTER TABLE `procesos_producto`
-  MODIFY `idProceso_producto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=175;
+  MODIFY `idProceso_producto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=176;
 
 --
 -- AUTO_INCREMENT de la tabla `producto`
