@@ -64,15 +64,15 @@ public class DetalleProyecto {
     }
 
     //Metodos----------------------------------------------------->
-    public boolean registrar_Detalle_Proycto(String numerOrden, int op, int id) {
+    public boolean registrar_Detalle_Proyecto(String numerOrden, int accion, int idDetalleProducto, int antisolder, int ruteo) {
         DetalleProyectoM obj = new DetalleProyectoM();
-        return obj.registrar_Detalle_Proycto(cantidad, negocio, tipoNegocio, 1, numerOrden, material, op, id, 0, null);
+        return obj.registrar_Detalle_Proycto(cantidad, negocio, tipoNegocio, 1, numerOrden, material, accion, idDetalleProducto, 0, null, antisolder, ruteo);
     }
 
     //Se encarga de los  PNC
-    public boolean registrarModificarPNC(String numerOrden, int op, int id, String ubicacion) {
+    public boolean registrarModificarPNC(String numerOrden, int op, int id, String ubicacion) { // Todo lo relacionado con los productos no conforme va a cambiar...
         DetalleProyectoM obj = new DetalleProyectoM();
-        return obj.registrar_Detalle_Proycto(cantidad, negocio, tipoNegocio, 1, numerOrden, material, op, id, 1, ubicacion);
+        return obj.registrar_Detalle_Proycto(cantidad, negocio, tipoNegocio, 1, numerOrden, material, op, id, 1, ubicacion, 0,0);
     }
 
     //Validar el estado del PNC para saber si se puede modificar o eliminar.

@@ -1096,7 +1096,9 @@ public class proyecto extends javax.swing.JPanel {
                     JOptionPane.QUESTION_MESSAGE, null,// null para icono por defecto.
                     new Object[]{"SI", "NO"}, "SI");
             if (seleccion == 0) {
+                
                 validarFormularioDeProyecto(accion);
+                
             }
 //        }
     }
@@ -1124,7 +1126,9 @@ public class proyecto extends javax.swing.JPanel {
                 new rojerusan.RSNotifyAnimated("¡Alerta!", "Este numero de orden ya existe.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.WARNING).setVisible(true);
             
             } else {
+                
                 validarFormularioDeProyecto(1);
+                
             }
         }   
         // ...
@@ -1327,8 +1331,10 @@ public class proyecto extends javax.swing.JPanel {
             jCRuteoC.setEnabled(false);
             jCRuteoC.setSelected(false);
         } else {
-            jCAntisolderC.setEnabled(true);
-            jCRuteoC.setEnabled(true);
+            if(accion == 1){
+                jCAntisolderC.setEnabled(true);
+                jCRuteoC.setEnabled(true);
+            }
         }
 
         fechaEntregaFEoGF();
@@ -1342,8 +1348,10 @@ public class proyecto extends javax.swing.JPanel {
                 jCRuteoP.setEnabled(false);
                 jCRuteoP.setSelected(false);
             } else {
-                jCAntisolderP.setEnabled(true);
-                jCRuteoP.setEnabled(true);
+                if(accion==1){
+                    jCAntisolderP.setEnabled(true);
+                    jCRuteoP.setEnabled(true);
+                }
             }
             jRPCBCOM.setEnabled(true);
             jRPIntegracion.setEnabled(true);
@@ -1985,36 +1993,24 @@ public class proyecto extends javax.swing.JPanel {
         asignacionDeInformacionAlObjetoProyecto(obj);//Informacion general del proyecto
         //Registrar o modificar la información del proyecto
         if (obj.registrar_Modificar_Proyecto(Menu.jDocumento.getText(), accion)) {
-            //Estos dos se pueden resumir en un mismo código...Pendiente
-            if (accion == 1) {
-                
-                // Registrar el detalle del proyecto ()
-                if (RegistrarModificarDetalle(jTNorden.getText(), 1)) {
-                    //Mensaje de exito
-                    new rojerusan.RSNotifyAnimated("Listo!!", "El Proyecto con el numero de orden: " + jTNorden.getText() + " fue registrada exitosamente.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.SUCCESS).setVisible(true);
-                    generarQRdeProduccion();
-                    limpiarID();
-                } else {
-                    //Mensaje de error
-                    new rojerusan.RSNotifyAnimated("¡Error!", "El detalle no pudo ser registrado satisfactoriamente", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.ERROR).setVisible(true);
-                }
-                
-            } else if (accion == 2) {
-                
-                //Modificar el detalle del proyecto
-                if (RegistrarModificarDetalle(jTNorden.getText(), 2)) {
-                    //Mensaje de exito
-                    new rojerusan.RSNotifyAnimated("Listo!!", "El Proyecto con el numero de orden: " + jTNorden.getText() + " fue modificado exitosamente.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.SUCCESS).setVisible(true);
+            //accion = 1 (Registrar), accion = 2 (Modificar)
+            if (RegistrarModificarDetalle(jTNorden.getText(), accion)) {
+                //Mensaje de exito
+                new rojerusan.RSNotifyAnimated("Listo!!", ("El Proyecto con el numero de orden: " + jTNorden.getText() + " fue " + (accion == 2 ? "modificado" : "registrada") + " exitosamente."), 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.SUCCESS).setVisible(true);
+                if (accion == 2) {
                     GenerarQR.setEnabled(false);
-                    limpiarID();
                 } else {
-                    //Mensaje de error
-                    new rojerusan.RSNotifyAnimated("¡Error!", "El detalle no pudo ser modificado satisfactoriamente", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.ERROR).setVisible(true);
+                    generarQRdeProduccion();
                 }
-                
+                limpiarID();
+            } else {
+                //Mensaje de error
+                new rojerusan.RSNotifyAnimated("¡Error!", "El detalle no pudo ser " + (accion == 2 ? "modificado" : "registrada") + " satisfactoriamente", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.ERROR).setVisible(true);
             }
         } else {
+            
             new rojerusan.RSNotifyAnimated("¡Error!", "El proyecto no pudo ser registrado.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.ERROR).setVisible(true);
+        
         }
         // ...
         System.gc();//Garbage collector
@@ -2142,7 +2138,7 @@ public class proyecto extends javax.swing.JPanel {
             subEliminardetalle(obj, Integer.parseInt(jLIDTeclado.getText()), Integer.parseInt(jTNorden.getText()), "TE", "Teclado");
         }
         if (!jLIDIntegracion.getText().equals("0") && jCIntegracion.isSelected() == false) {
-            subEliminardetalle(obj, Integer.parseInt(jLIDIntegracion.getText()), Integer.parseInt(jTNorden.getText()), "IN", "Circuito");
+            subEliminardetalle(obj, Integer.parseInt(jLIDIntegracion.getText()), Integer.parseInt(jTNorden.getText()), "EN", "Circuito");
         }
         if (!jLIDConversor.getText().equals("0") && jCConversor.isSelected() == false) {
             subEliminardetalle(obj, Integer.parseInt(jLIDConversor.getText()), Integer.parseInt(jTNorden.getText()), "FE", "Conversor");
@@ -2196,7 +2192,7 @@ public class proyecto extends javax.swing.JPanel {
             }
         }
         if (jRPIntegracion.isSelected() == false && !jLIDPCBEN.getText().equals("0")) {
-            subEliminardetalle(obj, Integer.parseInt(jLIDPCBEN.getText()), Integer.parseInt(jTNorden.getText()), "IN", "Circuito-TE");
+            subEliminardetalle(obj, Integer.parseInt(jLIDPCBEN.getText()), Integer.parseInt(jTNorden.getText()), "EN", "Circuito-TE");
         }
     }
 
@@ -2211,7 +2207,7 @@ public class proyecto extends javax.swing.JPanel {
         if (jCCircuito.isSelected() && jCIntegracion.isSelected() && jLIDCircuitoCOM.getText().equals("0")) {// <----- esto en un futuro ya no se va a utilizar y todo lo relacionado con el área de almacen
             op1 = op;
             op = 1;
-            res = subRegistrarModificarProyecto(obj, "", "ALMACEN", "Circuito COM", numeroOrden, "", op, Integer.parseInt(jLIDCircuitoCOM.getText()));
+            res = subRegistrarModificarProyecto(obj, "", "ALMACEN", "Circuito COM", numeroOrden, "", op, Integer.parseInt(jLIDCircuitoCOM.getText()),0,0);// Los productos del almacen por el momento no se van a registrar
             op = op1;
         }
         // Validar cuales fueron los productos seleccionados para el registro del formulario
@@ -2221,7 +2217,7 @@ public class proyecto extends javax.swing.JPanel {
                 op1 = op;
                 op = 1;
             }
-            res = subRegistrarModificarProyecto(obj, jTConversor.getText(), "FE", "Conversor", numeroOrden, "FV", op, Integer.parseInt(jLIDConversor.getText()));
+            res = subRegistrarModificarProyecto(obj, jTConversor.getText(), "FE", "Conversor", numeroOrden, "FV", op, Integer.parseInt(jLIDConversor.getText()),0,0);
             if (jLIDConversor.getText().equals("0")) {
                 op = op1;
             }
@@ -2233,7 +2229,7 @@ public class proyecto extends javax.swing.JPanel {
                 op1 = op;
                 op = 1;
             }
-            res = subRegistrarModificarProyecto(obj, jTTroquel.getText(), "FE", "Troquel", numeroOrden, "FV", op, Integer.parseInt(jLIDTroquel.getText()));
+            res = subRegistrarModificarProyecto(obj, jTTroquel.getText(), "FE", "Troquel", numeroOrden, "FV", op, Integer.parseInt(jLIDTroquel.getText()), 0, 0);
             if (jLIDTroquel.getText().equals("0")) {
                 op = op1;
             }
@@ -2245,7 +2241,7 @@ public class proyecto extends javax.swing.JPanel {
                 op1 = op;
                 op = 1;
             }
-            res = subRegistrarModificarProyecto(obj, jTRepujado.getText(), "FE", "Repujado", numeroOrden, "FV", op, Integer.parseInt(jLIDRepujado.getText()));
+            res = subRegistrarModificarProyecto(obj, jTRepujado.getText(), "FE", "Repujado", numeroOrden, "FV", op, Integer.parseInt(jLIDRepujado.getText()), 0, 0);
             if (jLIDRepujado.getText().equals("0")) {
                 op = op1;
             }
@@ -2257,7 +2253,7 @@ public class proyecto extends javax.swing.JPanel {
                 op1 = op;
                 op = 1;
             }
-            res = subRegistrarModificarProyecto(obj, jTStencil.getText(), "FE", "Stencil", numeroOrden, "", op, Integer.parseInt(jLIDStencil.getText()));
+            res = subRegistrarModificarProyecto(obj, jTStencil.getText(), "FE", "Stencil", numeroOrden, "", op, Integer.parseInt(jLIDStencil.getText()), 0, 0);
             if (jLIDStencil.getText().equals("0")) {
                 op = op1;
             }
@@ -2271,7 +2267,7 @@ public class proyecto extends javax.swing.JPanel {
                     op1 = op;
                     op = 1;
                 }
-                res = subRegistrarModificarProyecto(obj, jTCircuito.getText(), "FE", "Circuito", numeroOrden, cbMaterialCircuito.getSelectedItem().toString(), op, Integer.parseInt(jLIDCircuitoGF.getText()));
+                res = subRegistrarModificarProyecto(obj, jTCircuito.getText(), "FE", "Circuito", numeroOrden, cbMaterialCircuito.getSelectedItem().toString(), op, Integer.parseInt(jLIDCircuitoGF.getText()), 0, 0);
                 if (jLIDCircuitoGF.getText().equals("0")) {
                     op = op1;
                 }
@@ -2280,7 +2276,7 @@ public class proyecto extends javax.swing.JPanel {
                     op1 = op;
                     op = 1;
                 }
-                res = subRegistrarModificarProyecto(obj, jTCircuito.getText(), "FE", "Circuito", numeroOrden, cbMaterialCircuito.getSelectedItem().toString(), op, Integer.parseInt(jLIDCircuito.getText()));
+                res = subRegistrarModificarProyecto(obj, jTCircuito.getText(), "FE", "Circuito", numeroOrden, cbMaterialCircuito.getSelectedItem().toString(), op, Integer.parseInt(jLIDCircuito.getText()), (jCAntisolderC.isSelected()?1:0), (jCRuteoC.isSelected()?1:0));
                 if (jLIDCircuito.getText().equals("0")) {
                     op = op1;
                 }
@@ -2294,7 +2290,7 @@ public class proyecto extends javax.swing.JPanel {
                     op1 = op;
                     op = 1;
                 }
-                res = subRegistrarModificarProyecto(obj, jTPCBTE.getText(), "FE", "PCB", numeroOrden, cbMaterialPCBTE.getSelectedItem().toString(), op, Integer.parseInt(jLIDPCBGF.getText()));
+                res = subRegistrarModificarProyecto(obj, jTPCBTE.getText(), "FE", "PCB", numeroOrden, cbMaterialPCBTE.getSelectedItem().toString(), op, Integer.parseInt(jLIDPCBGF.getText()), 0, 0);
                 if (jLIDPCBGF.getText().equals("0")) {
                     op = op1;
                 }
@@ -2303,7 +2299,7 @@ public class proyecto extends javax.swing.JPanel {
                     op1 = op;
                     op = 1;
                 }
-                res = subRegistrarModificarProyecto(obj, jTPCBTE.getText(), "FE", "PCB", numeroOrden, cbMaterialPCBTE.getSelectedItem().toString(), op, Integer.parseInt(jLIDPCB.getText()));
+                res = subRegistrarModificarProyecto(obj, jTPCBTE.getText(), "FE", "PCB", numeroOrden, cbMaterialPCBTE.getSelectedItem().toString(), op, Integer.parseInt(jLIDPCB.getText()), (jCAntisolderP.isSelected()?1:0), (jCRuteoP.isSelected()?1:0));
                 if (jLIDPCB.getText().equals("0")) {
                     op = op1;
                 }
@@ -2312,14 +2308,14 @@ public class proyecto extends javax.swing.JPanel {
             if (jCPCBTE.isSelected() && jRPCBCOM.isSelected() && jLIDPCBCOM.getText().equals("0")) {
                 op1 = op;
                 op = 1;
-                res = subRegistrarModificarProyecto(obj, "", "ALMACEN", "PCB COM", numeroOrden, "", op, Integer.parseInt(jLIDPCBCOM.getText()));
+                res = subRegistrarModificarProyecto(obj, "", "ALMACEN", "PCB COM", numeroOrden, "", op, Integer.parseInt(jLIDPCBCOM.getText()), 0, 0);
                 op = op1;
             }
             //------------------------------------------------------------------------------------------------------------------------
             if (jCPCBTE.isSelected() && jRPIntegracion.isSelected() && jLIDPCBEN.getText().equals("0")) {
                 op1 = op;
                 op = 1;
-                res = subRegistrarModificarProyecto(obj, jTPCBTE.getText(), "EN", "Circuito-TE", numeroOrden, "", op, Integer.parseInt(jLIDPCBCOM.getText()));
+                res = subRegistrarModificarProyecto(obj, jTPCBTE.getText(), "EN", "Circuito-TE", numeroOrden, "", op, Integer.parseInt(jLIDPCBCOM.getText()), 0, 0);
                 op = op1;
             }
             //------------------------------------------------------------------------------------------------------------------------
@@ -2331,7 +2327,7 @@ public class proyecto extends javax.swing.JPanel {
                 op1 = op;
                 op = 1;
             }
-            res = subRegistrarModificarProyecto(obj, jTTeclado.getText(), "TE", "Teclado", numeroOrden, "", op, Integer.parseInt(jLIDTeclado.getText()));
+            res = subRegistrarModificarProyecto(obj, jTTeclado.getText(), "TE", "Teclado", numeroOrden, "", op, Integer.parseInt(jLIDTeclado.getText()), 0, 0);
             if (jLIDTeclado.getText().equals("0")) {
                 op = op1;
             }
@@ -2343,7 +2339,7 @@ public class proyecto extends javax.swing.JPanel {
                 op1 = op;
                 op = 1;
             }
-            res = subRegistrarModificarProyecto(obj, jTIntegracion.getText(), "EN", "Circuito", numeroOrden, "", op, Integer.parseInt(jLIDIntegracion.getText()));
+            res = subRegistrarModificarProyecto(obj, jTIntegracion.getText(), "EN", "Circuito", numeroOrden, "", op, Integer.parseInt(jLIDIntegracion.getText()), 0, 0);
             if (jLIDIntegracion.getText().equals("0")) {
                 op = op1;
             }
@@ -2357,26 +2353,26 @@ public class proyecto extends javax.swing.JPanel {
         return res;
     }
 
-    private boolean subRegistrarModificarProyecto(DetalleProyecto obj, String cantidad, String Negocio, String TipoNegocio, String numeroOrden, String material, int op, int id) {
+    private boolean subRegistrarModificarProyecto(DetalleProyecto obj, String cantidad, String area, String producto, String numeroOrden, String material, int accion, int idDetalleProducto,int antisolder, int ruteo) {
         obj.setCantidad(cantidad);
-        obj.setTipoNegocio(TipoNegocio);
-        obj.setNegocio(Negocio);
+        obj.setTipoNegocio(producto);
+        obj.setNegocio(area);
         obj.setMaterial(material);
-        return obj.registrar_Detalle_Proycto(numeroOrden, op, id);
+        return obj.registrar_Detalle_Proyecto(numeroOrden, accion, idDetalleProducto, antisolder, ruteo);
     }
 
-    private void subEliminardetalle(DetalleProyecto obj, int idDetalle, int numerOrden, String negocio, String tipo) {
+    private void subEliminardetalle(DetalleProyecto obj, int idDetalle, int numerOrden, String area, String tipoProducto) {
 
-        if (obj.eliminarDetallersProyecto(idDetalle, numerOrden, negocio, tipo, 1)) {//Eliminación por la modificación
+        if (obj.eliminarDetallersProyecto(idDetalle, numerOrden, area, tipoProducto, 1)) {//Eliminación por la modificación
             //Mensaje de eliminacion exitosa
-            new rojerusan.RSNotifyAnimated("Listo!!", "Se elimino el detalle del proyecto: " + tipo + " " + negocio + " de la orden " + jTNorden.getText(), 5, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.SUCCESS).setVisible(true);
+            new rojerusan.RSNotifyAnimated("Listo!!", "Se elimino el detalle del proyecto: " + tipoProducto + " " + area + " de la orden " + jTNorden.getText(), 5, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.SUCCESS).setVisible(true);
             try {
                 Thread.sleep(500);
             } catch (Exception e) {
             }
         } else {
             //Mensaje de la eliminacion no se pudo realizar por que ya comenzo su ejecucion (Esto solo se pone por seguridad) de resto no va a funcionar
-            new rojerusan.RSNotifyAnimated("Listo!!", "el detalle " + tipo + " " + negocio + " de la orden" + jTNorden.getText() + " no pudo ser eliminada porque ya esta en ejecución.", 5, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.ERROR).setVisible(true);
+            new rojerusan.RSNotifyAnimated("Listo!!", "el detalle " + tipoProducto + " " + area + " de la orden" + jTNorden.getText() + " no pudo ser eliminada porque ya esta en ejecución.", 5, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.ERROR).setVisible(true);
         }
     }
 
@@ -2546,15 +2542,15 @@ public class proyecto extends javax.swing.JPanel {
     public static elaprendiz.gui.comboBox.ComboBoxRound cbMaterialPCBTE;
     public static elaprendiz.gui.comboBox.ComboBoxRound cbTipoEjecucion;
     private javax.swing.ButtonGroup estadoProyecto;
-    public static javax.swing.JCheckBox jCAntisolderC;
-    public static javax.swing.JCheckBox jCAntisolderP;
+    public javax.swing.JCheckBox jCAntisolderC;
+    public javax.swing.JCheckBox jCAntisolderP;
     public javax.swing.JCheckBox jCCircuito;
     public javax.swing.JCheckBox jCConversor;
     public javax.swing.JCheckBox jCIntegracion;
     public javax.swing.JCheckBox jCPCBTE;
     public javax.swing.JCheckBox jCRepujado;
-    public static javax.swing.JCheckBox jCRuteoC;
-    public static javax.swing.JCheckBox jCRuteoP;
+    public javax.swing.JCheckBox jCRuteoC;
+    public javax.swing.JCheckBox jCRuteoP;
     public javax.swing.JCheckBox jCStencil;
     public javax.swing.JCheckBox jCTeclado;
     public javax.swing.JCheckBox jCTroquel;

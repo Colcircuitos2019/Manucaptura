@@ -673,30 +673,28 @@ public class ConsutaProyecto extends javax.swing.JFrame {
                                 
                             } else if (jTDetalleProductos.getValueAt(i, 2).toString().equals("PCB") || jTDetalleProductos.getValueAt(i, 2).toString().equals("PCB GF")) {
                                 if (jTDetalleProductos.getValueAt(i, 2).toString().equals("PCB GF")) {
-                                    viewProyecto.jCAntisolderP.setEnabled(false);
-                                    viewProyecto.jCRuteoP.setEnabled(false);
+                                    
                                     viewProyecto.jLIDPCBGF.setText(jTDetalleProductos.getValueAt(i, 0).toString());
+                                    
                                 } else {
                                     viewProyecto.jLIDPCB.setText(jTDetalleProductos.getValueAt(i, 0).toString());
-                                    viewProyecto.jCAntisolderP.setEnabled(true);
-                                    viewProyecto.jCRuteoP.setEnabled(true);
+                                    
+                                    validarEstadoComponentesProductos(viewProyecto.jCPCBTE, viewProyecto.jTPCBTE, jTDetalleProductos.getValueAt(i, 4).toString());
+                                    
                                 }
                                 // ...
+                                boolean estado = (jTDetalleProductos.getValueAt(i, 4).toString().equals("Por iniciar"));
+                                viewProyecto.jCPCBTE.setSelected(true);
+                                viewProyecto.jCRuteoP.setEnabled(estado);
+                                viewProyecto.jCAntisolderP.setEnabled(estado);
+                                viewProyecto.cbMaterialPCBTE.setEnabled(estado);
                                 viewProyecto.jCAntisolderP.setSelected(Boolean.valueOf(jTDetalleProductos.getValueAt(i, 7).toString()));
                                 viewProyecto.jCRuteoP.setSelected(Boolean.valueOf(jTDetalleProductos.getValueAt(i, 8).toString()));
-                                // ...
-                                if (jTDetalleProductos.getValueAt(i, 4).toString().equals("Terminado") || jTDetalleProductos.getValueAt(i, 4).toString().equals("Ejecucion")) {
-                                    viewProyecto.cbMaterialPCBTE.setEnabled(true);
-                                    viewProyecto.cbMaterialPCBTE.setSelectedItem(jTDetalleProductos.getValueAt(i, 5).toString());
-                                    viewProyecto.jTPCBTE.setEnabled(true);
-                                } else {
-                                    viewProyecto.cbMaterialPCBTE.setEnabled(true);
-                                    viewProyecto.cbMaterialPCBTE.setSelectedItem(jTDetalleProductos.getValueAt(i, 5).toString());
-                                    viewProyecto.jTPCBTE.setEnabled(true);
-                                }                             
-                                viewProyecto.jCPCBTE.setSelected(true);
-                                viewProyecto.jTPCBTE.setText(jTDetalleProductos.getValueAt(i, 3).toString());
+                                viewProyecto.cbMaterialPCBTE.setSelectedItem(jTDetalleProductos.getValueAt(i, 5).toString());
                                 viewProyecto.jLMaterialPCB.setText(jTDetalleProductos.getValueAt(i, 5).toString());
+                                viewProyecto.jTPCBTE.setText(jTDetalleProductos.getValueAt(i, 3).toString());
+                                // ...
+                                
                             } else if (jTDetalleProductos.getValueAt(i, 2).toString().equals("Circuito") && jTDetalleProductos.getValueAt(i, 1).toString().equals("EN")) {
                                 
                                 viewProyecto.jLIDIntegracion.setText(jTDetalleProductos.getValueAt(i, 0).toString());
@@ -721,22 +719,29 @@ public class ConsutaProyecto extends javax.swing.JFrame {
                                 
                             } else if ((jTDetalleProductos.getValueAt(i, 2).toString().equals("Circuito") || jTDetalleProductos.getValueAt(i, 2).toString().equals("Circuito GF")) && (jTDetalleProductos.getValueAt(i, 1).toString().equals("ALMACEN") || jTDetalleProductos.getValueAt(i, 1).toString().equals("FE"))) {
                                 if (jTDetalleProductos.getValueAt(i, 2).toString().equals("Circuito GF")) {
+                                    
                                     viewProyecto.jLIDCircuitoGF.setText(jTDetalleProductos.getValueAt(i, 0).toString());//Detalle de proyecto
+                                    
                                 } else {
+                                    
                                     viewProyecto.jLIDCircuito.setText(jTDetalleProductos.getValueAt(i, 0).toString());//Detalle de proyecto
+                                    validarEstadoComponentesProductos(viewProyecto.jCCircuito, viewProyecto.jTCircuito, jTDetalleProductos.getValueAt(i, 4).toString());
+                                    
                                 }
                                 // ...
+                                boolean estado= (jTDetalleProductos.getValueAt(i, 4).toString().equals("Por iniciar"));
+//                                viewProyecto.jCRuteoC.setEnabled(estado);
+//                                viewProyecto.jCAntisolderC.setEnabled(estado);
                                 viewProyecto.jCAntisolderC.setSelected(Boolean.valueOf(jTDetalleProductos.getValueAt(i, 7).toString()));
+                                viewProyecto.jCAntisolderC.setEnabled(estado);
                                 viewProyecto.jCRuteoC.setSelected(Boolean.valueOf(jTDetalleProductos.getValueAt(i, 8).toString()));
-                                // ...
-                                viewProyecto.jCRuteoC.setEnabled(true);
-                                viewProyecto.jCAntisolderC.setEnabled(true);
+                                viewProyecto.jCRuteoC.setEnabled(estado);
                                 viewProyecto.jCCircuito.setSelected(true);
-                                viewProyecto.jTCircuito.setEnabled(true);
                                 viewProyecto.jTCircuito.setText(jTDetalleProductos.getValueAt(i, 3).toString());
-                                viewProyecto.cbMaterialCircuito.setEnabled(true);
+                                viewProyecto.cbMaterialCircuito.setEnabled(estado);
                                 viewProyecto.cbMaterialCircuito.setSelectedItem(jTDetalleProductos.getValueAt(i, 5).toString());
                                 viewProyecto.jLMaterialCircuito.setText(jTDetalleProductos.getValueAt(i, 5).toString());
+                                // ...
                             } else {//Componentes del almacen
                                 // ...    
                                 if (jTDetalleProductos.getValueAt(i, 2).toString().equals("Circuito COM")) {
