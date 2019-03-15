@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 15, 2019 at 06:18 PM
+-- Generation Time: Mar 15, 2019 at 10:18 PM
 -- Server version: 10.1.29-MariaDB
 -- PHP Version: 7.2.0
 
@@ -2743,22 +2743,23 @@ CREATE TABLE `detalle_ensamble` (
   `noperarios` tinyint(2) NOT NULL DEFAULT '0',
   `orden` tinyint(2) NOT NULL DEFAULT '0',
   `cantidadProceso` varchar(10) NOT NULL DEFAULT '0',
-  `proceso_final` tinyint(1) NOT NULL DEFAULT '0'
+  `proceso_final` tinyint(1) NOT NULL DEFAULT '0',
+  `mes_de_corte` varchar(2) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `detalle_ensamble`
 --
 
-INSERT INTO `detalle_ensamble` (`idDetalle_ensamble`, `tiempo_por_unidad`, `tiempo_total_por_proceso`, `cantidad_terminada`, `fecha_inicio`, `fecha_fin`, `idDetalle_proyecto`, `idproceso`, `estado`, `hora_ejecucion`, `hora_terminacion`, `noperarios`, `orden`, `cantidadProceso`, `proceso_final`) VALUES
-(5, '00:02', '00:26', '10', '2019-03-15', '2019-03-15', 3, 15, 3, '2019-03-15 11:08:02', '2019-03-15 11:08:28', 0, 1, '0', 0),
-(6, '00:00', '00:00', '0', NULL, NULL, 3, 16, 1, NULL, NULL, 0, 0, '0', 0),
-(7, '00:00', '00:00', '0', NULL, NULL, 3, 17, 1, NULL, NULL, 0, 0, '0', 0),
-(8, '00:01', '00:12', '10', '2019-03-15', '2019-03-15', 3, 18, 3, '2019-03-15 12:01:57', '2019-03-15 12:01:59', 0, 0, '0', 1),
-(9, '00:00', '00:08', '10', '2019-03-15', '2019-03-15', 8, 15, 3, '2019-03-15 11:13:29', '2019-03-15 11:13:37', 0, 1, '0', 0),
-(10, '00:00', '00:00', '0', NULL, NULL, 8, 16, 1, NULL, NULL, 0, 0, '0', 0),
-(11, '00:00', '00:00', '0', NULL, NULL, 8, 17, 1, NULL, NULL, 0, 0, '0', 0),
-(12, '00:05', '00:58', '10', '2019-03-15', '2019-03-15', 8, 18, 3, '2019-03-15 12:02:18', '2019-03-15 12:02:20', 0, 0, '0', 1);
+INSERT INTO `detalle_ensamble` (`idDetalle_ensamble`, `tiempo_por_unidad`, `tiempo_total_por_proceso`, `cantidad_terminada`, `fecha_inicio`, `fecha_fin`, `idDetalle_proyecto`, `idproceso`, `estado`, `hora_ejecucion`, `hora_terminacion`, `noperarios`, `orden`, `cantidadProceso`, `proceso_final`, `mes_de_corte`) VALUES
+(5, '00:02', '00:26', '10', '2019-03-15', '2019-03-15', 3, 15, 3, '2019-03-15 11:08:02', '2019-03-15 11:08:28', 0, 1, '0', 0, '0'),
+(6, '00:00', '00:00', '0', NULL, NULL, 3, 16, 1, NULL, NULL, 0, 0, '0', 0, '0'),
+(7, '00:00', '00:00', '0', NULL, NULL, 3, 17, 1, NULL, NULL, 0, 0, '0', 0, '0'),
+(8, '00:01', '00:12', '10', '2019-03-15', '2019-03-15', 3, 18, 3, '2019-03-15 12:01:57', '2019-03-15 12:01:59', 0, 0, '0', 1, '0'),
+(9, '00:00', '00:08', '10', '2019-03-15', '2019-03-15', 8, 15, 3, '2019-03-15 11:13:29', '2019-03-15 11:13:37', 0, 1, '0', 0, '0'),
+(10, '00:00', '00:00', '0', NULL, NULL, 8, 16, 1, NULL, NULL, 0, 0, '0', 0, '0'),
+(11, '00:00', '00:00', '0', NULL, NULL, 8, 17, 1, NULL, NULL, 0, 0, '0', 0, '0'),
+(12, '00:05', '00:58', '10', '2019-03-15', '2019-03-15', 8, 18, 3, '2019-03-15 12:02:18', '2019-03-15 12:02:20', 0, 0, '0', 1, '0');
 
 -- --------------------------------------------------------
 
@@ -2780,7 +2781,8 @@ CREATE TABLE `detalle_formato_estandar` (
   `hora_terminacion` varchar(19) DEFAULT NULL,
   `noperarios` tinyint(2) NOT NULL DEFAULT '0',
   `orden` tinyint(2) NOT NULL DEFAULT '0',
-  `cantidadProceso` varchar(10) NOT NULL DEFAULT '0'
+  `cantidadProceso` varchar(10) NOT NULL DEFAULT '0',
+  `mes_de_corte` varchar(2) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -2808,17 +2810,18 @@ CREATE TABLE `detalle_proyecto` (
   `fecha_salida` datetime DEFAULT NULL,
   `lider_proyecto` varchar(13) DEFAULT NULL,
   `antisolder` tinyint(1) DEFAULT '0',
-  `ruteo` tinyint(1) DEFAULT '0'
+  `ruteo` tinyint(1) DEFAULT '0',
+  `mes_de_corte` varchar(2) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `detalle_proyecto`
 --
 
-INSERT INTO `detalle_proyecto` (`idDetalle_proyecto`, `idProducto`, `canitadad_total`, `material`, `proyecto_numero_orden`, `idArea`, `estado`, `PNC`, `ubicacion`, `pro_porIniciar`, `pro_Ejecucion`, `pro_Pausado`, `pro_Terminado`, `tiempo_total`, `Total_timepo_Unidad`, `fecha_salida`, `lider_proyecto`, `antisolder`, `ruteo`) VALUES
-(2, 5, '5', '', 1, 2, 2, 0, NULL, 3, 0, 1, 0, '00:12', '00:00', NULL, NULL, 0, 0),
-(3, 1, '10', '', 1, 3, 3, 0, NULL, 2, 0, 0, 2, '00:38', '00:03', '2019-03-15 12:01:59', '1006887114', 0, 0),
-(8, 1, '10', NULL, 2, 3, 3, 0, NULL, 2, 0, 0, 2, '01:06', '00:05', '2019-03-15 12:02:20', '1017137065', 0, 0);
+INSERT INTO `detalle_proyecto` (`idDetalle_proyecto`, `idProducto`, `canitadad_total`, `material`, `proyecto_numero_orden`, `idArea`, `estado`, `PNC`, `ubicacion`, `pro_porIniciar`, `pro_Ejecucion`, `pro_Pausado`, `pro_Terminado`, `tiempo_total`, `Total_timepo_Unidad`, `fecha_salida`, `lider_proyecto`, `antisolder`, `ruteo`, `mes_de_corte`) VALUES
+(2, 5, '5', '', 1, 2, 2, 0, NULL, 3, 0, 1, 0, '00:12', '00:00', NULL, NULL, 0, 0, '0'),
+(3, 1, '10', '', 1, 3, 3, 0, NULL, 2, 0, 0, 2, '00:38', '00:03', '2019-03-15 12:01:59', '1006887114', 0, 0, '0'),
+(8, 1, '10', NULL, 2, 3, 3, 0, NULL, 2, 0, 0, 2, '01:06', '00:05', '2019-03-15 12:02:20', '1017137065', 0, 0, '0');
 
 -- --------------------------------------------------------
 
@@ -2841,18 +2844,19 @@ CREATE TABLE `detalle_teclados` (
   `noperarios` tinyint(2) NOT NULL DEFAULT '0',
   `orden` tinyint(2) NOT NULL DEFAULT '0',
   `cantidadProceso` varchar(10) NOT NULL DEFAULT '0',
-  `proceso_final` tinyint(1) NOT NULL DEFAULT '0'
+  `proceso_final` tinyint(1) NOT NULL DEFAULT '0',
+  `mes_de_corte` varchar(2) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `detalle_teclados`
 --
 
-INSERT INTO `detalle_teclados` (`idDetalle_teclados`, `tiempo_por_unidad`, `tiempo_total_por_proceso`, `cantidad_terminada`, `fecha_inicio`, `fecha_fin`, `idDetalle_proyecto`, `idproceso`, `estado`, `hora_ejecucion`, `hora_terminacion`, `noperarios`, `orden`, `cantidadProceso`, `proceso_final`) VALUES
-(5, '00:00', '00:00', '0', NULL, NULL, 2, 11, 1, NULL, NULL, 0, 0, '0', 0),
-(6, '00:00', '00:12', '0', '2019-03-15', NULL, 2, 12, 2, '2019-03-15 12:06:04', '2019-03-15 12:06:16', 0, 1, '5', 0),
-(7, '00:00', '00:00', '0', NULL, NULL, 2, 13, 1, NULL, NULL, 0, 0, '0', 0),
-(8, '00:00', '00:00', '0', NULL, NULL, 2, 14, 1, NULL, NULL, 0, 0, '0', 1);
+INSERT INTO `detalle_teclados` (`idDetalle_teclados`, `tiempo_por_unidad`, `tiempo_total_por_proceso`, `cantidad_terminada`, `fecha_inicio`, `fecha_fin`, `idDetalle_proyecto`, `idproceso`, `estado`, `hora_ejecucion`, `hora_terminacion`, `noperarios`, `orden`, `cantidadProceso`, `proceso_final`, `mes_de_corte`) VALUES
+(5, '00:00', '00:00', '0', NULL, NULL, 2, 11, 1, NULL, NULL, 0, 0, '0', 0, '0'),
+(6, '00:00', '00:12', '0', '2019-03-15', NULL, 2, 12, 2, '2019-03-15 12:06:04', '2019-03-15 12:06:16', 0, 1, '5', 0, '0'),
+(7, '00:00', '00:00', '0', NULL, NULL, 2, 13, 1, NULL, NULL, 0, 0, '0', 0, '0'),
+(8, '00:00', '00:00', '0', NULL, NULL, 2, 14, 1, NULL, NULL, 0, 0, '0', 1, '0');
 
 -- --------------------------------------------------------
 
@@ -3145,6 +3149,33 @@ INSERT INTO `proyecto` (`numero_orden`, `usuario_numero_documento`, `nombre_clie
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `tiempo_invertido_mes_proceso`
+--
+
+CREATE TABLE `tiempo_invertido_mes_proceso` (
+  `idtiempo_invertido_mes_proceso` int(11) NOT NULL,
+  `año_corte` varchar(5) NOT NULL,
+  `mes_corte` varchar(2) NOT NULL,
+  `idproceso` tinyint(4) NOT NULL,
+  `tiempo` varchar(45) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `tiempo_invertido_producto_mes`
+--
+
+CREATE TABLE `tiempo_invertido_producto_mes` (
+  `idtiempo_invertido_producto_mes` int(11) NOT NULL,
+  `idDetalle_proyecto` int(11) NOT NULL,
+  `mes` varchar(2) NOT NULL DEFAULT '0',
+  `tiempo_proyecto_mes` varchar(45) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `usuario`
 --
 
@@ -3180,7 +3211,7 @@ INSERT INTO `usuario` (`numero_documento`, `tipo_documento`, `nombres`, `apellid
 ('43263856', 'CC', 'Paula Andrea', 'Lopez Gutierrrez', 1, '', 1, '43263856', 0, 'cxcx03ñkf4'),
 ('43975208', 'CC', 'GLORIA ', 'JARAMILLO ', 2, '', 1, '43975208', 0, 'kbdnsdlciq'),
 ('71268332', 'CC', 'Adimaro', 'Montoya', 3, '', 0, '71268332', 0, '1vr8s4th-@'),
-('981130', 'CC', 'Juan David', 'Marulanda Paniagua', 4, '', 1, '98113053240juan', 0, '1u-hyppy60'),
+('981130', 'CC', 'Juan David', 'Marulanda Paniagua', 4, '', 1, '98113053240juan', 1, '1u-hyppy60'),
 ('98113053240', 'CC', 'Juan david', 'Marulanda Paniagua', 3, '', 1, '98113053240', 0, 'ue2282qgo1'),
 ('98699433', 'CC', 'ANDRES CAMILO', 'BUITRAGO GÓMEZ', 1, '', 1, '98699433', 0, 'ñkzrv7l@uh'),
 ('98765201', 'CC', 'EDISSON ANDRES', 'BARAHONA CASTRILLON', 6, '', 1, '98765201', 0, 'q1-4i3i99t');
@@ -3308,6 +3339,20 @@ ALTER TABLE `proyecto`
   ADD KEY `fk_proyecto_usuario_idx` (`usuario_numero_documento`);
 
 --
+-- Indexes for table `tiempo_invertido_mes_proceso`
+--
+ALTER TABLE `tiempo_invertido_mes_proceso`
+  ADD PRIMARY KEY (`idtiempo_invertido_mes_proceso`),
+  ADD KEY `fk_tiempo_invertido_mes_proceso_procesos1_idx` (`idproceso`);
+
+--
+-- Indexes for table `tiempo_invertido_producto_mes`
+--
+ALTER TABLE `tiempo_invertido_producto_mes`
+  ADD PRIMARY KEY (`idtiempo_invertido_producto_mes`),
+  ADD KEY `fk_tiempo_invertido_producto_mes_detalle_proyecto1_idx` (`idDetalle_proyecto`);
+
+--
 -- Indexes for table `usuario`
 --
 ALTER TABLE `usuario`
@@ -3398,6 +3443,18 @@ ALTER TABLE `proyecto`
   MODIFY `numero_orden` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
+-- AUTO_INCREMENT for table `tiempo_invertido_mes_proceso`
+--
+ALTER TABLE `tiempo_invertido_mes_proceso`
+  MODIFY `idtiempo_invertido_mes_proceso` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `tiempo_invertido_producto_mes`
+--
+ALTER TABLE `tiempo_invertido_producto_mes`
+  MODIFY `idtiempo_invertido_producto_mes` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- Constraints for dumped tables
 --
 
@@ -3460,6 +3517,18 @@ ALTER TABLE `procesos_producto`
 --
 ALTER TABLE `proyecto`
   ADD CONSTRAINT `fk_proyecto_usuario` FOREIGN KEY (`usuario_numero_documento`) REFERENCES `usuario` (`numero_documento`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+--
+-- Constraints for table `tiempo_invertido_mes_proceso`
+--
+ALTER TABLE `tiempo_invertido_mes_proceso`
+  ADD CONSTRAINT `fk_tiempo_invertido_mes_proceso_procesos1` FOREIGN KEY (`idproceso`) REFERENCES `procesos` (`idproceso`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+--
+-- Constraints for table `tiempo_invertido_producto_mes`
+--
+ALTER TABLE `tiempo_invertido_producto_mes`
+  ADD CONSTRAINT `fk_tiempo_invertido_producto_mes_detalle_proyecto1` FOREIGN KEY (`idDetalle_proyecto`) REFERENCES `detalle_proyecto` (`idDetalle_proyecto`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 --
 -- Constraints for table `usuario`
