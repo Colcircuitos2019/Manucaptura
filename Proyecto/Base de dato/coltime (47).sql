@@ -2,10 +2,10 @@
 -- version 4.7.4
 -- https://www.phpmyadmin.net/
 --
--- Servidor: 127.0.0.1
--- Tiempo de generación: 14-03-2019 a las 22:21:49
--- Versión del servidor: 10.1.29-MariaDB
--- Versión de PHP: 7.2.0
+-- Host: 127.0.0.1
+-- Generation Time: Mar 15, 2019 at 06:18 PM
+-- Server version: 10.1.29-MariaDB
+-- PHP Version: 7.2.0
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
@@ -19,12 +19,12 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Base de datos: `coltime`
+-- Database: `coltime`
 --
 
 DELIMITER $$
 --
--- Procedimientos
+-- Procedures
 --
 CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_ActualizarProductoPorMinuto` (IN `detalle` INT, IN `area` INT, IN `lector` INT, IN `tiempo` VARCHAR(20))  NO SQL
 BEGIN
@@ -153,7 +153,7 @@ SET pausar=(SELECT d.pro_Pausado FROM detalle_proyecto d WHERE d.idDetalle_proye
 SET ejecucion=(SELECT d.pro_Ejecucion FROM detalle_proyecto d WHERE d.idDetalle_proyecto=detalle);
 SET terminar=(SELECT d.pro_Terminado FROM detalle_proyecto d WHERE d.idDetalle_proyecto=detalle);
 
-IF area=1 OR area=4 THEN 
+IF area=1 OR area=4 THEN # el área numero 4 = almacen ya no se va a utilizar más
 
 IF iniciar!=0 AND pausar=0 AND ejecucion=0 and terminar=0 THEN
   UPDATE detalle_proyecto d SET d.estado=1 WHERE d.idDetalle_proyecto=detalle;
@@ -180,7 +180,7 @@ ELSE
  IF area=2 OR area=3 THEN
 
   IF iniciar!=0 AND pausar=0 AND ejecucion=0 and terminar=0 THEN
-  UPDATE detalle_proyecto d SET d.estado=1 WHERE d.idDetalle_proyecto=detalle;
+  	UPDATE detalle_proyecto d SET d.estado=1 WHERE d.idDetalle_proyecto=detalle;
   END IF;
 
 
@@ -251,11 +251,11 @@ END IF;
 
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_CambiarEstadoTerminadoTEIN` (IN `area` INT, IN `detalle` INT)  NO SQL
+CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_CambiarEstadoTerminadoTEIN` (IN `area` INT, IN `idDetalleProducto` INT)  NO SQL
 BEGIN
 DECLARE res boolean;
 IF area=2 THEN
-  IF EXISTS(SELECT d.estado FROM detalle_teclados d where    d.idDetalle_proyecto=detalle AND d.idproceso=14 AND d.estado=3) THEN#El 14 es el proceso
+  IF EXISTS(SELECT d.estado FROM detalle_teclados d where d.idDetalle_proyecto=idDetalleProducto AND d.idproceso=(SELECT FU_ConsultarProcesoFinalSeleccionado(idDetalleProducto,area)) AND d.estado=3) THEN#El 14 es el proceso
 
  SET res= true;
  
@@ -267,7 +267,7 @@ IF area=2 THEN
 
 ELSE 
   IF area=3 THEN
- IF EXISTS(SELECT d.estado FROM detalle_ensamble d where    d.idDetalle_proyecto=detalle AND d.idproceso=18 AND d.estado=3) THEN#El 18 ese el proceso
+ IF EXISTS(SELECT d.estado FROM detalle_ensamble d where d.idDetalle_proyecto=idDetalleProducto AND d.idproceso=(SELECT FU_ConsultarProcesoFinalSeleccionado(idDetalleProducto,area)) AND d.estado=3) THEN#El 18 ese el proceso
 
  SET res= true;
  
@@ -283,9 +283,9 @@ END IF;
 
 IF res THEN
 
- UPDATE detalle_proyecto p SET p.estado=3,p.fecha_salida=(SELECT now())  where p.idDetalle_proyecto=detalle;
+ UPDATE detalle_proyecto p SET p.estado=3,p.fecha_salida=(SELECT now())  where p.idDetalle_proyecto=idDetalleProducto;
 ELSE
-  UPDATE detalle_proyecto p SET p.estado=2 where p.idDetalle_proyecto=detalle;
+  UPDATE detalle_proyecto p SET p.estado=2 where p.idDetalle_proyecto=idDetalleProducto;
 
 END IF;
 END$$
@@ -420,6 +420,14 @@ END$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_ConsultarNumeroOrden` ()  NO SQL
 SHOW TABLE STATUS like 'proyecto'$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_ConsultarProcesoAreaReporte` (IN `op` INT)  NO SQL
+BEGIN
+# Ensamble=3; teclados=2; Formato estandar=1
+#...
+SELECT * FROM procesos p WHERE p.idArea=op AND p.estado=1 ORDER BY p.orden_mostrar ASC;
+#...
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_ConsultarProcesoProductoEnsamble` (IN `idDetalle` INT)  NO SQL
 BEGIN
 #se encarga de consultar los proceso de ensamble en el orden que se les asigno la ejecución por el detalle del producto del proyecto.
@@ -475,14 +483,6 @@ ELSE
   
 END IF;
 
-END$$
-
-CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_ConsultarPRocesosReporteENoTE` (IN `op` INT)  NO SQL
-BEGIN
-# Ensamble=3; teclados=2; Formato estandar=1
-#...
-SELECT * FROM procesos WHERE idArea=op AND estado=1;
-#...
 END$$
 
 CREATE DEFINER=`` PROCEDURE `PA_ConsultarProductos` ()  NO SQL
@@ -831,10 +831,10 @@ END$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_DetalleProyectosProduccion` (IN `orden` INT, IN `area` INT, IN `pnc` INT)  NO SQL
 BEGIN
 IF area >=1 AND area <=4 THEN
-SELECT d.idDetalle_proyecto,t.nombre,d.estado,d.idArea  FROM detalle_proyecto d JOIN producto t on d.idProducto=t.idProducto WHERE d.proyecto_numero_orden=orden and d.idArea=area AND d.PNC=pnc;
+	SELECT d.idDetalle_proyecto,t.nombre,d.estado,d.idArea  FROM detalle_proyecto d JOIN producto t on d.idProducto=t.idProducto WHERE d.proyecto_numero_orden=orden and d.idArea=area AND d.PNC=pnc;
 
 ELSE
-SELECT d.idDetalle_proyecto,t.nombre,d.estado,d.idArea  FROM detalle_proyecto d JOIN producto t on d.idProducto=t.idProducto WHERE d.proyecto_numero_orden=orden AND d.PNC=pnc;
+	SELECT d.idDetalle_proyecto,t.nombre,d.estado,d.idArea  FROM detalle_proyecto d JOIN producto t on d.idProducto=t.idProducto WHERE d.proyecto_numero_orden=orden AND d.PNC=pnc;
 
 END IF;
 END$$
@@ -1181,115 +1181,73 @@ SELECT dp.proyecto_numero_orden,dp.canitadad_total,p.nombre_proceso,t.noperarios
 
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_IniciarRenaudarTomaDeTiempoProcesos` (IN `orden` INT, IN `detalle` INT, IN `lector` INT, IN `busqueda` INT, IN `oper` INT(3))  NO SQL
+CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_IniciarRenaudarTomaDeTiempoProcesos` (IN `orden` INT, IN `idDetalleProducto` INT, IN `idLector` INT, IN `area` INT, IN `cantOperarios` INT(3))  NO SQL
 BEGIN
 DECLARE id int;
 DECLARE id1 int;
 DECLARE cantidadp int;
 
-IF busqueda=1 THEN
+IF area=1 THEN
 
-set id=(SELECT f.idDetalle_formato_estandar from detalle_formato_estandar f JOIN detalle_proyecto d on f.idDetalle_proyecto=d.idDetalle_proyecto where d.proyecto_numero_orden=orden AND d.idDetalle_proyecto=detalle and f.idproceso=lector and f.estado=1);
+	set id=(SELECT f.idDetalle_formato_estandar from detalle_formato_estandar f JOIN detalle_proyecto d on f.idDetalle_proyecto=d.idDetalle_proyecto where d.proyecto_numero_orden=orden AND d.idDetalle_proyecto=idDetalleProducto and f.idproceso=idLector and f.estado=1);
 
-set id1=(SELECT f.idDetalle_formato_estandar from detalle_formato_estandar f JOIN detalle_proyecto d on f.idDetalle_proyecto=d.idDetalle_proyecto where d.proyecto_numero_orden=orden AND d.idDetalle_proyecto=detalle and f.idproceso=lector and f.estado=2);
+	set id1=(SELECT f.idDetalle_formato_estandar from detalle_formato_estandar f JOIN detalle_proyecto d on f.idDetalle_proyecto=d.idDetalle_proyecto where d.proyecto_numero_orden=orden AND d.idDetalle_proyecto=idDetalleProducto and f.idproceso=idLector and f.estado=2);
 
-IF id !='null' THEN
-#Cuando se iniciar el proceso por primera vez
-UPDATE detalle_formato_estandar f SET f.fecha_inicio=CURDATE(), f.estado=4, f.hora_ejecucion=now(),f.noperarios=oper WHERE f.idDetalle_formato_estandar=id;
-END IF;
+	IF id !='null' THEN
+		#Cuando se iniciar el proceso por primera vez
+		UPDATE detalle_formato_estandar f SET f.fecha_inicio=CURDATE(), f.estado=4, f.hora_ejecucion=now(),f.noperarios=cantOperarios WHERE f.idDetalle_formato_estandar=id;
+	END IF;
 
-IF id1 !='null' THEN
-#Cuando se inicia el proceso por segunda o más veces
-UPDATE detalle_formato_estandar f SET  f.estado=4, f.hora_ejecucion=now(),f.hora_terminacion=null,f.noperarios=oper WHERE f.idDetalle_formato_estandar=id1;
-END IF;
+	IF id1 !='null' THEN
+		#Cuando se inicia el proceso por segunda o más veces
+		UPDATE detalle_formato_estandar f SET  f.estado=4, f.hora_ejecucion=now(),f.hora_terminacion=null,f.noperarios=cantOperarios WHERE f.idDetalle_formato_estandar=id1;
+	END IF;
 
-SET cantidadp =(SELECT COUNT(*) FROM detalle_formato_estandar d WHERE  d.idDetalle_proyecto=(detalle) AND d.estado=1);
-
-UPDATE detalle_proyecto SET pro_porIniciar=cantidadp WHERE idDetalle_proyecto=detalle;
-
-SET cantidadp =(SELECT COUNT(*) FROM detalle_formato_estandar d WHERE  d.idDetalle_proyecto=(detalle) AND d.estado=2);
-
-UPDATE detalle_proyecto SET pro_Pausado=cantidadp WHERE idDetalle_proyecto=detalle;
-
-SET cantidadp =(SELECT COUNT(*) FROM detalle_formato_estandar d WHERE  d.idDetalle_proyecto=(detalle) AND d.estado=4);
-
-UPDATE detalle_proyecto SET pro_Ejecucion=cantidadp WHERE idDetalle_proyecto=detalle;
-
-SET cantidadp =(SELECT COUNT(*) FROM detalle_formato_estandar d WHERE  d.idDetalle_proyecto=(detalle) AND d.estado=3);
-
-UPDATE detalle_proyecto SET pro_Terminado=cantidadp WHERE idDetalle_proyecto=detalle;
+	SELECT FU_CantidadProcesosProducto(idDetalleProducto,area);
 
 ELSE
-  IF busqueda=2 THEN
+  IF area=2 THEN
   
-  set id=(SELECT f.idDetalle_teclados from detalle_teclados f LEFT JOIN detalle_proyecto d on f.idDetalle_proyecto=d.idDetalle_proyecto where d.proyecto_numero_orden=orden AND d.idDetalle_proyecto=detalle and f.idproceso=lector and f.estado=1);
+  	set id=(SELECT f.idDetalle_teclados from detalle_teclados f LEFT JOIN detalle_proyecto d on f.idDetalle_proyecto=d.idDetalle_proyecto where d.proyecto_numero_orden=orden AND d.idDetalle_proyecto=idDetalleProducto and f.idproceso=idLector and f.estado=1);
 
-set id1=(SELECT f.idDetalle_teclados from detalle_teclados f LEFT JOIN detalle_proyecto d on f.idDetalle_proyecto=d.idDetalle_proyecto where d.proyecto_numero_orden=orden AND d.idDetalle_proyecto=detalle and f.idproceso=lector and f.estado=2);
+	set id1=(SELECT f.idDetalle_teclados from detalle_teclados f LEFT JOIN detalle_proyecto d on f.idDetalle_proyecto=d.idDetalle_proyecto where d.proyecto_numero_orden=orden AND d.idDetalle_proyecto=idDetalleProducto and f.idproceso=idLector and f.estado=2);
 
-IF id !='null' THEN
-#Cuando se iniciar el proceso por primera vez
-UPDATE detalle_teclados f SET f.fecha_inicio=CURDATE(), f.estado=4, f.hora_ejecucion=now(),f.noperarios=oper WHERE f.idDetalle_teclados=id ;
-END IF;
+	IF id !='null' THEN
+	#Cuando se iniciar el proceso por primera vez
+		UPDATE detalle_teclados f SET f.fecha_inicio=CURDATE(), f.estado=4, f.hora_ejecucion=now(),f.noperarios=cantOperarios WHERE f.idDetalle_teclados=id ;
+	END IF;
 
-IF id1 !='null' THEN
-#Cuando se inicia el proceso por segunda o más veces
-UPDATE detalle_teclados f SET f.estado=4, f.hora_ejecucion=now(),f.hora_terminacion=null,f.noperarios=oper WHERE f.idDetalle_teclados=id1 ;
-END IF;
+	IF id1 !='null' THEN
+	#Cuando se inicia el proceso por segunda o más veces
+		UPDATE detalle_teclados f SET f.estado=4, f.hora_ejecucion=now(),f.hora_terminacion=null,f.noperarios=cantOperarios WHERE f.idDetalle_teclados=id1 ;
+	END IF;
   
-  SET cantidadp =(SELECT COUNT(*) FROM detalle_teclados d WHERE  d.idDetalle_proyecto=(detalle) AND d.estado=1);
-
-UPDATE detalle_proyecto SET pro_porIniciar=cantidadp WHERE idDetalle_proyecto=detalle;
-
-SET cantidadp =(SELECT COUNT(*) FROM detalle_teclados d WHERE  d.idDetalle_proyecto=(detalle) AND d.estado=2);
-
-UPDATE detalle_proyecto SET pro_Pausado=cantidadp WHERE idDetalle_proyecto=detalle;
-
-SET cantidadp =(SELECT COUNT(*) FROM detalle_teclados d WHERE  d.idDetalle_proyecto=(detalle) AND d.estado=4);
-
-UPDATE detalle_proyecto SET pro_Ejecucion=cantidadp WHERE idDetalle_proyecto=detalle;
-
-SET cantidadp =(SELECT COUNT(*) FROM detalle_teclados d WHERE  d.idDetalle_proyecto=(detalle) AND d.estado=3);
-
-UPDATE detalle_proyecto SET pro_Terminado=cantidadp WHERE idDetalle_proyecto=detalle;
+  SELECT FU_CantidadProcesosProducto(idDetalleProducto,area);
   
   ELSE 
-    IF busqueda =3 THEN
+    IF area =3 THEN
     
-set id=(SELECT f.idDetalle_ensamble from detalle_ensamble f LEFT JOIN detalle_proyecto d on f.idDetalle_proyecto=d.idDetalle_proyecto where d.proyecto_numero_orden=orden AND d.idDetalle_proyecto=detalle and f.idproceso=lector and f.estado=1);
+		set id=(SELECT f.idDetalle_ensamble from detalle_ensamble f LEFT JOIN detalle_proyecto d on f.idDetalle_proyecto=d.idDetalle_proyecto where d.proyecto_numero_orden=orden AND d.idDetalle_proyecto=idDetalleProducto and f.idproceso=idLector and f.estado=1);
 
-set id1=(SELECT f.idDetalle_ensamble from detalle_ensamble f LEFT JOIN detalle_proyecto d on f.idDetalle_proyecto=d.idDetalle_proyecto where d.proyecto_numero_orden=orden AND d.idDetalle_proyecto=detalle and f.idproceso=lector and f.estado=2); 
+		set id1=(SELECT f.idDetalle_ensamble from detalle_ensamble f LEFT JOIN detalle_proyecto d on f.idDetalle_proyecto=d.idDetalle_proyecto where d.proyecto_numero_orden=orden AND d.idDetalle_proyecto=idDetalleProducto and f.idproceso=idLector and f.estado=2); 
 
-IF id !='null' THEN
-#Cuando se iniciar el proceso por primera vez
-UPDATE detalle_ensamble f SET f.fecha_inicio=CURDATE(), f.estado=4, f.hora_ejecucion=now(),f.noperarios=oper WHERE f.idDetalle_ensamble=id;
-END IF;
+		IF id !='null' THEN
+		#Cuando se iniciar el proceso por primera vez
+			UPDATE detalle_ensamble f SET f.fecha_inicio=CURDATE(), f.estado=4, f.hora_ejecucion=now(),f.noperarios=cantOperarios WHERE f.idDetalle_ensamble=id;
+		END IF;
 
-IF id1 !='null' THEN
-#Cuando se inicia el proceso por segunda o más veces
-UPDATE detalle_ensamble f SET  f.estado=4, f.hora_ejecucion=now(),f.hora_terminacion=null,f.noperarios=oper WHERE f.idDetalle_ensamble=id1 ;
-END IF;
-
-SET cantidadp =(SELECT COUNT(*) FROM detalle_ensamble d WHERE  d.idDetalle_proyecto=(detalle) AND d.estado=1);
-
-UPDATE detalle_proyecto SET pro_porIniciar=cantidadp WHERE idDetalle_proyecto=detalle;
-
-SET cantidadp =(SELECT COUNT(*) FROM detalle_ensamble d WHERE  d.idDetalle_proyecto=(detalle) AND d.estado=2);
-
-UPDATE detalle_proyecto SET pro_Pausado=cantidadp WHERE idDetalle_proyecto=detalle;
-
-SET cantidadp =(SELECT COUNT(*) FROM detalle_ensamble d WHERE  d.idDetalle_proyecto=(detalle) AND d.estado=4);
-
-UPDATE detalle_proyecto SET pro_Ejecucion=cantidadp WHERE idDetalle_proyecto=detalle;
-
-SET cantidadp =(SELECT COUNT(*) FROM detalle_ensamble d WHERE  d.idDetalle_proyecto=(detalle) AND d.estado=3);
-
-UPDATE detalle_proyecto SET pro_Terminado=cantidadp WHERE idDetalle_proyecto=detalle;
- 
-    
+		IF id1 !='null' THEN
+		#Cuando se inicia el proceso por segunda o más veces
+			UPDATE detalle_ensamble f SET  f.estado=4, f.hora_ejecucion=now(),f.hora_terminacion=null,f.noperarios=cantOperarios WHERE f.idDetalle_ensamble=id1 ;
+		END IF;
+  
     END IF;  
   END IF;
 END IF;
-            CALL PA_CambiarEstadoDeProductos(busqueda,detalle);
+
+			SELECT FU_CantidadProcesosProducto(idDetalleProducto,area);
+
+            CALL PA_CambiarEstadoDeProductos(area, idDetalleProducto);# Actualizar el estado de los producto del proyecto
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_IniciarTomaTiempoDetalleAlmacen` (IN `detalle` INT)  NO SQL
@@ -1556,65 +1514,9 @@ ELSE
 END IF;
 
 #Cantidad de proceso en los diferentes estados de las diferentes áreas
-IF area=1 THEN
 
-SET cantidadp =(SELECT COUNT(*) FROM detalle_formato_estandar d WHERE  d.idDetalle_proyecto=(idDetalleProducto) AND d.estado=1);
+	SELECT FU_CantidadProcesosProducto(idDetalleProducto, area);
 
-UPDATE detalle_proyecto SET pro_porIniciar=cantidadp WHERE idDetalle_proyecto=idDetalleProducto;
-
-SET cantidadp =(SELECT COUNT(*) FROM detalle_formato_estandar d WHERE  d.idDetalle_proyecto=(idDetalleProducto) AND d.estado=2);
-
-UPDATE detalle_proyecto SET pro_Pausado=cantidadp WHERE idDetalle_proyecto=idDetalleProducto;
-
-SET cantidadp =(SELECT COUNT(*) FROM detalle_formato_estandar d WHERE  d.idDetalle_proyecto=(idDetalleProducto) AND d.estado=4);
-
-UPDATE detalle_proyecto SET pro_Ejecucion=cantidadp WHERE idDetalle_proyecto=idDetalleProducto;
-
-SET cantidadp =(SELECT COUNT(*) FROM detalle_formato_estandar d WHERE  d.idDetalle_proyecto=(idDetalleProducto) AND d.estado=3);
-
-UPDATE detalle_proyecto SET pro_Terminado=cantidadp WHERE idDetalle_proyecto=idDetalleProducto;
-
-ELSE
- IF area=2 THEN
- 
- SET cantidadp =(SELECT COUNT(*) FROM detalle_teclados d WHERE  d.idDetalle_proyecto=(idDetalleProducto) AND d.estado=1);
-
-UPDATE detalle_proyecto SET pro_porIniciar=cantidadp WHERE idDetalle_proyecto=idDetalleProducto;
-
-SET cantidadp =(SELECT COUNT(*) FROM detalle_teclados d WHERE  d.idDetalle_proyecto=(idDetalleProducto) AND d.estado=2);
-
-UPDATE detalle_proyecto SET pro_Pausado=cantidadp WHERE idDetalle_proyecto=idDetalleProducto;
-
-SET cantidadp =(SELECT COUNT(*) FROM detalle_teclados d WHERE  d.idDetalle_proyecto=(idDetalleProducto) AND d.estado=4);
-
-UPDATE detalle_proyecto SET pro_Ejecucion=cantidadp WHERE idDetalle_proyecto=idDetalleProducto;
-
-SET cantidadp =(SELECT COUNT(*) FROM detalle_teclados d WHERE  d.idDetalle_proyecto=(idDetalleProducto) AND d.estado=3);
-
-UPDATE detalle_proyecto SET pro_Terminado=cantidadp WHERE idDetalle_proyecto=idDetalleProducto;
- 
- ELSE
-  if area=3 THEN
-  
-  SET cantidadp =(SELECT COUNT(*) FROM detalle_ensamble d WHERE  d.idDetalle_proyecto=(idDetalleProducto) AND d.estado=1);
-
-UPDATE detalle_proyecto SET pro_porIniciar=cantidadp WHERE idDetalle_proyecto=idDetalleProducto;
-
-SET cantidadp =(SELECT COUNT(*) FROM detalle_ensamble d WHERE  d.idDetalle_proyecto=(idDetalleProducto) AND d.estado=2);
-
-UPDATE detalle_proyecto SET pro_Pausado=cantidadp WHERE idDetalle_proyecto=idDetalleProducto;
-
-SET cantidadp =(SELECT COUNT(*) FROM detalle_ensamble d WHERE  d.idDetalle_proyecto=(idDetalleProducto) AND d.estado=4);
-
-UPDATE detalle_proyecto SET pro_Ejecucion=cantidadp WHERE idDetalle_proyecto=idDetalleProducto;
-
-SET cantidadp =(SELECT COUNT(*) FROM detalle_ensamble d WHERE  d.idDetalle_proyecto=(idDetalleProducto) AND d.estado=3);
-
-UPDATE detalle_proyecto SET pro_Terminado=cantidadp WHERE idDetalle_proyecto=idDetalleProducto;
-  #...
-  END IF;
- END IF;
-END IF;
    CALL PA_CambiarEstadoDeProductos(area,idDetalleProducto);
 END$$
 
@@ -2067,7 +1969,7 @@ END IF;
 END$$
 
 --
--- Funciones
+-- Functions
 --
 CREATE DEFINER=`root`@`localhost` FUNCTION `FU_ActualizarEstado` (`doc` VARCHAR(13), `est` BOOLEAN) RETURNS TINYINT(1) NO SQL
 BEGIN
@@ -2121,6 +2023,75 @@ IF EXISTS(SELECT * FROM procesos p WHERE p.idproceso=idProceso AND p.estado=1) T
 ELSE
 #Activar
 	UPDATE procesos p SET p.estado=1 WHERE p.idproceso=idProceso;
+END IF;
+
+RETURN 1;
+
+END$$
+
+CREATE DEFINER=`root`@`localhost` FUNCTION `FU_CantidadProcesosProducto` (`idDetalleProducto` INT, `area` INT) RETURNS INT(11) NO SQL
+BEGIN
+
+DECLARE cantidadp int;
+
+IF area = 1 THEN # Formato estandar
+
+	SET cantidadp =(SELECT COUNT(*) FROM detalle_formato_estandar d WHERE  d.idDetalle_proyecto=(idDetalleProducto) AND d.estado=1);
+
+	UPDATE detalle_proyecto SET pro_porIniciar=cantidadp WHERE idDetalle_proyecto=idDetalleProducto;
+
+	SET cantidadp =(SELECT COUNT(*) FROM detalle_formato_estandar d WHERE  d.idDetalle_proyecto=(idDetalleProducto) AND d.estado=2);
+
+	UPDATE detalle_proyecto SET pro_Pausado=cantidadp WHERE idDetalle_proyecto=idDetalleProducto;
+
+	SET cantidadp =(SELECT COUNT(*) FROM detalle_formato_estandar d WHERE  d.idDetalle_proyecto=(idDetalleProducto) AND d.estado=4);
+
+	UPDATE detalle_proyecto SET pro_Ejecucion=cantidadp WHERE idDetalle_proyecto=idDetalleProducto;
+
+	SET cantidadp =(SELECT COUNT(*) FROM detalle_formato_estandar d WHERE  d.idDetalle_proyecto=(idDetalleProducto) AND d.estado=3);
+
+	UPDATE detalle_proyecto SET pro_Terminado=cantidadp WHERE idDetalle_proyecto=idDetalleProducto;
+
+ELSE
+
+	IF area = 2 THEN # Teclados
+    
+    	SET cantidadp =(SELECT COUNT(*) FROM detalle_teclados d WHERE  d.idDetalle_proyecto=(idDetalleProducto) AND d.estado=1);
+	
+		UPDATE detalle_proyecto SET pro_porIniciar=cantidadp WHERE idDetalle_proyecto=idDetalleProducto;
+
+		SET cantidadp =(SELECT COUNT(*) FROM detalle_teclados d WHERE  d.idDetalle_proyecto=(idDetalleProducto) AND d.estado=2);
+
+		UPDATE detalle_proyecto SET pro_Pausado=cantidadp WHERE idDetalle_proyecto=idDetalleProducto;
+
+		SET cantidadp =(SELECT COUNT(*) FROM detalle_teclados d WHERE  d.idDetalle_proyecto=(idDetalleProducto) AND d.estado=4);
+
+		UPDATE detalle_proyecto SET pro_Ejecucion=cantidadp WHERE idDetalle_proyecto=idDetalleProducto;
+
+		SET cantidadp =(SELECT COUNT(*) FROM detalle_teclados d WHERE  d.idDetalle_proyecto=(idDetalleProducto) AND d.estado=3);
+
+		UPDATE detalle_proyecto SET pro_Terminado=cantidadp WHERE idDetalle_proyecto=idDetalleProducto;
+    
+    ELSE # Ensamble
+    
+    	SET cantidadp =(SELECT COUNT(*) FROM detalle_ensamble d WHERE  d.idDetalle_proyecto=(idDetalleProducto) AND d.estado=1);
+
+		UPDATE detalle_proyecto SET pro_porIniciar=cantidadp WHERE idDetalle_proyecto=idDetalleProducto;
+
+		SET cantidadp =(SELECT COUNT(*) FROM detalle_ensamble d WHERE  d.idDetalle_proyecto=(idDetalleProducto) AND d.estado=2);
+
+		UPDATE detalle_proyecto SET pro_Pausado=cantidadp WHERE idDetalle_proyecto=idDetalleProducto;
+
+		SET cantidadp =(SELECT COUNT(*) FROM detalle_ensamble d WHERE  d.idDetalle_proyecto=(idDetalleProducto) AND d.estado=4);
+
+		UPDATE detalle_proyecto SET pro_Ejecucion=cantidadp WHERE idDetalle_proyecto=idDetalleProducto;
+
+		SET cantidadp =(SELECT COUNT(*) FROM detalle_ensamble d WHERE  d.idDetalle_proyecto=(idDetalleProducto) AND d.estado=3);
+
+		UPDATE detalle_proyecto SET pro_Terminado=cantidadp WHERE idDetalle_proyecto=idDetalleProducto;
+    
+    END IF;
+
 END IF;
 
 RETURN 1;
@@ -2306,54 +2277,6 @@ CALL PA_CambiarEstadoDeProyecto(orden);
 
 RETURN 1;
 
-END$$
-
-CREATE DEFINER=`root`@`localhost` FUNCTION `FU_EliminarDetalleProyectoEnsamble` (`iddetalle` INT, `orden` INT) RETURNS TINYINT(1) NO SQL
-BEGIN
-DECLARE cantidad int;
-SET cantidad=(SELECT count(*) from detalle_ensamble f INNER JOIN detalle_proyecto d  WHERE f.idDetalle_proyecto=iddetalle AND f.fecha_inicio is not null and d.proyecto_numero_orden=orden);
-
-IF cantidad=0 THEN
-DELETE FROM `detalle_ensamble` WHERE idDetalle_proyecto=iddetalle;
-
-DELETE FROM `detalle_proyecto` WHERE idDetalle_proyecto=iddetalle;
-CALL PA_CambiarEstadoDeProyecto(orden);
-RETURN 1;
-ELSE
-RETURN 0;
-END IF;
-END$$
-
-CREATE DEFINER=`root`@`localhost` FUNCTION `FU_EliminarDetalleProyectoFormatoestandar` (`iddetalle` INT, `orden` INT) RETURNS TINYINT(1) NO SQL
-BEGIN
-DECLARE cantidad int;
-SET cantidad=(SELECT count(*) from detalle_formato_estandar f INNER JOIN detalle_proyecto d  WHERE f.idDetalle_proyecto=iddetalle AND f.fecha_inicio is not null and d.proyecto_numero_orden=orden);
-
-IF cantidad=0 THEN
-DELETE FROM `detalle_formato_estandar` WHERE idDetalle_proyecto=iddetalle;
-
-DELETE FROM `detalle_proyecto` WHERE idDetalle_proyecto=iddetalle;
-CALL PA_CambiarEstadoDeProyecto(orden);
-RETURN 1;
-ELSE
-RETURN 0;
-END IF;
-END$$
-
-CREATE DEFINER=`root`@`localhost` FUNCTION `FU_EliminarDetalleProyectoTeclados` (`iddetalle` INT, `orden` INT) RETURNS TINYINT(1) NO SQL
-BEGIN
-DECLARE cantidad int;
-SET cantidad=(SELECT count(*) from detalle_teclados f INNER JOIN detalle_proyecto d  WHERE f.idDetalle_proyecto=iddetalle AND f.fecha_inicio is not null and d.proyecto_numero_orden=orden);
-
-IF cantidad=0 THEN
-DELETE FROM `detalle_teclados` WHERE idDetalle_proyecto=iddetalle;
-
-DELETE FROM `detalle_proyecto` WHERE idDetalle_proyecto=iddetalle;
-CALL PA_CambiarEstadoDeProyecto(orden);
-RETURN 1;
-ELSE
-RETURN 0;
-END IF;
 END$$
 
 CREATE DEFINER=`root`@`localhost` FUNCTION `FU_EstadoDeProyecto` (`orden` INT) RETURNS TINYINT(1) NO SQL
@@ -2570,13 +2493,18 @@ BEGIN
 #Consulta las cantidades que tiene el proceso de ensamble para validar si tiene equipos a los cuales les puede trabajar.
 
 IF area=1 THEN #Formato Estandar - FE
+
 	RETURN (SELECT f.cantidadProceso FROM detalle_formato_estandar f WHERE f.idDetalle_proyecto=idDetalleProyecto AND f.idproceso=lector);
+    
 ELSE
   IF area=2 THEN # Teclados - TE
-  #Esta pendiente por implementar
+  
     RETURN (SELECT t.cantidadProceso FROM detalle_teclados t WHERE t.idDetalle_proyecto=idDetalleProyecto AND t.idproceso=lector);
+    
   ELSE #Ensamble - EN cuando área es 3
+  
     RETURN (SELECT e.cantidadProceso FROM detalle_ensamble e WHERE e.idDetalle_proyecto=idDetalleProyecto AND e.idproceso=lector);
+    
   END IF;
 END IF;
 
@@ -2691,7 +2619,7 @@ DELIMITER ;
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `almacen`
+-- Table structure for table `almacen`
 --
 
 CREATE TABLE `almacen` (
@@ -2710,7 +2638,7 @@ CREATE TABLE `almacen` (
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `area`
+-- Table structure for table `area`
 --
 
 CREATE TABLE `area` (
@@ -2719,7 +2647,7 @@ CREATE TABLE `area` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
--- Volcado de datos para la tabla `area`
+-- Dumping data for table `area`
 --
 
 INSERT INTO `area` (`idArea`, `nom_area`) VALUES
@@ -2731,7 +2659,7 @@ INSERT INTO `area` (`idArea`, `nom_area`) VALUES
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `cargo`
+-- Table structure for table `cargo`
 --
 
 CREATE TABLE `cargo` (
@@ -2740,7 +2668,7 @@ CREATE TABLE `cargo` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
--- Volcado de datos para la tabla `cargo`
+-- Dumping data for table `cargo`
 --
 
 INSERT INTO `cargo` (`idcargo`, `nombre`) VALUES
@@ -2754,7 +2682,7 @@ INSERT INTO `cargo` (`idcargo`, `nombre`) VALUES
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `condicion_producto`
+-- Table structure for table `condicion_producto`
 --
 
 CREATE TABLE `condicion_producto` (
@@ -2767,7 +2695,7 @@ CREATE TABLE `condicion_producto` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
--- Volcado de datos para la tabla `condicion_producto`
+-- Dumping data for table `condicion_producto`
 --
 
 INSERT INTO `condicion_producto` (`idCondicion`, `idProducto`, `area`, `material`, `antisorder`, `ruteo`) VALUES
@@ -2797,7 +2725,7 @@ INSERT INTO `condicion_producto` (`idCondicion`, `idProducto`, `area`, `material
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `detalle_ensamble`
+-- Table structure for table `detalle_ensamble`
 --
 
 CREATE TABLE `detalle_ensamble` (
@@ -2818,10 +2746,24 @@ CREATE TABLE `detalle_ensamble` (
   `proceso_final` tinyint(1) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+--
+-- Dumping data for table `detalle_ensamble`
+--
+
+INSERT INTO `detalle_ensamble` (`idDetalle_ensamble`, `tiempo_por_unidad`, `tiempo_total_por_proceso`, `cantidad_terminada`, `fecha_inicio`, `fecha_fin`, `idDetalle_proyecto`, `idproceso`, `estado`, `hora_ejecucion`, `hora_terminacion`, `noperarios`, `orden`, `cantidadProceso`, `proceso_final`) VALUES
+(5, '00:02', '00:26', '10', '2019-03-15', '2019-03-15', 3, 15, 3, '2019-03-15 11:08:02', '2019-03-15 11:08:28', 0, 1, '0', 0),
+(6, '00:00', '00:00', '0', NULL, NULL, 3, 16, 1, NULL, NULL, 0, 0, '0', 0),
+(7, '00:00', '00:00', '0', NULL, NULL, 3, 17, 1, NULL, NULL, 0, 0, '0', 0),
+(8, '00:01', '00:12', '10', '2019-03-15', '2019-03-15', 3, 18, 3, '2019-03-15 12:01:57', '2019-03-15 12:01:59', 0, 0, '0', 1),
+(9, '00:00', '00:08', '10', '2019-03-15', '2019-03-15', 8, 15, 3, '2019-03-15 11:13:29', '2019-03-15 11:13:37', 0, 1, '0', 0),
+(10, '00:00', '00:00', '0', NULL, NULL, 8, 16, 1, NULL, NULL, 0, 0, '0', 0),
+(11, '00:00', '00:00', '0', NULL, NULL, 8, 17, 1, NULL, NULL, 0, 0, '0', 0),
+(12, '00:05', '00:58', '10', '2019-03-15', '2019-03-15', 8, 18, 3, '2019-03-15 12:02:18', '2019-03-15 12:02:20', 0, 0, '0', 1);
+
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `detalle_formato_estandar`
+-- Table structure for table `detalle_formato_estandar`
 --
 
 CREATE TABLE `detalle_formato_estandar` (
@@ -2841,45 +2783,10 @@ CREATE TABLE `detalle_formato_estandar` (
   `cantidadProceso` varchar(10) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
---
--- Volcado de datos para la tabla `detalle_formato_estandar`
---
-
-INSERT INTO `detalle_formato_estandar` (`idDetalle_formato_estandar`, `tiempo_por_unidad`, `tiempo_total_por_proceso`, `cantidad_terminada`, `fecha_inicio`, `fecha_fin`, `idDetalle_proyecto`, `idproceso`, `estado`, `hora_ejecucion`, `hora_terminacion`, `noperarios`, `orden`, `cantidadProceso`) VALUES
-(4, '00:00', '00:00', '0', NULL, NULL, 2, 1, 1, NULL, NULL, 0, 1, '10'),
-(5, '00:00', '00:00', '0', NULL, NULL, 2, 2, 1, NULL, NULL, 0, 2, '0'),
-(6, '00:00', '00:00', '0', NULL, NULL, 2, 3, 1, NULL, NULL, 0, 3, '0'),
-(7, '00:00', '00:00', '0', NULL, NULL, 2, 4, 1, NULL, NULL, 0, 4, '0'),
-(8, '00:00', '00:00', '0', NULL, NULL, 2, 5, 1, NULL, NULL, 0, 5, '0'),
-(9, '00:00', '00:00', '0', NULL, NULL, 2, 6, 1, NULL, NULL, 0, 6, '0'),
-(10, '00:00', '00:00', '0', NULL, NULL, 2, 7, 1, NULL, NULL, 0, 7, '0'),
-(11, '00:00', '00:00', '0', NULL, NULL, 2, 8, 1, NULL, NULL, 0, 8, '0'),
-(12, '00:00', '00:00', '0', NULL, NULL, 2, 9, 1, NULL, NULL, 0, 9, '0'),
-(13, '00:00', '00:00', '0', NULL, NULL, 2, 10, 1, NULL, NULL, 0, 10, '0'),
-(21, '00:00', '00:00', '0', NULL, NULL, 3, 1, 1, NULL, NULL, 0, 1, '15'),
-(22, '00:00', '00:00', '0', NULL, NULL, 3, 3, 1, NULL, NULL, 0, 2, '0'),
-(23, '00:00', '00:00', '0', NULL, NULL, 3, 4, 1, NULL, NULL, 0, 3, '0'),
-(24, '00:00', '00:00', '0', NULL, NULL, 3, 5, 1, NULL, NULL, 0, 4, '0'),
-(25, '00:00', '00:00', '0', NULL, NULL, 3, 6, 1, NULL, NULL, 0, 5, '0'),
-(26, '00:00', '00:00', '0', NULL, NULL, 3, 7, 1, NULL, NULL, 0, 6, '0'),
-(27, '00:00', '00:00', '0', NULL, NULL, 3, 8, 1, NULL, NULL, 0, 7, '0'),
-(28, '00:00', '00:00', '0', NULL, NULL, 3, 10, 1, NULL, NULL, 0, 8, '0'),
-(29, '00:00', '00:00', '0', NULL, NULL, 4, 1, 1, NULL, NULL, 0, 1, '20'),
-(30, '00:00', '00:00', '0', NULL, NULL, 4, 3, 1, NULL, NULL, 0, 2, '0'),
-(31, '00:00', '00:00', '0', NULL, NULL, 4, 4, 1, NULL, NULL, 0, 3, '0'),
-(32, '00:00', '00:00', '0', NULL, NULL, 4, 5, 1, NULL, NULL, 0, 4, '0'),
-(33, '00:00', '00:00', '0', NULL, NULL, 4, 7, 1, NULL, NULL, 0, 5, '0'),
-(34, '00:00', '00:00', '0', NULL, NULL, 4, 8, 1, NULL, NULL, 0, 6, '0'),
-(35, '00:00', '00:00', '0', NULL, NULL, 4, 9, 1, NULL, NULL, 0, 7, '0'),
-(36, '00:00', '00:00', '0', NULL, NULL, 4, 10, 1, NULL, NULL, 0, 8, '0'),
-(37, '00:00', '00:00', '0', NULL, NULL, 5, 1, 1, NULL, NULL, 0, 2, '0'),
-(38, '00:00', '00:00', '0', NULL, NULL, 5, 4, 1, NULL, NULL, 0, 1, '25'),
-(39, '00:00', '00:00', '0', NULL, NULL, 5, 10, 1, NULL, NULL, 0, 3, '0');
-
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `detalle_proyecto`
+-- Table structure for table `detalle_proyecto`
 --
 
 CREATE TABLE `detalle_proyecto` (
@@ -2905,19 +2812,18 @@ CREATE TABLE `detalle_proyecto` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
--- Volcado de datos para la tabla `detalle_proyecto`
+-- Dumping data for table `detalle_proyecto`
 --
 
 INSERT INTO `detalle_proyecto` (`idDetalle_proyecto`, `idProducto`, `canitadad_total`, `material`, `proyecto_numero_orden`, `idArea`, `estado`, `PNC`, `ubicacion`, `pro_porIniciar`, `pro_Ejecucion`, `pro_Pausado`, `pro_Terminado`, `tiempo_total`, `Total_timepo_Unidad`, `fecha_salida`, `lider_proyecto`, `antisolder`, `ruteo`) VALUES
-(2, 1, '10', 'TH', 1, 1, 3, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', '2019-03-14 12:19:40', NULL, 1, 1),
-(3, 7, '15', 'FV', 1, 1, 3, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', '2019-03-14 12:19:40', NULL, 1, 0),
-(4, 2, '20', 'FV', 2, 1, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL, 0, 0),
-(5, 4, '25', 'FV', 2, 1, 1, 0, NULL, 0, 0, 0, 0, '00:00', '00:00', NULL, NULL, 0, 0);
+(2, 5, '5', '', 1, 2, 2, 0, NULL, 3, 0, 1, 0, '00:12', '00:00', NULL, NULL, 0, 0),
+(3, 1, '10', '', 1, 3, 3, 0, NULL, 2, 0, 0, 2, '00:38', '00:03', '2019-03-15 12:01:59', '1006887114', 0, 0),
+(8, 1, '10', NULL, 2, 3, 3, 0, NULL, 2, 0, 0, 2, '01:06', '00:05', '2019-03-15 12:02:20', '1017137065', 0, 0);
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `detalle_teclados`
+-- Table structure for table `detalle_teclados`
 --
 
 CREATE TABLE `detalle_teclados` (
@@ -2938,51 +2844,62 @@ CREATE TABLE `detalle_teclados` (
   `proceso_final` tinyint(1) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+--
+-- Dumping data for table `detalle_teclados`
+--
+
+INSERT INTO `detalle_teclados` (`idDetalle_teclados`, `tiempo_por_unidad`, `tiempo_total_por_proceso`, `cantidad_terminada`, `fecha_inicio`, `fecha_fin`, `idDetalle_proyecto`, `idproceso`, `estado`, `hora_ejecucion`, `hora_terminacion`, `noperarios`, `orden`, `cantidadProceso`, `proceso_final`) VALUES
+(5, '00:00', '00:00', '0', NULL, NULL, 2, 11, 1, NULL, NULL, 0, 0, '0', 0),
+(6, '00:00', '00:12', '0', '2019-03-15', NULL, 2, 12, 2, '2019-03-15 12:06:04', '2019-03-15 12:06:16', 0, 1, '5', 0),
+(7, '00:00', '00:00', '0', NULL, NULL, 2, 13, 1, NULL, NULL, 0, 0, '0', 0),
+(8, '00:00', '00:00', '0', NULL, NULL, 2, 14, 1, NULL, NULL, 0, 0, '0', 1);
+
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `procesos`
+-- Table structure for table `procesos`
 --
 
 CREATE TABLE `procesos` (
   `idproceso` tinyint(4) NOT NULL,
   `nombre_proceso` varchar(30) NOT NULL,
   `estado` tinyint(1) NOT NULL,
-  `idArea` tinyint(4) NOT NULL
+  `idArea` tinyint(4) NOT NULL,
+  `orden_mostrar` tinyint(2) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
--- Volcado de datos para la tabla `procesos`
+-- Dumping data for table `procesos`
 --
 
-INSERT INTO `procesos` (`idproceso`, `nombre_proceso`, `estado`, `idArea`) VALUES
-(1, 'Perforado', 1, 1),
-(2, 'Quimicos', 1, 1),
-(3, 'Caminos', 1, 1),
-(4, 'Quemado', 1, 1),
-(5, 'C.C.TH', 1, 1),
-(6, 'Screen', 1, 1),
-(7, 'Estañado', 1, 1),
-(8, 'C.C.2', 1, 1),
-(9, 'Ruteo', 1, 1),
-(10, 'Maquinas', 1, 1),
-(11, 'Correas y Conversor', 1, 2),
-(12, 'Lexan', 1, 2),
-(13, 'Acople', 1, 2),
-(14, 'Calidad TE', 1, 2),
-(15, 'Manual', 1, 3),
-(16, 'Automatico', 1, 3),
-(17, 'Control Calidad', 1, 3),
-(18, 'Empaque', 1, 3),
-(19, 'Componentes', 1, 4),
-(20, 'GF', 1, 4),
-(21, 'Prueba', 0, 2),
-(22, 'Nuevo Proceso', 1, 1);
+INSERT INTO `procesos` (`idproceso`, `nombre_proceso`, `estado`, `idArea`, `orden_mostrar`) VALUES
+(1, 'Perforado', 1, 1, 1),
+(2, 'Quimicos', 1, 1, 2),
+(3, 'Caminos', 1, 1, 3),
+(4, 'Quemado', 1, 1, 4),
+(5, 'C.C.TH', 1, 1, 5),
+(6, 'Screen', 1, 1, 6),
+(7, 'Estañado', 1, 1, 7),
+(8, 'C.C.2', 1, 1, 8),
+(9, 'Ruteo', 1, 1, 9),
+(10, 'Maquinas', 1, 1, 10),
+(11, 'Correas y Conversor', 1, 2, 1),
+(12, 'Lexan', 1, 2, 2),
+(13, 'Acople', 1, 2, 3),
+(14, 'Calidad TE', 1, 2, 4),
+(15, 'Manual', 1, 3, 1),
+(16, 'Automatico', 1, 3, 2),
+(17, 'Control Calidad', 1, 3, 3),
+(18, 'Empaque', 1, 3, 4),
+(19, 'Componentes', 1, 4, 0),
+(20, 'GF', 1, 4, 0),
+(21, 'Prueba', 0, 2, 5),
+(22, 'Nuevo Proceso', 1, 1, 11);
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `procesos_producto`
+-- Table structure for table `procesos_producto`
 --
 
 CREATE TABLE `procesos_producto` (
@@ -2994,7 +2911,7 @@ CREATE TABLE `procesos_producto` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
--- Volcado de datos para la tabla `procesos_producto`
+-- Dumping data for table `procesos_producto`
 --
 
 INSERT INTO `procesos_producto` (`idProceso_producto`, `idCondicion`, `orden`, `idProceso`, `procesoFinal`) VALUES
@@ -3164,7 +3081,7 @@ INSERT INTO `procesos_producto` (`idProceso_producto`, `idCondicion`, `orden`, `
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `producto`
+-- Table structure for table `producto`
 --
 
 CREATE TABLE `producto` (
@@ -3173,7 +3090,7 @@ CREATE TABLE `producto` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
--- Volcado de datos para la tabla `producto`
+-- Dumping data for table `producto`
 --
 
 INSERT INTO `producto` (`idproducto`, `nombre`) VALUES
@@ -3193,7 +3110,7 @@ INSERT INTO `producto` (`idproducto`, `nombre`) VALUES
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `proyecto`
+-- Table structure for table `proyecto`
 --
 
 CREATE TABLE `proyecto` (
@@ -3218,17 +3135,17 @@ CREATE TABLE `proyecto` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
--- Volcado de datos para la tabla `proyecto`
+-- Dumping data for table `proyecto`
 --
 
 INSERT INTO `proyecto` (`numero_orden`, `usuario_numero_documento`, `nombre_cliente`, `nombre_proyecto`, `tipo_proyecto`, `fecha_ingreso`, `fecha_entrega`, `fecha_salidal`, `estado`, `eliminacion`, `parada`, `entregaCircuitoFEoGF`, `entregaCOMCircuito`, `entregaPCBFEoGF`, `entregaPCBCom`, `novedades`, `estadoEmpresa`, `NFEE`) VALUES
-(1, '981130', 'Juan david marulanda', 'prueba de desarrollo numero 3', 'Normal', '2019-03-14 12:01:45', '2019-03-14', '2019-03-14 12:19:40', 3, 1, 1, NULL, NULL, NULL, NULL, '', 'A tiempo', NULL),
-(2, '981130', 'Juan david marulanda', 'prueba de desarrollo', 'Normal', '2019-03-14 12:30:00', '2019-03-14', NULL, 1, 1, 1, NULL, NULL, NULL, NULL, '', NULL, NULL);
+(1, '981130', 'Juan Marulanda Paniagua', 'prueba de desarrollo numero 1', 'RQT', '2019-03-15 10:24:34', '2019-03-15', NULL, 2, 1, 1, NULL, NULL, NULL, NULL, '', 'A tiempo', NULL),
+(2, '981130', 'juan david marulanda', 'preba de desarrollo numero 2', 'Quick', '2019-03-15 11:09:14', '2019-03-15', '2019-03-15 12:02:20', 3, 1, 1, NULL, NULL, NULL, NULL, NULL, 'A tiempo', NULL);
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `usuario`
+-- Table structure for table `usuario`
 --
 
 CREATE TABLE `usuario` (
@@ -3245,7 +3162,7 @@ CREATE TABLE `usuario` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
--- Volcado de datos para la tabla `usuario`
+-- Dumping data for table `usuario`
 --
 
 INSERT INTO `usuario` (`numero_documento`, `tipo_documento`, `nombres`, `apellidos`, `cargo_idcargo`, `imagen`, `estado`, `contraeña`, `sesion`, `recuperacion`) VALUES
@@ -3261,7 +3178,7 @@ INSERT INTO `usuario` (`numero_documento`, `tipo_documento`, `nombres`, `apellid
 ('123456789', 'CC', 'Almacen', '', 5, '', 1, '123456789', 0, 'jfmhh0vq5b'),
 ('42800589', 'CC', 'Juliana', 'Naranjo Henao', 6, '', 0, '42800589', 0, '-cnño-5wb4'),
 ('43263856', 'CC', 'Paula Andrea', 'Lopez Gutierrrez', 1, '', 1, '43263856', 0, 'cxcx03ñkf4'),
-('43975208', 'CC', 'GLORIA ', 'JARAMILLO ', 2, '', 1, '43975208', 1, 'kbdnsdlciq'),
+('43975208', 'CC', 'GLORIA ', 'JARAMILLO ', 2, '', 1, '43975208', 0, 'kbdnsdlciq'),
 ('71268332', 'CC', 'Adimaro', 'Montoya', 3, '', 0, '71268332', 0, '1vr8s4th-@'),
 ('981130', 'CC', 'Juan David', 'Marulanda Paniagua', 4, '', 1, '98113053240juan', 0, '1u-hyppy60'),
 ('98113053240', 'CC', 'Juan david', 'Marulanda Paniagua', 3, '', 1, '98113053240', 0, 'ue2282qgo1'),
@@ -3271,7 +3188,7 @@ INSERT INTO `usuario` (`numero_documento`, `tipo_documento`, `nombres`, `apellid
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `usuariopuerto`
+-- Table structure for table `usuariopuerto`
 --
 
 CREATE TABLE `usuariopuerto` (
@@ -3282,13 +3199,13 @@ CREATE TABLE `usuariopuerto` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
--- Volcado de datos para la tabla `usuariopuerto`
+-- Dumping data for table `usuariopuerto`
 --
 
 INSERT INTO `usuariopuerto` (`documentousario`, `usuarioPuerto`, `rutaQRs`, `estadoLectura`) VALUES
-('43975208', 'COM11', NULL, 1),
-('1017156424', 'COM5', NULL, 1),
-('981130', 'COM5', NULL, 0),
+('43975208', 'COM5', NULL, 0),
+('1017156424', 'COM5', NULL, 0),
+('981130', 'COM5', 'C:\\Users\\sis.informacion01\\Desktop\\proyecto\\', 0),
 ('71268332', 'COM1', NULL, 0),
 ('1128266934', 'COM4', NULL, 0),
 ('98765201', 'COM1', '\\\\servidor\\Proyectos2\\3 - QR\\', 0),
@@ -3299,11 +3216,11 @@ INSERT INTO `usuariopuerto` (`documentousario`, `usuarioPuerto`, `rutaQRs`, `est
 ('1020479554', 'COM9', NULL, 0);
 
 --
--- Índices para tablas volcadas
+-- Indexes for dumped tables
 --
 
 --
--- Indices de la tabla `almacen`
+-- Indexes for table `almacen`
 --
 ALTER TABLE `almacen`
   ADD PRIMARY KEY (`idalmacen`),
@@ -3311,26 +3228,26 @@ ALTER TABLE `almacen`
   ADD KEY `fk_proceso_id` (`idproceso`);
 
 --
--- Indices de la tabla `area`
+-- Indexes for table `area`
 --
 ALTER TABLE `area`
   ADD PRIMARY KEY (`idArea`);
 
 --
--- Indices de la tabla `cargo`
+-- Indexes for table `cargo`
 --
 ALTER TABLE `cargo`
   ADD PRIMARY KEY (`idcargo`);
 
 --
--- Indices de la tabla `condicion_producto`
+-- Indexes for table `condicion_producto`
 --
 ALTER TABLE `condicion_producto`
   ADD PRIMARY KEY (`idCondicion`),
   ADD KEY `fk_condicion_producto_producto1_idx` (`idProducto`);
 
 --
--- Indices de la tabla `detalle_ensamble`
+-- Indexes for table `detalle_ensamble`
 --
 ALTER TABLE `detalle_ensamble`
   ADD PRIMARY KEY (`idDetalle_ensamble`,`idDetalle_proyecto`,`idproceso`),
@@ -3338,7 +3255,7 @@ ALTER TABLE `detalle_ensamble`
   ADD KEY `fk_detalle_ensamble_Procesos1_idx` (`idproceso`);
 
 --
--- Indices de la tabla `detalle_formato_estandar`
+-- Indexes for table `detalle_formato_estandar`
 --
 ALTER TABLE `detalle_formato_estandar`
   ADD PRIMARY KEY (`idDetalle_formato_estandar`,`idDetalle_proyecto`,`idproceso`),
@@ -3346,7 +3263,7 @@ ALTER TABLE `detalle_formato_estandar`
   ADD KEY `fk_detalle_formato_estandar_Procesos1_idx` (`idproceso`);
 
 --
--- Indices de la tabla `detalle_proyecto`
+-- Indexes for table `detalle_proyecto`
 --
 ALTER TABLE `detalle_proyecto`
   ADD PRIMARY KEY (`idDetalle_proyecto`,`idProducto`,`proyecto_numero_orden`,`idArea`),
@@ -3355,7 +3272,7 @@ ALTER TABLE `detalle_proyecto`
   ADD KEY `fk_detalle_proyecto_area1_idx` (`idArea`);
 
 --
--- Indices de la tabla `detalle_teclados`
+-- Indexes for table `detalle_teclados`
 --
 ALTER TABLE `detalle_teclados`
   ADD PRIMARY KEY (`idDetalle_teclados`,`idDetalle_proyecto`,`idproceso`),
@@ -3363,27 +3280,27 @@ ALTER TABLE `detalle_teclados`
   ADD KEY `fk_detalle_teclados_Procesos1_idx` (`idproceso`);
 
 --
--- Indices de la tabla `procesos`
+-- Indexes for table `procesos`
 --
 ALTER TABLE `procesos`
   ADD PRIMARY KEY (`idproceso`,`idArea`),
   ADD KEY `fk_Procesos_area1_idx` (`idArea`);
 
 --
--- Indices de la tabla `procesos_producto`
+-- Indexes for table `procesos_producto`
 --
 ALTER TABLE `procesos_producto`
   ADD PRIMARY KEY (`idProceso_producto`),
   ADD KEY `fk_Procesos_productoto_condicion_producto1_idx` (`idCondicion`);
 
 --
--- Indices de la tabla `producto`
+-- Indexes for table `producto`
 --
 ALTER TABLE `producto`
   ADD PRIMARY KEY (`idproducto`);
 
 --
--- Indices de la tabla `proyecto`
+-- Indexes for table `proyecto`
 --
 ALTER TABLE `proyecto`
   ADD PRIMARY KEY (`numero_orden`,`usuario_numero_documento`),
@@ -3391,7 +3308,7 @@ ALTER TABLE `proyecto`
   ADD KEY `fk_proyecto_usuario_idx` (`usuario_numero_documento`);
 
 --
--- Indices de la tabla `usuario`
+-- Indexes for table `usuario`
 --
 ALTER TABLE `usuario`
   ADD PRIMARY KEY (`numero_documento`,`cargo_idcargo`),
@@ -3399,120 +3316,120 @@ ALTER TABLE `usuario`
   ADD KEY `fk_usuario_cargo1_idx` (`cargo_idcargo`);
 
 --
--- Indices de la tabla `usuariopuerto`
+-- Indexes for table `usuariopuerto`
 --
 ALTER TABLE `usuariopuerto`
   ADD KEY `fk_usuario_puerto1` (`documentousario`);
 
 --
--- AUTO_INCREMENT de las tablas volcadas
+-- AUTO_INCREMENT for dumped tables
 --
 
 --
--- AUTO_INCREMENT de la tabla `almacen`
+-- AUTO_INCREMENT for table `almacen`
 --
 ALTER TABLE `almacen`
   MODIFY `idalmacen` smallint(6) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT de la tabla `area`
+-- AUTO_INCREMENT for table `area`
 --
 ALTER TABLE `area`
   MODIFY `idArea` tinyint(4) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
--- AUTO_INCREMENT de la tabla `cargo`
+-- AUTO_INCREMENT for table `cargo`
 --
 ALTER TABLE `cargo`
   MODIFY `idcargo` tinyint(4) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
--- AUTO_INCREMENT de la tabla `condicion_producto`
+-- AUTO_INCREMENT for table `condicion_producto`
 --
 ALTER TABLE `condicion_producto`
   MODIFY `idCondicion` tinyint(4) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
--- AUTO_INCREMENT de la tabla `detalle_ensamble`
+-- AUTO_INCREMENT for table `detalle_ensamble`
 --
 ALTER TABLE `detalle_ensamble`
-  MODIFY `idDetalle_ensamble` smallint(6) NOT NULL AUTO_INCREMENT;
+  MODIFY `idDetalle_ensamble` smallint(6) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
--- AUTO_INCREMENT de la tabla `detalle_formato_estandar`
+-- AUTO_INCREMENT for table `detalle_formato_estandar`
 --
 ALTER TABLE `detalle_formato_estandar`
-  MODIFY `idDetalle_formato_estandar` smallint(6) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
+  MODIFY `idDetalle_formato_estandar` smallint(6) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
 
 --
--- AUTO_INCREMENT de la tabla `detalle_proyecto`
+-- AUTO_INCREMENT for table `detalle_proyecto`
 --
 ALTER TABLE `detalle_proyecto`
-  MODIFY `idDetalle_proyecto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `idDetalle_proyecto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
--- AUTO_INCREMENT de la tabla `detalle_teclados`
+-- AUTO_INCREMENT for table `detalle_teclados`
 --
 ALTER TABLE `detalle_teclados`
-  MODIFY `idDetalle_teclados` smallint(6) NOT NULL AUTO_INCREMENT;
+  MODIFY `idDetalle_teclados` smallint(6) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
--- AUTO_INCREMENT de la tabla `procesos`
+-- AUTO_INCREMENT for table `procesos`
 --
 ALTER TABLE `procesos`
   MODIFY `idproceso` tinyint(4) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
--- AUTO_INCREMENT de la tabla `procesos_producto`
+-- AUTO_INCREMENT for table `procesos_producto`
 --
 ALTER TABLE `procesos_producto`
   MODIFY `idProceso_producto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=175;
 
 --
--- AUTO_INCREMENT de la tabla `producto`
+-- AUTO_INCREMENT for table `producto`
 --
 ALTER TABLE `producto`
   MODIFY `idproducto` tinyint(4) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
--- AUTO_INCREMENT de la tabla `proyecto`
+-- AUTO_INCREMENT for table `proyecto`
 --
 ALTER TABLE `proyecto`
   MODIFY `numero_orden` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
--- Restricciones para tablas volcadas
+-- Constraints for dumped tables
 --
 
 --
--- Filtros para la tabla `almacen`
+-- Constraints for table `almacen`
 --
 ALTER TABLE `almacen`
   ADD CONSTRAINT `fk_iddetalleproyecto_amacen` FOREIGN KEY (`idDetalle_proyecto`) REFERENCES `detalle_proyecto` (`idDetalle_proyecto`),
   ADD CONSTRAINT `fk_proceso_id` FOREIGN KEY (`idproceso`) REFERENCES `procesos` (`idproceso`);
 
 --
--- Filtros para la tabla `condicion_producto`
+-- Constraints for table `condicion_producto`
 --
 ALTER TABLE `condicion_producto`
   ADD CONSTRAINT `fk_condicion_producto_producto1` FOREIGN KEY (`idProducto`) REFERENCES `producto` (`idproducto`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 --
--- Filtros para la tabla `detalle_ensamble`
+-- Constraints for table `detalle_ensamble`
 --
 ALTER TABLE `detalle_ensamble`
   ADD CONSTRAINT `fk_detalle_ensamble_Procesos1` FOREIGN KEY (`idproceso`) REFERENCES `procesos` (`idproceso`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   ADD CONSTRAINT `fk_detalle_ensamble_detalle_proyecto10` FOREIGN KEY (`idDetalle_proyecto`) REFERENCES `detalle_proyecto` (`idDetalle_proyecto`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 --
--- Filtros para la tabla `detalle_formato_estandar`
+-- Constraints for table `detalle_formato_estandar`
 --
 ALTER TABLE `detalle_formato_estandar`
   ADD CONSTRAINT `fk_detalle_formato_estandar_Procesos1` FOREIGN KEY (`idproceso`) REFERENCES `procesos` (`idproceso`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   ADD CONSTRAINT `fk_detalle_formato_estandar_detalle_proyecto1` FOREIGN KEY (`idDetalle_proyecto`) REFERENCES `detalle_proyecto` (`idDetalle_proyecto`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 --
--- Filtros para la tabla `detalle_proyecto`
+-- Constraints for table `detalle_proyecto`
 --
 ALTER TABLE `detalle_proyecto`
   ADD CONSTRAINT `fk_detalle_proyecto_area1` FOREIGN KEY (`idArea`) REFERENCES `area` (`idArea`) ON DELETE NO ACTION ON UPDATE NO ACTION,
@@ -3520,38 +3437,38 @@ ALTER TABLE `detalle_proyecto`
   ADD CONSTRAINT `fk_detalle_proyecto_proyecto1` FOREIGN KEY (`proyecto_numero_orden`) REFERENCES `proyecto` (`numero_orden`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 --
--- Filtros para la tabla `detalle_teclados`
+-- Constraints for table `detalle_teclados`
 --
 ALTER TABLE `detalle_teclados`
   ADD CONSTRAINT `fk_detalle_teclados_Procesos1` FOREIGN KEY (`idproceso`) REFERENCES `procesos` (`idproceso`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   ADD CONSTRAINT `fk_detalle_teclados_detalle_proyecto1` FOREIGN KEY (`idDetalle_proyecto`) REFERENCES `detalle_proyecto` (`idDetalle_proyecto`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 --
--- Filtros para la tabla `procesos`
+-- Constraints for table `procesos`
 --
 ALTER TABLE `procesos`
   ADD CONSTRAINT `fk_Procesos_area1` FOREIGN KEY (`idArea`) REFERENCES `area` (`idArea`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 --
--- Filtros para la tabla `procesos_producto`
+-- Constraints for table `procesos_producto`
 --
 ALTER TABLE `procesos_producto`
   ADD CONSTRAINT `fk_Procesos_productoto_condicion_producto1` FOREIGN KEY (`idCondicion`) REFERENCES `condicion_producto` (`idCondicion`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 --
--- Filtros para la tabla `proyecto`
+-- Constraints for table `proyecto`
 --
 ALTER TABLE `proyecto`
   ADD CONSTRAINT `fk_proyecto_usuario` FOREIGN KEY (`usuario_numero_documento`) REFERENCES `usuario` (`numero_documento`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 --
--- Filtros para la tabla `usuario`
+-- Constraints for table `usuario`
 --
 ALTER TABLE `usuario`
   ADD CONSTRAINT `fk_usuario_cargo1` FOREIGN KEY (`cargo_idcargo`) REFERENCES `cargo` (`idcargo`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 --
--- Filtros para la tabla `usuariopuerto`
+-- Constraints for table `usuariopuerto`
 --
 ALTER TABLE `usuariopuerto`
   ADD CONSTRAINT `fk_usuario_puerto1` FOREIGN KEY (`documentousario`) REFERENCES `usuario` (`numero_documento`) ON DELETE NO ACTION ON UPDATE NO ACTION;

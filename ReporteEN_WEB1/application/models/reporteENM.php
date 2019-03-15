@@ -2,7 +2,7 @@
 /**
  * 
  */
-class reporteFEM extends CI_Model 
+class reporteENM extends CI_Model 
 {
 	
 	function __construct()
@@ -26,18 +26,31 @@ class reporteFEM extends CI_Model
 	{
 		$this->load->database();
 
-		$query = $this->db->query("CALL PA_ConsultarEstadoLecturaFacilitador('43975208');");
+		$query = $this->db->query("CALL PA_ConsultarEstadoLecturaFacilitador('1037587834');");
 
 		$result = $query->row();
 
 		return $result->estadoLectura;
 	}
 
+	public function estructurarEncabezadoM()
+	{
+		$this->load->database();
+
+		$query = $this->db->query("CALL PA_ConsultarProcesoAreaReporte(3);");//El 3 hace referencia 
+
+		$result= $query->result();
+
+		$this->db->close();
+
+		return $result;
+	}
+
 	public function consultarInformacionCuerpoTablaM()
 	{
 		$this->load->database();
 
-		$query = $this->db->query("CALL PA_InformeNFE();");
+		$query = $this->db->query("CALL PA_InformeNEN();");
 
 		$result= $query->result();
 

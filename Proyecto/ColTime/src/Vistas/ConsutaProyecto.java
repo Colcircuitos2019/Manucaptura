@@ -421,7 +421,7 @@ public class ConsutaProyecto extends javax.swing.JFrame {
 
             },
             new String [] {
-                "idDetalle", "Área", "Producto", "Cantidad", "Estado", "Material", "PNC", "Antisolder", "Ruteo"
+                "idDetalle", "Área", "Producto", "Cantidad", "Estado", "Material", "PNC"
             }
         ));
         jTDetalleProductos.setFillsViewportHeight(true);
@@ -1006,6 +1006,7 @@ public class ConsutaProyecto extends javax.swing.JFrame {
             obj.setNombreProyecto(nombreProyecto);
             obj.setFecha(fecha);
             String tipo = "";
+            // ---
             if (jRIngreso.isSelected()) {//<-- Remplazar esto por un switch
                 tipo = "Ingreso";
             } else if (jREntrega.isSelected()) {
@@ -1173,6 +1174,7 @@ public class ConsutaProyecto extends javax.swing.JFrame {
         consultarProyectos("", "", "", "", estadoSeleccionado);
         jTDetalleProductos.setModel(new DefaultTableModel(null, encabezadosTBProductos));
         jTProcesoProducto.setModel(new DefaultTableModel(null, encabezadosTBProcesos));
+        tamañoColumnasTabla(jTDetalleProductos,new Objeto_tabla[]{new Objeto_tabla(7,0), new Objeto_tabla(8,0)});
         limpiarCampos();
         jTNumerOrden.setEnabled(estadoSeleccionado==0);
         jTNombreCliente.setEnabled(estadoSeleccionado==0);

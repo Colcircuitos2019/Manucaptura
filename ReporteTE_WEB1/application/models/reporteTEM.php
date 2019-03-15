@@ -37,7 +37,7 @@ class reporteTEM extends CI_Model
 	{
 		$this->load->database();
 
-		$query = $this->db->query("CALL PA_ConsultarPRocesosReporteENoTE(2);");//El 3 hace referencia 
+		$query = $this->db->query("CALL PA_ConsultarProcesoAreaReporte(2);");//El 3 hace referencia 
 
 		$result= $query->result();
 

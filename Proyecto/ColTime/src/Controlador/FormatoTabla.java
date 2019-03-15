@@ -12,7 +12,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 
 public class FormatoTabla extends DefaultTableCellRenderer {
 
-    private static int columna_patron;
+    private int columna_patron;
 
     public FormatoTabla(int Colpatron) {
         this.columna_patron = Colpatron;
@@ -27,23 +27,29 @@ public class FormatoTabla extends DefaultTableCellRenderer {
         setBackground(Color.white);//color de fondo
         table.setForeground(Color.black);//color de texto
         table.setCursor(new Cursor(java.awt.Cursor.HAND_CURSOR));
-//        table.setBorder(new BorderUIResource(noFocusBorder));
         this.setHorizontalAlignment(SwingConstants.CENTER);
+        //        table.setBorder(new BorderUIResource(noFocusBorder));
         //Si la celda corresponde a una fila con estado FALSE, se cambia el color de fondo a rojo
         if (table.getName().equals("Proyecto")) {
+            
             if (table.getValueAt(row, 9).toString().equals("1")) {
-                if (table.getValueAt(row, columna_patron).equals("Por iniciar")) {
-                    setBackground(Color.white);
-                } else if (table.getValueAt(row, columna_patron).equals("Pausado")) {
-                    setBackground(orange);//Orange
-                } else if (table.getValueAt(row, columna_patron).equals("Terminado")) {
-                    setBackground(green);//Green
-                } else if (table.getValueAt(row, columna_patron).equals("Ejecucion")) {
-                    setBackground(gray);//Gray
+                    switch (table.getValueAt(row, columna_patron).toString()) {
+                        case "Por iniciar":
+                            setBackground(Color.white);
+                            break;
+                        case "Pausado":
+                            setBackground(orange);//Orange
+                            break;
+                        case "Terminado":
+                            setBackground(green);//Green
+                            break;
+                        case "Ejecucion":
+                            setBackground(gray);//Gray
+                            break;
+                    }
+                } else {
+                    setBackground(red);
                 }
-            } else {
-                setBackground(red);
-            }
             // ...
             if(column == 8){
                 switch(String.valueOf(table.getValueAt(row, column))){
@@ -56,20 +62,30 @@ public class FormatoTabla extends DefaultTableCellRenderer {
                 }
             }
         } else {
-            if (table.getValueAt(row, columna_patron).equals("Por iniciar")) {
-                setBackground(Color.white);
-            } else if (table.getValueAt(row, columna_patron).equals("Pausado")) {
-                setBackground(orange);//Orange
-            } else if (table.getValueAt(row, columna_patron).equals("Terminado")) {
-                setBackground(green);//Green
-            } else if (table.getValueAt(row, columna_patron).equals("Ejecucion")) {
-                setBackground(gray);//Gray
-            } else if (table.getValueAt(row, columna_patron).equals("Parada")) {
-                setBackground(red);//Red
-            }
+            switch(table.getValueAt(row, columna_patron).toString()){
+                    case "Por iniciar":
+                        setBackground(Color.white);
+                        break;
+                    case "Pausado":
+                        setBackground(orange);//Orange
+                        break;
+                    case "Terminado":
+                        setBackground(green);//Green
+                        break;
+                    case "Ejecucion":
+                        setBackground(gray);//Gray
+                        break;
+                    case "Parada":
+                        setBackground(red);//Gray
+                        break;
+                }
         }
         
-        table.getTableHeader().setFont(new Font("Arial",1,15));
+        if(column == 0 && row == 0){
+            
+            table.getTableHeader().setFont(new Font("Arial", 1, 15));
+            
+        }
         
         super.getTableCellRendererComponent(table, value, selected, focused, row, column);
         return this;

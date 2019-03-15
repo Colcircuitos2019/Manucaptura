@@ -103,12 +103,12 @@ public class ConexionPS {
 //                            if (infoP.length == 6 || (infoP.length == 7 && ((!infoP[6].equals("0") && !infoP[3].equals("18")) || ((infoP[6].equals("0") || !infoP[6].equals("18")) && infoP[3].equals("18"))))) {
                             //El codigo de operario siempre va a contener una longitud del vecto de 6 espaciós en la memoria EEPROM
                                 //...
-                                if (Character.isDigit(valorBeta.charAt(1))) {//Valida que el valor de entrada sea el correcto//Funcionamiento con wifi
+                                if (Character.isDigit(valorBeta.charAt(0))) {//Valida que el valor de entrada sea el correcto//Funcionamiento con wifi
                                     //...
                                     obj.LecturaCodigoQR(valorBeta);//Se encargara de ler el codigo QR
                                     //--------------------------------------------------
                                     //Limpieza de la memoria RAM
-                                    System.gc();//Garbage collector.  
+                                    System.gc();//Garbage collector.
                                 }
 //                            }
                             //...

@@ -25,24 +25,22 @@ class reporteFE extends CI_Controller
 	public function cabezaReporte()
 	{
 		//EN un futuro los procesos van a ser versatiles, entonces se tendran que consultar, por el momento van ha estar quemados en el código.
-		$cabeza="<tr>
-					<th>N°Orden</th>
+		$procesos = $this->reporteFEM->consultarProcesosDelAreaM();
+		// ...
+		$cabeza="<tr><th>N°Orden</th>
 					<th>M.T</th>
 					<th>Cant</th>
 					<th>Tipo producto</th>
-					<th>Perforado</th>
-					<th>Quimicos</th>
-					<th>Caminos</th>
-					<th>Quemado</th>
-					<th>C.C.TH</th>
-					<th>Screen</th>
-					<th>Estañado</th>
-					<th>C2</th>
-					<th>Ruteo</th>
-					<th>Maquinas</th>
-					<th>PNC</th>
-				</tr>";
+					";
 
+
+		foreach ($procesos as $proceso) {
+			
+			$cabeza.="<th>".$proceso->nombre_proceso."</th>";
+
+		}
+
+		$cabeza.="<th>PNC</th></tr>";
 
 		echo $cabeza;
 	}
@@ -140,20 +138,20 @@ class reporteFE extends CI_Controller
 		echo $cuerpoHTML;
 	}
 
-	public function ProcesosEstadoInicial()
+	public function ProcesosEstadoInicial() // Modificar
 	{
-		return array(
-					  "1" => array("estado" => 0, "cantidadP" => 0), // Perforado
-					  "2" => array("estado" => 0, "cantidadP" => 0), // Quimicos
-					  "3" => array("estado" => 0, "cantidadP" => 0), // Caminos
-					  "4" => array("estado" => 0, "cantidadP" => 0), // Quemado
-					  "5" => array("estado" => 0, "cantidadP" => 0), // C.C.TH
-					  "6" => array("estado" => 0, "cantidadP" => 0), // Screen
-					  "7" => array("estado" => 0, "cantidadP" => 0), // Estañado
-					  "8" => array("estado" => 0, "cantidadP" => 0), // C.C2
-					  "9" => array("estado" => 0, "cantidadP" => 0), // Ruteo
-					  "10" => array("estado" => 0, "cantidadP" => 0), // Maquinas
-					);
+		$procesos = $this->reporteFEM->consultarProcesosDelAreaM();
+
+		$registro = [];
+
+		foreach ($procesos as $proceso) {
+
+			$registro[$proceso->idproceso] = array("estado" => 0, "cantidadP" => 0);
+
+		}
+
+		return $registro;
+
 	}
 
 	public function construccionRowProyecto($procesos, $PNC)

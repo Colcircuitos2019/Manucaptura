@@ -1750,8 +1750,10 @@ public class proyecto extends javax.swing.JPanel {
     private void validarFormularioDeProyecto(int op) {
         //Validar los campos principales del proyecto-------------------------->
         if (jDeEntrega.getDate() != null && cbTipoEjecucion.getSelectedIndex() > 0 && !jTNombreCliente.getText().equals("") && !jTNombreProyecto.getText().equals("") && contarRadiosPresionados() == validarCantidadesIngresadasProductos() && contarRadiosPresionados() > 0 && validarCantidadesIngresadasProductos() > 0 && validarFechaEntregaSiguienteProceso() && validarFechaEntregaPCB()) {
+            
             //Ten en cuenta que se tiene que validar cuando se vaya a modificar estos mismos campos para saber si se elimina las fechas o no se eliminan.
             registrarModificarInformacionDelProyecto(op);
+            
         } else {
             new rojerusan.RSNotifyAnimated("¡Error!", "Falta algun campo por diligenciar.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.WARNING).setVisible(true);
         }
@@ -2196,7 +2198,7 @@ public class proyecto extends javax.swing.JPanel {
         }
     }
 
-    private boolean RegistrarModificarDetalle(String numeroOrden, int op) { // <- Registrar el detalle de los proyectos es lo que se va a reestructurar...
+    private boolean RegistrarModificarDetalle(String numeroOrden, int op) {
         DetalleProyecto obj = new DetalleProyecto();
         boolean res = false;
         int op1 = 0;
@@ -2369,6 +2371,7 @@ public class proyecto extends javax.swing.JPanel {
             try {
                 Thread.sleep(500);
             } catch (Exception e) {
+                e.printStackTrace();
             }
         } else {
             //Mensaje de la eliminacion no se pudo realizar por que ya comenzo su ejecucion (Esto solo se pone por seguridad) de resto no va a funcionar

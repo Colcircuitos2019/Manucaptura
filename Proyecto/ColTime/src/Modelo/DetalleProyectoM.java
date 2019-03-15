@@ -103,9 +103,12 @@ public class DetalleProyectoM {
                 rs = ps.executeQuery();
                 rs.next();
                 if (rs.getInt(1) != 0) {
+                    
                     //Se modifica siempre y cuando el proyecto tenga un PNC ya registrado en la misma ubicacion <-- modificacion de los productos no conformes...
                     modificarDetalleProyectos(numerOrden, rs.getInt(1), cantidad, material, area, tipoProducto, procesoPNC);// Pendiente actualizar<----
+                    
                 } else {
+                    
                     //Si no se registra el producto no conforme desde 0 
                     Qry = "SELECT FU_RegistrarDetalleProyecto(?,?,?,?,?,?,?,?,?,?)";
                     ps = con.prepareStatement(Qry);
@@ -169,7 +172,7 @@ public class DetalleProyectoM {
                             //Registro de Procesos del producto del área de Teclados - TE
                             registrarProcesosAreaProducto(numerOrden, idTipoProducto, procesoPNC, material, 2, antisolder, ruteo);
                             break;
-                        case "IN": // Ensamble
+                        case "EN": // Ensamble
                             // ...
                             //Registro de Procesos del producto del área de Teclados - TE
                             registrarProcesosAreaProducto(numerOrden, idTipoProducto, procesoPNC, material, 3, antisolder, ruteo);
@@ -377,18 +380,25 @@ public class DetalleProyectoM {
                     ps = con.prepareStatement(Qry);
                     ps.setInt(1, idCondicional);
                     rs = ps.executeQuery();
+                    
                     // ...
-                    while (rs.next()) { //Registrar los procesos de FE que tendra el producto
+                    while (rs.next()) { //Registrar los proceso que tendra el producto
                         Qry = "CALL PA_RegistrarProcesosProductos(?,?,?,?,?);";
                         ps = con.prepareStatement(Qry);
                         ps.setInt(1, rs.getInt("idProceso"));
-                        ps.setInt(2, idDetalleProducto); //idDetalleProyecto
+                        ps.setInt(2, idDetalleProducto);
                         ps.setInt(3, rs.getInt("orden"));
                         ps.setInt(4, area);
                         ps.setInt(5, rs.getInt("procesoFinal"));
                         ps.execute();
                     }
                     
+                    // ...
+                    Qry = "SELECT FU_CantidadProcesosProducto(?,?);";
+                    ps = con.prepareStatement(Qry);
+                    ps.setInt(1, idDetalleProducto);
+                    ps.setInt(2, area);
+                    ps.execute();
                 }
                 
             }
@@ -592,7 +602,7 @@ public class DetalleProyectoM {
             String Qry = "";
             int idTipoProducto = numeroDelTipo(tipoProducto);
             //1- Modificar la informacion del producto detalle del proyecto siempre y cuando sea necesario
-            Qry = "SELECT FU_ModificarInfoDetalleProyecto(?,?,?,?,?,?,?,?)";//<-----
+            Qry = "SELECT FU_ModificarInfoDetalleProyecto(?,?,?,?,?,?,?,?)";//
             ps = con.prepareStatement(Qry);
             ps.setInt(1, idDetalleProyecto);
             ps.setString(2, cantidad);
@@ -620,7 +630,7 @@ public class DetalleProyectoM {
             rs = ps.executeQuery();
             rs.next();
             res = rs.getBoolean(1);
-            if(res){//Se necesita eliminar y volver a registrar los procesos del producto.
+            if(res){
                 
                 //Eliminar proceso del producto...
                 Qry = "CALL PA_EliminarProcesosProductoProyecto(?,?);";
@@ -636,10 +646,15 @@ public class DetalleProyectoM {
                     
                 }
                 
+            }else{
+                
+                // No se actualizo la informacion del producto por que no se le realizo ninguna modificacion a la información...
+                res = true;
+                
             }
             
             // ...................................................................................................
-
+            // Esto se va a eliminar...
 //            if (!material.equals("GF")) {
 //                // ...
 //                if (area.equals("FE") && (tipoProducto.equals("Circuito") || tipoProducto.equals("PCB"))) {
@@ -799,7 +814,7 @@ public class DetalleProyectoM {
                 case 1:// FE
                 case 2:// TE
                 case 4:// Almacen
-                    Qry = "CALL PA_DetalleProyectosProduccion(?,?,?)";
+                    Qry = "CALL PA_DetalleProyectosProduccion(?,?,?)"; // <------- Ver la posibilidad de reducir esto a un solo procedimiento almacenado
                     break;
                 case 3:// EN
                     Qry = "CALL PA_DetalleDeProduccionProyectosActivos(?,?,?)";
@@ -827,7 +842,7 @@ public class DetalleProyectoM {
         }
         return crs;
     }
-
+// Esto se puede eliminar
     public boolean eliminarDetallersProyecto(int idDetalle, int numeOrden, String area, String tipoProducto, int accion) {
         //Eliminar detalle del proyecto, detalle de formato estandar, detalle de teclado y detalle de ensamble
         String Qry = null;
@@ -852,7 +867,7 @@ public class DetalleProyectoM {
                 //Eliminar un solo detalle de PNC
                 eliminarDetalleProyecto(num_area, numeOrden, rs, idDetalle);
             } else {
-                //Eliminar muchos detalles y PNC
+                //Eliminar muchos detalles y PNC (En dado caso que tenga)
                 Qry = "CALL PA_EliminarProductosNoConformes(?,?,?)";
                 ps = con.prepareStatement(Qry);
                 int numeroTipo = numeroDelTipo(tipoProducto);
@@ -861,25 +876,32 @@ public class DetalleProyectoM {
                 ps.setInt(3, num_area);
                 rs = ps.executeQuery();
                 while (rs.next()) {
-                    
+                    // ...
                     eliminarDetalleProyecto(num_area, numeOrden, rs1, rs.getInt(1));
-                    
+                    // ...
                 }
             }
-            //Validar detalles para validar estado del proyecto
-            Qry = "CALL PA_DetallesparaValidarEstado(?)";
+            //Validar detalles para validar estado del proyecto <------- esto se va a eliminar
+            // PA_CambiarEstadoDeProyecto Remplazar unicamanete por este procedimiento almacenado
+            Qry = "CALL PA_CambiarEstadoDeProyecto(?)";
             ps = con.prepareStatement(Qry);
             ps.setInt(1, numeOrden);
-            //ps.setInt(2, n);
             rs = ps.executeQuery();
-            //Detalles  a validar
-            while (rs.next()) {
-                Qry = "CALL PA_CambiarEstadoDeProductos(?,?)";
-                ps = con.prepareStatement(Qry);
-                ps.setInt(1, rs.getInt(2));
-                ps.setInt(2, rs.getInt(1));
-                ps.execute();
-            }
+//            Qry = "CALL PA_DetallesparaValidarEstado(?)";
+//            ps = con.prepareStatement(Qry);
+//            ps.setInt(1, numeOrden);
+//            //ps.setInt(2, n);
+//            rs = ps.executeQuery();
+//            //Detalles  a validar
+//            while (rs.next()) {
+//                
+//                Qry = "CALL PA_CambiarEstadoDeProductos(?,?)";
+//                ps = con.prepareStatement(Qry);
+//                ps.setInt(1, rs.getInt(2));
+//                ps.setInt(2, rs.getInt(1));
+//                ps.execute();
+//                
+//            }
             //Cierre de conexiones
             conexion.cerrar(rs);
             conexion.cerrar(rs1);
@@ -896,26 +918,8 @@ public class DetalleProyectoM {
         //Query------------------------------------------------------------>
         int n = 0;
         try {
-//            switch (area) {
-//                case "FE":
-//                    //Quiery para eliminar el detalle de formato estandar
-//                    Qry = "SELECT FU_EliminarDetalleProyectoFormatoestandar(?,?)";//<------ Pendiente eliminar
-//                    n = 1;
-//                    break;
-//                case "TE":
-//                    Qry = "SELECT FU_EliminarDetalleProyectoTeclados(?,?)";//<------ Pendiente eliminar
-//                    n = 2;
-//                    break;
-//                case "IN":
-//                    Qry = "SELECT FU_EliminarDetalleProyectoEnsamble(?,?)";//<------ Pendiente eliminar
-//                    n = 3;
-//                    break;
-//                case "ALMACEN":
-//                    Qry = "SELECT FU_EliminarDetalleProyectoAlmacen(?,?)";// <---- Todo lo relacionado con el almacen no se va a utilizar 
-//                    n = 4;
-//                    break;
-//            }
-            // pruebaDesarrollo - PA_CambiarEstadoDeProyecto - PA_EliminarProductosNoConformes
+//          Pendiente
+//          Qry = "SELECT FU_EliminarDetalleProyectoAlmacen(?,?)";// <---- Todo lo relacionado con el almacen no se va a utilizar 
             String Qry = "CALL PA_EliminarProcesoProducto(?,?);";
             ps = con.prepareStatement(Qry);
             ps.setInt(1, idDetalleProducto);
