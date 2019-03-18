@@ -22,7 +22,7 @@ public class FE_TE_INM {
     boolean res;
     String orden = "";
     String fecha = "";
-    String Tiempo_Total = "";
+//    String Tiempo_Total = "";
     int cantidadAntigua = 0;
     int estado = 0;
     boolean accion=true;
@@ -77,8 +77,6 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
                     ps.setInt(3, area);
                     rs = ps.executeQuery();
                     rs.next();
-                    //Factor de conversion de hora HH:MM:SS a MM:SS y suma de tiempos.
-                    Tiempo_Total = convertirHorasAMinutosYSumarTiempos(rs.getString("timpo_total_proceso").split(":"), rs.getString("tiempo_ejecucion").split(":"));
                     // ...
                     //Si el proceso que pasa la cantidades es igual al proceso que recibe las cantidades entonces el proceso al que pasa las cantidades va a ser 0
                     if(idLector == procesoPasoCantidades){//Se hace para evitar que me coloque las cantidades terminadas en el mismo proceso
@@ -91,7 +89,7 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
                     ps.setInt(2, idDetalle);
                     ps.setInt(3, idLector);
                     ps.setInt(4, area);
-                    ps.setString(5, Tiempo_Total);
+                    ps.setString(5, rs.getString("tiempoTotal"));
                     ps.setInt(6, cantidadTerminada);
                     ps.setInt(7, cantidadAntigua);
                     ps.setInt(8, cantidadProceso);
@@ -99,11 +97,11 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
                     ps.execute();//Respuesta es igual a True para poder agregar los botones, Ya no es necesario esta respuesta para buscar los botones
                     res=true;
                     // ...
-                    calcularPromedioProductoPorMinuto(idDetalle, area, idLector);
+                    calcularPromedioProductoPorMinuto(idDetalle, area, idLector);// Terminado <- pendiente probar correciones
                     // ...
-                    calculatTiempoTotalProducto(idDetalle, area);
+                    calculatTiempoTotalProducto(idDetalle, area);// terminado <- Pendiente probar correcciones
                     // ...
-                    calcularTiempoTotalPorUnidad(idDetalle, area);
+                    calcularTiempoTotalPorUnidad(idDetalle, area);// Esto va a cambiar
                     //...
                 } else {
                     res = accion;
@@ -216,53 +214,54 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
         }
         return res;//Falta asignarle este true a una variable
     }
-
-    public void calcularTiempoTotalPorUnidad(int detalle, int negocio) {
+    
+    public void calcularTiempoTotalPorUnidad(int idDetalle, int area) {
         try {
-            String Qry = "CALL PA_ValidarEstadoProyecto(?,?)";
+            String Qry = "CALL PA_ConsultarTiempoPorUnidadProcesosTerminados(?,?)";
             ps = con.prepareStatement(Qry);
-            ps.setInt(1, detalle);
-            ps.setInt(2, negocio);
+            ps.setInt(1, idDetalle);
+            ps.setInt(2, area);
             rs = ps.executeQuery();
-            String tiempoTotalProducto = totalTiempoProyectoyProducto(rs);
             // ...
-            if (!tiempoTotalProducto.equals("00:00")) {
+            String tiempoTotalProducto = sumarTiempos(rs);//
+            // ...
+            if(tiempoTotalProducto.equals("")){
                 Qry = "CALL PA_ActualizarTiempoTotalPorUnidad(?,?)";
                 ps = con.prepareStatement(Qry);
-                ps.setInt(1, detalle);
-                ps.setString(2, String.valueOf(tiempoTotalProducto));
-                ps.executeQuery();
-            } else {
-                //Actualizar el tiempo total por unidad a null
-                // ...
+                ps.setInt(1, idDetalle);
+                ps.setString(2, tiempoTotalProducto);
+                ps.executeQuery(); 
             }
             // ...
         } catch (Exception e) {
-//            JOptionPane.showMessageDialog(null, "Error! " + e);
+            e.printStackTrace();
         }
     }
     
-//  Esto lo puede realizar la base de datos
-    private String totalTiempoProyectoyProducto(ResultSet crsT) {
-        int minutos = 0;
-        int segundos = 0;
-        String tiempo[] = null;
+////  Esto lo puede realizar la base de datos
+    private String sumarTiempos(ResultSet rsTiempos) {
+        ResultSet rs = null;
+        String tiempo="00:00:00";
+        //...
         try {
-            while (crsT.next()) {
-                tiempo = crsT.getString(1).split(":");// o=Minutos y 1=Segundos
-                segundos += Integer.parseInt(tiempo[1]);
-                minutos += Integer.parseInt(tiempo[0]);
-            }
-            //Convrtir minutos a segundos
-            while (segundos >= 60) {
-                minutos++;
-                segundos = segundos - 60;
+            while (rsTiempos.next()) {
+                
+                ps = con.prepareStatement("CALL PA_SumarTiempos(?,?);");
+                ps.setString(1, tiempo);
+                ps.setString(2, rsTiempos.getString(1));
+                rs = ps.executeQuery();
+                if(rs.next()){
+                    
+                    tiempo = rs.getString("total_tiempo");
+                    
+                }
+                
             }
         } catch (Exception e) {
-            //JOptionPane.showMessageDialog(null,"Error: " + e);
+            e.printStackTrace();
         }
         // ...
-        return construirCadenaDeTiempo(minutos, segundos);
+        return tiempo;
     }
 
     public void calculatTiempoTotalProducto(int idDetalle, int area) {
@@ -276,24 +275,20 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
             ps.setInt(1, idDetalle);
             ps.setInt(2, area);
             rs = ps.executeQuery();
-            String cadena = totalTiempoProyectoyProducto(rs);
-            //...
+            // ...
+            String tiempo_total = sumarTiempos(rs);// sumarTiempos
+            // ...
             Qry = "CALL PA_ActualizarTiempoTotalProducto(?,?)";
             ps = con.prepareStatement(Qry);
             ps.setInt(1, idDetalle);
-            ps.setString(2, cadena);
+            ps.setString(2, tiempo_total);
             ps.execute();
             //...
         } catch (Exception e) {
-//            JOptionPane.showMessageDialog(null, "Error! " + e);
+            e.printStackTrace();
         }
     }
 
-    private String construirCadenaDeTiempo(int minutos, int segundos){
-        //Cadena de String Hora Formato MM:SS 00:00
-        return (((minutos <= 9) ? "0" : "") + minutos + ":" + ((segundos <= 9) ? "0" : "") + segundos); 
-    }
-    
     private void calcularPromedioProductoPorMinuto(int idDetalleProyecto, int area, int idLector) {
         try {
             conexion = new Conexion(1);
@@ -308,64 +303,64 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
             rs = ps.executeQuery();
             // ...
             if (rs.next()) {
-                String timeP = procesoPorMinuto(rs.getString(1), Integer.parseInt(rs.getString(2)));
                 //...
-                Qry = "CALL PA_ActualizarProductoPorMinuto(?,?,?,?)";
+                Qry = "CALL PA_ActualizarProductoPorMinuto(?,?,?,?,?)";
                 ps = con.prepareStatement(Qry);
                 ps.setInt(1, idDetalleProyecto);
                 ps.setInt(2, area);
                 ps.setInt(3, idLector);
-                ps.setString(4, timeP);
+                ps.setString(4, rs.getString("tiempo_total_por_proceso"));
+                ps.setInt(5, rs.getInt("cantidad_terminada"));
                 ps.execute();
-                //...
+                //... SELECT SEC_TO_TIME(ROUND((TIME_TO_SEC("00:05:00")/2),0))
             }
         } catch (Exception e) {
-//            JOptionPane.showMessageDialog(null, "Error! " + e);
+            e.printStackTrace();
         }
     }
 
-    public String procesoPorMinuto(String timepo, int cantidad) {
-        String ms[] = timepo.split(":");// 0= Minutos, 1= Segundos
-        //Se convierte todo en segundos
-        int segundos = (Integer.parseInt(ms[0]) * 60) + Integer.parseInt(ms[1]);
-        //Promedio de tiempo en segundos
-        segundos = (int) Math.ceil(segundos / cantidad);
-        //Se convertira a minutos y segundos otra vez...
-        int minutos = 0;
-        while (segundos >= 60) {
-
-            minutos++;
-            segundos = segundos - 60;
-
-        }
-        // ...
-        return construirCadenaDeTiempo(minutos, segundos);
-    }
+//    public String procesoPorMinuto(String timepo, int cantidad) {
+//        String ms[] = timepo.split(":");// 0= Minutos, 1= Segundos
+//        //Se convierte todo en segundos
+//        int segundos = (Integer.parseInt(ms[0]) * 60) + Integer.parseInt(ms[1]);
+//        //Promedio de tiempo en segundos
+//        segundos = (int) Math.ceil(segundos / cantidad);
+//        //Se convertira a minutos y segundos otra vez...
+//        int minutos = 0;
+//        while (segundos >= 60) {
+//
+//            minutos++;
+//            segundos = segundos - 60;
+//
+//        }
+//        // ...
+//        return construirCadenaDeTiempo(minutos, segundos);
+//    }
 // Lo que hace esta funcion lo puede realizar la base de datos directamente
-    private String convertirHorasAMinutosYSumarTiempos(String total[], String hora[]) {
-        int h, m, s, ma, sa;
-        //Horas, minutos y segundos nuevo tiempo
-        h = Integer.parseInt(hora[0]);
-        m = Integer.parseInt(hora[1]);
-        s = Integer.parseInt(hora[2]);
-        //Minutos antigos y segundos antiguos
-        ma = Integer.parseInt(total[0]);
-        sa = Integer.parseInt(total[1]);
-        if (h >= 1) {
-            //Vamos a convertir las horas en minutos siempre y cuando las horas sean mayores a 0 le sumaremos los minutos antiguos.
-            m += (h * 60);
-        }
-        //--------------------------------------------------------------------->
-        //Sumamos los segundos nuevos con los segundos antiguos
-        s += sa;
-        m += ma;
-        while (s >= 60) {
-            s = (s - 60);
-            m += 1;
-        }
-        // Tiempo convertido a Minutos y segundos    
-        return ((m <= 9) ? "0" : "") + m + ":" + ((s <= 9) ? "0" : "") + s;
-    }
+//    private String convertirHorasAMinutosYSumarTiempos(String total[], String hora[]) {
+//        int h, m, s, ma, sa;
+//        Horas, minutos y segundos nuevo tiempo
+//        h = Integer.parseInt(hora[0]);
+//        m = Integer.parseInt(hora[1]);
+//        s = Integer.parseInt(hora[2]);
+//        Minutos antigos y segundos antiguos
+//        ma = Integer.parseInt(total[0]);
+//        sa = Integer.parseInt(total[1]);
+//        if (h >= 1) {
+//            Vamos a convertir las horas en minutos siempre y cuando las horas sean mayores a 0 le sumaremos los minutos antiguos.
+//            m += (h * 60);
+//        }
+//        --------------------------------------------------------------------->
+//        Sumamos los segundos nuevos con los segundos antiguos
+//        s += sa;
+//        m += ma;
+//        while (s >= 60) {
+//            s = (s - 60);
+//            m += 1;
+//        }
+//         Tiempo convertido a Minutos y segundos    
+//        return ((m <= 9) ? "0" : "") + m + ":" + ((s <= 9) ? "0" : "") + s;
+//    }
 
     public CachedRowSet consultarProyectosEnEjecucion(int negocio) {
         try {

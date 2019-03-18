@@ -1,11 +1,9 @@
 package Vistas;
 
 import Controlador.DetalleProyecto;
-import Controlador.generarXlsx;
 import com.barcodelib.barcode.QRCode;
 import java.awt.Color;
 import java.io.File;
-import javax.sql.rowset.CachedRowSet;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -23,9 +21,7 @@ public class proyecto1 extends javax.swing.JPanel {
         }
     }
 
-    public proyecto1() {//Constructor vacio
-
-    }
+    public proyecto1(){}
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -115,7 +111,7 @@ public class proyecto1 extends javax.swing.JPanel {
 
         jLabel4.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel4.setForeground(new java.awt.Color(128, 128, 131));
-        jLabel4.setText("Negocio:");
+        jLabel4.setText("Área:");
 
         jTTipoNegocio.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         jTTipoNegocio.setColorDeBorde(new java.awt.Color(204, 204, 204));

@@ -16,7 +16,7 @@ public class ConsultarPNC extends javax.swing.JFrame {
         this.cargo = cargo;
         this.vista = vista;
         this.accion = accion;
-        titulo();
+        asignarTituloVista();
         editarColumnasDetalle();
         tamañoColumnas();
         jTNorden.setFocusable(true);
@@ -201,7 +201,7 @@ public class ConsultarPNC extends javax.swing.JFrame {
     private void jButton9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton9ActionPerformed
         this.dispose();
     }//GEN-LAST:event_jButton9ActionPerformed
-    private void tamañoColumnas() {
+    private void tamañoColumnas() {// Modificar La forma de cambiar el tamaño de las columnas
         if (vista == 2) {
             TDetalle.getColumnModel().getColumn(2).setMinWidth(100);
             TDetalle.getColumnModel().getColumn(2).setMaxWidth(100);
@@ -279,13 +279,8 @@ public class ConsultarPNC extends javax.swing.JFrame {
     }//GEN-LAST:event_jTNordenKeyTyped
 
     private void jTNordenKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTNordenKeyReleased
-        if (jTNorden.getText().length() >= 5) {
-            consutarDetalle();
-        } else {
-            String encabezado1[] = {"idDetalle", "Negocio", "Tipo de negocio", "Cantidad", "Estado", "Material", "Ubicacion"};
-            TDetalle.setModel(new DefaultTableModel(null, encabezado1));
-        }
-        tamañoColumnas();
+        consultarProductosNumeroOrdenProyecto();
+        tamañoColumnas();// <- Pendiente modificar este procedimiento
     }//GEN-LAST:event_jTNordenKeyReleased
     //Metodos de consultarPNC--------------------------------------------------->
 
@@ -319,13 +314,14 @@ public class ConsultarPNC extends javax.swing.JFrame {
             proyecto1.op = 1;
         }
         proyecto1.btnModificarPNC.setEnabled(false);
-        if (TDetalle.getValueAt(pos, 1).toString().equals("FE")) {
+        if (TDetalle.getValueAt(pos, 1).toString().equals("FE")) {// Cambiar Esto por un switch
             try {
                 crs = consultarProcesos(Integer.parseInt(TDetalle.getValueAt(pos, 0).toString()));
                 while (crs.next()) {
                     proyecto1.cbProcedoPNC.addItem(crs.getString(1));
                 }
             } catch (Exception e) {
+                e.printStackTrace();
             }
         } else if (TDetalle.getValueAt(pos, 1).toString().equals("TE")) {
             proyecto1.cbProcedoPNC.addItem("Correas y Conversor");
@@ -341,6 +337,7 @@ public class ConsultarPNC extends javax.swing.JFrame {
             proyecto1.cbProcedoPNC.addItem("Linea");
             proyecto1.cbProcedoPNC.addItem("Arnes");
         }
+        // ...
         if (vista == 1) {
             proyecto1.cbProcedoPNC.setEnabled(true);
             proyecto1.jTCantindad.setEnabled(true);
@@ -349,8 +346,8 @@ public class ConsultarPNC extends javax.swing.JFrame {
         } else {
             proyecto1.cbProcedoPNC.setEnabled(true);
             proyecto1.jTCantindad.setEnabled(true);
-            proyecto1.cbProcedoPNC.setSelectedItem(TDetalle.getValueAt(pos, 6).toString());
-            proyecto1.jTCantindad.setText(TDetalle.getValueAt(pos, 3).toString());
+            proyecto1.cbProcedoPNC.setSelectedItem(TDetalle.getValueAt(pos, 6).toString());// <-- Son los unicos dos campos que varia...
+            proyecto1.jTCantindad.setText(TDetalle.getValueAt(pos, 3).toString());//
         }
     }
 
@@ -359,48 +356,34 @@ public class ConsultarPNC extends javax.swing.JFrame {
         return obj.consultarProcesosFE(detalle);
     }
 
-    private void consutarDetalle() {//<----- esto es posible que se pueda eliminar
-        String encabezado1[] = {"idDetalle", "Negocio", "Tipo de negocio", "Cantidad", "Estado", "Material", "Ubicacion"};
+    private void consultarProductosNumeroOrdenProyecto() {//<----- esto es posible que se pueda eliminar
+        String encabezado1[] = {"idDetalleProducto", "Área", "Tipo de negocio", "Cantidad", "Estado", "Material", "Ubicacion"};
         DefaultTableModel model1 = new DefaultTableModel(null, encabezado1);
-        String v1[] = new String[7];
+        String producto[] = new String[7];
         try {
             DetalleProyecto obj = new DetalleProyecto();
             crs = obj.consultar_Detalle_Proyecto(jTNorden.getText());
             while (crs.next()) {
-                if (vista == 1) {
-                    if (!crs.getBoolean(6)) {
-                        //Detalle del proyecto
-                        v1[0] = String.valueOf(crs.getInt(1));//idDetalle
-                        v1[1] = crs.getString(2);//Negocio
-                        v1[2] = crs.getString(3);//Tipo negocio
-                        v1[3] = crs.getString(4);//Cantidad
-                        if (crs.getBoolean(9)) {
-                            v1[4] = crs.getString(5);//Estado
-                        } else {
-                            v1[4] = "Parada";//Estado
-                        }
-                        v1[5] = crs.getString(8);//Material
-                        v1[6] = crs.getString(7);//Ubicación
-                        model1.addRow(v1);
+                //Vista 1 = consultar productos que no son PNC
+                //Vista 2 = consultar productos que sean PNC
+                if (vista ==1?(!crs.getBoolean("PNC")):(crs.getBoolean("PNC"))) {
+                    //...
+                    producto[0] = crs.getString("idDetalle_proyecto");//idDetalleProducto
+                    producto[1] = crs.getString("nom_area");//Área de desarrollo del producto
+                    producto[2] = crs.getString("nombre");//Tipo del Producto
+                    producto[3] = crs.getString("canitadad_total");//Cantidad total del producto
+                    if (crs.getBoolean("parada")) {
+                        producto[4] = crs.getString("estado");//Estado
+                    } else {
+                        producto[4] = "Parada";//Estado
                     }
-                } else {
-                    if (crs.getBoolean(6)) {
-                        //PNC del proyecto
-                        v1[0] = String.valueOf(crs.getInt(1));//idDetalle
-                        v1[1] = crs.getString(2);//Negocio
-                        v1[2] = crs.getString(3);//Tipo negocio
-                        v1[3] = crs.getString(4);//Cantidad
-                        if (crs.getBoolean(9)) {
-                            v1[4] = crs.getString(5);//Estado
-                        } else {
-                            v1[4] = "Parada";//Estado
-                        }
-                        v1[5] = crs.getString(8);//Material
-                        v1[6] = crs.getString(7);//Ubicación
-                        model1.addRow(v1);
-                    }
+                    producto[5] = crs.getString("material");//Material
+                    producto[6] = crs.getString("ubicacion");//Ubicación
+                    // ...
+                    model1.addRow(producto);
                 }
             }
+            // ...
             TDetalle.setModel(model1);
             editarColumnasDetalle();
             FormatoTabla ft = new FormatoTabla(4);
@@ -410,9 +393,9 @@ public class ConsultarPNC extends javax.swing.JFrame {
         }
     }
 
-    private void titulo() {
+    private void asignarTituloVista() {
         if (vista == 1) {
-            jLTitulo.setText("Tipo de negocio");
+            jLTitulo.setText("Tipo productos");
         } else {
             jLTitulo.setText("PNC");
         }

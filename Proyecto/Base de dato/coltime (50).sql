@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 16-03-2019 a las 17:54:56
+-- Tiempo de generación: 18-03-2019 a las 19:02:12
 -- Versión del servidor: 10.1.29-MariaDB
 -- Versión de PHP: 7.2.0
 
@@ -26,21 +26,21 @@ DELIMITER $$
 --
 -- Procedimientos
 --
-CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_ActualizarProductoPorMinuto` (IN `detalle` INT, IN `area` INT, IN `lector` INT, IN `tiempo` VARCHAR(20))  NO SQL
+CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_ActualizarProductoPorMinuto` (IN `idDetalleProducto` INT, IN `area` INT, IN `idLector` INT, IN `tiempo` VARCHAR(20), IN `cantidad_terminada` INT)  NO SQL
 BEGIN
 # ...
 IF area=1 THEN # Formato estandar - FE
 
-	UPDATE detalle_formato_estandar d SET d.tiempo_por_unidad=tiempo WHERE d.idDetalle_proyecto=detalle AND d.idproceso=lector;
+	UPDATE detalle_formato_estandar d SET d.tiempo_por_unidad=(SEC_TO_TIME(ROUND((TIME_TO_SEC(tiempo)/cantidad_terminada),0))) WHERE d.idDetalle_proyecto=idDetalleProducto AND d.idproceso=idLector;
 
 ELSE
  IF area=2 THEN # Teclados - TE
   
- 	UPDATE detalle_teclados d SET d.tiempo_por_unidad=tiempo WHERE d.idDetalle_proyecto=detalle AND d.idproceso=lector;
+ 	UPDATE detalle_teclados d SET d.tiempo_por_unidad=(SEC_TO_TIME(ROUND((TIME_TO_SEC(tiempo)/cantidad_terminada),0))) WHERE d.idDetalle_proyecto=idDetalleProducto AND d.idproceso=idLector;
  
  ELSE # Ensamble - EN
   
- 	UPDATE detalle_ensamble d SET d.tiempo_por_unidad=tiempo WHERE d.idDetalle_proyecto=detalle AND d.idproceso=lector;
+ 	UPDATE detalle_ensamble d SET d.tiempo_por_unidad=(SEC_TO_TIME(ROUND((TIME_TO_SEC(tiempo)/cantidad_terminada),0))) WHERE d.idDetalle_proyecto=idDetalleProducto AND d.idproceso=idLector;
  
  END IF;
 END IF;
@@ -50,10 +50,10 @@ END$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_ActualizarTiempoTotalPorUnidad` (IN `detalle` INT, IN `tiempo` VARCHAR(20))  NO SQL
 UPDATE detalle_proyecto dp SET dp.Total_timepo_Unidad=tiempo WHERE dp.idDetalle_proyecto=detalle$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_ActualizarTiempoTotalProducto` (IN `detalle` INT, IN `cadena` VARCHAR(20))  NO SQL
+CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_ActualizarTiempoTotalProducto` (IN `idDetalleProducto` INT, IN `tiempo_total_producto` VARCHAR(20))  NO SQL
 BEGIN
 
-UPDATE detalle_proyecto dp SET dp.tiempo_total=cadena WHERE dp.idDetalle_proyecto=detalle;
+UPDATE detalle_proyecto dp SET dp.tiempo_total=tiempo_total_producto WHERE dp.idDetalle_proyecto = idDetalleProducto;
 
 END$$
 
@@ -80,21 +80,14 @@ UPDATE detalle_formato_estandar f SET  f.hora_terminacion=now() WHERE f.idDetall
 # Tiempo total del proceso
 SET timpo_total_proceso = (SELECT f.tiempo_total_por_proceso from detalle_formato_estandar f WHERE f.idDetalle_formato_estandar=idDetalleProceso);
 
-# Tiempo de ejecucion del proceso <- Este formato de tiempo que le estoy asignando no me sirve. Ver la forma de modificarlo a 00:00
+# Tiempo de ejecucion del proceso en formato "HH:MM:SS"
 SET tiempo_ejecucion = (SELECT TIME_FORMAT(TIMEDIFF(f.hora_terminacion,f.hora_ejecucion),'%H:%i:%s') from detalle_formato_estandar f WHERE f.idDetalle_formato_estandar=idDetalleProceso);
 
 # Numero de operarios que trabajan en el proceso de la OP
 SET numero_operarios = (SELECT f.noperarios FROM detalle_formato_estandar f WHERE f.idDetalle_formato_estandar = idDetalleProceso);
 
-SELECT timpo_total_proceso, (SELECT CONVERT(sec_to_time(time_to_sec(tiempo_ejecucion) * numero_operarios), char(10))) AS tiempo_ejecucion;
+SELECT CONVERT(ADDTIME(timpo_total_proceso,(SELECT sec_to_time(time_to_sec(tiempo_ejecucion) * numero_operarios))),char(10)) AS tiempoTotal;
 
-#SELECT f.tiempo_total_por_proceso, (SELECT sec_to_time(time_to_sec(tiempo_ejecucion) * numero_operarios)) AS tiempo_ejecucion FROM detalle_formato_estandar f WHERE f.idDetalle_formato_estandar = idDetalleProceso;
-
-#Actualizar el tiempo total de ejecucion del proceso
-#UPDATE detalle_formato_estandar f SET f.tiempo_total_por_proceso = (SELECT ADDTIME(timpo_total_proceso,(SELECT sec_to_time(time_to_sec(tiempo_ejecucion) * numero_operarios)))) WHERE f.idDetalle_formato_estandar=idDetalleProceso;
-
-# Este select significa que el procedimiento fue ejecutado correctamente
-#SELECT 1 AS respuesta;
 # ...
 ELSE
  IF area=2 THEN
@@ -106,15 +99,14 @@ ELSE
 	# Tiempo total del proceso
 	SET timpo_total_proceso = (SELECT t.tiempo_total_por_proceso from detalle_teclados t WHERE t.idDetalle_teclados=idDetalleProceso);
 
-	# Tiempo de ejecucion del proceso <- Este formato de tiempo que le estoy asignando no me sirve. Ver la forma de modificarlo a 00:00
+	# Tiempo de ejecucion del proceso en formato "HH:MM:SS"
 	SET tiempo_ejecucion = (SELECT TIME_FORMAT(TIMEDIFF(t.hora_terminacion,t.hora_ejecucion),'%H:%i:%s') from detalle_teclados t WHERE t.idDetalle_teclados = idDetalleProceso);
 
 	# Numero de operarios que trabajan en el proceso de la OP
 	SET numero_operarios = (SELECT t.noperarios FROM detalle_teclados t WHERE t.idDetalle_teclados = idDetalleProceso);
 
-	SELECT timpo_total_proceso, (SELECT CONVERT(sec_to_time(time_to_sec(tiempo_ejecucion) * numero_operarios),char(10))) AS tiempo_ejecucion;
+	SELECT CONVERT(ADDTIME(timpo_total_proceso,(SELECT sec_to_time(time_to_sec(tiempo_ejecucion) * numero_operarios))),char(10)) AS tiempoTotal;
 
-#SELECT t.tiempo_total_por_proceso,TIME_FORMAT(TIMEDIFF(t.hora_terminacion,t.hora_ejecucion),'%H:%i:%s') as diferencia from detalle_teclados t JOIN detalle_proyecto d on t.idDetalle_proyecto=d.idDetalle_proyecto where d.proyecto_numero_orden=numOrden AND d.idDetalle_proyecto=detalle and t.idproceso=lector and t.estado=4;
 
  ELSE
   IF area=3 THEN
@@ -126,14 +118,13 @@ ELSE
   # Tiempo total del proceso
 	SET timpo_total_proceso = (SELECT e.tiempo_total_por_proceso from detalle_ensamble e WHERE e.idDetalle_ensamble=idDetalleProceso);
 
-	# Tiempo de ejecucion del proceso <- Este formato de tiempo que le estoy asignando no me sirve. Ver la forma de modificarlo a 00:00
+	# Tiempo de ejecucion del proceso en formato "HH:MM:SS"
 	SET tiempo_ejecucion = (SELECT TIME_FORMAT(TIMEDIFF(e.hora_terminacion,e.hora_ejecucion),'%H:%i:%s') from detalle_ensamble e WHERE e.idDetalle_ensamble = idDetalleProceso);
 
 	# Numero de operarios que trabajan en el proceso de la OP
 	SET numero_operarios = (SELECT e.noperarios FROM detalle_ensamble e WHERE e.idDetalle_ensamble = idDetalleProceso);
 
-	SELECT timpo_total_proceso, (SELECT CONVERT(sec_to_time(time_to_sec(tiempo_ejecucion) * numero_operarios),char(10))) AS tiempo_ejecucion;
-  #SELECT f.tiempo_total_por_proceso,TIME_FORMAT(TIMEDIFF(f.hora_terminacion,f.hora_ejecucion),'%H:%i:%s') as diferencia from detalle_ensamble f JOIN detalle_proyecto d on f.idDetalle_proyecto=d.idDetalle_proyecto where d.proyecto_numero_orden=numOrden AND d.idDetalle_proyecto=detalle and f.idproceso=lector and f.estado=4;
+	SELECT CONVERT(ADDTIME(timpo_total_proceso,(SELECT sec_to_time(time_to_sec(tiempo_ejecucion) * numero_operarios))),char(10)) AS tiempoTotal;
   
   END IF;
  
@@ -366,13 +357,7 @@ END$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_ConsultarDetalleProyecto` (IN `orden` VARCHAR(11))  NO SQL
 BEGIN
 
-/*IF estado=0 THEN
-SELECT d.idDetalle_proyecto,n.nom_area,t.nombre,d.canitadad_total,d.estado, d.PNC,d.ubicacion,d.material,p.parada FROM producto t  JOIN detalle_proyecto d on t.idProducto=d.idProducto JOIN area n on d.idArea=n.idArea JOIN proyecto p ON d.proyecto_numero_orden=p.numero_orden WHERE d.proyecto_numero_orden=orden;
-ELSE
-SELECT d.idDetalle_proyecto,n.nom_area,t.nombre,d.canitadad_total,d.estado, d.PNC,d.ubicacion,d.material,p.parada FROM producto t  JOIN detalle_proyecto d on t.idProducto=d.idProducto JOIN area n on d.idArea=n.idArea JOIN proyecto p ON d.proyecto_numero_orden=p.numero_orden WHERE d.proyecto_numero_orden=orden and p.eliminacion=1;
-END IF;*/
-
-SELECT d.idDetalle_proyecto,n.nom_area,t.nombre,d.canitadad_total,d.estado, d.PNC,d.material, d.antisolder, d.ruteo FROM producto t  JOIN detalle_proyecto d on t.idProducto=d.idProducto JOIN area n on d.idArea=n.idArea WHERE d.proyecto_numero_orden=orden;
+SELECT d.idDetalle_proyecto,n.nom_area,t.nombre,d.canitadad_total,d.estado, d.PNC,d.material, d.antisolder, d.ruteo,d.ubicacion,p.parada FROM producto t  JOIN detalle_proyecto d on t.idProducto=d.idProducto JOIN area n on d.idArea=n.idArea JOIN proyecto p ON d.proyecto_numero_orden=p.numero_orden WHERE d.proyecto_numero_orden=orden;
 
 END$$
 
@@ -739,6 +724,30 @@ SELECT p.idproceso,p.nombre_proceso,(EXISTS(SELECT pp.orden FROM procesos_produc
 #SELECT p.idproceso,p.nombre_proceso,(EXISTS(SELECT pp.orden FROM procesos_producto pp WHERE pp.idProceso=p.idproceso AND pp.idCondicion=1)) AS seleccion, (SELECT pp.orden FROM procesos_producto pp WHERE pp.idProceso=p.idproceso AND pp.idCondicion=1) AS orden, (SELECT pp.idProceso_producto FROM procesos_producto pp WHERE pp.idProceso=p.idproceso AND pp.idCondicion=1) AS idProceso_producto FROM procesos p WHERE p.idArea=1 AND p.estado=1;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_ConsultarTiempoPorUnidadProcesosTerminados` (IN `idDetalle` INT, IN `area` INT)  NO SQL
+BEGIN
+
+IF EXISTS(SELECT * FROM detalle_proyecto dp WHERE dp.estado=3 AND dp.idDetalle_proyecto=idDetalle)  THEN
+
+ IF area=1 THEN # Formato Estandar - FE
+ 
+    SELECT df.tiempo_por_unidad FROM detalle_formato_estandar df WHERE df.idDetalle_proyecto=idDetalle AND df.tiempo_por_unidad!='00:00:00';
+    
+ ELSE
+  IF area=2 THEN # Teclados - TE
+  
+      SELECT df.tiempo_por_unidad FROM detalle_teclados df WHERE df.idDetalle_proyecto=idDetalle AND df.tiempo_por_unidad!='00:00:00';
+      
+   ELSE # Ensamble
+   
+      SELECT df.tiempo_por_unidad FROM detalle_ensamble df WHERE df.idDetalle_proyecto=idDetalle AND df.tiempo_por_unidad!='00:00:00';
+      
+  END IF;
+ END IF;
+END IF;
+
+END$$
+
 CREATE DEFINER=`` PROCEDURE `PA_ConsultarTiempoProcesoAreaProduccion` (IN `idProceso` INT, IN `idArea` TINYINT)  NO SQL
 BEGIN
 
@@ -1047,11 +1056,14 @@ END$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_FechaServidor` ()  NO SQL
 SELECT DATE_FORMAT(CURDATE(),'%d-%M-%Y')$$
 
-CREATE DEFINER=`` PROCEDURE `PA_GestionarTiempoInvertidoProcesoMes` (IN `idProceso` INT, IN `tiempo` INT)  NO SQL
+CREATE DEFINER=`` PROCEDURE `PA_GestionarTiempoInvertidoProcesoMes` (IN `idProceso` INT, IN `tiempo` VARCHAR(45))  NO SQL
 BEGIN
 
 DECLARE mes varchar(2);
 DECLARE año varchar(5);
+
+SET mes = (SELECT DATE_FORMAT(CURDATE(),'%m'));
+SET año = (SELECT DATE_FORMAT(CURDATE(),'%Y'));
 
 IF EXISTS(SELECT * FROM tiempo_invertido_mes_proceso tmp WHERE tmp.idproceso = idProceso AND tmp.año_corte=año AND tmp.mes_corte=mes) THEN
 #Si existe va actualizar el registro del proceso del corte de tiempo del mes correspondiente... (se resta con el mes anterior)
@@ -1587,20 +1599,20 @@ END IF;
    CALL PA_CambiarEstadoDeProductos(area,idDetalleProducto);
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_PromedioProductoPorMinuto` (IN `detalle` INT, IN `area` INT, IN `lector` INT)  NO SQL
+CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_PromedioProductoPorMinuto` (IN `idDetalleProducto` INT, IN `area` INT, IN `idLector` INT)  NO SQL
 BEGIN
 IF area=1 THEN
 
-SELECT d.tiempo_total_por_proceso,d.cantidad_terminada FROM detalle_formato_estandar d WHERE d.idDetalle_proyecto=detalle AND d.idproceso=lector AND d.estado=3;
+	SELECT d.tiempo_total_por_proceso,d.cantidad_terminada FROM detalle_formato_estandar d WHERE d.idDetalle_proyecto=idDetalleProducto AND d.idproceso=idLector AND d.estado=3;
 
 ELSE
  IF area=2 THEN
 
-SELECT t.tiempo_total_proceso,t.cantidad_terminada FROM detalle_teclados t WHERE t.idDetalle_proyecto=detalle AND t.idproceso=lector AND t.estado=3;
+	SELECT t.tiempo_total_proceso,t.cantidad_terminada FROM detalle_teclados t WHERE t.idDetalle_proyecto=idDetalleProducto AND t.idproceso=idLector AND t.estado=3;
 
  ELSE
   
- SELECT e.tiempo_total_por_proceso, e.cantidad_terminada FROM detalle_ensamble e WHERE e.idDetalle_proyecto=detalle AND e.idproceso=lector AND e.estado=3;
+ 	SELECT e.tiempo_total_por_proceso, e.cantidad_terminada FROM detalle_ensamble e WHERE e.idDetalle_proyecto=idDetalleProducto AND e.idproceso=idLector AND e.estado=3;
  
  END IF;
 END IF;
@@ -1879,6 +1891,13 @@ UPDATE usuario u SET u.sesion=sec WHERE u.numero_documento=ced;
 
 END$$
 
+CREATE DEFINER=`` PROCEDURE `PA_SumarTiempos` (IN `tiempo1` VARCHAR(10), IN `tiempo2` VARCHAR(10))  NO SQL
+BEGIN
+
+SELECT ADDTIME(tiempo1, tiempo2) AS total_tiempo;
+
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_TiempoEjecucionProceso` (IN `idDetalleProducto` INT, IN `area` INT)  NO SQL
 BEGIN
 
@@ -1927,21 +1946,10 @@ END IF;
 
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_ValidarEstadoProyecto` (IN `detalle` INT, IN `area` INT)  NO SQL
+CREATE DEFINER=`` PROCEDURE `PA_ValidarExistenciaCortesTiemposPorProceso` (IN `idProceso` INT)  NO SQL
 BEGIN
-
-IF EXISTS(SELECT * FROM detalle_proyecto dp WHERE dp.estado=3 AND dp.idDetalle_proyecto=detalle)  THEN
-
- IF area=1 THEN
-    SELECT df.tiempo_por_unidad FROM detalle_formato_estandar df WHERE df.idDetalle_proyecto=detalle AND df.tiempo_por_unidad!='00:00';
- ELSE
-  IF area=2 THEN
-      SELECT df.tiempo_por_unidad FROM detalle_teclados df WHERE df.idDetalle_proyecto=detalle AND df.tiempo_por_unidad!='00:00';
-   ELSE
-      SELECT df.tiempo_por_unidad FROM detalle_ensamble df WHERE df.idDetalle_proyecto=detalle AND df.tiempo_por_unidad!='00:00';
-  END IF;
- END IF;
-END IF;
+	
+	SELECT tmp.tiempo FROM tiempo_invertido_mes_proceso tmp WHERE tmp.mes_corte < DATE_FORMAT(CURDATE(),'%m') AND tmp.año_corte <= DATE_FORMAT(CURDATE(),'%Y') AND tmp.idproceso = idProceso;
 
 END$$
 
@@ -2797,8 +2805,8 @@ INSERT INTO `condicion_producto` (`idCondicion`, `idProducto`, `area`, `material
 
 CREATE TABLE `detalle_ensamble` (
   `idDetalle_ensamble` smallint(6) NOT NULL,
-  `tiempo_por_unidad` varchar(8) NOT NULL DEFAULT '00:00',
-  `tiempo_total_por_proceso` varchar(10) NOT NULL DEFAULT '00:00',
+  `tiempo_por_unidad` varchar(8) NOT NULL DEFAULT '00:00:00',
+  `tiempo_total_por_proceso` varchar(10) NOT NULL DEFAULT '00:00:00',
   `cantidad_terminada` varchar(6) NOT NULL DEFAULT '0',
   `fecha_inicio` date DEFAULT NULL,
   `fecha_fin` date DEFAULT NULL,
@@ -2819,10 +2827,10 @@ CREATE TABLE `detalle_ensamble` (
 --
 
 INSERT INTO `detalle_ensamble` (`idDetalle_ensamble`, `tiempo_por_unidad`, `tiempo_total_por_proceso`, `cantidad_terminada`, `fecha_inicio`, `fecha_fin`, `idDetalle_proyecto`, `idproceso`, `estado`, `hora_ejecucion`, `hora_terminacion`, `noperarios`, `orden`, `cantidadProceso`, `proceso_final`, `mes_de_corte`) VALUES
-(1, '00:07', '00:39', '5', '2019-03-16', '2019-03-16', 3, 15, 3, '2019-03-16 07:50:11', '2019-03-16 07:50:32', 0, 1, '0', 0, '02'),
-(2, '00:00', '00:00', '0', NULL, NULL, 3, 16, 1, NULL, NULL, 0, 0, '0', 0, '0'),
-(3, '00:05', '00:28', '5', '2019-03-16', '2019-03-16', 3, 17, 3, '2019-03-16 07:53:36', '2019-03-16 07:54:04', 0, 0, '0', 0, '02'),
-(4, '00:06', '00:34', '5', '2019-03-16', '2019-03-16', 3, 18, 3, '2019-03-16 07:55:50', '2019-03-16 07:56:02', 0, 0, '0', 1, '03');
+(1, '00:00:07', '00:39', '5', '2019-03-16', '2019-03-16', 3, 15, 3, '2019-03-16 07:50:11', '2019-03-16 07:50:32', 0, 1, '0', 0, '02'),
+(2, '00:00:00', '00:00', '0', NULL, NULL, 3, 16, 1, NULL, NULL, 0, 0, '0', 0, '0'),
+(3, '00:00:05', '00:28', '5', '2019-03-16', '2019-03-16', 3, 17, 3, '2019-03-16 07:53:36', '2019-03-16 07:54:04', 0, 0, '0', 0, '02'),
+(4, '00:00:06', '00:34', '5', '2019-03-16', '2019-03-16', 3, 18, 3, '2019-03-16 07:55:50', '2019-03-16 07:56:02', 0, 0, '0', 1, '03');
 
 -- --------------------------------------------------------
 
@@ -2832,8 +2840,8 @@ INSERT INTO `detalle_ensamble` (`idDetalle_ensamble`, `tiempo_por_unidad`, `tiem
 
 CREATE TABLE `detalle_formato_estandar` (
   `idDetalle_formato_estandar` smallint(6) NOT NULL,
-  `tiempo_por_unidad` varchar(8) NOT NULL DEFAULT '00:00',
-  `tiempo_total_por_proceso` varchar(10) NOT NULL DEFAULT '00:00',
+  `tiempo_por_unidad` varchar(8) NOT NULL DEFAULT '00:00:00',
+  `tiempo_total_por_proceso` varchar(10) NOT NULL DEFAULT '00:00:00',
   `cantidad_terminada` varchar(6) NOT NULL DEFAULT '0',
   `fecha_inicio` date DEFAULT NULL,
   `fecha_fin` date DEFAULT NULL,
@@ -2853,9 +2861,9 @@ CREATE TABLE `detalle_formato_estandar` (
 --
 
 INSERT INTO `detalle_formato_estandar` (`idDetalle_formato_estandar`, `tiempo_por_unidad`, `tiempo_total_por_proceso`, `cantidad_terminada`, `fecha_inicio`, `fecha_fin`, `idDetalle_proyecto`, `idproceso`, `estado`, `hora_ejecucion`, `hora_terminacion`, `noperarios`, `orden`, `cantidadProceso`, `mes_de_corte`) VALUES
-(1, '00:00', '00:00', '0', NULL, NULL, 1, 1, 1, NULL, NULL, 0, 2, '0', '03'),
-(2, '00:00', '00:00', '0', NULL, NULL, 1, 4, 1, NULL, NULL, 0, 1, '10', '03'),
-(3, '00:00', '00:00', '0', NULL, NULL, 1, 10, 1, NULL, NULL, 0, 3, '0', '03');
+(1, '00:00:00', '00:00:00', '0', NULL, NULL, 1, 1, 1, NULL, NULL, 0, 2, '0', '03'),
+(2, '00:00:00', '00:02:24', '0', '2019-03-18', NULL, 1, 4, 2, '2019-03-18 12:59:10', '2019-03-18 12:59:21', 0, 1, '10', '03'),
+(3, '00:00:00', '00:00:00', '0', NULL, NULL, 1, 10, 1, NULL, NULL, 0, 3, '0', '03');
 
 -- --------------------------------------------------------
 
@@ -2877,8 +2885,8 @@ CREATE TABLE `detalle_proyecto` (
   `pro_Ejecucion` tinyint(10) DEFAULT '0',
   `pro_Pausado` tinyint(10) DEFAULT '0',
   `pro_Terminado` tinyint(10) DEFAULT '0',
-  `tiempo_total` varchar(20) NOT NULL DEFAULT '00:00',
-  `Total_timepo_Unidad` varchar(20) NOT NULL DEFAULT '00:00',
+  `tiempo_total` varchar(20) NOT NULL DEFAULT '00:00:00',
+  `Total_timepo_Unidad` varchar(20) NOT NULL DEFAULT '00:00:00',
   `fecha_salida` datetime DEFAULT NULL,
   `lider_proyecto` varchar(13) DEFAULT NULL,
   `antisolder` tinyint(1) DEFAULT '0',
@@ -2891,9 +2899,9 @@ CREATE TABLE `detalle_proyecto` (
 --
 
 INSERT INTO `detalle_proyecto` (`idDetalle_proyecto`, `idProducto`, `canitadad_total`, `material`, `proyecto_numero_orden`, `idArea`, `estado`, `PNC`, `ubicacion`, `pro_porIniciar`, `pro_Ejecucion`, `pro_Pausado`, `pro_Terminado`, `tiempo_total`, `Total_timepo_Unidad`, `fecha_salida`, `lider_proyecto`, `antisolder`, `ruteo`, `mes_de_corte`) VALUES
-(1, 4, '10', 'FV', 1, 1, 1, 0, NULL, 3, 0, 0, 0, '00:00', '00:00', NULL, NULL, 0, 0, '0'),
-(2, 5, '15', NULL, 1, 2, 1, 0, NULL, 4, 0, 0, 0, '00:00', '00:00', NULL, NULL, 0, 0, '0'),
-(3, 1, '5', NULL, 1, 3, 3, 0, NULL, 1, 0, 0, 3, '01:41', '00:18', '2019-03-16 07:56:02', '1007110815', 0, 0, '03');
+(1, 4, '10', 'FV', 1, 1, 2, 0, NULL, 2, 0, 1, 0, '00:02:24', '00:00:00', NULL, NULL, 0, 0, '0'),
+(2, 5, '15', NULL, 1, 2, 1, 0, NULL, 4, 0, 0, 0, '00:00:00', '00:00:00', NULL, NULL, 0, 0, '0'),
+(3, 1, '5', NULL, 1, 3, 3, 0, NULL, 1, 0, 0, 3, '00:01:41', '00:00:18', '2019-03-16 07:56:02', '1007110815', 0, 0, '03');
 
 -- --------------------------------------------------------
 
@@ -2903,8 +2911,8 @@ INSERT INTO `detalle_proyecto` (`idDetalle_proyecto`, `idProducto`, `canitadad_t
 
 CREATE TABLE `detalle_teclados` (
   `idDetalle_teclados` smallint(6) NOT NULL,
-  `tiempo_por_unidad` varchar(8) NOT NULL DEFAULT '00:00',
-  `tiempo_total_por_proceso` varchar(10) NOT NULL DEFAULT '00:00',
+  `tiempo_por_unidad` varchar(8) NOT NULL DEFAULT '00:00:00',
+  `tiempo_total_por_proceso` varchar(10) NOT NULL DEFAULT '00:00:00',
   `cantidad_terminada` varchar(6) NOT NULL DEFAULT '0',
   `fecha_inicio` date DEFAULT NULL,
   `fecha_fin` date DEFAULT NULL,
@@ -2925,10 +2933,10 @@ CREATE TABLE `detalle_teclados` (
 --
 
 INSERT INTO `detalle_teclados` (`idDetalle_teclados`, `tiempo_por_unidad`, `tiempo_total_por_proceso`, `cantidad_terminada`, `fecha_inicio`, `fecha_fin`, `idDetalle_proyecto`, `idproceso`, `estado`, `hora_ejecucion`, `hora_terminacion`, `noperarios`, `orden`, `cantidadProceso`, `proceso_final`, `mes_de_corte`) VALUES
-(1, '00:00', '00:00', '0', NULL, NULL, 2, 11, 1, NULL, NULL, 0, 0, '0', 0, '03'),
-(2, '00:00', '00:00', '0', NULL, NULL, 2, 12, 1, NULL, NULL, 0, 0, '0', 0, '03'),
-(3, '00:00', '00:00', '0', NULL, NULL, 2, 13, 1, NULL, NULL, 0, 0, '0', 0, '03'),
-(4, '00:00', '00:00', '0', NULL, NULL, 2, 14, 1, NULL, NULL, 0, 0, '0', 1, '03');
+(1, '00:00:00', '00:00:00', '0', NULL, NULL, 2, 11, 1, NULL, NULL, 0, 0, '0', 0, '03'),
+(2, '00:00:00', '00:00:00', '0', NULL, NULL, 2, 12, 1, NULL, NULL, 0, 0, '0', 0, '03'),
+(3, '00:00:00', '00:00:00', '0', NULL, NULL, 2, 13, 1, NULL, NULL, 0, 0, '0', 0, '03'),
+(4, '00:00:00', '00:00:00', '0', NULL, NULL, 2, 14, 1, NULL, NULL, 0, 0, '0', 1, '03');
 
 -- --------------------------------------------------------
 
@@ -3231,6 +3239,23 @@ CREATE TABLE `tiempo_invertido_mes_proceso` (
   `tiempo` varchar(45) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+--
+-- Volcado de datos para la tabla `tiempo_invertido_mes_proceso`
+--
+
+INSERT INTO `tiempo_invertido_mes_proceso` (`idtiempo_invertido_mes_proceso`, `año_corte`, `mes_corte`, `idproceso`, `tiempo`) VALUES
+(2, '2019', '02', 1, '00:00'),
+(3, '2019', '03', 4, '00:00'),
+(4, '2019', '03', 10, '00:00'),
+(5, '2019', '03', 11, '00:00'),
+(6, '2019', '03', 12, '00:00'),
+(7, '2019', '03', 13, '00:00'),
+(8, '2019', '03', 14, '00:00'),
+(9, '2019', '03', 15, '00:39'),
+(10, '2019', '03', 16, '00:00'),
+(11, '2019', '03', 17, '00:28'),
+(12, '2019', '03', 18, '00:34');
+
 -- --------------------------------------------------------
 
 --
@@ -3305,7 +3330,7 @@ CREATE TABLE `usuariopuerto` (
 --
 
 INSERT INTO `usuariopuerto` (`documentousario`, `usuarioPuerto`, `rutaQRs`, `estadoLectura`) VALUES
-('43975208', 'COM5', NULL, 0),
+('43975208', 'COM5', NULL, 1),
 ('1017156424', 'COM5', NULL, 1),
 ('981130', 'COM5', 'C:\\Users\\sis.informacion01\\Desktop\\proyecto\\', 0),
 ('71268332', 'COM1', NULL, 0),
@@ -3517,7 +3542,7 @@ ALTER TABLE `proyecto`
 -- AUTO_INCREMENT de la tabla `tiempo_invertido_mes_proceso`
 --
 ALTER TABLE `tiempo_invertido_mes_proceso`
-  MODIFY `idtiempo_invertido_mes_proceso` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `idtiempo_invertido_mes_proceso` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT de la tabla `tiempo_invertido_producto_mes`

@@ -982,7 +982,7 @@ public class DetalleProyectoM {
         return res;
     }
 
-    public boolean ReiniciarDetalle(int detalle, int negocio, int detalleproducto) {
+    public boolean ReiniciarDetalle(int idDetalle, int area, int detalleproducto) {
         //Cuerpo del procedimiento
         try {
             conexion = new Conexion(1);
@@ -991,24 +991,24 @@ public class DetalleProyectoM {
             //Query------------------------------------------------------------>
             String Qry = "SELECT FU_ReiniciarTiempo(?,?)";
             ps = con.prepareStatement(Qry);
-            ps.setInt(1, detalle);
-            ps.setInt(2, negocio);
+            ps.setInt(1, idDetalle);
+            ps.setInt(2, area);
             rs = ps.executeQuery();
             rs.next();
             res = rs.getBoolean(1);
             //Cierre de conexiones
             FE_TE_INM produccion = new FE_TE_INM();
             //Se actualiza la suma total de tiempos totales de procesos
-            produccion.calculatTiempoTotalProducto(detalleproducto, negocio);
+            produccion.calculatTiempoTotalProducto(detalleproducto, area);
             //Se actualiza el total de producto por minuto siempre y cuando el estado del producto sea terminado
-            produccion.calcularTiempoTotalPorUnidad(detalleproducto, negocio);
+            produccion.calcularTiempoTotalPorUnidad(detalleproducto, area);
             //...
             conexion.cerrar(rs);
             conexion.destruir();
             ps.close();
             con.close();
         } catch (Exception e) {
-//            JOptionPane.showMessageDialog(null, "¡Error!" + e);
+            e.printStackTrace();
         }
         return res;
     }

@@ -347,7 +347,7 @@
                 <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                   <Color blue="83" green="80" red="80" type="rgb"/>
                 </Property>
-                <Property name="text" type="java.lang.String" value="Negocio:"/>
+                <Property name="text" type="java.lang.String" value="&#xc1;rea:"/>
               </Properties>
             </Component>
             <Component class="elaprendiz.gui.textField.TextFieldRoundBackground" name="jTTipoNegocio">
