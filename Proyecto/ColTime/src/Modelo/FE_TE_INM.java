@@ -216,6 +216,7 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
     }
     
     public void calcularTiempoTotalPorUnidad(int idDetalle, int area) {
+        ResultSet rs = null;
         try {
             String Qry = "CALL PA_ConsultarTiempoPorUnidadProcesosTerminados(?,?)";
             ps = con.prepareStatement(Qry);
@@ -225,7 +226,7 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
             // ...
             String tiempoTotalProducto = sumarTiempos(rs);//
             // ...
-            if(tiempoTotalProducto.equals("")){
+            if(!tiempoTotalProducto.equals("00:00:00")){
                 Qry = "CALL PA_ActualizarTiempoTotalPorUnidad(?,?)";
                 ps = con.prepareStatement(Qry);
                 ps.setInt(1, idDetalle);
@@ -244,27 +245,28 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
         String tiempo="00:00:00";
         //...
         try {
-            while (rsTiempos.next()) {
-                
-                ps = con.prepareStatement("CALL PA_SumarTiempos(?,?);");
-                ps.setString(1, tiempo);
-                ps.setString(2, rsTiempos.getString(1));
-                rs = ps.executeQuery();
-                if(rs.next()){
-                    
-                    tiempo = rs.getString("total_tiempo");
-                    
-                }
-                
+            if(rsTiempos.next()){
+                do {                    
+                    ps = con.prepareStatement("CALL PA_SumarTiempos(?,?);");
+                    ps.setString(1, tiempo);
+                    ps.setString(2, rsTiempos.getString(1));
+                    rs = ps.executeQuery();
+                    if (rs.next()) {
+
+                        tiempo = rs.getString("total_tiempo");
+
+                    }
+                } while (rsTiempos.next());
             }
         } catch (Exception e) {
-            e.printStackTrace();
+//            e.printStackTrace();
         }
         // ...
         return tiempo;
     }
 
     public void calculatTiempoTotalProducto(int idDetalle, int area) {
+        ResultSet rs = null;
         try {
             conexion = new Conexion(1);
             conexion.establecerConexion();
@@ -289,7 +291,8 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
         }
     }
 
-    private void calcularPromedioProductoPorMinuto(int idDetalleProyecto, int area, int idLector) {
+    private void calcularPromedioProductoPorMinuto(int idDetalleProyecto, int area, int idLector) {// Revisar...
+        ResultSet rs = null;
         try {
             conexion = new Conexion(1);
             conexion.establecerConexion();

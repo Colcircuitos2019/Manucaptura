@@ -42,7 +42,7 @@ public class Tabla {
         // ...
         try {
             crs = consuldateDetalleProduccion();
-            boolean estadoDetalleP=consultarEstadoDetalleProyecto();
+            boolean estadoDetalleP = consultarEstadoDetalleProyecto();
             while (crs.next()) {
                 JButton btn = new JButton("Reiniciar");
                 JButton tiempo = new JButton("Tiempo");
@@ -67,7 +67,7 @@ public class Tabla {
                 v[13] = btn;//Este boton se utiliza para que el administrador pueda reiniciar la toma de tiempo de los procesos de  FE/TE/EN
                 v[14] = crs.getInt(12); //IDDetalle <- No recibe el nombre de la columna
                 v[15] = tiempo;//Este boton se utiliza para parar el tiempo de los procesos de almacen.
-                if(area==3 || area==2){//Seleccion del primer proceso
+                if(area == 3 || area == 2){//Seleccion del primer proceso
                       JRadioButton inicio= new JRadioButton();
                       inicio.setEnabled(estadoDetalleP);//El estado me lo retorna la base de datos
                       inicio.setActionCommand(crs.getString(12)+"-"+detalle);//ID del proceso de ensamble-ID detalle del proyecto de ensamble
@@ -90,7 +90,7 @@ public class Tabla {
 //            tabla.setDefaultRenderer(Object.class, ft);
 
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Error!" + e);
+            e.printStackTrace();
         }
     }
 

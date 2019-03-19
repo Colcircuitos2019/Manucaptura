@@ -171,9 +171,9 @@ public class Proyecto {
         return obj.fechaYdatosProduccion();
     }
 
-    public CachedRowSet proyectosNegocio(int negocio, String orden, String cliente, String proyecto, String tipo) {
+    public CachedRowSet proyectosNegocio(int area, String orden, String cliente, String proyecto, String tipo) {
         ProyectoM obj = new ProyectoM();
-        return obj.proyectosNegocio(negocio, orden, cliente, proyecto, tipo);
+        return obj.proyectosNegocio(area, orden, cliente, proyecto, tipo);
     }
 
     public boolean validarEliminacion(int orden) {
@@ -186,6 +186,11 @@ public class Proyecto {
         return validar.validarEjecucionOParada(orden);
     }
 
+    public CachedRowSet reporteCorteTiemposProductoProyectos(){
+        ProyectoM modelo = new ProyectoM();
+        return modelo.reporteCorteTiemposProductoProyectosM();
+    }
+    
     //Finalizacion de la clase automatica---------------------------------------------------------------->
     @Override
     protected void finalize() throws Throwable {

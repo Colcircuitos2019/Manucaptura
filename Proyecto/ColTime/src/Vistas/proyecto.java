@@ -4,6 +4,7 @@ import Atxy2k.CustomTextField.RestrictedTextField;
 import Controlador.DetalleProyecto;
 import Controlador.Proyecto;
 import Controlador.ProyectoQR;
+import Controlador.generarXlsx;
 import Controlador.rutaQR;
 import coltime.Menu;
 import com.barcodelib.barcode.QRCode;
@@ -174,6 +175,7 @@ public class proyecto extends javax.swing.JPanel {
         jLCircuitoFE1 = new javax.swing.JLabel();
         jLNovedades = new javax.swing.JLabel();
         jLNovedades2 = new javax.swing.JLabel();
+        GenerarQR1 = new elaprendiz.gui.button.ButtonColoredAction();
         jLabel14 = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(219, 219, 219));
@@ -924,14 +926,13 @@ public class proyecto extends javax.swing.JPanel {
         jLIDIntegracion.setText("0");
         jPanel2.add(jLIDIntegracion, new org.netbeans.lib.awtextra.AbsoluteConstraints(716, 210, 10, -1));
 
-        GenerarQR.setText("GenerarQR");
-        GenerarQR.setEnabled(false);
+        GenerarQR.setText("R");
         GenerarQR.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 GenerarQRActionPerformed(evt);
             }
         });
-        jPanel2.add(GenerarQR, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 460, -1, -1));
+        jPanel2.add(GenerarQR, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 510, 50, -1));
 
         btnTomaTiempos.setText("Toma de tiempos");
         btnTomaTiempos.addActionListener(new java.awt.event.ActionListener() {
@@ -1030,6 +1031,15 @@ public class proyecto extends javax.swing.JPanel {
         jLNovedades2.setForeground(new java.awt.Color(128, 128, 131));
         jLNovedades2.setText("Estado de lectura:");
         jPanel2.add(jLNovedades2, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 580, -1, -1));
+
+        GenerarQR1.setText("GenerarQR");
+        GenerarQR1.setEnabled(false);
+        GenerarQR1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                GenerarQR1ActionPerformed(evt);
+            }
+        });
+        jPanel2.add(GenerarQR1, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 460, -1, -1));
 
         jLabel14.setFont(new java.awt.Font("Arial", 1, 11)); // NOI18N
         jLabel14.setForeground(new java.awt.Color(189, 189, 189));
@@ -1190,7 +1200,9 @@ public class proyecto extends javax.swing.JPanel {
     }//GEN-LAST:event_jTIntegracionKeyTyped
 
     private void GenerarQRActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_GenerarQRActionPerformed
-        generarQRdeProduccion();
+        Proyecto controlador = new Proyecto();
+        generarXlsx reporte = new generarXlsx();
+        reporte.generarReporteCorteTiemposProductosProyecto(controlador.reporteCorteTiemposProductoProyectos(),"C:\\Users\\sis.informacion01\\Desktop\\proyecto\\");// Datos y Ruta de generacion del reporte...
     }//GEN-LAST:event_GenerarQRActionPerformed
 
     private void btnTomaTiemposActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTomaTiemposActionPerformed
@@ -1419,6 +1431,10 @@ public class proyecto extends javax.swing.JPanel {
     private void jTPCBTEActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTPCBTEActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jTPCBTEActionPerformed
+
+    private void GenerarQR1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_GenerarQR1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_GenerarQR1ActionPerformed
 //Metodos---------------------------------------------------------------------->
 
     private void cambiarEstadoProyectoEjecucionOParada(int op) {// Esto se va a modificar <----- Pendiente
@@ -2532,6 +2548,7 @@ public class proyecto extends javax.swing.JPanel {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     public static elaprendiz.gui.button.ButtonColoredAction GenerarQR;
+    public static elaprendiz.gui.button.ButtonColoredAction GenerarQR1;
     public static javax.swing.JLabel Notificacion1;
     private javax.swing.ButtonGroup ParadasOEjecucion;
     public static javax.swing.JButton btnActivar;

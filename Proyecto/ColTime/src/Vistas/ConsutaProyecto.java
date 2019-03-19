@@ -594,23 +594,27 @@ public class ConsutaProyecto extends javax.swing.JFrame {
                         //Estado
                         viewProyecto.Notificacion1.setVisible(true);
                         // ...
+                        //POendiente la clasificacion de los colores para esta parte del código...
                         switch(Integer.parseInt(TProyecto.getValueAt(f, 9).toString())){
                             case 1:
                                 switch (TProyecto.getValueAt(f, 7).toString()) {
                                     case "Por iniciar":
                                         viewProyecto.Notificacion1.setForeground(Color.GRAY);
+                                        viewProyecto.Notificacion1.setText("Por Inciar");
                                         viewProyecto.btnTomaTiempos.setVisible(false);//Es false
                                         viewProyecto.btnDelete.setEnabled(true);
                                         viewProyecto.jRParada.setEnabled(true);
                                         break;
                                     case "Pausado":
                                         viewProyecto.Notificacion1.setForeground(Color.ORANGE);
+                                        viewProyecto.Notificacion1.setText("Pausado");
                                         viewProyecto.btnTomaTiempos.setVisible(false);//Es false
                                         viewProyecto.btnDelete.setEnabled(true);
                                         viewProyecto.jRParada.setEnabled(true);
                                         break;
                                     case "Terminado":
                                         viewProyecto.Notificacion1.setForeground(Color.GREEN);
+                                        viewProyecto.Notificacion1.setText("Terminado");
                                         viewProyecto.btnUpdate.setEnabled(false);
                                         viewProyecto.btnTomaTiempos.setVisible(true);
                                         viewProyecto.GenerarQR.setEnabled(false);
@@ -619,6 +623,7 @@ public class ConsutaProyecto extends javax.swing.JFrame {
                                         break;
                                     case "Ejecucion":
                                         viewProyecto.Notificacion1.setForeground(Color.GRAY);
+                                        viewProyecto.Notificacion1.setText("Ejecucion");
                                         viewProyecto.btnTomaTiempos.setVisible(false);//Es false
                                         viewProyecto.btnDelete.setEnabled(false);
                                         viewProyecto.jRParada.setEnabled(true);

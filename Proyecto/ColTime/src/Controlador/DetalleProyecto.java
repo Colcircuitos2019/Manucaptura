@@ -140,9 +140,9 @@ public class DetalleProyecto {
     }
 
     //Consulta los detalles del proyecto que estan en producción.    
-    public CachedRowSet consultarDetalleProduccion(int detalle, int negocio) {
+    public CachedRowSet consultarDetalleProduccion(int detalle, int area) {
         DetalleProyectoM obj = new DetalleProyectoM();
-        return obj.consultarDetalleProduccion(detalle, negocio);
+        return obj.consultarDetalleProduccion(detalle, area);
     }
     
     //Consultar el estado del detalle del proyecto para clasificar el estado de los botones para seleccionar el "orden"

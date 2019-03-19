@@ -935,7 +935,7 @@ public class DetalleProyectoM {
         return res;
     }
 
-    public CachedRowSet consultarDetalleProduccion(int detalle, int negocio) {
+    public CachedRowSet consultarDetalleProduccion(int idDetalleProducto, int area) {
         try {
             conexion = new Conexion(1);
             conexion.establecerConexion();
@@ -943,8 +943,8 @@ public class DetalleProyectoM {
             //Query------------------------------------------------------------>
             String Qry = "CALL PA_DetalleDelDetalleDelproyecto(?,?)";
             ps = con.prepareStatement(Qry);
-            ps.setInt(1, detalle);
-            ps.setInt(2, negocio);
+            ps.setInt(1, idDetalleProducto);
+            ps.setInt(2, area);
             rs = ps.executeQuery();
             crs = new CachedRowSetImpl();
             crs.populate(rs);
@@ -954,7 +954,7 @@ public class DetalleProyectoM {
             ps.close();
             con.close();
         } catch (Exception e) {
-//            JOptionPane.showMessageDialog(null, "¡Error!" + e);
+            e.printStackTrace();
         }
         return crs;
     }

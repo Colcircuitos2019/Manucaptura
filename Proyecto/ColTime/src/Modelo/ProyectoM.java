@@ -697,6 +697,28 @@ public class ProyectoM {
         }
         return res;
     }
+        // Hace falta recibir como parametro el mes y el año en que se van a realizar los cortes del tiempo de los productos y los procesos
+        public CachedRowSet reporteCorteTiemposProductoProyectosM() {
+        try {
+            conexion = new Conexion(1);
+            conexion.establecerConexion();
+            con = conexion.getConexion();
+            //Query------------------------------------------------------------>
+            String Qry = "CALL PA_ReporteTiemposProduccionProductos()";
+            ps = con.prepareStatement(Qry);
+            rs = ps.executeQuery();
+            crsP = new CachedRowSetImpl();
+            crsP.populate(rs);
+            //Cierre de conexiones
+            con.close();
+            conexion.destruir();
+            conexion.cerrar(rs);
+            ps.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return crsP;
+    }
 
     @Override
     protected void finalize() throws Throwable {
