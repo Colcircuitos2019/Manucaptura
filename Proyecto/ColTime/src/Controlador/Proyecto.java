@@ -191,6 +191,16 @@ public class Proyecto {
         return modelo.reporteCorteTiemposProductoProyectosM();
     }
     
+    public CachedRowSet reporteCorteTiemposProcesos(){
+        ProyectoM modelo = new ProyectoM();
+        return modelo.reporteCorteTiemposProcesosM();
+    }
+    
+    public String sumarTiempos(String tiempo_total, String tiempo_a_sumar){
+        ProyectoM modelo = new ProyectoM();
+        return modelo.sumarTiemposM(tiempo_total, tiempo_a_sumar);
+    }
+    
     //Finalizacion de la clase automatica---------------------------------------------------------------->
     @Override
     protected void finalize() throws Throwable {

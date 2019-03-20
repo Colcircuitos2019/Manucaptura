@@ -169,6 +169,7 @@ function corteDeTiempoDeEjecucionPorProducto(){// Step 4
 
 	$conexion = Conexion();
 	$tiempo_producto_proyecto_mes = "";
+	
 	//Clasificar los meses de corte de todas los productos de las diferentes áreas...
 	$conexion->query("CALL PA_CorteTiempoProductos();");
 	
@@ -208,8 +209,6 @@ function corteDeTiempoDeEjecucionPorProducto(){// Step 4
 			//Actualizar o registrar tiempo de corte del mes
 			$conexion->query("CALL PA_GestionarMesCorteTiempoProductoProyecto({$producto["idDetalle_proyecto"]},'{$tiempo_producto_proyecto_mes}');");//<-- El problemas es este procedure almacenado...
 
-			// echo  $tiempo_producto_proyecto_mes."<br>";
-
 			$tiempo_producto_proyecto_mes = "";
 
 			cerraConexion($conexion);
@@ -222,5 +221,4 @@ function corteDeTiempoDeEjecucionPorProducto(){// Step 4
 }
 
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------
-
  ?>

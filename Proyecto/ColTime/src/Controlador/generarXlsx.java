@@ -6,7 +6,6 @@ import javax.sql.rowset.CachedRowSet;
 import javax.swing.JOptionPane;
 import jxl.Workbook;
 import jxl.WorkbookSettings;
-//import jxl.format.Colour;
 import jxl.write.WritableCellFormat;
 import jxl.write.WritableFont;
 import jxl.write.WritableSheet;
@@ -256,7 +255,8 @@ public class generarXlsx {
     }
     
     //PA_ReporteTiemposProduccionProductos
-    public boolean generarReporteCorteTiemposProductosProyecto(CachedRowSet crs, String ruta) {// Pendiente para cambiar el nombre...
+    public boolean generarReporteCorteTiemposProductosProyecto(CachedRowSet Productos,CachedRowSet Procesos , String ruta) {// Pendiente para cambiar el nombre...
+        Proyecto controlador = new Proyecto();
         try {
             WorkbookSettings conf = new WorkbookSettings();
             conf.setEncoding("ISO-8859-1");
@@ -267,65 +267,105 @@ public class generarXlsx {
             WritableCellFormat hFormat = new WritableCellFormat(h);//Se da formato a cada letra
             // ...
             //Encabezado columnas
-            int x = 0, y = 0, cantidadProyecto = 0;
+            int y = 0, cantidadProyecto = 0, tiempo_ejecucion_minutos = 0;
+            String tiempo_ejecucion = "00:00:00";
             // ...
             //Fechas de inicio y de fin del reporte de tiempo de producción. 
-            sheet.addCell(new jxl.write.Label(0, y, "Fecha Inicio", hFormat));
-//            sheet.addCell(new jxl.write.Label(1, y, fechaI, hFormat));//Pendiente colocar el rango del mes
+            sheet.addCell(new jxl.write.Label(0, y, "Mes de corte:", hFormat));
+//            sheet.addCell(new jxl.write.Label(1, y, fechaI, hFormat));//Pendiente colocar el mes de corte
             // ...
-            sheet.addCell(new jxl.write.Label(3, y, "Fecha Fin", hFormat));
-//            sheet.addCell(new jxl.write.Label(4, y, fechaF, hFormat));
             y++;
-            //...
             //Numero de orden
-            sheet.addCell(new jxl.write.Label(x, y, "Numero de orden", hFormat));
-            x++;
+            sheet.addCell(new jxl.write.Label(0, y, "Numero de orden", hFormat));
             //Cantidad del producto
-            sheet.addCell(new jxl.write.Label(x, y, "Cantidad", hFormat));
-            // ...
-            x++;
+            sheet.addCell(new jxl.write.Label(1, y, "Cantidad", hFormat));
             // Nombre del producto
-            sheet.addCell(new jxl.write.Label(x, y, "Producto", hFormat));
-            x++;
+            sheet.addCell(new jxl.write.Label(2, y, "Producto", hFormat));
             // Área del producto
-            sheet.addCell(new jxl.write.Label(x, y, "Área", hFormat));
-            x++;
+            sheet.addCell(new jxl.write.Label(3, y, "Área", hFormat));
             // Estado del producto
-            sheet.addCell(new jxl.write.Label(x, y, "Estado", hFormat));
-            x++;
+            sheet.addCell(new jxl.write.Label(4, y, "Estado", hFormat));
             // Tiempo de ejecución en minutos 
-            sheet.addCell(new jxl.write.Label(x, y, "Tiempo Ejecución (min)", hFormat));
-            x++;
+            sheet.addCell(new jxl.write.Label(5, y, "Tiempo Ejecución (min)", hFormat));
+            // Tiempo de ejecución en minutos 
+            sheet.addCell(new jxl.write.Label(6, y, "Tiempo Ejecución", hFormat));
             // Fecha de terminacion del producto del proyecto
-            sheet.addCell(new jxl.write.Label(x, y, "Fecha de terminación", hFormat));
+            sheet.addCell(new jxl.write.Label(7, y, "Fecha de terminación", hFormat));
             //...
             y++;
-            while (crs.next()) {
+            while (Productos.next()) {
                     // Numero de orden
-                    sheet.addCell(new jxl.write.Label(0, y, crs.getString("proyecto_numero_orden"), hFormat));
+                    sheet.addCell(new jxl.write.Label(0, y, Productos.getString("proyecto_numero_orden"), hFormat));
                     // Cantidade totales del producto
-                    cantidadProyecto = crs.getInt("canitadad_total");
+                    cantidadProyecto = Productos.getInt("canitadad_total");
                     sheet.addCell(new jxl.write.Label(1, y, String.valueOf(cantidadProyecto), hFormat));
                     // Nombre del producto
-                    sheet.addCell(new jxl.write.Label(2, y, crs.getString("nombre"), hFormat));
+                    sheet.addCell(new jxl.write.Label(2, y, Productos.getString("nombre"), hFormat));
                     // Area
-                    sheet.addCell(new jxl.write.Label(3, y, crs.getString("idArea"), hFormat));
+                    sheet.addCell(new jxl.write.Label(3, y, clasificarAreaProduccion(Integer.parseInt(Productos.getString("idArea"))), hFormat));
                     // Estado
-                    sheet.addCell(new jxl.write.Label(4, y, crs.getString("estado"), hFormat));
+                    sheet.addCell(new jxl.write.Label(4, y, clasificacionEstado(Productos.getString("estado")), hFormat));
                     // Tiempo de ejecución del producto en minutos
-                    sheet.addCell(new jxl.write.Label(5, y, clasificacionEstado(crs.getString("tiempo_proyecto_mes")), hFormat));
+                    sheet.addCell(new jxl.write.Label(5, y, Productos.getString("tiempo"), hFormat));
+                    // Tiempo de ejecución del producto en "HH:MM:SS"
+                    sheet.addCell(new jxl.write.Label(6, y, Productos.getString("tiempo_proyecto_mes"), hFormat)); 
                     // Fecha en que se termino de procesar el producto
-                    sheet.addCell(new jxl.write.Label(6, y, crs.getString("fecha_salida"), hFormat));
+                    sheet.addCell(new jxl.write.Label(7, y, Productos.getString("fecha_salida"), hFormat));
                     // ...
                     y++;
+                    //Sumar tiempo minutos
+                    tiempo_ejecucion_minutos += Productos.getInt("tiempo");
+                    //Sumar Tiempos "HH:MM:SS"
+                    if(!tiempo_ejecucion.equals("00:00:00") && !Productos.getString("tiempo_proyecto_mes").equals("00:00:00")){
+                        tiempo_ejecucion = controlador.sumarTiempos(tiempo_ejecucion, Productos.getString("tiempo_proyecto_mes"));
+                    }
             }
+            // Tiempo de ejecución del producto en minutos
+            sheet.addCell(new jxl.write.Label(5, y, String.valueOf(tiempo_ejecucion_minutos), hFormat));
+            // Tiempo de ejecución del producto en "HH:MM:SS"
+            sheet.addCell(new jxl.write.Label(6, y, tiempo_ejecucion, hFormat));
+            tiempo_ejecucion_minutos = 0;
+            tiempo_ejecucion = "00:00:00";
+            //...
+            y+=2;
+            //Nombre del proceso
+            sheet.addCell(new jxl.write.Label(0, y, "Procesos", hFormat));
+            //Area a la cual pertenece el proceso
+            sheet.addCell(new jxl.write.Label(1, y, "Área", hFormat));
+            //Tiempo de Ejecucion en minutos
+            sheet.addCell(new jxl.write.Label(2, y, "Tiempo Ejecución (min)", hFormat));
+            //Tiempo de Ejecucion en "HH:MM:SS"
+            sheet.addCell(new jxl.write.Label(3, y, "Tiempo Ejecucion", hFormat));
+            y++;
+            while(Procesos.next()){
+                
+                sheet.addCell(new jxl.write.Label(0, y, Procesos.getString("nombre_proceso"), hFormat));
+                //Area a la cual pertenece el proceso
+                sheet.addCell(new jxl.write.Label(1, y, clasificarAreaProduccion(Procesos.getInt("idArea")), hFormat));
+                //Tiempo de Ejecucion minutos
+                sheet.addCell(new jxl.write.Label(2, y, Procesos.getString("tiempo_proceso"), hFormat));
+                //Tiempo de Ejecucion "HH:MM:SS"
+                sheet.addCell(new jxl.write.Label(3, y, Procesos.getString("tiempo"), hFormat));
+                // ...
+                y++;
+                //Sumar tiempo ejecucion minutos
+                tiempo_ejecucion_minutos += Procesos.getInt("tiempo_proceso");
+                //Sumar Tiempos "HH:MM:SS"
+                if(!tiempo_ejecucion.equals("00:00:00") && !Procesos.getString("tiempo").equals("00:00:00")){
+                    tiempo_ejecucion = controlador.sumarTiempos(tiempo_ejecucion, Procesos.getString("tiempo"));
+                }
+            }
+            //Tiempo de Ejecucion minutos
+            sheet.addCell(new jxl.write.Label(2, y, String.valueOf(tiempo_ejecucion_minutos), hFormat));
+            //Tiempo de Ejecucion "HH:MM:SS"
+            sheet.addCell(new jxl.write.Label(3, y, tiempo_ejecucion, hFormat));    
             // ...
             woorBook.write();
             // ...
             woorBook.close();
             return true;
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, e);
+            e.printStackTrace();
             return false;
         }
     }

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 19-03-2019 a las 22:28:09
+-- Tiempo de generación: 20-03-2019 a las 14:28:42
 -- Versión del servidor: 10.1.29-MariaDB
 -- Versión de PHP: 7.2.0
 
@@ -848,14 +848,14 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_DetalleDelDetalleDelproyecto` (I
 BEGIN
 
 IF area=1 THEN # Formato estandar - FE
-	SELECT p.nombre_proceso,Date_Format(f.fecha_inicio,'%d-%M-%Y') as inicio,Date_format(f.fecha_fin,'%d-%M-%Y') as fin,f.cantidad_terminada,CEILING(TIME_TO_SEC(f.tiempo_total_por_proceso)/60) AS tiempo_total_por_proceso, CEILING(TIME_TO_SEC(f.tiempo_por_unidad)/60) AS tiempo_por_unidad ,f.estado,TIME_FORMAT(f.hora_ejecucion,'%r') AS horaInicio,TIME_FORMAT(TIMEDIFF(now(),f.hora_ejecucion),'%H:%i:%S') as tiempoActual,TIME_FORMAT(f.hora_terminacion,'%r') as hora_terminacion,TIME_FORMAT(TIMEDIFF(f.hora_terminacion,f.hora_ejecucion),'%H:%i:%S') as InicioTerminadoIntervalo,f.idDetalle_formato_estandar,CONVERT(f.orden, int) AS orden,f.noperarios, f.cantidadProceso FROM detalle_formato_estandar f JOIN procesos p on f.idproceso=p.idproceso where f.idDetalle_proyecto=detalle ORDER BY f.idproceso ASC;
+	SELECT p.nombre_proceso,Date_Format(f.fecha_inicio,'%d-%M-%Y') as inicio,Date_format(f.fecha_fin,'%d-%M-%Y') as fin,f.cantidad_terminada,f.tiempo_total_por_proceso,f.tiempo_por_unidad ,f.estado,TIME_FORMAT(f.hora_ejecucion,'%r') AS horaInicio,TIME_FORMAT(TIMEDIFF(now(),f.hora_ejecucion),'%H:%i:%S') as tiempoActual,TIME_FORMAT(f.hora_terminacion,'%r') as hora_terminacion,TIME_FORMAT(TIMEDIFF(f.hora_terminacion,f.hora_ejecucion),'%H:%i:%S') as InicioTerminadoIntervalo,f.idDetalle_formato_estandar,CONVERT(f.orden, int) AS orden,f.noperarios, f.cantidadProceso FROM detalle_formato_estandar f JOIN procesos p on f.idproceso=p.idproceso where f.idDetalle_proyecto=detalle ORDER BY f.idproceso ASC;
 ELSE
   IF area=2 THEN # Teclados - TE
-  SELECT p.nombre_proceso,Date_Format(f.fecha_inicio,'%d-%M-%Y') AS inicio,Date_format(f.fecha_fin,'%d-%M-%Y') AS fin,f.cantidad_terminada,CEILING(TIME_TO_SEC(f.tiempo_total_por_proceso)/60) AS tiempo_total_por_proceso, CEILING(TIME_TO_SEC(f.tiempo_por_unidad)/60) AS tiempo_por_unidad,f.estado,TIME_FORMAT(f.hora_ejecucion,'%r') AS horaInicio,TIME_FORMAT(TIMEDIFF(now(),f.hora_ejecucion),'%H:%i:%S')as tiempoActual,
+  SELECT p.nombre_proceso,Date_Format(f.fecha_inicio,'%d-%M-%Y') AS inicio,Date_format(f.fecha_fin,'%d-%M-%Y') AS fin,f.cantidad_terminada,f.tiempo_total_por_proceso,f.tiempo_por_unidad,f.estado,TIME_FORMAT(f.hora_ejecucion,'%r') AS horaInicio,TIME_FORMAT(TIMEDIFF(now(),f.hora_ejecucion),'%H:%i:%S')as tiempoActual,
 TIME_FORMAT(f.hora_terminacion,'%r') AS hora_terminacion,TIME_FORMAT(TIMEDIFF(f.hora_terminacion,f.hora_ejecucion),'%H:%i:%s') AS InicioTerminadoIntervalo,f.idDetalle_teclados,CONVERT(f.orden, int),f.noperarios, f.cantidadProceso FROM detalle_teclados f JOIN procesos p on f.idproceso=p.idproceso where f.idDetalle_proyecto=detalle ORDER BY f.idproceso ASC;
   ELSE
    IF area=3 THEN # Ensamble - EN 
-SELECT p.nombre_proceso,Date_Format(f.fecha_inicio,'%d-%M-%Y') AS inicio,Date_format(f.fecha_fin,'%d-%M-%Y') AS fin,f.cantidad_terminada,CEILING(TIME_TO_SEC(f.tiempo_total_por_proceso)/60) AS tiempo_total_por_proceso, CEILING(TIME_TO_SEC(f.tiempo_por_unidad)/60) AS tiempo_por_unidad,f.estado,TIME_FORMAT(f.hora_ejecucion,'%r') AS horaInicio,TIME_FORMAT(TIMEDIFF(now(),f.hora_ejecucion),'%H:%i:%S') as tiempoActual,TIME_FORMAT(f.hora_terminacion,'%r') AS hora_terminacion,TIME_FORMAT(TIMEDIFF(f.hora_terminacion,f.hora_ejecucion),'%H:%i:%s') AS InicioTerminadoIntervalo ,f.idDetalle_ensamble,CONVERT(f.orden,int) AS orden,f.noperarios,f.cantidadProceso FROM detalle_ensamble f JOIN procesos p on f.idproceso=p.idproceso where f.idDetalle_proyecto=detalle ORDER BY f.idproceso ASC;
+SELECT p.nombre_proceso,Date_Format(f.fecha_inicio,'%d-%M-%Y') AS inicio,Date_format(f.fecha_fin,'%d-%M-%Y') AS fin,f.cantidad_terminada,f.tiempo_total_por_proceso,f.tiempo_por_unidad,f.estado,TIME_FORMAT(f.hora_ejecucion,'%r') AS horaInicio,TIME_FORMAT(TIMEDIFF(now(),f.hora_ejecucion),'%H:%i:%S') as tiempoActual,TIME_FORMAT(f.hora_terminacion,'%r') AS hora_terminacion,TIME_FORMAT(TIMEDIFF(f.hora_terminacion,f.hora_ejecucion),'%H:%i:%s') AS InicioTerminadoIntervalo ,f.idDetalle_ensamble,CONVERT(f.orden,int) AS orden,f.noperarios,f.cantidadProceso FROM detalle_ensamble f JOIN procesos p on f.idproceso=p.idproceso where f.idDetalle_proyecto=detalle ORDER BY f.idproceso ASC;
    ELSE
     IF area=4 THEN # Esta parte ya no se va a utilizar más...
     SELECT p.nombre_proceso,Date_Format(al.fecha_inicio,'%d-%M-%Y'),Date_format(al.fecha_fin,'%d-%M-%Y'),al.cantidad_recibida,al.tiempo_total_proceso,al.tiempo_total_proceso,f.estado,TIME_FORMAT(al.hora_registro,'%r'),datediff(CURRENT_DATE,al.fecha_inicio) as dias,TIME_FORMAT(al.hora_llegada,'%r'),datediff(al.fecha_fin,al.fecha_inicio),al.idalmacen AS idDetalleProceso FROM almacen al JOIN procesos p on al.idproceso=p.idproceso where al.idDetalle_proyecto=detalle ORDER BY al.idproceso ASC;
@@ -1888,6 +1888,13 @@ END IF;
 #
 END$$
 
+CREATE DEFINER=`` PROCEDURE `PA_ReporteCorteTiemposProcesosMes` ()  NO SQL
+BEGIN
+
+SELECT p.nombre_proceso,p.idArea,ROUND((TIME_TO_SEC(t.tiempo)/60),0) AS tiempo_proceso,t.tiempo FROM procesos p LEFT JOIN tiempo_invertido_mes_proceso t ON p.idproceso=t.idproceso WHERE DATE_FORMAT(t.mes_corte,'%Y-%m') = DATE_FORMAT(CURDATE(),'%Y-%m');
+
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_ReporteGeneral` ()  NO SQL
 BEGIN
 
@@ -1915,7 +1922,7 @@ END$$
 CREATE DEFINER=`` PROCEDURE `PA_ReporteTiemposProduccionProductos` ()  NO SQL
 BEGIN
 
-SELECT d.proyecto_numero_orden,d.canitadad_total,p.nombre,d.idArea,d.estado,t.tiempo_proyecto_mes,d.fecha_salida FROM detalle_proyecto d JOIN tiempo_invertido_producto_mes t ON d.idDetalle_proyecto=t.idDetalle_proyecto JOIN producto p ON d.idProducto=p.idproducto WHERE DATE_FORMAT(t.mes,'%Y-%m') = DATE_FORMAT(CURDATE(),'%Y-%m');
+SELECT d.proyecto_numero_orden,d.canitadad_total,p.nombre,d.idArea,d.estado,ROUND((TIME_TO_SEC(t.tiempo_proyecto_mes)/60),0) AS tiempo,t.tiempo_proyecto_mes,d.fecha_salida FROM detalle_proyecto d JOIN tiempo_invertido_producto_mes t ON d.idDetalle_proyecto=t.idDetalle_proyecto JOIN producto p ON d.idProducto=p.idproducto WHERE DATE_FORMAT(t.mes,'%Y-%m') = DATE_FORMAT(CURDATE(),'%Y-%m');
 
 END$$
 
@@ -2959,11 +2966,11 @@ CREATE TABLE `detalle_proyecto` (
 --
 
 INSERT INTO `detalle_proyecto` (`idDetalle_proyecto`, `idProducto`, `canitadad_total`, `material`, `proyecto_numero_orden`, `idArea`, `estado`, `PNC`, `ubicacion`, `pro_porIniciar`, `pro_Ejecucion`, `pro_Pausado`, `pro_Terminado`, `tiempo_total`, `Total_timepo_Unidad`, `fecha_salida`, `lider_proyecto`, `antisolder`, `ruteo`, `mes_de_corte`) VALUES
-(1, 4, '10', 'FV', 1, 1, 3, 0, NULL, 0, 0, 0, 3, '00:05:47', '00:00:00', '2019-03-19 06:52:37', NULL, 0, 0, '2019-03-19'),
-(2, 5, '15', '', 1, 2, 2, 0, NULL, 3, 0, 1, 0, '00:00:00', '00:00:00', NULL, NULL, 0, 0, '2019-03-19'),
-(3, 1, '5', '', 1, 3, 3, 0, NULL, 4, 0, 0, 0, '00:01:41', '00:00:18', '2019-03-16 07:56:02', '1007110815', 0, 0, '2019-03-19'),
-(4, 3, '2', 'FV', 1, 1, 3, 0, NULL, 0, 0, 0, 3, '00:02:52', '00:01:27', '2019-03-19 07:15:27', NULL, 0, 0, '2019-03-19'),
-(5, 4, '5', 'FV', 2, 1, 3, 0, NULL, 0, 0, 0, 3, '00:07:13', '00:01:26', '2019-03-19 07:43:29', NULL, 0, 0, '2019-03-19');
+(1, 4, '10', 'FV', 1, 1, 3, 0, NULL, 0, 0, 0, 3, '00:05:47', '00:00:00', '2019-03-19 06:52:37', NULL, 0, 0, '2019-03-20'),
+(2, 5, '15', '', 1, 2, 2, 0, NULL, 3, 0, 1, 0, '00:00:00', '00:00:00', NULL, NULL, 0, 0, '2019-03-20'),
+(3, 1, '5', '', 1, 3, 3, 0, NULL, 4, 0, 0, 0, '00:01:41', '00:00:18', '2019-03-16 07:56:02', '1007110815', 0, 0, '2019-03-20'),
+(4, 3, '2', 'FV', 1, 1, 3, 0, NULL, 0, 0, 0, 3, '00:02:52', '00:01:27', '2019-03-19 07:15:27', NULL, 0, 0, '2019-03-20'),
+(5, 4, '5', 'FV', 2, 1, 3, 0, NULL, 0, 0, 0, 3, '00:07:13', '00:01:26', '2019-03-19 07:43:29', NULL, 0, 0, '2019-03-20');
 
 -- --------------------------------------------------------
 
@@ -3306,28 +3313,17 @@ CREATE TABLE `tiempo_invertido_mes_proceso` (
 --
 
 INSERT INTO `tiempo_invertido_mes_proceso` (`idtiempo_invertido_mes_proceso`, `mes_corte`, `idproceso`, `tiempo`) VALUES
-(1, '2019-02-19', 1, '00:03:19'),
-(2, '2019-02-19', 4, '00:03:24'),
-(3, '2019-02-19', 10, '00:09:09'),
-(4, '2019-02-19', 11, '00:00:32'),
-(5, '2019-02-19', 12, '00:00:00'),
-(6, '2019-02-19', 13, '00:00:00'),
-(7, '2019-02-19', 14, '00:00:00'),
-(8, '2019-02-19', 15, '00:00:00'),
-(9, '2019-02-19', 16, '00:00:00'),
-(10, '2019-02-19', 17, '00:00:00'),
-(11, '2019-02-19', 18, '00:00:00'),
-(12, '2019-03-19', 1, '00:00:00'),
-(13, '2019-03-19', 4, '00:00:00'),
-(14, '2019-03-19', 10, '00:00:00'),
-(15, '2019-03-19', 11, '00:00:00'),
-(16, '2019-03-19', 12, '00:00:00'),
-(17, '2019-03-19', 13, '00:00:00'),
-(18, '2019-03-19', 14, '00:00:00'),
-(19, '2019-03-19', 15, '00:00:00'),
-(20, '2019-03-19', 16, '00:00:00'),
-(21, '2019-03-19', 17, '00:00:00'),
-(22, '2019-03-19', 18, '00:00:00');
+(23, '2019-03-20', 1, '00:03:19'),
+(24, '2019-03-20', 4, '00:03:24'),
+(25, '2019-03-20', 10, '00:09:09'),
+(26, '2019-03-20', 11, '00:00:32'),
+(27, '2019-03-20', 12, '00:00:00'),
+(28, '2019-03-20', 13, '00:00:00'),
+(29, '2019-03-20', 14, '00:00:00'),
+(30, '2019-03-20', 15, '00:00:00'),
+(31, '2019-03-20', 16, '00:00:00'),
+(32, '2019-03-20', 17, '00:00:00'),
+(33, '2019-03-20', 18, '00:00:00');
 
 -- --------------------------------------------------------
 
@@ -3347,16 +3343,11 @@ CREATE TABLE `tiempo_invertido_producto_mes` (
 --
 
 INSERT INTO `tiempo_invertido_producto_mes` (`idtiempo_invertido_producto_mes`, `idDetalle_proyecto`, `mes`, `tiempo_proyecto_mes`) VALUES
-(11, 1, '2019-02-19', '00:05:47'),
-(12, 2, '2019-02-19', '00:00:00'),
-(13, 3, '2019-02-19', '00:01:41'),
-(14, 4, '2019-02-19', '00:02:52'),
-(15, 5, '2019-02-19', '00:07:13'),
-(21, 1, '2019-03-19', '00:00:00'),
-(22, 2, '2019-03-19', '00:00:00'),
-(23, 3, '2019-03-19', '00:00:00'),
-(24, 4, '2019-03-19', '00:00:00'),
-(25, 5, '2019-03-19', '00:00:00');
+(26, 1, '2019-03-20', '00:05:47'),
+(27, 2, '2019-03-20', '00:00:00'),
+(28, 3, '2019-03-20', '00:01:41'),
+(29, 4, '2019-03-20', '00:02:52'),
+(30, 5, '2019-03-20', '00:07:13');
 
 -- --------------------------------------------------------
 
@@ -3631,13 +3622,13 @@ ALTER TABLE `proyecto`
 -- AUTO_INCREMENT de la tabla `tiempo_invertido_mes_proceso`
 --
 ALTER TABLE `tiempo_invertido_mes_proceso`
-  MODIFY `idtiempo_invertido_mes_proceso` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `idtiempo_invertido_mes_proceso` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
 
 --
 -- AUTO_INCREMENT de la tabla `tiempo_invertido_producto_mes`
 --
 ALTER TABLE `tiempo_invertido_producto_mes`
-  MODIFY `idtiempo_invertido_producto_mes` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `idtiempo_invertido_producto_mes` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
 
 --
 -- Restricciones para tablas volcadas

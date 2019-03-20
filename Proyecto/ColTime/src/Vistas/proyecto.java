@@ -1202,7 +1202,7 @@ public class proyecto extends javax.swing.JPanel {
     private void GenerarQRActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_GenerarQRActionPerformed
         Proyecto controlador = new Proyecto();
         generarXlsx reporte = new generarXlsx();
-        reporte.generarReporteCorteTiemposProductosProyecto(controlador.reporteCorteTiemposProductoProyectos(),"C:\\Users\\sis.informacion01\\Desktop\\proyecto\\");// Datos y Ruta de generacion del reporte...
+        reporte.generarReporteCorteTiemposProductosProyecto(controlador.reporteCorteTiemposProductoProyectos(), controlador.reporteCorteTiemposProcesos(), "C:\\Users\\sis.informacion01\\Desktop\\proyecto\\");// Datos y Ruta de generacion del reporte...
     }//GEN-LAST:event_GenerarQRActionPerformed
 
     private void btnTomaTiemposActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTomaTiemposActionPerformed
