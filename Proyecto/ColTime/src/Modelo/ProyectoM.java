@@ -769,6 +769,50 @@ public class ProyectoM {
             e.printStackTrace();
         }
         return tiempo_sumado;
+    }   
+    
+    public CachedRowSet consultarColoresAntisolderM() {
+        try {
+            conexion = new Conexion(1);
+            conexion.establecerConexion();
+            con = conexion.getConexion();
+            //Query------------------------------------------------------------>
+            String Qry = "CALL PA_ConsultarColoresAntisolder();";
+            ps = con.prepareStatement(Qry);
+            rs = ps.executeQuery();
+            crsP = new CachedRowSetImpl();
+            crsP.populate(rs);
+            //Cierre de conexiones
+            con.close();
+            conexion.destruir();
+            conexion.cerrar(rs);
+            ps.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return crsP;
+    }      
+    
+    public CachedRowSet consultarEspesorTarjetaM() {
+        try {
+            conexion = new Conexion(1);
+            conexion.establecerConexion();
+            con = conexion.getConexion();
+            //Query------------------------------------------------------------>
+            String Qry = "CALL PA_ConsultarEspesorTarjeta();";
+            ps = con.prepareStatement(Qry);
+            rs = ps.executeQuery();
+            crsP = new CachedRowSetImpl();
+            crsP.populate(rs);
+            //Cierre de conexiones
+            con.close();
+            conexion.destruir();
+            conexion.cerrar(rs);
+            ps.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return crsP;
     }        
             
     @Override

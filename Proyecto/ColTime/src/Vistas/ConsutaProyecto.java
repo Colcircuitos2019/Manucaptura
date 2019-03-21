@@ -691,9 +691,9 @@ public class ConsutaProyecto extends javax.swing.JFrame {
                                 boolean estado = (jTDetalleProductos.getValueAt(i, 4).toString().equals("Por iniciar"));
                                 viewProyecto.jCPCBTE.setSelected(true);
                                 viewProyecto.jCRuteoP.setEnabled(estado);
-                                viewProyecto.jCAntisolderP.setEnabled(estado);
+                                viewProyecto.cbColorPCB.setEnabled(estado);
                                 viewProyecto.cbMaterialPCBTE.setEnabled(estado);
-                                viewProyecto.jCAntisolderP.setSelected(Boolean.valueOf(jTDetalleProductos.getValueAt(i, 7).toString()));
+                                viewProyecto.cbColorPCB.setSelectedItem(Boolean.valueOf(jTDetalleProductos.getValueAt(i, 7).toString()));//Pendiente cambiar por el indice...
                                 viewProyecto.jCRuteoP.setSelected(Boolean.valueOf(jTDetalleProductos.getValueAt(i, 8).toString()));
                                 viewProyecto.cbMaterialPCBTE.setSelectedItem(jTDetalleProductos.getValueAt(i, 5).toString());
                                 viewProyecto.jLMaterialPCB.setText(jTDetalleProductos.getValueAt(i, 5).toString());
@@ -737,8 +737,8 @@ public class ConsutaProyecto extends javax.swing.JFrame {
                                 boolean estado= (jTDetalleProductos.getValueAt(i, 4).toString().equals("Por iniciar"));
 //                                viewProyecto.jCRuteoC.setEnabled(estado);
 //                                viewProyecto.jCAntisolderC.setEnabled(estado);
-                                viewProyecto.jCAntisolderC.setSelected(Boolean.valueOf(jTDetalleProductos.getValueAt(i, 7).toString()));
-                                viewProyecto.jCAntisolderC.setEnabled(estado);
+//                                viewProyecto.jCAntisolderC.setSelected(Boolean.valueOf(jTDetalleProductos.getValueAt(i, 7).toString()));
+//                                viewProyecto.jCAntisolderC.setEnabled(estado);
                                 viewProyecto.jCRuteoC.setSelected(Boolean.valueOf(jTDetalleProductos.getValueAt(i, 8).toString()));
                                 viewProyecto.jCRuteoC.setEnabled(estado);
                                 viewProyecto.jCCircuito.setSelected(true);

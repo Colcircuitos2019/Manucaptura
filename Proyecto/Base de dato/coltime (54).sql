@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 21-03-2019 a las 19:08:33
+-- Tiempo de generación: 21-03-2019 a las 22:19:56
 -- Versión del servidor: 10.1.29-MariaDB
 -- Versión de PHP: 7.2.0
 
@@ -345,6 +345,13 @@ SELECT total;
 
 END$$
 
+CREATE DEFINER=`` PROCEDURE `PA_ConsultarColoresAntisolder` ()  NO SQL
+BEGIN
+
+	SELECT * FROM color_antisolder;
+
+END$$
+
 CREATE DEFINER=`` PROCEDURE `PA_ConsultarCondicionesProductos` (IN `idCondicion` INT)  NO SQL
 BEGIN
 #Falta agregar el campo del área a la que aplica el producto
@@ -394,6 +401,13 @@ SELECT d.proyecto_numero_orden,t.nombre,d.estado,p.tipo_proyecto FROM producto t
  END IF;
 END IF;
 
+END$$
+
+CREATE DEFINER=`` PROCEDURE `PA_ConsultarEspesorTarjeta` ()  NO SQL
+BEGIN
+
+	SELECT * FROM espesor;
+    
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_ConsultarEstadoLecturaFacilitador` (IN `doc` VARCHAR(13))  NO SQL
@@ -2845,6 +2859,31 @@ INSERT INTO `cargo` (`idcargo`, `nombre`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `color_antisolder`
+--
+
+CREATE TABLE `color_antisolder` (
+  `idColor_antisolder` tinyint(3) NOT NULL,
+  `color` varchar(12) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Volcado de datos para la tabla `color_antisolder`
+--
+
+INSERT INTO `color_antisolder` (`idColor_antisolder`, `color`) VALUES
+(1, 'VERDE'),
+(2, 'BLANCO'),
+(3, 'NEGRO'),
+(4, 'ROJO'),
+(5, 'AZUL'),
+(6, 'CELESTE'),
+(7, 'ESMERALDA'),
+(8, 'ROSADO');
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `condicion_producto`
 --
 
@@ -2999,25 +3038,26 @@ CREATE TABLE `detalle_proyecto` (
   `Total_timepo_Unidad` varchar(20) NOT NULL DEFAULT '00:00:00',
   `fecha_salida` datetime DEFAULT NULL,
   `lider_proyecto` varchar(13) DEFAULT NULL,
-  `antisolder` tinyint(1) DEFAULT '0',
+  `antisolder` varchar(12) DEFAULT NULL,
   `ruteo` tinyint(1) DEFAULT '0',
   `mes_de_corte` varchar(10) NOT NULL DEFAULT '0000-00-00',
   `cantidad_terminada` varchar(6) NOT NULL DEFAULT '0',
-  `fecha_terminacion_cantidad` varchar(10) DEFAULT NULL
+  `fecha_terminacion_cantidad` varchar(10) DEFAULT NULL,
+  `idEspesor` tinyint(3) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Volcado de datos para la tabla `detalle_proyecto`
 --
 
-INSERT INTO `detalle_proyecto` (`idDetalle_proyecto`, `idProducto`, `canitadad_total`, `material`, `proyecto_numero_orden`, `idArea`, `estado`, `PNC`, `ubicacion`, `pro_porIniciar`, `pro_Ejecucion`, `pro_Pausado`, `pro_Terminado`, `tiempo_total`, `Total_timepo_Unidad`, `fecha_salida`, `lider_proyecto`, `antisolder`, `ruteo`, `mes_de_corte`, `cantidad_terminada`, `fecha_terminacion_cantidad`) VALUES
-(1, 2, '10', 'FV', 1, 1, 2, 0, NULL, 4, 0, 0, 4, '00:05:08', '00:00:00', NULL, NULL, 0, 0, '2019-03-21', '0', NULL),
-(2, 4, '2', 'FV', 1, 1, 3, 0, NULL, 0, 0, 0, 3, '00:03:58', '00:02:00', '2019-03-21 07:56:43', NULL, 0, 0, '2019-02-21', '2', '2019-02-21'),
-(3, 3, '1', 'FV', 1, 1, 3, 0, NULL, 0, 0, 0, 3, '00:17:28', '00:17:28', '2019-03-21 11:04:55', NULL, 0, 0, '2019-03-21', '1', '2019-03-21'),
-(4, 1, '15', 'FV', 1, 1, 2, 0, NULL, 5, 0, 0, 4, '00:06:33', '00:00:00', NULL, NULL, 1, 1, '2019-03-21', '0', NULL),
-(5, 5, '5', NULL, 1, 2, 1, 0, NULL, 4, 0, 0, 0, '00:00:00', '00:00:00', NULL, NULL, 0, 0, '2019-03-21', '0', NULL),
-(6, 2, '10', 'FV', 2, 1, 1, 0, NULL, 8, 0, 0, 0, '00:00:00', '00:00:00', NULL, NULL, 0, 0, '2019-03-21', '0', NULL),
-(7, 6, '1', NULL, 2, 1, 1, 0, NULL, 4, 0, 0, 0, '00:00:00', '00:00:00', NULL, NULL, 0, 0, '2019-03-21', '0', NULL);
+INSERT INTO `detalle_proyecto` (`idDetalle_proyecto`, `idProducto`, `canitadad_total`, `material`, `proyecto_numero_orden`, `idArea`, `estado`, `PNC`, `ubicacion`, `pro_porIniciar`, `pro_Ejecucion`, `pro_Pausado`, `pro_Terminado`, `tiempo_total`, `Total_timepo_Unidad`, `fecha_salida`, `lider_proyecto`, `antisolder`, `ruteo`, `mes_de_corte`, `cantidad_terminada`, `fecha_terminacion_cantidad`, `idEspesor`) VALUES
+(1, 2, '10', 'FV', 1, 1, 2, 0, NULL, 4, 0, 0, 4, '00:05:08', '00:00:00', NULL, NULL, '0', 0, '2019-03-21', '0', NULL, NULL),
+(2, 4, '2', 'FV', 1, 1, 3, 0, NULL, 0, 0, 0, 3, '00:03:58', '00:02:00', '2019-03-21 07:56:43', NULL, '0', 0, '2019-02-21', '2', '2019-02-21', NULL),
+(3, 3, '1', 'FV', 1, 1, 3, 0, NULL, 0, 0, 0, 3, '00:17:28', '00:17:28', '2019-03-21 11:04:55', NULL, '0', 0, '2019-03-21', '1', '2019-03-21', NULL),
+(4, 1, '15', 'FV', 1, 1, 2, 0, NULL, 5, 0, 0, 4, '00:06:33', '00:00:00', NULL, NULL, '1', 1, '2019-03-21', '0', NULL, NULL),
+(5, 5, '5', NULL, 1, 2, 1, 0, NULL, 4, 0, 0, 0, '00:00:00', '00:00:00', NULL, NULL, '0', 0, '2019-03-21', '0', NULL, NULL),
+(6, 2, '10', 'FV', 2, 1, 1, 0, NULL, 8, 0, 0, 0, '00:00:00', '00:00:00', NULL, NULL, '0', 0, '2019-03-21', '0', NULL, NULL),
+(7, 6, '1', NULL, 2, 1, 1, 0, NULL, 4, 0, 0, 0, '00:00:00', '00:00:00', NULL, NULL, '0', 0, '2019-03-21', '0', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -3053,6 +3093,29 @@ INSERT INTO `detalle_teclados` (`idDetalle_teclados`, `tiempo_por_unidad`, `tiem
 (2, '00:00:00', '00:00:00', '0', NULL, NULL, 5, 12, 1, NULL, NULL, 0, 0, '0', 0, '0000-00-00'),
 (3, '00:00:00', '00:00:00', '0', NULL, NULL, 5, 13, 1, NULL, NULL, 0, 0, '0', 0, '0000-00-00'),
 (4, '00:00:00', '00:00:00', '0', NULL, NULL, 5, 14, 1, NULL, NULL, 0, 0, '0', 1, '0000-00-00');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `espesor`
+--
+
+CREATE TABLE `espesor` (
+  `idEspesor` tinyint(3) NOT NULL,
+  `nom_espesor` varchar(20) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Volcado de datos para la tabla `espesor`
+--
+
+INSERT INTO `espesor` (`idEspesor`, `nom_espesor`) VALUES
+(1, '1.6 - 1 CAPA'),
+(2, '0.8 - 1 CAPA'),
+(3, '0.1 - 1 CAPA'),
+(4, '1.6 - 2 CAPAS'),
+(5, '0.8 - 2 CAPAS'),
+(6, '0.1 - 2 CAPAS');
 
 -- --------------------------------------------------------
 
@@ -3457,7 +3520,7 @@ INSERT INTO `usuario` (`numero_documento`, `tipo_documento`, `nombres`, `apellid
 ('43263856', 'CC', 'Paula Andrea', 'Lopez Gutierrrez', 1, '', 1, '43263856', 0, 'cxcx03ñkf4'),
 ('43975208', 'CC', 'GLORIA ', 'JARAMILLO ', 2, '', 1, '43975208', 0, 'kbdnsdlciq'),
 ('71268332', 'CC', 'Adimaro', 'Montoya', 3, '', 0, '71268332', 0, '1vr8s4th-@'),
-('981130', 'CC', 'Juan David', 'Marulanda Paniagua', 4, '', 1, '98113053240juan', 0, '1u-hyppy60'),
+('981130', 'CC', 'Juan David', 'Marulanda Paniagua', 4, '', 1, '98113053240juan', 1, '1u-hyppy60'),
 ('98113053240', 'CC', 'Juan david', 'Marulanda Paniagua', 3, '', 1, '98113053240', 0, 'ue2282qgo1'),
 ('98699433', 'CC', 'ANDRES CAMILO', 'BUITRAGO GÓMEZ', 1, '', 1, '98699433', 0, 'ñkzrv7l@uh'),
 ('98765201', 'CC', 'EDISSON ANDRES', 'BARAHONA CASTRILLON', 6, '', 1, '98765201', 0, 'q1-4i3i99t');
@@ -3517,6 +3580,12 @@ ALTER TABLE `cargo`
   ADD PRIMARY KEY (`idcargo`);
 
 --
+-- Indices de la tabla `color_antisolder`
+--
+ALTER TABLE `color_antisolder`
+  ADD PRIMARY KEY (`idColor_antisolder`);
+
+--
 -- Indices de la tabla `condicion_producto`
 --
 ALTER TABLE `condicion_producto`
@@ -3555,6 +3624,12 @@ ALTER TABLE `detalle_teclados`
   ADD PRIMARY KEY (`idDetalle_teclados`,`idDetalle_proyecto`,`idproceso`),
   ADD KEY `fk_detalle_teclados_detalle_proyecto1_idx` (`idDetalle_proyecto`),
   ADD KEY `fk_detalle_teclados_Procesos1_idx` (`idproceso`);
+
+--
+-- Indices de la tabla `espesor`
+--
+ALTER TABLE `espesor`
+  ADD PRIMARY KEY (`idEspesor`);
 
 --
 -- Indices de la tabla `procesos`
@@ -3635,6 +3710,12 @@ ALTER TABLE `cargo`
   MODIFY `idcargo` tinyint(4) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
+-- AUTO_INCREMENT de la tabla `color_antisolder`
+--
+ALTER TABLE `color_antisolder`
+  MODIFY `idColor_antisolder` tinyint(3) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+
+--
 -- AUTO_INCREMENT de la tabla `condicion_producto`
 --
 ALTER TABLE `condicion_producto`
@@ -3663,6 +3744,12 @@ ALTER TABLE `detalle_proyecto`
 --
 ALTER TABLE `detalle_teclados`
   MODIFY `idDetalle_teclados` smallint(6) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT de la tabla `espesor`
+--
+ALTER TABLE `espesor`
+  MODIFY `idEspesor` tinyint(3) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT de la tabla `procesos`

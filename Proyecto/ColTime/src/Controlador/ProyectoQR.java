@@ -167,7 +167,7 @@ public class ProyectoQR implements Runnable {
                     viewProyecto.jTCircuito.setEnabled(true);
                     viewProyecto.cbMaterialCircuito.setSelectedItem(InformacionProyecto[11]);
                     viewProyecto.cbMaterialCircuito.setEnabled(true);
-                    viewProyecto.jCAntisolderC.setSelected(InformacionProyecto[12].toUpperCase().equals("SI"));
+//                    viewProyecto.cbColorCircuito.setSelected(InformacionProyecto[12].toUpperCase().equals("SI")); Pendiente actualizar
                     viewProyecto.jCRuteoC.setSelected(InformacionProyecto[13].toUpperCase().equals("SI"));
                 }
                 if (!InformacionProyecto[14].equals("null")) {//PCB TE
@@ -176,7 +176,7 @@ public class ProyectoQR implements Runnable {
                     viewProyecto.jTPCBTE.setEnabled(true);
                     viewProyecto.cbMaterialPCBTE.setSelectedItem(InformacionProyecto[15]);
                     viewProyecto.cbMaterialPCBTE.setEnabled(true);
-                    viewProyecto.jCAntisolderP.setSelected(InformacionProyecto[16].toUpperCase().equals("SI"));
+                    //viewProyecto.cbColorPCB.setSelected(InformacionProyecto[16].toUpperCase().equals("SI")); Pendiente actualizar
                     viewProyecto.jCRuteoP.setSelected(InformacionProyecto[17].toUpperCase().equals("SI"));
                     viewProyecto.jRPCBCOM.setSelected(InformacionProyecto[18].toUpperCase().equals("SI"));
                     viewProyecto.jRPCBCOM.setEnabled(true);

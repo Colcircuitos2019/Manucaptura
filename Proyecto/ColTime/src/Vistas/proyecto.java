@@ -4,7 +4,6 @@ import Atxy2k.CustomTextField.RestrictedTextField;
 import Controlador.DetalleProyecto;
 import Controlador.Proyecto;
 import Controlador.ProyectoQR;
-import Controlador.generarXlsx;
 import Controlador.rutaQR;
 import coltime.Menu;
 import com.barcodelib.barcode.QRCode;
@@ -25,6 +24,7 @@ import java.io.FileOutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import javax.sql.rowset.CachedRowSet;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 import rojerusan.RSNotifyAnimated;
@@ -60,6 +60,8 @@ public class proyecto extends javax.swing.JPanel {
             btnTomaTiempos.setVisible(false);
             jPEstadoProyecto.setVisible(false);
             btnActivar.setVisible(false);
+            consultarEspesoresTarjeta();
+            consultarColoresAntisolder();
             // ...
             if (lector == null) {
                 disponibilidad = true;
@@ -113,8 +115,6 @@ public class proyecto extends javax.swing.JPanel {
         jLCircuitoGF = new javax.swing.JLabel();
         jLabel19 = new javax.swing.JLabel();
         jCRuteoC = new javax.swing.JCheckBox();
-        jCAntisolderC = new javax.swing.JCheckBox();
-        jCAntisolderP = new javax.swing.JCheckBox();
         jLabel11 = new javax.swing.JLabel();
         jLabel16 = new javax.swing.JLabel();
         jCRuteoP = new javax.swing.JCheckBox();
@@ -135,6 +135,12 @@ public class proyecto extends javax.swing.JPanel {
         jLIDPCBEN = new javax.swing.JLabel();
         jLMaterialPCB = new javax.swing.JLabel();
         jLMaterialCircuito = new javax.swing.JLabel();
+        cbEspesorCircuito = new elaprendiz.gui.comboBox.ComboBoxRound();
+        jLabel25 = new javax.swing.JLabel();
+        cbEspesorPCB = new elaprendiz.gui.comboBox.ComboBoxRound();
+        jLabel26 = new javax.swing.JLabel();
+        cbColorCircuito = new elaprendiz.gui.comboBox.ComboBoxRound();
+        cbColorPCB = new elaprendiz.gui.comboBox.ComboBoxRound();
         jPDetalles = new javax.swing.JPanel();
         jDeEntrega = new com.toedter.calendar.JDateChooser();
         jLabel10 = new javax.swing.JLabel();
@@ -252,12 +258,14 @@ public class proyecto extends javax.swing.JPanel {
                     .addComponent(jTNombreProyecto, javax.swing.GroupLayout.PREFERRED_SIZE, 392, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPInformacionLayout.createSequentialGroup()
                         .addGroup(jPInformacionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jTNorden, javax.swing.GroupLayout.DEFAULT_SIZE, 90, Short.MAX_VALUE)
-                            .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addGap(37, 37, 37)
+                            .addComponent(jTNorden, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGroup(jPInformacionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jTNombreCliente, javax.swing.GroupLayout.PREFERRED_SIZE, 248, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(jPInformacionLayout.createSequentialGroup()
+                                .addGap(37, 37, 37)
+                                .addComponent(jTNombreCliente, javax.swing.GroupLayout.PREFERRED_SIZE, 248, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(jPInformacionLayout.createSequentialGroup()
+                                .addGap(45, 45, 45)
                                 .addComponent(jLabel12)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE))))
@@ -272,26 +280,24 @@ public class proyecto extends javax.swing.JPanel {
             .addGroup(jPInformacionLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPInformacionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jTNombreCliente, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPInformacionLayout.createSequentialGroup()
                         .addGroup(jPInformacionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel3)
                             .addComponent(jLabel5)
                             .addComponent(jLabel12))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTNombreCliente, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPInformacionLayout.createSequentialGroup()
-                        .addComponent(jLabel3)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jTNorden, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(30, 30, 30)
+                .addGap(13, 13, 13)
                 .addGroup(jPInformacionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel4)
                     .addComponent(jLabel13))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jTNombreProyecto, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(19, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jPanel2.add(jPInformacion, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 30, 430, 180));
+        jPanel2.add(jPInformacion, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 30, 430, 150));
 
         jPDetalles1.setBackground(new java.awt.Color(244, 244, 244));
         jPDetalles1.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204)), "Detalles", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 14), new java.awt.Color(204, 204, 204))); // NOI18N
@@ -481,7 +487,7 @@ public class proyecto extends javax.swing.JPanel {
         jLabel23.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel23.setForeground(new java.awt.Color(128, 128, 131));
         jLabel23.setText("Material del Circuito:");
-        jPDetalles1.add(jLabel23, new org.netbeans.lib.awtextra.AbsoluteConstraints(79, 97, -1, -1));
+        jPDetalles1.add(jLabel23, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 95, -1, -1));
 
         cbMaterialCircuito.setForeground(new java.awt.Color(102, 102, 102));
         cbMaterialCircuito.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Seleccione...", "TH", "FV", "GF" }));
@@ -493,7 +499,7 @@ public class proyecto extends javax.swing.JPanel {
                 cbMaterialCircuitoItemStateChanged(evt);
             }
         });
-        jPDetalles1.add(cbMaterialCircuito, new org.netbeans.lib.awtextra.AbsoluteConstraints(215, 92, 150, 25));
+        jPDetalles1.add(cbMaterialCircuito, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 90, 150, 25));
 
         cbMaterialPCBTE.setForeground(new java.awt.Color(102, 102, 102));
         cbMaterialPCBTE.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Seleccione...", "TH", "FV", "GF" }));
@@ -534,83 +540,69 @@ public class proyecto extends javax.swing.JPanel {
         jLCircuitoGF.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLCircuitoGF.setForeground(new java.awt.Color(128, 128, 131));
         jLCircuitoGF.setText("Fecha de entrega PCB GF");
-        jPDetalles1.add(jLCircuitoGF, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 170, -1, -1));
+        jPDetalles1.add(jLCircuitoGF, new org.netbeans.lib.awtextra.AbsoluteConstraints(460, 200, -1, -1));
 
         jLabel19.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel19.setForeground(new java.awt.Color(128, 128, 131));
         jLabel19.setText("¿Lleva ruteo?");
-        jPDetalles1.add(jLabel19, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 140, -1, -1));
+        jPDetalles1.add(jLabel19, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 135, -1, -1));
 
         jCRuteoC.setBackground(new java.awt.Color(255, 255, 255));
         jCRuteoC.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         jCRuteoC.setForeground(new java.awt.Color(102, 102, 102));
         jCRuteoC.setText("R");
         jCRuteoC.setEnabled(false);
-        jPDetalles1.add(jCRuteoC, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 135, -1, -1));
-
-        jCAntisolderC.setBackground(new java.awt.Color(255, 255, 255));
-        jCAntisolderC.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-        jCAntisolderC.setForeground(new java.awt.Color(102, 102, 102));
-        jCAntisolderC.setText("A");
-        jCAntisolderC.setEnabled(false);
-        jPDetalles1.add(jCAntisolderC, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 135, -1, -1));
-
-        jCAntisolderP.setBackground(new java.awt.Color(255, 255, 255));
-        jCAntisolderP.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-        jCAntisolderP.setForeground(new java.awt.Color(102, 102, 102));
-        jCAntisolderP.setText("A");
-        jCAntisolderP.setEnabled(false);
-        jPDetalles1.add(jCAntisolderP, new org.netbeans.lib.awtextra.AbsoluteConstraints(580, 135, -1, -1));
+        jPDetalles1.add(jCRuteoC, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 155, -1, -1));
 
         jLabel11.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel11.setForeground(new java.awt.Color(128, 128, 131));
-        jLabel11.setText("¿Lleva antisolder?");
-        jPDetalles1.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(460, 140, -1, -1));
+        jLabel11.setText("Color antisolder");
+        jPDetalles1.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(430, 165, -1, -1));
 
         jLabel16.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel16.setForeground(new java.awt.Color(128, 128, 131));
         jLabel16.setText("¿Lleva ruteo?");
-        jPDetalles1.add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(640, 140, -1, -1));
+        jPDetalles1.add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(700, 135, -1, -1));
 
         jCRuteoP.setBackground(new java.awt.Color(255, 255, 255));
         jCRuteoP.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         jCRuteoP.setForeground(new java.awt.Color(102, 102, 102));
         jCRuteoP.setText("R");
         jCRuteoP.setEnabled(false);
-        jPDetalles1.add(jCRuteoP, new org.netbeans.lib.awtextra.AbsoluteConstraints(730, 135, -1, -1));
+        jPDetalles1.add(jCRuteoP, new org.netbeans.lib.awtextra.AbsoluteConstraints(720, 155, -1, -1));
 
         jDFechaEntregaFE.setToolTipText("");
         jDFechaEntregaFE.setDateFormatString("dd/MM/yyyy");
         jDFechaEntregaFE.setEnabled(false);
         jDFechaEntregaFE.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
-        jPDetalles1.add(jDFechaEntregaFE, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 190, 140, -1));
+        jPDetalles1.add(jDFechaEntregaFE, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 220, 140, -1));
 
         jDFechaEntregaFECOM.setToolTipText("");
         jDFechaEntregaFECOM.setDateFormatString("dd/MM/yyyy");
         jDFechaEntregaFECOM.setEnabled(false);
         jDFechaEntregaFECOM.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
-        jPDetalles1.add(jDFechaEntregaFECOM, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 190, 130, 20));
+        jPDetalles1.add(jDFechaEntregaFECOM, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 220, 130, 20));
 
         jDFechaEntregaPCBGF.setToolTipText("");
         jDFechaEntregaPCBGF.setDateFormatString("dd/MM/yyyy");
         jDFechaEntregaPCBGF.setEnabled(false);
         jDFechaEntregaPCBGF.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
-        jPDetalles1.add(jDFechaEntregaPCBGF, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 190, 130, -1));
+        jPDetalles1.add(jDFechaEntregaPCBGF, new org.netbeans.lib.awtextra.AbsoluteConstraints(460, 220, 130, -1));
 
         jLabel24.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel24.setForeground(new java.awt.Color(128, 128, 131));
-        jLabel24.setText("¿Lleva antisolder?");
-        jPDetalles1.add(jLabel24, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 140, -1, -1));
+        jLabel24.setText("Color antisolder");
+        jPDetalles1.add(jLabel24, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 165, -1, -1));
 
         jLCircuitoFE.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLCircuitoFE.setForeground(new java.awt.Color(128, 128, 131));
         jLCircuitoFE.setText("Fecha de entrega FE Circuito");
-        jPDetalles1.add(jLCircuitoFE, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 170, -1, -1));
+        jPDetalles1.add(jLCircuitoFE, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 200, -1, -1));
 
         jLComCircuitos.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLComCircuitos.setForeground(new java.awt.Color(128, 128, 131));
         jLComCircuitos.setText("Fecha de entrega COM Circuito");
-        jPDetalles1.add(jLComCircuitos, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 170, -1, -1));
+        jPDetalles1.add(jLComCircuitos, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 200, -1, -1));
 
         jRPCBCOM.setBackground(new java.awt.Color(255, 255, 255));
         jRPCBCOM.setText("COM");
@@ -620,18 +612,18 @@ public class proyecto extends javax.swing.JPanel {
                 jRPCBCOMActionPerformed(evt);
             }
         });
-        jPDetalles1.add(jRPCBCOM, new org.netbeans.lib.awtextra.AbsoluteConstraints(760, 80, -1, 20));
+        jPDetalles1.add(jRPCBCOM, new org.netbeans.lib.awtextra.AbsoluteConstraints(760, 80, 20, 20));
 
         jDFechaEntregaPCBCOMGF.setToolTipText("");
         jDFechaEntregaPCBCOMGF.setDateFormatString("dd/MM/yyyy");
         jDFechaEntregaPCBCOMGF.setEnabled(false);
         jDFechaEntregaPCBCOMGF.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
-        jPDetalles1.add(jDFechaEntregaPCBCOMGF, new org.netbeans.lib.awtextra.AbsoluteConstraints(650, 190, 130, -1));
+        jPDetalles1.add(jDFechaEntregaPCBCOMGF, new org.netbeans.lib.awtextra.AbsoluteConstraints(640, 220, 130, -1));
 
         jLpcbGF.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLpcbGF.setForeground(new java.awt.Color(128, 128, 131));
         jLpcbGF.setText("Fecha de entrega COM GF");
-        jPDetalles1.add(jLpcbGF, new org.netbeans.lib.awtextra.AbsoluteConstraints(650, 170, -1, -1));
+        jPDetalles1.add(jLpcbGF, new org.netbeans.lib.awtextra.AbsoluteConstraints(640, 200, -1, -1));
 
         jLIDCircuitoGF.setText("0");
         jPDetalles1.add(jLIDCircuitoGF, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 100, 10, -1));
@@ -653,18 +645,72 @@ public class proyecto extends javax.swing.JPanel {
                 jRPIntegracionActionPerformed(evt);
             }
         });
-        jPDetalles1.add(jRPIntegracion, new org.netbeans.lib.awtextra.AbsoluteConstraints(760, 110, 50, 20));
+        jPDetalles1.add(jRPIntegracion, new org.netbeans.lib.awtextra.AbsoluteConstraints(790, 80, 20, 20));
 
         jLIDPCBEN.setText("0");
-        jPDetalles1.add(jLIDPCBEN, new org.netbeans.lib.awtextra.AbsoluteConstraints(780, 130, 10, -1));
+        jPDetalles1.add(jLIDPCBEN, new org.netbeans.lib.awtextra.AbsoluteConstraints(800, 110, 10, -1));
 
         jLMaterialPCB.setText("M");
         jPDetalles1.add(jLMaterialPCB, new org.netbeans.lib.awtextra.AbsoluteConstraints(790, 40, -1, -1));
 
         jLMaterialCircuito.setText("M");
-        jPDetalles1.add(jLMaterialCircuito, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 120, -1, -1));
+        jPDetalles1.add(jLMaterialCircuito, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 100, 10, -1));
 
-        jPanel2.add(jPDetalles1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 220, 820, 222));
+        cbEspesorCircuito.setForeground(new java.awt.Color(102, 102, 102));
+        cbEspesorCircuito.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Seleccione..." }));
+        cbEspesorCircuito.setColorDeBorde(new java.awt.Color(204, 204, 204));
+        cbEspesorCircuito.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
+        cbEspesorCircuito.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                cbEspesorCircuitoItemStateChanged(evt);
+            }
+        });
+        jPDetalles1.add(cbEspesorCircuito, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 130, 120, 25));
+
+        jLabel25.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        jLabel25.setForeground(new java.awt.Color(128, 128, 131));
+        jLabel25.setText("Espesor de la tarjeta");
+        jPDetalles1.add(jLabel25, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 135, -1, -1));
+
+        cbEspesorPCB.setForeground(new java.awt.Color(102, 102, 102));
+        cbEspesorPCB.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Seleccione...", "TH", "FV", "GF" }));
+        cbEspesorPCB.setColorDeBorde(new java.awt.Color(204, 204, 204));
+        cbEspesorPCB.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
+        cbEspesorPCB.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                cbEspesorPCBItemStateChanged(evt);
+            }
+        });
+        jPDetalles1.add(cbEspesorPCB, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 130, 120, 25));
+
+        jLabel26.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        jLabel26.setForeground(new java.awt.Color(128, 128, 131));
+        jLabel26.setText("Espesor de la tarjeta");
+        jPDetalles1.add(jLabel26, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 135, -1, -1));
+
+        cbColorCircuito.setForeground(new java.awt.Color(102, 102, 102));
+        cbColorCircuito.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Seleccione..." }));
+        cbColorCircuito.setColorDeBorde(new java.awt.Color(204, 204, 204));
+        cbColorCircuito.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
+        cbColorCircuito.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                cbColorCircuitoItemStateChanged(evt);
+            }
+        });
+        jPDetalles1.add(cbColorCircuito, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 160, 120, 25));
+
+        cbColorPCB.setForeground(new java.awt.Color(102, 102, 102));
+        cbColorPCB.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Seleccione..." }));
+        cbColorPCB.setColorDeBorde(new java.awt.Color(204, 204, 204));
+        cbColorPCB.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
+        cbColorPCB.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                cbColorPCBItemStateChanged(evt);
+            }
+        });
+        jPDetalles1.add(cbColorPCB, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 160, 120, 25));
+
+        jPanel2.add(jPDetalles1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 192, 820, 250));
 
         jPDetalles.setBackground(new java.awt.Color(244, 244, 244));
         jPDetalles.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204)), "Detalles", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 14), new java.awt.Color(204, 204, 204))); // NOI18N
@@ -743,64 +789,61 @@ public class proyecto extends javax.swing.JPanel {
                 .addContainerGap()
                 .addGroup(jPDetallesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPDetallesLayout.createSequentialGroup()
+                        .addGap(18, 18, 18)
+                        .addComponent(jLabel18)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jLabel17)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel10)
+                        .addGap(15, 15, 15))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPDetallesLayout.createSequentialGroup()
                         .addGroup(jPDetallesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPDetallesLayout.createSequentialGroup()
-                                .addGap(13, 13, 13)
-                                .addComponent(jLabel18)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 59, Short.MAX_VALUE))
+                                .addComponent(jLIngreso, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addGap(18, 18, 18))
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPDetallesLayout.createSequentialGroup()
-                                .addGap(0, 0, Short.MAX_VALUE)
+                                .addGap(0, 21, Short.MAX_VALUE)
                                 .addComponent(jREjecucion)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(jRParada)
-                                .addGap(34, 34, 34)))
+                                .addGap(29, 29, 29)))
                         .addGroup(jPDetallesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPDetallesLayout.createSequentialGroup()
-                                .addComponent(jLabel17)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabel10))
+                            .addComponent(cbTipoEjecucion, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(jPDetallesLayout.createSequentialGroup()
                                 .addComponent(jLabel20)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabel21, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(39, 39, 39))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPDetallesLayout.createSequentialGroup()
-                        .addComponent(jLIngreso, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGap(18, 18, 18)
-                        .addComponent(jDeEntrega, javax.swing.GroupLayout.PREFERRED_SIZE, 158, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(24, 24, 24))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPDetallesLayout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(cbTipoEjecucion, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(32, 32, 32))))
+                                .addComponent(jLabel21, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jDeEntrega, javax.swing.GroupLayout.PREFERRED_SIZE, 158, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addContainerGap())
         );
         jPDetallesLayout.setVerticalGroup(
             jPDetallesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPDetallesLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPDetallesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel18)
-                    .addGroup(jPDetallesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jLabel10)
-                        .addComponent(jLabel17)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPDetallesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel10)
+                    .addComponent(jLabel17)
+                    .addComponent(jLabel18))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPDetallesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLIngreso, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jDeEntrega, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
                 .addGroup(jPDetallesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPDetallesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jREjecucion, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jRParada, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPDetallesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jLabel21)
-                        .addComponent(jLabel20)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(cbTipoEjecucion, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 28, Short.MAX_VALUE))
+                    .addGroup(jPDetallesLayout.createSequentialGroup()
+                        .addGap(29, 29, 29)
+                        .addGroup(jPDetallesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jREjecucion, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jRParada, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(jPDetallesLayout.createSequentialGroup()
+                        .addGap(18, 18, 18)
+                        .addGroup(jPDetallesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel21)
+                            .addComponent(jLabel20))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(cbTipoEjecucion, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(0, 14, Short.MAX_VALUE))
         );
 
-        jPanel2.add(jPDetalles, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 30, 370, 180));
+        jPanel2.add(jPDetalles, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 30, 370, 150));
 
         jPanel5.setBackground(new java.awt.Color(255, 255, 255));
         jPanel5.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(204, 204, 204))); // NOI18N
@@ -902,28 +945,28 @@ public class proyecto extends javax.swing.JPanel {
         jPanel2.add(Notificacion1, new org.netbeans.lib.awtextra.AbsoluteConstraints(770, 10, 90, 20));
 
         jLIDConversor.setText("0");
-        jPanel2.add(jLIDConversor, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 210, 10, -1));
+        jPanel2.add(jLIDConversor, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 180, 10, -1));
 
         jLIDTroquel.setText("0");
-        jPanel2.add(jLIDTroquel, new org.netbeans.lib.awtextra.AbsoluteConstraints(236, 210, 10, -1));
+        jPanel2.add(jLIDTroquel, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 180, 10, -1));
 
         jLIDRepujado.setText("0");
-        jPanel2.add(jLIDRepujado, new org.netbeans.lib.awtextra.AbsoluteConstraints(316, 210, 10, -1));
+        jPanel2.add(jLIDRepujado, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 180, 10, -1));
 
         jLIDStencil.setText("0");
-        jPanel2.add(jLIDStencil, new org.netbeans.lib.awtextra.AbsoluteConstraints(396, 210, 10, -1));
+        jPanel2.add(jLIDStencil, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 180, 10, -1));
 
         jLIDCircuito.setText("0");
-        jPanel2.add(jLIDCircuito, new org.netbeans.lib.awtextra.AbsoluteConstraints(476, 210, 10, -1));
+        jPanel2.add(jLIDCircuito, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 180, 10, -1));
 
         jLIDPCB.setText("0");
-        jPanel2.add(jLIDPCB, new org.netbeans.lib.awtextra.AbsoluteConstraints(556, 210, 10, -1));
+        jPanel2.add(jLIDPCB, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 180, 10, -1));
 
         jLIDTeclado.setText("0");
-        jPanel2.add(jLIDTeclado, new org.netbeans.lib.awtextra.AbsoluteConstraints(636, 210, 10, -1));
+        jPanel2.add(jLIDTeclado, new org.netbeans.lib.awtextra.AbsoluteConstraints(640, 180, 10, -1));
 
         jLIDIntegracion.setText("0");
-        jPanel2.add(jLIDIntegracion, new org.netbeans.lib.awtextra.AbsoluteConstraints(716, 210, 10, -1));
+        jPanel2.add(jLIDIntegracion, new org.netbeans.lib.awtextra.AbsoluteConstraints(720, 180, 10, -1));
 
         btnTomaTiempos.setText("Toma de tiempos");
         btnTomaTiempos.addActionListener(new java.awt.event.ActionListener() {
@@ -1262,11 +1305,11 @@ public class proyecto extends javax.swing.JPanel {
         activarjTfilex(jCCircuito, jTCircuito);
         if (jCCircuito.isSelected()) {
             cbMaterialCircuito.setEnabled(true);
-            jCAntisolderC.setEnabled(true);
+            cbColorCircuito.setEnabled(true);
             jCRuteoC.setEnabled(true);
         } else {
             cbMaterialCircuito.setEnabled(false);
-            jCAntisolderC.setEnabled(false);
+            cbColorCircuito.setEnabled(false);
             jCRuteoC.setEnabled(false);
         }
         //Validacion para saber si lleva otras fechas de control.
@@ -1277,12 +1320,12 @@ public class proyecto extends javax.swing.JPanel {
         activarjTfilex(jCPCBTE, jTPCBTE);
         if (jCPCBTE.isSelected()) {
             cbMaterialPCBTE.setEnabled(true);
-            jCAntisolderP.setEnabled(true);
+            cbColorPCB.setEnabled(true);
             jCRuteoP.setEnabled(true);
         } else {
             cbMaterialPCBTE.setEnabled(false);
             cbMaterialPCBTE.setSelectedIndex(0);
-            jCAntisolderP.setEnabled(false);
+            cbColorPCB.setEnabled(false);
             jCRuteoP.setEnabled(false);
             jRPCBCOM.setEnabled(false);
             jRPIntegracion.setEnabled(false);
@@ -1323,13 +1366,13 @@ public class proyecto extends javax.swing.JPanel {
     private void cbMaterialCircuitoItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cbMaterialCircuitoItemStateChanged
         //Necesito controlar esto
         if (cbMaterialCircuito.getSelectedIndex() == 3 || cbMaterialCircuito.getSelectedIndex() == 0) {//Gran formato
-            jCAntisolderC.setEnabled(false);
-            jCAntisolderC.setSelected(false);
+            cbColorCircuito.setEnabled(false);
+            cbColorCircuito.setSelectedIndex(0);
             jCRuteoC.setEnabled(false);
             jCRuteoC.setSelected(false);
         } else {
             if(accion == 1){
-                jCAntisolderC.setEnabled(true);
+                cbColorCircuito.setEnabled(true);
                 jCRuteoC.setEnabled(true);
             }
         }
@@ -1340,13 +1383,13 @@ public class proyecto extends javax.swing.JPanel {
     private void cbMaterialPCBTEItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cbMaterialPCBTEItemStateChanged
         if (cbMaterialPCBTE.getSelectedIndex() != 0) {
             if (cbMaterialPCBTE.getSelectedIndex() == 3) {
-                jCAntisolderP.setEnabled(false);
-                jCAntisolderP.setSelected(false);
+                cbColorPCB.setEnabled(false);
+                cbColorPCB.setSelectedIndex(0);
                 jCRuteoP.setEnabled(false);
                 jCRuteoP.setSelected(false);
             } else {
                 if(accion==1){
-                    jCAntisolderP.setEnabled(true);
+                    cbColorPCB.setEnabled(true);
                     jCRuteoP.setEnabled(true);
                 }
             }
@@ -1420,6 +1463,22 @@ public class proyecto extends javax.swing.JPanel {
     private void GenerarQRActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_GenerarQRActionPerformed
         generarQRdeProduccion();
     }//GEN-LAST:event_GenerarQRActionPerformed
+
+    private void cbEspesorCircuitoItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cbEspesorCircuitoItemStateChanged
+        // TODO add your handling code here:
+    }//GEN-LAST:event_cbEspesorCircuitoItemStateChanged
+
+    private void cbEspesorPCBItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cbEspesorPCBItemStateChanged
+        // TODO add your handling code here:
+    }//GEN-LAST:event_cbEspesorPCBItemStateChanged
+
+    private void cbColorCircuitoItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cbColorCircuitoItemStateChanged
+        // TODO add your handling code here:
+    }//GEN-LAST:event_cbColorCircuitoItemStateChanged
+
+    private void cbColorPCBItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cbColorPCBItemStateChanged
+        // TODO add your handling code here:
+    }//GEN-LAST:event_cbColorPCBItemStateChanged
 //Metodos---------------------------------------------------------------------->
 
     private void cambiarEstadoProyectoEjecucionOParada(int op) {// Esto se va a modificar <----- Pendiente
@@ -2033,9 +2092,9 @@ public class proyecto extends javax.swing.JPanel {
         jTNombreProyecto.setEnabled(false);
         jDeEntrega.setEnabled(false);
         cbTipoEjecucion.setEnabled(false);
-        jCAntisolderP.setEnabled(false);
+        cbColorPCB.setEnabled(false);
         jCRuteoP.setEnabled(false);
-        jCAntisolderC.setEnabled(false);
+        cbColorCircuito.setSelectedIndex(0);
         jCRuteoC.setEnabled(false);
         jCConversor.setEnabled(false);
         jTConversor.setEnabled(false);
@@ -2280,7 +2339,7 @@ public class proyecto extends javax.swing.JPanel {
                     op1 = op;
                     op = 1;
                 }
-                res = subRegistrarModificarProyecto(obj, jTCircuito.getText(), "FE", "Circuito", numeroOrden, cbMaterialCircuito.getSelectedItem().toString(), op, Integer.parseInt(jLIDCircuito.getText()), (jCAntisolderC.isSelected()?1:0), (jCRuteoC.isSelected()?1:0));
+                res = subRegistrarModificarProyecto(obj, jTCircuito.getText(), "FE", "Circuito", numeroOrden, cbMaterialCircuito.getSelectedItem().toString(), op, Integer.parseInt(jLIDCircuito.getText()), (cbColorCircuito.getSelectedIndex()==0?null:cbColorCircuito.getSelectedItem().toString()), (jCRuteoC.isSelected()?1:0));
                 if (jLIDCircuito.getText().equals("0")) {
                     op = op1;
                 }
@@ -2303,7 +2362,7 @@ public class proyecto extends javax.swing.JPanel {
                     op1 = op;
                     op = 1;
                 }
-                res = subRegistrarModificarProyecto(obj, jTPCBTE.getText(), "FE", "PCB", numeroOrden, cbMaterialPCBTE.getSelectedItem().toString(), op, Integer.parseInt(jLIDPCB.getText()), (jCAntisolderP.isSelected()?1:0), (jCRuteoP.isSelected()?1:0));
+                res = subRegistrarModificarProyecto(obj, jTPCBTE.getText(), "FE", "PCB", numeroOrden, cbMaterialPCBTE.getSelectedItem().toString(), op, Integer.parseInt(jLIDPCB.getText()), (cbColorCircuito.getSelectedIndex()==0?null:cbColorCircuito.getSelectedItem().toString()), (jCRuteoP.isSelected()?1:0));
                 if (jLIDPCB.getText().equals("0")) {
                     op = op1;
                 }
@@ -2381,6 +2440,44 @@ public class proyecto extends javax.swing.JPanel {
         }
     }
 
+    private void consultarColoresAntisolder(){
+        try {
+            Proyecto controlador = new Proyecto();
+            CachedRowSet crs = controlador.consultarColoresAntisolder();
+            DefaultComboBoxModel modelCircuito = new DefaultComboBoxModel();
+            DefaultComboBoxModel modelPCB = new DefaultComboBoxModel();
+            modelPCB.addElement("Seleccione...");
+            modelCircuito.addElement("Seleccione...");
+            while(crs.next()){
+                modelCircuito.addElement(crs.getString("color"));
+                modelPCB.addElement(crs.getString("color"));
+            }
+            cbColorCircuito.setModel(modelCircuito);
+            cbColorPCB.setModel(modelPCB);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    private void consultarEspesoresTarjeta(){
+        try {
+            Proyecto controlador = new Proyecto();
+            CachedRowSet crs = controlador.consultarEspesorTarjeta();
+            DefaultComboBoxModel modelCircuito = new DefaultComboBoxModel();
+            DefaultComboBoxModel modelPCB = new DefaultComboBoxModel();
+            modelCircuito.addElement("Seleccione...");
+            modelPCB.addElement("Seleccione...");
+            while(crs.next()){
+                modelCircuito.addElement(crs.getString("nom_espesor"));
+                modelPCB.addElement(crs.getString("nom_espesor"));
+            }
+            cbEspesorCircuito.setModel(modelCircuito);
+            cbEspesorPCB.setModel(modelPCB);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
     private void numerosT(java.awt.event.KeyEvent evt) {
         char cara = evt.getKeyChar();
         if (Character.isLetter(cara) || evt.getKeyChar() == '.' || evt.getKeyChar() == '|') {
@@ -2453,9 +2550,9 @@ public class proyecto extends javax.swing.JPanel {
         jLIngreso.setText("DD-MM-YYYY");
         cbTipoEjecucion.setSelectedIndex(0);
         jCRuteoP.setSelected(false);
-        jCAntisolderP.setSelected(false);
+        cbColorPCB.setSelectedIndex(0);
         jCRuteoC.setSelected(false);
-        jCAntisolderC.setSelected(false);
+        cbColorCircuito.setSelectedIndex(0);
         jCConversor.setSelected(false);
         jCRepujado.setSelected(false);
         jCTroquel.setSelected(false);
@@ -2543,12 +2640,14 @@ public class proyecto extends javax.swing.JPanel {
     public static javax.swing.JButton btnNuevo;
     public static elaprendiz.gui.button.ButtonColoredAction btnTomaTiempos;
     public static javax.swing.JButton btnUpdate;
+    public static elaprendiz.gui.comboBox.ComboBoxRound cbColorCircuito;
+    public static elaprendiz.gui.comboBox.ComboBoxRound cbColorPCB;
+    public static elaprendiz.gui.comboBox.ComboBoxRound cbEspesorCircuito;
+    public static elaprendiz.gui.comboBox.ComboBoxRound cbEspesorPCB;
     public static elaprendiz.gui.comboBox.ComboBoxRound cbMaterialCircuito;
     public static elaprendiz.gui.comboBox.ComboBoxRound cbMaterialPCBTE;
     public static elaprendiz.gui.comboBox.ComboBoxRound cbTipoEjecucion;
     private javax.swing.ButtonGroup estadoProyecto;
-    public javax.swing.JCheckBox jCAntisolderC;
-    public javax.swing.JCheckBox jCAntisolderP;
     public javax.swing.JCheckBox jCCircuito;
     public javax.swing.JCheckBox jCConversor;
     public javax.swing.JCheckBox jCIntegracion;
@@ -2603,6 +2702,8 @@ public class proyecto extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel22;
     private javax.swing.JLabel jLabel23;
     private javax.swing.JLabel jLabel24;
+    private javax.swing.JLabel jLabel25;
+    private javax.swing.JLabel jLabel26;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;

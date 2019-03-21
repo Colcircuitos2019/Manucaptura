@@ -6,9 +6,7 @@ import javax.sql.rowset.CachedRowSet;
 public class Proyecto {
 
     //Constructores------------------------------------------------->
-    public Proyecto() {
-
-    }
+    public Proyecto() {}
     //Variables----------------------------------------------------->
     //Atributos de la clase proyecto-------------------------------->
     private String num_orden="", 
@@ -199,6 +197,16 @@ public class Proyecto {
     public String sumarTiempos(String tiempo_total, String tiempo_a_sumar){
         ProyectoM modelo = new ProyectoM();
         return modelo.sumarTiemposM(tiempo_total, tiempo_a_sumar);
+    }
+    
+    public CachedRowSet consultarColoresAntisolder(){
+        ProyectoM modelo = new ProyectoM();
+        return modelo.consultarColoresAntisolderM();
+    }
+    
+    public CachedRowSet consultarEspesorTarjeta(){
+        ProyectoM modelo = new ProyectoM();
+        return modelo.consultarEspesorTarjetaM();
     }
     
     //Finalizacion de la clase automatica---------------------------------------------------------------->
