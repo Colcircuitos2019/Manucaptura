@@ -698,14 +698,15 @@ public class ProyectoM {
         return res;
     }
     // Hace falta recibir como parametro el mes y el año en que se van a realizar los cortes del tiempo de los productos y los procesos
-    public CachedRowSet reporteCorteTiemposProductoProyectosM() {
+    public CachedRowSet reporteCorteTiemposProductoProyectosM(String fecha) {
         try {
             conexion = new Conexion(1);
             conexion.establecerConexion();
             con = conexion.getConexion();
             //Query------------------------------------------------------------>
-            String Qry = "CALL PA_ReporteTiemposProduccionProductos()";
+            String Qry = "CALL PA_ReporteTiemposProduccionProductos(?)";
             ps = con.prepareStatement(Qry);
+            ps.setString(1, fecha);
             rs = ps.executeQuery();
             crsP = new CachedRowSetImpl();
             crsP.populate(rs);
@@ -721,14 +722,15 @@ public class ProyectoM {
     }
     
     // Hace falta recibir como parametro el mes y el año en que se van a realizar los cortes del tiempo de los productos y los procesos
-    public CachedRowSet reporteCorteTiemposProcesosM() {
+    public CachedRowSet reporteCorteTiemposProcesosM(String fecha) {
         try {
             conexion = new Conexion(1);
             conexion.establecerConexion();
             con = conexion.getConexion();
             //Query------------------------------------------------------------>
-            String Qry = "CALL PA_ReporteCorteTiemposProcesosMes()";
+            String Qry = "CALL PA_ReporteCorteTiemposProcesosMes(?)";
             ps = con.prepareStatement(Qry);
+            ps.setString(1, fecha);
             rs = ps.executeQuery();
             crsP = new CachedRowSetImpl();
             crsP.populate(rs);

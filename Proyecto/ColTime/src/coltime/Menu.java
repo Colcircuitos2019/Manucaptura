@@ -13,6 +13,7 @@ import Vistas.CambiarContraseña;
 import Vistas.ClausulasPrivacidad;
 import Vistas.ControlDelTiempo;
 import Vistas.DetallesAreaInfo;
+import Vistas.GeneradorQRComun;
 import Vistas.Producciones;
 import Vistas.Inicio;
 import Vistas.Procesos_Condicion;
@@ -146,7 +147,6 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
         btn1 = new rsbuttom.RSButtonMetro();
         btn4 = new rsbuttom.RSButtonMetro();
         btn3 = new rsbuttom.RSButtonMetro();
-        btn5 = new rsbuttom.RSButtonMetro();
         btn6 = new rsbuttom.RSButtonMetro();
         btn7 = new rsbuttom.RSButtonMetro();
         jPContenido = new javax.swing.JPanel();
@@ -461,26 +461,6 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
         });
         jPMenu.add(btn3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 194, 190, 42));
 
-        btn5.setForeground(new java.awt.Color(128, 128, 131));
-        btn5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/reportes.png"))); // NOI18N
-        btn5.setText("REPORTES");
-        btn5.setBorderPainted(false);
-        btn5.setColorHover(new java.awt.Color(189, 189, 189));
-        btn5.setColorNormal(new java.awt.Color(219, 219, 219));
-        btn5.setColorPressed(new java.awt.Color(189, 189, 189));
-        btn5.setColorTextHover(new java.awt.Color(128, 128, 131));
-        btn5.setColorTextNormal(new java.awt.Color(128, 128, 131));
-        btn5.setColorTextPressed(new java.awt.Color(128, 128, 131));
-        btn5.setFocusable(false);
-        btn5.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        btn5.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
-        btn5.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btn5ActionPerformed(evt);
-            }
-        });
-        jPMenu.add(btn5, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 362, 190, 42));
-
         btn6.setForeground(new java.awt.Color(128, 128, 131));
         btn6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/procesos.png"))); // NOI18N
         btn6.setText("PROCESOS");
@@ -499,11 +479,11 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
                 btn6ActionPerformed(evt);
             }
         });
-        jPMenu.add(btn6, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 320, 190, 42));
+        jPMenu.add(btn6, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 280, 190, 42));
 
         btn7.setForeground(new java.awt.Color(128, 128, 131));
-        btn7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/operarios.png"))); // NOI18N
-        btn7.setText("Operarios");
+        btn7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/QRs_comun.png"))); // NOI18N
+        btn7.setText("Generador QRs C");
         btn7.setBorderPainted(false);
         btn7.setColorHover(new java.awt.Color(189, 189, 189));
         btn7.setColorNormal(new java.awt.Color(219, 219, 219));
@@ -519,7 +499,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
                 btn7ActionPerformed(evt);
             }
         });
-        jPMenu.add(btn7, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 278, 190, 42));
+        jPMenu.add(btn7, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 322, 190, 42));
 
         jPContenido.setLayout(new javax.swing.BoxLayout(jPContenido, javax.swing.BoxLayout.LINE_AXIS));
 
@@ -1508,42 +1488,6 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
         }
     }//GEN-LAST:event_jPSuperiorMouseReleased
 
-    private void btn5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn5ActionPerformed
-        //Los reportes estan pendientes------
-        int seleccion = JOptionPane.showOptionDialog(null, "¿Qué reporte desea generar?",
-                "seleccione...", JOptionPane.YES_NO_CANCEL_OPTION,
-                JOptionPane.QUESTION_MESSAGE, null,// null para icono por defecto.
-                new Object[]{"Coming soon...    ", "General"}, "");
-        if (seleccion != -1) {
-            if (seleccion == 0) {
-                //Este reporte se realizo de otra forma, por ende ya no es necesario esta opción en el sistema. 
-                //Reporte de tiempos 
-                //Cuerpo del algoritmo esta pendiente.
-            } else {
-                //Reporte general Excel.
-                DetalleProyecto obj = new DetalleProyecto();
-                crs = obj.generar_Reportes();
-                //Ruta de guardado del archivo
-                JFileChooser Chocer = new JFileChooser();
-                Chocer.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-                Chocer.setLocation(500, 500);
-                Chocer.showOpenDialog(this);
-                File guardar = Chocer.getSelectedFile();
-                //Generar archivo .xlsx
-                generarXlsx excel = new generarXlsx();
-                if (guardar != null) {
-                    if (excel.generarExcel(crs, String.valueOf(guardar))) {//Información y ruta de guardado.
-                        //Documento creado correctamente
-                        new rojerusan.RSNotifyAnimated("Listo!", "El reporte General de producción fue creado exitosamente.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.SUCCESS).setVisible(true);
-                    } else {
-                        //Error al crear el documento
-                        new rojerusan.RSNotifyAnimated("¡Error!", "No puedo crear el reporte General.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.ERROR).setVisible(true);
-                    }
-                }
-            }
-        }
-    }//GEN-LAST:event_btn5ActionPerformed
-
     private void btn6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn6ActionPerformed
         btnMenu.setEnabled(false);
         if (!btn4.isSelected()) {
@@ -1753,14 +1697,14 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
             btn7.setColorNormal(cor);
             btn7.setColorPressed(cor);
         }
-        if (!jPContenido.getComponent(0).getName().equals("operarios")) {
-//            new CambiaPanel(jPContenido, new Procesos_Condicion());
-//            Vistas.proyecto pro = new proyecto();
-//
-//            if (pro != null) {
-//                pro.disponibilidad = false;
-//                pro = null;
-//            }
+        if (!jPContenido.getComponent(0).getName().equals("QRsComun")) {
+            new CambiaPanel(jPContenido, new GeneradorQRComun());
+            Vistas.proyecto pro = new proyecto();
+
+            if (pro != null) {
+                pro.disponibilidad = false;
+                pro = null;
+            }
         }       
     }//GEN-LAST:event_btn7ActionPerformed
 
@@ -2142,7 +2086,6 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
     public rsbuttom.RSButtonMetro btn2;
     public rsbuttom.RSButtonMetro btn3;
     public rsbuttom.RSButtonMetro btn4;
-    public rsbuttom.RSButtonMetro btn5;
     public rsbuttom.RSButtonMetro btn6;
     public rsbuttom.RSButtonMetro btn7;
     public javax.swing.JButton btnClausulasPrivacidad;
@@ -2213,4 +2156,40 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
     protected void finalize() throws Throwable {
         super.finalize(); //To change body of generated methods, choose Tools | Templates.
     }
+    
+    /*
+    //Modulo de reporte
+        int seleccion = JOptionPane.showOptionDialog(null, "¿Qué reporte desea generar?",
+                "seleccione...", JOptionPane.YES_NO_CANCEL_OPTION,
+                JOptionPane.QUESTION_MESSAGE, null,// null para icono por defecto.
+                new Object[]{"Coming soon...    ", "General"}, "");
+        if (seleccion != -1) {
+            if (seleccion == 0) {
+                //Este reporte se realizo de otra forma, por ende ya no es necesario esta opción en el sistema. 
+                //Reporte de tiempos 
+                //Cuerpo del algoritmo esta pendiente.
+            } else {
+                //Reporte general Excel.
+                DetalleProyecto obj = new DetalleProyecto();
+                crs = obj.generar_Reportes();
+                //Ruta de guardado del archivo
+                JFileChooser Chocer = new JFileChooser();
+                Chocer.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                Chocer.setLocation(500, 500);
+                Chocer.showOpenDialog(this);
+                File guardar = Chocer.getSelectedFile();
+                //Generar archivo .xlsx
+                generarXlsx excel = new generarXlsx();
+                if (guardar != null) {
+                    if (excel.generarExcel(crs, String.valueOf(guardar))) {//Información y ruta de guardado.
+                        //Documento creado correctamente
+                        new rojerusan.RSNotifyAnimated("Listo!", "El reporte General de producción fue creado exitosamente.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.SUCCESS).setVisible(true);
+                    } else {
+                        //Error al crear el documento
+                        new rojerusan.RSNotifyAnimated("¡Error!", "No puedo crear el reporte General.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.ERROR).setVisible(true);
+                    }
+                }
+            }
+        }
+    */
 }

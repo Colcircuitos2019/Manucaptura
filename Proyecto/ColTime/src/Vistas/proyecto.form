@@ -1909,22 +1909,6 @@
                 </Constraint>
               </Constraints>
             </Component>
-            <Component class="elaprendiz.gui.button.ButtonColoredAction" name="GenerarQR">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="R"/>
-              </Properties>
-              <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="GenerarQRActionPerformed"/>
-              </Events>
-              <AuxValues>
-                <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="9"/>
-              </AuxValues>
-              <Constraints>
-                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
-                  <AbsoluteConstraints x="200" y="510" width="50" height="-1"/>
-                </Constraint>
-              </Constraints>
-            </Component>
             <Component class="elaprendiz.gui.button.ButtonColoredAction" name="btnTomaTiempos">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Toma de tiempos"/>
@@ -2179,13 +2163,13 @@
                 </Constraint>
               </Constraints>
             </Component>
-            <Component class="elaprendiz.gui.button.ButtonColoredAction" name="GenerarQR1">
+            <Component class="elaprendiz.gui.button.ButtonColoredAction" name="GenerarQR">
               <Properties>
                 <Property name="text" type="java.lang.String" value="GenerarQR"/>
                 <Property name="enabled" type="boolean" value="false"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="GenerarQR1ActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="GenerarQRActionPerformed"/>
               </Events>
               <AuxValues>
                 <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="9"/>

@@ -186,14 +186,14 @@ public class Proyecto {
         return validar.validarEjecucionOParada(orden);
     }
 
-    public CachedRowSet reporteCorteTiemposProductoProyectos(){
+    public CachedRowSet reporteCorteTiemposProductoProyectos(String fecha){
         ProyectoM modelo = new ProyectoM();
-        return modelo.reporteCorteTiemposProductoProyectosM();
+        return modelo.reporteCorteTiemposProductoProyectosM(fecha);
     }
     
-    public CachedRowSet reporteCorteTiemposProcesos(){
+    public CachedRowSet reporteCorteTiemposProcesos(String fecha){
         ProyectoM modelo = new ProyectoM();
-        return modelo.reporteCorteTiemposProcesosM();
+        return modelo.reporteCorteTiemposProcesosM(fecha);
     }
     
     public String sumarTiempos(String tiempo_total, String tiempo_a_sumar){

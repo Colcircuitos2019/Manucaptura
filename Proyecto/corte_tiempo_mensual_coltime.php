@@ -169,7 +169,8 @@ function corteDeTiempoDeEjecucionPorProducto(){// Step 4
 
 	$conexion = Conexion();
 	$tiempo_producto_proyecto_mes = "";
-	
+	$cantidades_terminadas = 0;
+
 	//Clasificar los meses de corte de todas los productos de las diferentes áreas...
 	$conexion->query("CALL PA_CorteTiempoProductos();");
 	
@@ -177,8 +178,9 @@ function corteDeTiempoDeEjecucionPorProducto(){// Step 4
 	cerraConexion($conexion);
 	$conexion = Conexion();
 
-	//Consultar los productos de los proyectos que tiene un mes de corte de tiempo asignado... //idDetalle_proyecto - tiempo_total
-	$productos_proyectos = $conexion->query("CALL PA_ConsultarProductosProyectosMesDeCorte();");//<- me trae el ID del producto y el tiempo total de ejecución del producto.
+	//Consultar los productos de los proyectos que tiene un mes de corte de tiempo asignado... //idDetalle_proyecto - tiempo_total -cantidad_terminada - fecha_terminacion_cantidad
+
+	$productos_proyectos = $conexion->query("CALL PA_ConsultarProductosProyectosMesDeCorte();");//<- me trae el ID del producto, el tiempo total de ejecución del producto, la cantidad terminada y la fecha en que la cantidad fue terminada.
 	cerraConexion($conexion);
 
 	if(mysqli_num_rows($productos_proyectos) > 0){
@@ -188,12 +190,13 @@ function corteDeTiempoDeEjecucionPorProducto(){// Step 4
 
 			$tiempo_corte_mes_anterior = $conexion->query("CALL PA_ConsultarDetallesDeCortesTiempoMesAnteriorProducto({$producto["idDetalle_proyecto"]});");
 
-
 			if (mysqli_num_rows($tiempo_corte_mes_anterior) > 0) {
 				
-				foreach ($tiempo_corte_mes_anterior as $tiempo_anterior) {
+				foreach ($tiempo_corte_mes_anterior as $tiempo_anterior) {// Por lo generar siempre va a devolver unicamente un procesos en esata ocación
 					
 					$tiempo_producto_proyecto_mes = restarTiemposProduccion($producto["tiempo_total"], $tiempo_anterior["tiempo_proyecto_mes"]);
+
+					$cantidades_terminadas = $producto["cantidad_terminada"] - $tiempo_anterior["cantidad_terminada"];
 
 				}
 
@@ -201,13 +204,15 @@ function corteDeTiempoDeEjecucionPorProducto(){// Step 4
 
 				$tiempo_producto_proyecto_mes = $producto["tiempo_total"];
 
+				$cantidades_terminadas = $producto["cantidad_terminada"];
+
 			}
 
 			cerraConexion($conexion);
 			$conexion = Conexion();
 
 			//Actualizar o registrar tiempo de corte del mes
-			$conexion->query("CALL PA_GestionarMesCorteTiempoProductoProyecto({$producto["idDetalle_proyecto"]},'{$tiempo_producto_proyecto_mes}');");//<-- El problemas es este procedure almacenado...
+			$conexion->query("CALL PA_GestionarMesCorteTiempoProductoProyecto({$producto["idDetalle_proyecto"]},'{$tiempo_producto_proyecto_mes}',{$cantidades_terminadas},'{$producto["fecha_terminacion_cantidad"]}');");//<-- El problemas es este procedure almacenado...
 
 			$tiempo_producto_proyecto_mes = "";
 

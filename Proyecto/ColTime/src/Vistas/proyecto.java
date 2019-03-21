@@ -162,7 +162,6 @@ public class proyecto extends javax.swing.JPanel {
         jLIDPCB = new javax.swing.JLabel();
         jLIDTeclado = new javax.swing.JLabel();
         jLIDIntegracion = new javax.swing.JLabel();
-        GenerarQR = new elaprendiz.gui.button.ButtonColoredAction();
         btnTomaTiempos = new elaprendiz.gui.button.ButtonColoredAction();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTNovedades = new javax.swing.JTextArea();
@@ -175,7 +174,7 @@ public class proyecto extends javax.swing.JPanel {
         jLCircuitoFE1 = new javax.swing.JLabel();
         jLNovedades = new javax.swing.JLabel();
         jLNovedades2 = new javax.swing.JLabel();
-        GenerarQR1 = new elaprendiz.gui.button.ButtonColoredAction();
+        GenerarQR = new elaprendiz.gui.button.ButtonColoredAction();
         jLabel14 = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(219, 219, 219));
@@ -926,14 +925,6 @@ public class proyecto extends javax.swing.JPanel {
         jLIDIntegracion.setText("0");
         jPanel2.add(jLIDIntegracion, new org.netbeans.lib.awtextra.AbsoluteConstraints(716, 210, 10, -1));
 
-        GenerarQR.setText("R");
-        GenerarQR.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                GenerarQRActionPerformed(evt);
-            }
-        });
-        jPanel2.add(GenerarQR, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 510, 50, -1));
-
         btnTomaTiempos.setText("Toma de tiempos");
         btnTomaTiempos.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -1032,14 +1023,14 @@ public class proyecto extends javax.swing.JPanel {
         jLNovedades2.setText("Estado de lectura:");
         jPanel2.add(jLNovedades2, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 580, -1, -1));
 
-        GenerarQR1.setText("GenerarQR");
-        GenerarQR1.setEnabled(false);
-        GenerarQR1.addActionListener(new java.awt.event.ActionListener() {
+        GenerarQR.setText("GenerarQR");
+        GenerarQR.setEnabled(false);
+        GenerarQR.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                GenerarQR1ActionPerformed(evt);
+                GenerarQRActionPerformed(evt);
             }
         });
-        jPanel2.add(GenerarQR1, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 460, -1, -1));
+        jPanel2.add(GenerarQR, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 460, -1, -1));
 
         jLabel14.setFont(new java.awt.Font("Arial", 1, 11)); // NOI18N
         jLabel14.setForeground(new java.awt.Color(189, 189, 189));
@@ -1198,12 +1189,6 @@ public class proyecto extends javax.swing.JPanel {
     private void jTIntegracionKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTIntegracionKeyTyped
         numerosT(evt);
     }//GEN-LAST:event_jTIntegracionKeyTyped
-
-    private void GenerarQRActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_GenerarQRActionPerformed
-        Proyecto controlador = new Proyecto();
-        generarXlsx reporte = new generarXlsx();
-        reporte.generarReporteCorteTiemposProductosProyecto(controlador.reporteCorteTiemposProductoProyectos(), controlador.reporteCorteTiemposProcesos(), "C:\\Users\\sis.informacion01\\Desktop\\proyecto\\");// Datos y Ruta de generacion del reporte...
-    }//GEN-LAST:event_GenerarQRActionPerformed
 
     private void btnTomaTiemposActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTomaTiemposActionPerformed
         Menu principal = new Menu();
@@ -1374,7 +1359,7 @@ public class proyecto extends javax.swing.JPanel {
     }//GEN-LAST:event_cbMaterialPCBTEItemStateChanged
 
     private void jRPCBCOMActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRPCBCOMActionPerformed
-        if (jRPCBCOM.isSelected()) {
+        if (jRPCBCOM.isSelected()) {// Esto ya no se va a utilizar más...
             if (cbMaterialPCBTE.getSelectedItem().toString().equals("TH") || cbMaterialPCBTE.getSelectedItem().toString().equals("FV")) {
                 jLpcbGF.setText("Fecha de entrega COM PCB FE");
             } else if (cbMaterialPCBTE.getSelectedItem().toString().equals("GF")) {
@@ -1390,7 +1375,7 @@ public class proyecto extends javax.swing.JPanel {
     }//GEN-LAST:event_jRPCBCOMActionPerformed
 
     private void jRPIntegracionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRPIntegracionActionPerformed
-        if (jRPIntegracion.isSelected()) {
+        if (jRPIntegracion.isSelected()) {//Esto ya no se va a utilizar más...
             if (cbMaterialPCBTE.getSelectedItem().toString().equals("TH") || cbMaterialPCBTE.getSelectedItem().toString().equals("FV")) {
                 jLCircuitoGF.setText("Fecha de entrega PCB FE");
             } else if (cbMaterialPCBTE.getSelectedItem().toString().equals("GF")) {
@@ -1432,9 +1417,9 @@ public class proyecto extends javax.swing.JPanel {
         // TODO add your handling code here:
     }//GEN-LAST:event_jTPCBTEActionPerformed
 
-    private void GenerarQR1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_GenerarQR1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_GenerarQR1ActionPerformed
+    private void GenerarQRActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_GenerarQRActionPerformed
+        generarQRdeProduccion();
+    }//GEN-LAST:event_GenerarQRActionPerformed
 //Metodos---------------------------------------------------------------------->
 
     private void cambiarEstadoProyectoEjecucionOParada(int op) {// Esto se va a modificar <----- Pendiente
@@ -1611,10 +1596,11 @@ public class proyecto extends javax.swing.JPanel {
     }
 
     private void generarQRdeProduccion() {
+        //Se puede Cambiar la libreria con la cual se generar las QR (Fijarse en el programa generador de QR)
         try {
             int cont = 0;
             //Validar o crear carpeta
-//            String rutaFolder = System.getProperty("user.dir");
+//            String rutaFolder = System.getProperty("user.dir");// Ruta donde tengo el proyecto
             //...
 //            JFileChooser Chocer = new JFileChooser();
 //            Chocer.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -2548,7 +2534,6 @@ public class proyecto extends javax.swing.JPanel {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     public static elaprendiz.gui.button.ButtonColoredAction GenerarQR;
-    public static elaprendiz.gui.button.ButtonColoredAction GenerarQR1;
     public static javax.swing.JLabel Notificacion1;
     private javax.swing.ButtonGroup ParadasOEjecucion;
     public static javax.swing.JButton btnActivar;

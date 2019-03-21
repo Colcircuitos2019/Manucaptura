@@ -1,14 +1,16 @@
 package Vistas;
 
 import Controlador.Proyecto;
-import coltime.Menu;
+import Controlador.generarXlsx;
 import com.toedter.calendar.JDateChooser;
-import java.awt.Color;
+import java.io.File;
 import java.text.SimpleDateFormat;
 import javax.sql.rowset.CachedRowSet;
 import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import rojerusan.RSNotifyAnimated;
 
 public class Inicio extends javax.swing.JPanel {
 
@@ -25,11 +27,23 @@ public class Inicio extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        seleccionMes = new javax.swing.JDialog();
+        contenedor = new javax.swing.JPanel();
+        jYAño = new com.toedter.calendar.JYearChooser();
+        jLabel8 = new javax.swing.JLabel();
+        jLabel9 = new javax.swing.JLabel();
+        jCMeses = new javax.swing.JComboBox<>();
+        jLabel10 = new javax.swing.JLabel();
+        jSeleccionarRuta = new javax.swing.JButton();
+        jTRutaSeleccionada = new javax.swing.JTextField();
+        GenerarReporte = new elaprendiz.gui.button.ButtonColoredAction();
+        jComboBox1 = new javax.swing.JComboBox<>();
         jPanel1 = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
         jPanel4 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
+        jLCorteTiemposMensuales = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
@@ -42,6 +56,113 @@ public class Inicio extends javax.swing.JPanel {
         jLCantidadP = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
         jLCantidadA = new javax.swing.JLabel();
+
+        seleccionMes.setTitle("Seleccione un mes...");
+        seleccionMes.setBackground(new java.awt.Color(255, 255, 255));
+        seleccionMes.setMaximumSize(new java.awt.Dimension(433, 150));
+        seleccionMes.setMinimumSize(new java.awt.Dimension(433, 150));
+        seleccionMes.setResizable(false);
+        seleccionMes.setSize(new java.awt.Dimension(433, 150));
+
+        contenedor.setBackground(new java.awt.Color(255, 255, 255));
+
+        jYAño.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                jYAñoKeyPressed(evt);
+            }
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                jYAñoKeyTyped(evt);
+            }
+        });
+
+        jLabel8.setText("Selecciona el mes:");
+
+        jLabel9.setText("Selecciona el año:");
+
+        jCMeses.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "---", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre" }));
+
+        jLabel10.setText("Seleeccionar ruta:");
+
+        jSeleccionarRuta.setText("...");
+        jSeleccionarRuta.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jSeleccionarRutaActionPerformed(evt);
+            }
+        });
+
+        jTRutaSeleccionada.setEditable(false);
+
+        GenerarReporte.setText("Generar");
+        GenerarReporte.setFont(new java.awt.Font("Arial", 1, 11)); // NOI18N
+        GenerarReporte.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                GenerarReporteActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout contenedorLayout = new javax.swing.GroupLayout(contenedor);
+        contenedor.setLayout(contenedorLayout);
+        contenedorLayout.setHorizontalGroup(
+            contenedorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(contenedorLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(contenedorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jTRutaSeleccionada)
+                    .addGroup(contenedorLayout.createSequentialGroup()
+                        .addGroup(contenedorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(contenedorLayout.createSequentialGroup()
+                                .addComponent(jLabel8)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jCMeses, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(jLabel9))
+                            .addGroup(contenedorLayout.createSequentialGroup()
+                                .addComponent(jLabel10)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jSeleccionarRuta, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(contenedorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jYAño, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(GenerarReporte, javax.swing.GroupLayout.PREFERRED_SIZE, 68, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addContainerGap())
+        );
+        contenedorLayout.setVerticalGroup(
+            contenedorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(contenedorLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(contenedorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(contenedorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jCMeses, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(contenedorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(jYAño, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(18, 18, 18)
+                .addGroup(contenedorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(contenedorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel10, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jSeleccionarRuta, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, contenedorLayout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(GenerarReporte, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jTRutaSeleccionada, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+
+        javax.swing.GroupLayout seleccionMesLayout = new javax.swing.GroupLayout(seleccionMes.getContentPane());
+        seleccionMes.getContentPane().setLayout(seleccionMesLayout);
+        seleccionMesLayout.setHorizontalGroup(
+            seleccionMesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(contenedor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        );
+        seleccionMesLayout.setVerticalGroup(
+            seleccionMesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(contenedor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        );
+
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
         setBackground(new java.awt.Color(219, 219, 219));
         setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 153, 153)));
@@ -85,6 +206,16 @@ public class Inicio extends javax.swing.JPanel {
             }
         });
 
+        jLCorteTiemposMensuales.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        jLCorteTiemposMensuales.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLCorteTiemposMensuales.setText("Tiempos Corte de mes");
+        jLCorteTiemposMensuales.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jLCorteTiemposMensuales.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                jLCorteTiemposMensualesMouseReleased(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -95,7 +226,10 @@ public class Inicio extends javax.swing.JPanel {
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addContainerGap())
-                    .addComponent(jLabel6, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addComponent(jLCorteTiemposMensuales, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE))))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -103,7 +237,9 @@ public class Inicio extends javax.swing.JPanel {
                 .addContainerGap()
                 .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 96, Short.MAX_VALUE)
-                .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLCorteTiemposMensuales, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)))
         );
 
         jPanel3.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(102, 102, 102)));
@@ -328,6 +464,69 @@ public class Inicio extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_jLabel6MouseReleased
 
+    private void jLCorteTiemposMensualesMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLCorteTiemposMensualesMouseReleased
+        //Seleccionar primero el mes por el cual se quiere realizar el corte del mes...
+        seleccionMes.setLocationRelativeTo(null);
+        seleccionMes.setSize(433, 150);
+        seleccionMes.setVisible(true);
+    }//GEN-LAST:event_jLCorteTiemposMensualesMouseReleased
+
+    private void GenerarReporteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_GenerarReporteActionPerformed
+        // Queda pendiente que se pueda ejecutar automaticamente al presionar este boton en primera instancia el cron job para realizar el corte de tiempos del mes en curso...
+        // No se ejecuta si el mes en curso es menor y el mes selecionado es mayor al actual. 
+        if(jCMeses.getSelectedIndex() > 0 && String.valueOf(jYAño.getYear()).length() >=4 && !jTRutaSeleccionada.getText().equals("")){
+            String año= String.valueOf(jYAño.getYear());
+            String mes= String.valueOf(jCMeses.getSelectedIndex());
+            //...
+            String fecha= año+"-"+(mes.length()==1?0+mes:mes);
+            //...
+            mes = jCMeses.getSelectedItem().toString();
+            Proyecto controlador = new Proyecto();
+            generarXlsx reporte = new generarXlsx();
+            boolean respuesta = reporte.generarReporteCorteTiemposProductosProyecto(
+                                        controlador.reporteCorteTiemposProductoProyectos(fecha),
+                                        controlador.reporteCorteTiemposProcesos(fecha),
+                                        jTRutaSeleccionada.getText()+"\\",
+                                        mes);
+            //...
+            if(respuesta){
+                //El reporte fue generado correctamente
+                new rojerusan.RSNotifyAnimated("¡Realizado!", "El reporte se registro correctamente.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.SUCCESS).setVisible(true);
+            }else{
+                //El reporte no se pudo generar correctamente
+                new rojerusan.RSNotifyAnimated("¡Error!", "El reporte no se pudo generar correctamente", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.ERROR).setVisible(true);
+            }
+            //Cerrar la ventada de dialogo
+            seleccionMes.dispose();
+        // ...
+        }else{
+            //Mostrar mensaje de alerta...
+            new rojerusan.RSNotifyAnimated("¡Alerta!", "Falta algun campo por diligenciar", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.WARNING).setVisible(true);
+        }
+//       
+    }//GEN-LAST:event_GenerarReporteActionPerformed
+
+    private void jYAñoKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jYAñoKeyTyped
+        
+    }//GEN-LAST:event_jYAñoKeyTyped
+
+    private void jYAñoKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jYAñoKeyPressed
+        if(Character.isLetter(evt.getKeyChar())){// queda pendiente esta validación
+            evt.consume();
+        }
+    }//GEN-LAST:event_jYAñoKeyPressed
+
+    private void jSeleccionarRutaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jSeleccionarRutaActionPerformed
+       JFileChooser Chocer = new JFileChooser();
+       Chocer.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+       Chocer.setLocation(500, 500);
+       Chocer.showOpenDialog(this);
+       File ruta = Chocer.getSelectedFile();
+       if(ruta != null){
+         jTRutaSeleccionada.setText(ruta.getPath());
+       }
+    }//GEN-LAST:event_jSeleccionarRutaActionPerformed
+
     //Variables
     CachedRowSet crs = null;//Cantidad de proyectos para cada área respectiva
     //Metodos de la calse inicio
@@ -370,23 +569,35 @@ public class Inicio extends javax.swing.JPanel {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    public static elaprendiz.gui.button.ButtonColoredAction GenerarReporte;
+    private javax.swing.JPanel contenedor;
+    private javax.swing.JComboBox<String> jCMeses;
+    private javax.swing.JComboBox<String> jComboBox1;
     private javax.swing.JLabel jLCantidadA;
     private javax.swing.JLabel jLCantidadE;
     private javax.swing.JLabel jLCantidadF;
     private javax.swing.JLabel jLCantidadP;
     private javax.swing.JLabel jLCantidadT;
+    private javax.swing.JLabel jLCorteTiemposMensuales;
     private javax.swing.JLabel jLFecha;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
+    private javax.swing.JButton jSeleccionarRuta;
+    private javax.swing.JTextField jTRutaSeleccionada;
+    private com.toedter.calendar.JYearChooser jYAño;
+    private javax.swing.JDialog seleccionMes;
     // End of variables declaration//GEN-END:variables
  @Override
     protected void finalize() throws Throwable {

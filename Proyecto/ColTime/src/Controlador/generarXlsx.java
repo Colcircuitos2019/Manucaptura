@@ -254,13 +254,12 @@ public class generarXlsx {
         }
     }
     
-    //PA_ReporteTiemposProduccionProductos
-    public boolean generarReporteCorteTiemposProductosProyecto(CachedRowSet Productos,CachedRowSet Procesos , String ruta) {// Pendiente para cambiar el nombre...
+    public boolean generarReporteCorteTiemposProductosProyecto(CachedRowSet Productos,CachedRowSet Procesos , String ruta, String mes) {
         Proyecto controlador = new Proyecto();
         try {
             WorkbookSettings conf = new WorkbookSettings();
             conf.setEncoding("ISO-8859-1");
-            WritableWorkbook woorBook = Workbook.createWorkbook(new File(ruta + "Reporte_Corte_Tiempos_Productos" + ".xls"));//se busca la ruta para generar el archivo xls.
+            WritableWorkbook woorBook = Workbook.createWorkbook(new File(ruta + "Reporte_Corte_Tiempos_Productos_"+mes+ ".xls"));//se busca la ruta para generar el archivo xls.
             // ...
             WritableSheet sheet = woorBook.createSheet("Reporte Corte Tiempo Producto", 0);//se crea el archivo xls <- Asignarle un nombre por cada área de producción (FE, TE o EN)
             WritableFont h = new WritableFont(WritableFont.ARIAL, 16, WritableFont.NO_BOLD);//Se da un formato al tipo de letra con el que se va a escribir sobre la hoja
@@ -272,7 +271,7 @@ public class generarXlsx {
             // ...
             //Fechas de inicio y de fin del reporte de tiempo de producción. 
             sheet.addCell(new jxl.write.Label(0, y, "Mes de corte:", hFormat));
-//            sheet.addCell(new jxl.write.Label(1, y, fechaI, hFormat));//Pendiente colocar el mes de corte
+            sheet.addCell(new jxl.write.Label(1, y, mes, hFormat));
             // ...
             y++;
             //Numero de orden
@@ -289,8 +288,10 @@ public class generarXlsx {
             sheet.addCell(new jxl.write.Label(5, y, "Tiempo Ejecución (min)", hFormat));
             // Tiempo de ejecución en minutos 
             sheet.addCell(new jxl.write.Label(6, y, "Tiempo Ejecución", hFormat));
+            // Cantidad del producto terminado
+            sheet.addCell(new jxl.write.Label(7, y, "Cantidad Terminada", hFormat));
             // Fecha de terminacion del producto del proyecto
-            sheet.addCell(new jxl.write.Label(7, y, "Fecha de terminación", hFormat));
+            sheet.addCell(new jxl.write.Label(8, y, "Fecha de terminación cantidad", hFormat));
             //...
             y++;
             while (Productos.next()) {
@@ -309,14 +310,16 @@ public class generarXlsx {
                     sheet.addCell(new jxl.write.Label(5, y, Productos.getString("tiempo"), hFormat));
                     // Tiempo de ejecución del producto en "HH:MM:SS"
                     sheet.addCell(new jxl.write.Label(6, y, Productos.getString("tiempo_proyecto_mes"), hFormat)); 
+                    // Cantidad terminada del producto
+                    sheet.addCell(new jxl.write.Label(7, y, Productos.getString("cantidad_terminada"), hFormat)); 
                     // Fecha en que se termino de procesar el producto
-                    sheet.addCell(new jxl.write.Label(7, y, Productos.getString("fecha_salida"), hFormat));
+                    sheet.addCell(new jxl.write.Label(8, y, Productos.getString("fecha_terminacion_cantidad"), hFormat));
                     // ...
                     y++;
                     //Sumar tiempo minutos
                     tiempo_ejecucion_minutos += Productos.getInt("tiempo");
                     //Sumar Tiempos "HH:MM:SS"
-                    if(!tiempo_ejecucion.equals("00:00:00") && !Productos.getString("tiempo_proyecto_mes").equals("00:00:00")){
+                    if(!Productos.getString("tiempo_proyecto_mes").equals("00:00:00")){
                         tiempo_ejecucion = controlador.sumarTiempos(tiempo_ejecucion, Productos.getString("tiempo_proyecto_mes"));
                     }
             }
@@ -351,7 +354,7 @@ public class generarXlsx {
                 //Sumar tiempo ejecucion minutos
                 tiempo_ejecucion_minutos += Procesos.getInt("tiempo_proceso");
                 //Sumar Tiempos "HH:MM:SS"
-                if(!tiempo_ejecucion.equals("00:00:00") && !Procesos.getString("tiempo").equals("00:00:00")){
+                if(!Procesos.getString("tiempo").equals("00:00:00")){
                     tiempo_ejecucion = controlador.sumarTiempos(tiempo_ejecucion, Procesos.getString("tiempo"));
                 }
             }

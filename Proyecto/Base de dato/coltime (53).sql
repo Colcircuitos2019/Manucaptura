@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 20-03-2019 a las 14:28:42
+-- Tiempo de generación: 21-03-2019 a las 19:08:33
 -- Versión del servidor: 10.1.29-MariaDB
 -- Versión de PHP: 7.2.0
 
@@ -366,7 +366,7 @@ END$$
 CREATE DEFINER=`` PROCEDURE `PA_ConsultarDetallesDeCortesTiempoMesAnteriorProducto` (IN `idDetalleProducto` INT)  NO SQL
 BEGIN
 
-	SELECT tvmp.tiempo_proyecto_mes FROM tiempo_invertido_producto_mes tvmp WHERE tvmp.idDetalle_proyecto = idDetalleProducto AND DATE_FORMAT(DATE_ADD(tvmp.mes, INTERVAL 1 MONTH),'%Y-%m') = DATE_FORMAT(CURDATE(), '%Y-%m');
+	SELECT tvmp.tiempo_proyecto_mes, tvmp.cantidad_terminada FROM tiempo_invertido_producto_mes tvmp WHERE tvmp.idDetalle_proyecto = idDetalleProducto AND DATE_FORMAT(DATE_ADD(tvmp.mes, INTERVAL 1 MONTH),'%Y-%m') = DATE_FORMAT(CURDATE(), '%Y-%m');
 
 END$$
 
@@ -508,7 +508,7 @@ END$$
 CREATE DEFINER=`` PROCEDURE `PA_ConsultarProductosProyectosMesDeCorte` ()  NO SQL
 BEGIN
 
-	SELECT p.idDetalle_proyecto,p.tiempo_total FROM detalle_proyecto p WHERE DATE_FORMAT(p.mes_de_corte,'%Y-%m') = (DATE_FORMAT(CURDATE(),'%Y-%m'));
+	SELECT p.idDetalle_proyecto,p.tiempo_total,p.cantidad_terminada,p.fecha_terminacion_cantidad FROM detalle_proyecto p WHERE DATE_FORMAT(p.mes_de_corte,'%Y-%m') = (DATE_FORMAT(CURDATE(),'%Y-%m'));
 
 END$$
 
@@ -840,7 +840,7 @@ END$$
 CREATE DEFINER=`` PROCEDURE `PA_CorteTiempoProductos` ()  NO SQL
 BEGIN
 
-UPDATE detalle_proyecto d SET d.mes_de_corte = CURDATE() WHERE d.estado!=1; # AND d.mes_de_corte = "0000-00-00"
+UPDATE detalle_proyecto d SET d.mes_de_corte = CURDATE() WHERE d.mes_de_corte = "0000-00-00"; 
 
 END$$
 
@@ -1086,18 +1086,18 @@ END$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_FechaServidor` ()  NO SQL
 SELECT DATE_FORMAT(CURDATE(),'%d-%M-%Y')$$
 
-CREATE DEFINER=`` PROCEDURE `PA_GestionarMesCorteTiempoProductoProyecto` (IN `idDetalleProducto` INT, IN `tiempo_proyecto` VARCHAR(20))  NO SQL
+CREATE DEFINER=`` PROCEDURE `PA_GestionarMesCorteTiempoProductoProyecto` (IN `idDetalleProducto` INT, IN `tiempo_proyecto` VARCHAR(20), IN `cantidadTerminada` INT, IN `fecha_terminacion` VARCHAR(10))  NO SQL
 BEGIN
 
 	IF (EXISTS(SELECT * FROM tiempo_invertido_producto_mes t WHERE t.idDetalle_proyecto = idDetalleProducto AND DATE_FORMAT(t.mes,'%Y-%m') = DATE_FORMAT(CURDATE(),'%Y-%m'))) THEN
     
     	#Actualizar la informacion del tiempo
-        UPDATE tiempo_invertido_producto_mes t SET t.tiempo_proyecto_mes=tiempo_proyecto WHERE t.idDetalle_proyecto = idDetalleProducto AND DATE_FORMAT(t.mes,'%Y-%m') = DATE_FORMAT(CURDATE(),'%Y-%m');
+        UPDATE tiempo_invertido_producto_mes t SET t.tiempo_proyecto_mes=tiempo_proyecto, t.cantidad_terminada = cantidadTerminada, t.fecha_terminacion_cantidad = fecha_terminacion WHERE t.idDetalle_proyecto = idDetalleProducto AND DATE_FORMAT(t.mes,'%Y-%m') = DATE_FORMAT(CURDATE(),'%Y-%m');
     
     ELSE
     
     	#Insertar la informacion del tiempo
-        INSERT INTO `tiempo_invertido_producto_mes`(`idDetalle_proyecto`, `mes`, `tiempo_proyecto_mes`) VALUES (idDetalleProducto, (SELECT CURDATE()), tiempo_proyecto);
+        INSERT INTO `tiempo_invertido_producto_mes`(`idDetalle_proyecto`, `mes`, `tiempo_proyecto_mes`, `cantidad_terminada`, `fecha_terminacion_cantidad`) VALUES (idDetalleProducto, (SELECT CURDATE()), tiempo_proyecto, cantidadTerminada, fecha_terminacion);
     
     END IF;
 
@@ -1561,6 +1561,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_PausarTomaDeTiempoDeProcesos` (I
 BEGIN
 DECLARE idDetalleProceso int;
 DECLARE idDetalleProceso2 int;
+DECLARE lector int;
 DECLARE ordenProcesos tinyint;
 DECLARE cantidadp int;
 DECLARE primero int;
@@ -1584,6 +1585,13 @@ SET idDetalleProceso2=(SELECT f.idDetalle_formato_estandar from detalle_formato_
 #Al proceso secundario se la van a sumar las cantidades terminadas, Esta pendiente calcular el estado del proceso que recibe.
 UPDATE detalle_formato_estandar f SET f.cantidadProceso=(CONVERT(f.cantidadProceso, int)+cantidadTerminada) WHERE f.idDetalle_formato_estandar=idDetalleProceso2;
 #...
+SET lector = (SELECT MAX(d.idproceso) FROM detalle_formato_estandar d WHERE d.idDetalle_proyecto=idDetalleProducto);#Consultar el ID del ultimo proceso asignado para el producto...
+IF (idLector = lector AND cantidadTerminada > 0) THEN #Actualizar la cantidad terminada todal del producto y la fecha en que se termino
+  
+   UPDATE detalle_proyecto p SET p.cantidad_terminada=(CONVERT(p.cantidad_terminada, int)+cantidadTerminada), p.fecha_terminacion_cantidad=CURDATE() WHERE p.idDetalle_proyecto=idDetalleProducto;
+  
+  END IF;
+#...
 #Funcion para clasificar el estado de cada proceso, Esto queda pendiente
   SET cantidadp=(SELECT CONVERT(e.canitadad_total,int) FROM detalle_proyecto e WHERE e.idDetalle_proyecto=idDetalleProducto);
   SELECT FU_ClasificarEstadoProcesos(idDetalleProceso,idDetalleProceso2,cantidadp,area);
@@ -1591,11 +1599,19 @@ UPDATE detalle_formato_estandar f SET f.cantidadProceso=(CONVERT(f.cantidadProce
 ELSE
  IF area=2 THEN
  #... El proceso final se tiene que buscar el proceso con orden mayor para saber que ese es el proceso final.
- # Remplazar el id del proceso final "FU_ConsultarUltimoProceso"
-  IF procesoPasar=0 AND idLector!=(SELECT FU_ConsultarProcesoFinalSeleccionado(idDetalleProducto, area)) THEN# #Consultar el proceso final de la OP
+  SET lector = (SELECT FU_ConsultarProcesoFinalSeleccionado(idDetalleProducto, area));
+  IF procesoPasar=0 AND idLector!=lector THEN# #Consultar el proceso final de la OP
+  
   	SET cantidadTerminada=0;
+    
   END IF;
-  #...
+  # ...
+  IF idLector = lector THEN #Actualizar la cantidad terminada todal del producto y la fecha en que se termino
+  
+   UPDATE detalle_proyecto p SET p.cantidad_terminada=(CONVERT(p.cantidad_terminada, int)+cantidadTerminada), p.fecha_terminacion_cantidad=CURDATE() WHERE p.idDetalle_proyecto=idDetalleProducto;
+  
+  END IF;
+  # ...
   SET idDetalleProceso=(SELECT t.idDetalle_teclados from detalle_teclados t JOIN detalle_proyecto d on t.idDetalle_proyecto=d.idDetalle_proyecto where d.proyecto_numero_orden=num_orden AND d.idDetalle_proyecto=idDetalleProducto and t.idproceso=idLector and t.estado=4);#ID del proceso primario
   #Al proceso primario se la van a restar las cantidades terminadas, Esta pendiente calcular el estado del proceso que envia.
   UPDATE detalle_teclados t SET t.cantidadProceso=(CONVERT(t.cantidadProceso, int)-cantidadTerminada),t.cantidad_terminada=(t.cantidad_terminada+cantidadTerminada), t.noperarios=0,t.tiempo_total_por_proceso=tiempo WHERE t.idDetalle_teclados=idDetalleProceso;
@@ -1615,8 +1631,17 @@ ELSE
  ELSE
   IF area=3 THEN
   #...
-  IF procesoPasar=0 AND idLector!= (SELECT FU_ConsultarProcesoFinalSeleccionado(idDetalleProducto, area)) THEN #Consultar el proceso final de la OP
+  SET lector = (SELECT FU_ConsultarProcesoFinalSeleccionado(idDetalleProducto, area));
+  IF procesoPasar=0 AND idLector!= lector THEN #Consultar el proceso final de la OP
+  
   	SET cantidadTerminada=0;
+    
+  END IF;
+  # ...
+  IF idLector = lector THEN #Actualizar la cantidad terminada todal del producto y la fecha en que se termino
+  
+   UPDATE detalle_proyecto p SET p.cantidad_terminada=(CONVERT(p.cantidad_terminada, int)+cantidadTerminada), p.fecha_terminacion_cantidad=CURDATE() WHERE p.idDetalle_proyecto=idDetalleProducto;
+  
   END IF;
   #...
   SET idDetalleProceso=(SELECT f.idDetalle_ensamble from detalle_ensamble f JOIN detalle_proyecto d on f.idDetalle_proyecto=d.idDetalle_proyecto where d.proyecto_numero_orden=num_orden AND d.idDetalle_proyecto=idDetalleProducto and f.idproceso=idLector and f.estado=4);#ID del proceso primario
@@ -1628,7 +1653,9 @@ ELSE
   #Al proceso secundario se la van a sumar las cantidades terminadas, Esta pendiente calcular el estado del proceso que recibe.
   UPDATE detalle_ensamble e SET e.cantidadProceso=(CONVERT(e.cantidadProceso, int)+cantidadTerminada) WHERE e.idDetalle_ensamble=idDetalleProceso2;
   ELSE
+  
   	SET idDetalleProceso2=0;
+    
   END IF;
   #...
   #Funcion para clasificar el estado de cada proceso, Esto queda pendiente
@@ -1888,10 +1915,10 @@ END IF;
 #
 END$$
 
-CREATE DEFINER=`` PROCEDURE `PA_ReporteCorteTiemposProcesosMes` ()  NO SQL
+CREATE DEFINER=`` PROCEDURE `PA_ReporteCorteTiemposProcesosMes` (IN `fecha_entrega` VARCHAR(7))  NO SQL
 BEGIN
 
-SELECT p.nombre_proceso,p.idArea,ROUND((TIME_TO_SEC(t.tiempo)/60),0) AS tiempo_proceso,t.tiempo FROM procesos p LEFT JOIN tiempo_invertido_mes_proceso t ON p.idproceso=t.idproceso WHERE DATE_FORMAT(t.mes_corte,'%Y-%m') = DATE_FORMAT(CURDATE(),'%Y-%m');
+SELECT p.nombre_proceso,p.idArea,ROUND((TIME_TO_SEC(t.tiempo)/60),0) AS tiempo_proceso,t.tiempo FROM procesos p LEFT JOIN tiempo_invertido_mes_proceso t ON p.idproceso=t.idproceso WHERE DATE_FORMAT(t.mes_corte,'%Y-%m') = fecha_entrega;
 
 END$$
 
@@ -1919,10 +1946,10 @@ END IF;
 
 END$$
 
-CREATE DEFINER=`` PROCEDURE `PA_ReporteTiemposProduccionProductos` ()  NO SQL
+CREATE DEFINER=`` PROCEDURE `PA_ReporteTiemposProduccionProductos` (IN `fecha_corte` VARCHAR(7))  NO SQL
 BEGIN
 
-SELECT d.proyecto_numero_orden,d.canitadad_total,p.nombre,d.idArea,d.estado,ROUND((TIME_TO_SEC(t.tiempo_proyecto_mes)/60),0) AS tiempo,t.tiempo_proyecto_mes,d.fecha_salida FROM detalle_proyecto d JOIN tiempo_invertido_producto_mes t ON d.idDetalle_proyecto=t.idDetalle_proyecto JOIN producto p ON d.idProducto=p.idproducto WHERE DATE_FORMAT(t.mes,'%Y-%m') = DATE_FORMAT(CURDATE(),'%Y-%m');
+SELECT d.proyecto_numero_orden,d.canitadad_total,p.nombre,d.idArea,d.estado,ROUND((TIME_TO_SEC(t.tiempo_proyecto_mes)/60),0) AS tiempo,t.tiempo_proyecto_mes,t.cantidad_terminada,t.fecha_terminacion_cantidad FROM detalle_proyecto d JOIN tiempo_invertido_producto_mes t ON d.idDetalle_proyecto=t.idDetalle_proyecto JOIN producto p ON d.idProducto=p.idproducto WHERE DATE_FORMAT(t.mes,'%Y-%m') = fecha_corte;
 
 END$$
 
@@ -2363,7 +2390,7 @@ END$$
 
 CREATE DEFINER=`` FUNCTION `FU_ConsultarProcesoFinalSeleccionado` (`idDetalleProducto` INT, `area` TINYINT(1)) RETURNS INT(11) NO SQL
 BEGIN
-
+#Esto no aplica para formato estandar - FE
 DECLARE proceso int;
 
 IF area = 2 THEN # Teclados
@@ -2883,16 +2910,6 @@ CREATE TABLE `detalle_ensamble` (
   `mes_de_corte` varchar(10) NOT NULL DEFAULT '0000-00-00'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
---
--- Volcado de datos para la tabla `detalle_ensamble`
---
-
-INSERT INTO `detalle_ensamble` (`idDetalle_ensamble`, `tiempo_por_unidad`, `tiempo_total_por_proceso`, `cantidad_terminada`, `fecha_inicio`, `fecha_fin`, `idDetalle_proyecto`, `idproceso`, `estado`, `hora_ejecucion`, `hora_terminacion`, `noperarios`, `orden`, `cantidadProceso`, `proceso_final`, `mes_de_corte`) VALUES
-(5, '00:00:00', '00:00:00', '0', NULL, NULL, 3, 15, 1, NULL, NULL, 0, 0, '0', 0, '0000-00-00'),
-(6, '00:00:00', '00:00:00', '0', NULL, NULL, 3, 16, 1, NULL, NULL, 0, 0, '0', 0, '0000-00-00'),
-(7, '00:00:00', '00:00:00', '0', NULL, NULL, 3, 17, 1, NULL, NULL, 0, 0, '0', 0, '0000-00-00'),
-(8, '00:00:00', '00:00:00', '0', NULL, NULL, 3, 18, 1, NULL, NULL, 0, 0, '0', 1, '0000-00-00');
-
 -- --------------------------------------------------------
 
 --
@@ -2922,15 +2939,41 @@ CREATE TABLE `detalle_formato_estandar` (
 --
 
 INSERT INTO `detalle_formato_estandar` (`idDetalle_formato_estandar`, `tiempo_por_unidad`, `tiempo_total_por_proceso`, `cantidad_terminada`, `fecha_inicio`, `fecha_fin`, `idDetalle_proyecto`, `idproceso`, `estado`, `hora_ejecucion`, `hora_terminacion`, `noperarios`, `orden`, `cantidadProceso`, `mes_de_corte`) VALUES
-(1, '00:00:06', '00:00:57', '10', '2019-03-19', '2019-03-19', 1, 1, 3, '2019-03-19 06:46:03', '2019-03-19 06:46:17', 0, 2, '0', '2019-03-19'),
-(2, '00:00:17', '00:02:46', '10', '2019-03-18', '2019-03-19', 1, 4, 3, '2019-03-19 06:40:02', '2019-03-19 06:40:24', 0, 1, '0', '2019-03-19'),
-(3, '00:00:12', '00:02:04', '10', '2019-03-19', '2019-03-19', 1, 10, 3, '2019-03-19 06:50:41', '2019-03-19 06:52:37', 0, 3, '0', '2019-03-19'),
-(4, '00:00:48', '00:01:35', '2', '2019-03-19', '2019-03-19', 4, 1, 3, '2019-03-19 07:07:17', '2019-03-19 07:08:52', 0, 2, '0', '2019-03-19'),
-(5, '00:00:09', '00:00:18', '2', '2019-03-19', '2019-03-19', 4, 4, 3, '2019-03-19 07:06:07', '2019-03-19 07:06:25', 0, 1, '0', '2019-03-19'),
-(6, '00:00:30', '00:00:59', '2', '2019-03-19', '2019-03-19', 4, 10, 3, '2019-03-19 07:14:28', '2019-03-19 07:15:27', 0, 3, '0', '2019-03-19'),
-(7, '00:00:09', '00:00:47', '5', '2019-03-19', '2019-03-19', 5, 1, 3, '2019-03-19 07:38:13', '2019-03-19 07:38:31', 0, 2, '0', '2019-03-19'),
-(8, '00:00:04', '00:00:20', '5', '2019-03-19', '2019-03-19', 5, 4, 3, '2019-03-19 07:20:24', '2019-03-19 07:20:44', 0, 1, '0', '2019-03-19'),
-(9, '00:01:13', '00:06:06', '5', '2019-03-19', '2019-03-19', 5, 10, 3, '2019-03-19 07:37:23', '2019-03-19 07:43:29', 0, 3, '0', '2019-03-19');
+(1, '00:00:10', '00:01:42', '10', '2019-03-21', '2019-03-21', 1, 1, 3, '2019-03-21 11:13:55', '2019-03-21 11:14:02', 0, 1, '0', '2019-03-21'),
+(2, '00:00:03', '00:00:34', '10', '2019-03-21', '2019-03-21', 1, 3, 3, '2019-03-21 11:29:22', '2019-03-21 11:29:56', 0, 2, '0', '2019-03-21'),
+(3, '00:00:02', '00:00:20', '10', '2019-03-21', '2019-03-21', 1, 4, 3, '2019-03-21 11:30:20', '2019-03-21 11:30:40', 0, 3, '0', '2019-03-21'),
+(4, '00:00:15', '00:02:32', '10', '2019-03-21', '2019-03-21', 1, 5, 3, '2019-03-21 11:30:54', '2019-03-21 11:33:26', 0, 4, '0', '2019-03-21'),
+(5, '00:00:00', '00:00:00', '0', NULL, NULL, 1, 7, 1, NULL, NULL, 0, 5, '10', '0000-00-00'),
+(6, '00:00:00', '00:00:00', '0', NULL, NULL, 1, 8, 1, NULL, NULL, 0, 6, '0', '0000-00-00'),
+(7, '00:00:00', '00:00:00', '0', NULL, NULL, 1, 9, 1, NULL, NULL, 0, 7, '0', '0000-00-00'),
+(8, '00:00:00', '00:00:00', '0', NULL, NULL, 1, 10, 1, NULL, NULL, 0, 8, '0', '0000-00-00'),
+(9, '00:00:30', '00:00:59', '2', '2019-03-21', '2019-03-21', 2, 1, 3, '2019-03-21 07:44:41', '2019-03-21 07:45:40', 0, 2, '0', '2019-02-21'),
+(10, '00:01:23', '00:02:45', '2', '2019-03-21', '2019-03-21', 2, 4, 3, '2019-03-21 07:41:43', '2019-03-21 07:44:28', 0, 1, '0', '2019-02-21'),
+(11, '00:00:07', '00:00:14', '2', '2019-03-21', '2019-03-21', 2, 10, 3, '2019-03-21 07:56:40', '2019-03-21 07:56:43', 0, 3, '0', '2019-02-21'),
+(12, '00:00:17', '00:00:17', '1', '2019-03-21', '2019-03-21', 3, 1, 3, '2019-03-21 11:04:09', '2019-03-21 11:04:26', 0, 2, '0', '2019-03-21'),
+(13, '00:17:00', '00:17:00', '1', '2019-03-21', '2019-03-21', 3, 4, 3, '2019-03-21 11:03:48', '2019-03-21 11:03:55', 0, 1, '0', '2019-03-21'),
+(14, '00:00:11', '00:00:11', '1', '2019-03-21', '2019-03-21', 3, 10, 3, '2019-03-21 11:04:44', '2019-03-21 11:04:55', 0, 3, '0', '2019-03-21'),
+(15, '00:00:15', '00:03:40', '15', '2019-03-21', '2019-03-21', 4, 1, 3, '2019-03-21 07:41:23', '2019-03-21 07:45:03', 0, 1, '0', '2019-03-21'),
+(16, '00:00:10', '00:02:26', '15', '2019-03-21', '2019-03-21', 4, 3, 3, '2019-03-21 11:29:45', '2019-03-21 11:32:11', 0, 2, '0', '2019-03-21'),
+(17, '00:00:01', '00:00:22', '15', '2019-03-21', '2019-03-21', 4, 4, 3, '2019-03-21 11:33:50', '2019-03-21 11:34:12', 0, 3, '0', '2019-03-21'),
+(18, '00:00:00', '00:00:05', '15', '2019-03-21', '2019-03-21', 4, 5, 3, '2019-03-21 11:34:25', '2019-03-21 11:34:30', 0, 4, '0', '2019-03-21'),
+(19, '00:00:00', '00:00:00', '0', NULL, NULL, 4, 6, 1, NULL, NULL, 0, 5, '15', '0000-00-00'),
+(20, '00:00:00', '00:00:00', '0', NULL, NULL, 4, 7, 1, NULL, NULL, 0, 6, '0', '0000-00-00'),
+(21, '00:00:00', '00:00:00', '0', NULL, NULL, 4, 8, 1, NULL, NULL, 0, 7, '0', '0000-00-00'),
+(22, '00:00:00', '00:00:00', '0', NULL, NULL, 4, 9, 1, NULL, NULL, 0, 8, '0', '0000-00-00'),
+(23, '00:00:00', '00:00:00', '0', NULL, NULL, 4, 10, 1, NULL, NULL, 0, 9, '0', '0000-00-00'),
+(24, '00:00:00', '00:00:00', '0', NULL, NULL, 6, 1, 1, NULL, NULL, 0, 1, '10', '0000-00-00'),
+(25, '00:00:00', '00:00:00', '0', NULL, NULL, 6, 3, 1, NULL, NULL, 0, 2, '0', '0000-00-00'),
+(26, '00:00:00', '00:00:00', '0', NULL, NULL, 6, 4, 1, NULL, NULL, 0, 3, '0', '0000-00-00'),
+(27, '00:00:00', '00:00:00', '0', NULL, NULL, 6, 5, 1, NULL, NULL, 0, 4, '0', '0000-00-00'),
+(28, '00:00:00', '00:00:00', '0', NULL, NULL, 6, 7, 1, NULL, NULL, 0, 5, '0', '0000-00-00'),
+(29, '00:00:00', '00:00:00', '0', NULL, NULL, 6, 8, 1, NULL, NULL, 0, 6, '0', '0000-00-00'),
+(30, '00:00:00', '00:00:00', '0', NULL, NULL, 6, 9, 1, NULL, NULL, 0, 7, '0', '0000-00-00'),
+(31, '00:00:00', '00:00:00', '0', NULL, NULL, 6, 10, 1, NULL, NULL, 0, 8, '0', '0000-00-00'),
+(32, '00:00:00', '00:00:00', '0', NULL, NULL, 7, 1, 1, NULL, NULL, 0, 1, '1', '0000-00-00'),
+(33, '00:00:00', '00:00:00', '0', NULL, NULL, 7, 3, 1, NULL, NULL, 0, 2, '0', '0000-00-00'),
+(34, '00:00:00', '00:00:00', '0', NULL, NULL, 7, 4, 1, NULL, NULL, 0, 3, '0', '0000-00-00'),
+(35, '00:00:00', '00:00:00', '0', NULL, NULL, 7, 5, 1, NULL, NULL, 0, 4, '0', '0000-00-00');
 
 -- --------------------------------------------------------
 
@@ -2958,19 +3001,23 @@ CREATE TABLE `detalle_proyecto` (
   `lider_proyecto` varchar(13) DEFAULT NULL,
   `antisolder` tinyint(1) DEFAULT '0',
   `ruteo` tinyint(1) DEFAULT '0',
-  `mes_de_corte` varchar(10) NOT NULL DEFAULT '0000-00-00'
+  `mes_de_corte` varchar(10) NOT NULL DEFAULT '0000-00-00',
+  `cantidad_terminada` varchar(6) NOT NULL DEFAULT '0',
+  `fecha_terminacion_cantidad` varchar(10) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Volcado de datos para la tabla `detalle_proyecto`
 --
 
-INSERT INTO `detalle_proyecto` (`idDetalle_proyecto`, `idProducto`, `canitadad_total`, `material`, `proyecto_numero_orden`, `idArea`, `estado`, `PNC`, `ubicacion`, `pro_porIniciar`, `pro_Ejecucion`, `pro_Pausado`, `pro_Terminado`, `tiempo_total`, `Total_timepo_Unidad`, `fecha_salida`, `lider_proyecto`, `antisolder`, `ruteo`, `mes_de_corte`) VALUES
-(1, 4, '10', 'FV', 1, 1, 3, 0, NULL, 0, 0, 0, 3, '00:05:47', '00:00:00', '2019-03-19 06:52:37', NULL, 0, 0, '2019-03-20'),
-(2, 5, '15', '', 1, 2, 2, 0, NULL, 3, 0, 1, 0, '00:00:00', '00:00:00', NULL, NULL, 0, 0, '2019-03-20'),
-(3, 1, '5', '', 1, 3, 3, 0, NULL, 4, 0, 0, 0, '00:01:41', '00:00:18', '2019-03-16 07:56:02', '1007110815', 0, 0, '2019-03-20'),
-(4, 3, '2', 'FV', 1, 1, 3, 0, NULL, 0, 0, 0, 3, '00:02:52', '00:01:27', '2019-03-19 07:15:27', NULL, 0, 0, '2019-03-20'),
-(5, 4, '5', 'FV', 2, 1, 3, 0, NULL, 0, 0, 0, 3, '00:07:13', '00:01:26', '2019-03-19 07:43:29', NULL, 0, 0, '2019-03-20');
+INSERT INTO `detalle_proyecto` (`idDetalle_proyecto`, `idProducto`, `canitadad_total`, `material`, `proyecto_numero_orden`, `idArea`, `estado`, `PNC`, `ubicacion`, `pro_porIniciar`, `pro_Ejecucion`, `pro_Pausado`, `pro_Terminado`, `tiempo_total`, `Total_timepo_Unidad`, `fecha_salida`, `lider_proyecto`, `antisolder`, `ruteo`, `mes_de_corte`, `cantidad_terminada`, `fecha_terminacion_cantidad`) VALUES
+(1, 2, '10', 'FV', 1, 1, 2, 0, NULL, 4, 0, 0, 4, '00:05:08', '00:00:00', NULL, NULL, 0, 0, '2019-03-21', '0', NULL),
+(2, 4, '2', 'FV', 1, 1, 3, 0, NULL, 0, 0, 0, 3, '00:03:58', '00:02:00', '2019-03-21 07:56:43', NULL, 0, 0, '2019-02-21', '2', '2019-02-21'),
+(3, 3, '1', 'FV', 1, 1, 3, 0, NULL, 0, 0, 0, 3, '00:17:28', '00:17:28', '2019-03-21 11:04:55', NULL, 0, 0, '2019-03-21', '1', '2019-03-21'),
+(4, 1, '15', 'FV', 1, 1, 2, 0, NULL, 5, 0, 0, 4, '00:06:33', '00:00:00', NULL, NULL, 1, 1, '2019-03-21', '0', NULL),
+(5, 5, '5', NULL, 1, 2, 1, 0, NULL, 4, 0, 0, 0, '00:00:00', '00:00:00', NULL, NULL, 0, 0, '2019-03-21', '0', NULL),
+(6, 2, '10', 'FV', 2, 1, 1, 0, NULL, 8, 0, 0, 0, '00:00:00', '00:00:00', NULL, NULL, 0, 0, '2019-03-21', '0', NULL),
+(7, 6, '1', NULL, 2, 1, 1, 0, NULL, 4, 0, 0, 0, '00:00:00', '00:00:00', NULL, NULL, 0, 0, '2019-03-21', '0', NULL);
 
 -- --------------------------------------------------------
 
@@ -3002,10 +3049,10 @@ CREATE TABLE `detalle_teclados` (
 --
 
 INSERT INTO `detalle_teclados` (`idDetalle_teclados`, `tiempo_por_unidad`, `tiempo_total_por_proceso`, `cantidad_terminada`, `fecha_inicio`, `fecha_fin`, `idDetalle_proyecto`, `idproceso`, `estado`, `hora_ejecucion`, `hora_terminacion`, `noperarios`, `orden`, `cantidadProceso`, `proceso_final`, `mes_de_corte`) VALUES
-(5, '00:00:00', '00:00:32', '0', '2019-03-19', NULL, 2, 11, 2, '2019-03-19 08:15:00', '2019-03-19 08:15:32', 0, 1, '15', 0, '2019-03-19'),
-(6, '00:00:00', '00:00:00', '0', NULL, NULL, 2, 12, 1, NULL, NULL, 0, 0, '0', 0, '0000-00-00'),
-(7, '00:00:00', '00:00:00', '0', NULL, NULL, 2, 13, 1, NULL, NULL, 0, 0, '0', 0, '0000-00-00'),
-(8, '00:00:00', '00:00:00', '0', NULL, NULL, 2, 14, 1, NULL, NULL, 0, 0, '0', 1, '0000-00-00');
+(1, '00:00:00', '00:00:00', '0', NULL, NULL, 5, 11, 1, NULL, NULL, 0, 0, '0', 0, '0000-00-00'),
+(2, '00:00:00', '00:00:00', '0', NULL, NULL, 5, 12, 1, NULL, NULL, 0, 0, '0', 0, '0000-00-00'),
+(3, '00:00:00', '00:00:00', '0', NULL, NULL, 5, 13, 1, NULL, NULL, 0, 0, '0', 0, '0000-00-00'),
+(4, '00:00:00', '00:00:00', '0', NULL, NULL, 5, 14, 1, NULL, NULL, 0, 0, '0', 1, '0000-00-00');
 
 -- --------------------------------------------------------
 
@@ -3292,8 +3339,8 @@ CREATE TABLE `proyecto` (
 --
 
 INSERT INTO `proyecto` (`numero_orden`, `usuario_numero_documento`, `nombre_cliente`, `nombre_proyecto`, `tipo_proyecto`, `fecha_ingreso`, `fecha_entrega`, `fecha_salidal`, `estado`, `eliminacion`, `parada`, `entregaCircuitoFEoGF`, `entregaCOMCircuito`, `entregaPCBFEoGF`, `entregaPCBCom`, `novedades`, `estadoEmpresa`, `NFEE`) VALUES
-(1, '981130', 'Juan David Marulanda Paniagua', 'Prueba de desarrollo', 'Normal', '2019-03-16 07:40:38', '2019-03-01', NULL, 2, 1, 1, NULL, NULL, NULL, NULL, '', 'A tiempo', NULL),
-(2, '981130', 'juan david marulanda', 'prueba de desarrollo', 'Normal', '2019-03-19 07:19:03', '2019-03-21', '2019-03-19 07:43:29', 3, 1, 1, NULL, NULL, NULL, NULL, NULL, 'A tiempo', NULL);
+(1, '981130', 'Juan David Marulanda', 'Prueba de desarrollo reporte de tiempos numero 1', 'Normal', '2019-03-21 07:31:35', '2019-03-01', NULL, 2, 1, 1, NULL, NULL, NULL, NULL, NULL, 'A tiempo', NULL),
+(2, '981130', 'Juan David Marulanda', 'Prueba de desarrollo reporte corte de tiempos numero 2', 'RQT', '2019-03-21 11:17:37', '2019-03-22', NULL, 1, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -3313,17 +3360,32 @@ CREATE TABLE `tiempo_invertido_mes_proceso` (
 --
 
 INSERT INTO `tiempo_invertido_mes_proceso` (`idtiempo_invertido_mes_proceso`, `mes_corte`, `idproceso`, `tiempo`) VALUES
-(23, '2019-03-20', 1, '00:03:19'),
-(24, '2019-03-20', 4, '00:03:24'),
-(25, '2019-03-20', 10, '00:09:09'),
-(26, '2019-03-20', 11, '00:00:32'),
-(27, '2019-03-20', 12, '00:00:00'),
-(28, '2019-03-20', 13, '00:00:00'),
-(29, '2019-03-20', 14, '00:00:00'),
-(30, '2019-03-20', 15, '00:00:00'),
-(31, '2019-03-20', 16, '00:00:00'),
-(32, '2019-03-20', 17, '00:00:00'),
-(33, '2019-03-20', 18, '00:00:00');
+(1, '2019-02-21', 1, '00:06:14'),
+(2, '2019-02-21', 3, '00:00:00'),
+(3, '2019-02-21', 4, '00:02:45'),
+(4, '2019-02-21', 5, '00:00:00'),
+(5, '2019-02-21', 6, '00:00:00'),
+(6, '2019-02-21', 7, '00:00:00'),
+(7, '2019-02-21', 8, '00:00:00'),
+(8, '2019-02-21', 9, '00:00:00'),
+(9, '2019-02-21', 10, '00:00:14'),
+(10, '2019-02-21', 11, '00:00:00'),
+(11, '2019-02-21', 12, '00:00:00'),
+(12, '2019-02-21', 13, '00:00:00'),
+(13, '2019-02-21', 14, '00:00:00'),
+(27, '2019-03-21', 1, '00:00:24'),
+(28, '2019-03-21', 3, '00:03:00'),
+(29, '2019-03-21', 4, '00:17:42'),
+(30, '2019-03-21', 5, '00:02:37'),
+(31, '2019-03-21', 6, '00:00:00'),
+(32, '2019-03-21', 7, '00:00:00'),
+(33, '2019-03-21', 8, '00:00:00'),
+(34, '2019-03-21', 9, '00:00:00'),
+(35, '2019-03-21', 10, '00:00:11'),
+(36, '2019-03-21', 11, '00:00:00'),
+(37, '2019-03-21', 12, '00:00:00'),
+(38, '2019-03-21', 13, '00:00:00'),
+(39, '2019-03-21', 14, '00:00:00');
 
 -- --------------------------------------------------------
 
@@ -3335,19 +3397,27 @@ CREATE TABLE `tiempo_invertido_producto_mes` (
   `idtiempo_invertido_producto_mes` int(11) NOT NULL,
   `idDetalle_proyecto` int(11) NOT NULL,
   `mes` varchar(10) CHARACTER SET utf8 NOT NULL,
-  `tiempo_proyecto_mes` varchar(20) CHARACTER SET utf8 NOT NULL
+  `tiempo_proyecto_mes` varchar(20) CHARACTER SET utf8 NOT NULL,
+  `cantidad_terminada` varchar(6) NOT NULL DEFAULT '0',
+  `fecha_terminacion_cantidad` varchar(10) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Volcado de datos para la tabla `tiempo_invertido_producto_mes`
 --
 
-INSERT INTO `tiempo_invertido_producto_mes` (`idtiempo_invertido_producto_mes`, `idDetalle_proyecto`, `mes`, `tiempo_proyecto_mes`) VALUES
-(26, 1, '2019-03-20', '00:05:47'),
-(27, 2, '2019-03-20', '00:00:00'),
-(28, 3, '2019-03-20', '00:01:41'),
-(29, 4, '2019-03-20', '00:02:52'),
-(30, 5, '2019-03-20', '00:07:13');
+INSERT INTO `tiempo_invertido_producto_mes` (`idtiempo_invertido_producto_mes`, `idDetalle_proyecto`, `mes`, `tiempo_proyecto_mes`, `cantidad_terminada`, `fecha_terminacion_cantidad`) VALUES
+(1, 1, '2019-02-21', '00:01:35', '0', ''),
+(2, 2, '2019-02-21', '00:03:58', '2', '2019-03-21'),
+(3, 3, '2019-02-21', '00:00:00', '0', ''),
+(4, 4, '2019-02-21', '00:03:40', '0', ''),
+(5, 5, '2019-02-21', '00:00:00', '0', ''),
+(11, 1, '2019-03-21', '00:03:33', '0', ''),
+(12, 3, '2019-03-21', '00:17:28', '1', '2019-03-21'),
+(13, 4, '2019-03-21', '00:02:53', '0', ''),
+(14, 5, '2019-03-21', '00:00:00', '0', ''),
+(15, 6, '2019-03-21', '00:00:00', '0', ''),
+(16, 7, '2019-03-21', '00:00:00', '0', '');
 
 -- --------------------------------------------------------
 
@@ -3410,7 +3480,7 @@ CREATE TABLE `usuariopuerto` (
 --
 
 INSERT INTO `usuariopuerto` (`documentousario`, `usuarioPuerto`, `rutaQRs`, `estadoLectura`) VALUES
-('43975208', 'COM5', NULL, 0),
+('43975208', 'COM5', NULL, 1),
 ('1017156424', 'COM5', NULL, 1),
 ('981130', 'COM5', 'C:\\Users\\sis.informacion01\\Desktop\\proyecto\\', 0),
 ('71268332', 'COM1', NULL, 0),
@@ -3574,25 +3644,25 @@ ALTER TABLE `condicion_producto`
 -- AUTO_INCREMENT de la tabla `detalle_ensamble`
 --
 ALTER TABLE `detalle_ensamble`
-  MODIFY `idDetalle_ensamble` smallint(6) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `idDetalle_ensamble` smallint(6) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `detalle_formato_estandar`
 --
 ALTER TABLE `detalle_formato_estandar`
-  MODIFY `idDetalle_formato_estandar` smallint(6) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `idDetalle_formato_estandar` smallint(6) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
 
 --
 -- AUTO_INCREMENT de la tabla `detalle_proyecto`
 --
 ALTER TABLE `detalle_proyecto`
-  MODIFY `idDetalle_proyecto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `idDetalle_proyecto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT de la tabla `detalle_teclados`
 --
 ALTER TABLE `detalle_teclados`
-  MODIFY `idDetalle_teclados` smallint(6) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `idDetalle_teclados` smallint(6) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de la tabla `procesos`
@@ -3622,13 +3692,13 @@ ALTER TABLE `proyecto`
 -- AUTO_INCREMENT de la tabla `tiempo_invertido_mes_proceso`
 --
 ALTER TABLE `tiempo_invertido_mes_proceso`
-  MODIFY `idtiempo_invertido_mes_proceso` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
+  MODIFY `idtiempo_invertido_mes_proceso` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
 
 --
 -- AUTO_INCREMENT de la tabla `tiempo_invertido_producto_mes`
 --
 ALTER TABLE `tiempo_invertido_producto_mes`
-  MODIFY `idtiempo_invertido_producto_mes` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
+  MODIFY `idtiempo_invertido_producto_mes` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- Restricciones para tablas volcadas
