@@ -42,7 +42,7 @@ public class ConsutaProyecto extends javax.swing.JFrame {
     int cantidadRegistros = 0;
     CachedRowSet crs;
     //Botones de radio
-    String encabezadosTBProductos[] = {"idDetalle", "Área", "Producto", "Cantidad", "Estado", "Material","PNC","Antisolder","Ruteo"};//Detalle del proyecto
+    String encabezadosTBProductos[] = {"idDetalle", "Área", "Producto", "Cantidad", "Estado", "Material","PNC","Color Antisolder","Ruteo","Espesor"};//Detalle del proyecto
     String encabezadosTBProcesos[] = {"idProceso", "Nombre", "Estado", "Tiempo", "Cantidad"};//Procesos
 
     @SuppressWarnings("unchecked")
@@ -76,7 +76,13 @@ public class ConsutaProyecto extends javax.swing.JFrame {
         jTtipo5 = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
-        TProyecto = new javax.swing.JTable();
+        TProyecto = new javax.swing.JTable(){
+
+            public boolean isCellEditable(int rowIndex, int colIndex) {
+                return false; //Disallow the editing of any cell
+            }
+
+        };
         jTCantidadRegistros = new javax.swing.JLabel();
         jTCantidadRegistros1 = new javax.swing.JLabel();
         jPanel5 = new javax.swing.JPanel();
@@ -318,11 +324,6 @@ public class ConsutaProyecto extends javax.swing.JFrame {
         jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createTitledBorder(null, "", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(153, 153, 153)), "Proyecto", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 14), new java.awt.Color(204, 204, 204))); // NOI18N
         jPanel2.setLayout(new java.awt.CardLayout());
 
-        TProyecto = new javax.swing.JTable(){
-            public boolean isCellEditable(int rowIndex, int colIndex) {
-                return false; //Disallow the editing of any cell
-            }
-        };
         TProyecto.setAutoCreateRowSorter(true);
         TProyecto.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         TProyecto.setForeground(new java.awt.Color(128, 128, 131));
@@ -421,7 +422,7 @@ public class ConsutaProyecto extends javax.swing.JFrame {
 
             },
             new String [] {
-                "idDetalle", "Área", "Producto", "Cantidad", "Estado", "Material", "PNC"
+                "idDetalle", "Área", "Producto", "Cantidad", "Estado", "Material", "PNC", "Color Antisolder", "Ruteo", "Espesor"
             }
         ));
         jTDetalleProductos.setFillsViewportHeight(true);
@@ -676,7 +677,7 @@ public class ConsutaProyecto extends javax.swing.JFrame {
                                 viewProyecto.jTStencil.setText(jTDetalleProductos.getValueAt(i, 3).toString());
                                 validarEstadoComponentesProductos(viewProyecto.jCStencil, viewProyecto.jTStencil, jTDetalleProductos.getValueAt(i, 4).toString());
                                 
-                            } else if (jTDetalleProductos.getValueAt(i, 2).toString().equals("PCB") || jTDetalleProductos.getValueAt(i, 2).toString().equals("PCB GF")) {
+                            } else if (jTDetalleProductos.getValueAt(i, 2).toString().equals("PCB") || jTDetalleProductos.getValueAt(i, 2).toString().equals("PCB GF")) {// Esto va a desaparecer
                                 if (jTDetalleProductos.getValueAt(i, 2).toString().equals("PCB GF")) {
                                     
                                     viewProyecto.jLIDPCBGF.setText(jTDetalleProductos.getValueAt(i, 0).toString());
@@ -692,9 +693,12 @@ public class ConsutaProyecto extends javax.swing.JFrame {
                                 viewProyecto.jCPCBTE.setSelected(true);
                                 viewProyecto.jCRuteoP.setEnabled(estado);
                                 viewProyecto.cbColorPCB.setEnabled(estado);
+                                viewProyecto.cbEspesorPCB.setEnabled(estado);
                                 viewProyecto.cbMaterialPCBTE.setEnabled(estado);
-                                viewProyecto.cbColorPCB.setSelectedItem(Boolean.valueOf(jTDetalleProductos.getValueAt(i, 7).toString()));//Pendiente cambiar por el indice...
+                                viewProyecto.cbColorPCB.setSelectedIndex(Integer.parseInt(jTDetalleProductos.getValueAt(i, 7).toString()));//Pendiente cambiar por el indice...
                                 viewProyecto.jCRuteoP.setSelected(Boolean.valueOf(jTDetalleProductos.getValueAt(i, 8).toString()));
+                                viewProyecto.cbEspesorPCB.setSelectedIndex(Integer.parseInt(jTDetalleProductos.getValueAt(i, 9).toString()));
+                                // ...
                                 viewProyecto.cbMaterialPCBTE.setSelectedItem(jTDetalleProductos.getValueAt(i, 5).toString());
                                 viewProyecto.jLMaterialPCB.setText(jTDetalleProductos.getValueAt(i, 5).toString());
                                 viewProyecto.jTPCBTE.setText(jTDetalleProductos.getValueAt(i, 3).toString());
@@ -708,7 +712,7 @@ public class ConsutaProyecto extends javax.swing.JFrame {
                                 validarEstadoComponentesProductos(viewProyecto.jCIntegracion, viewProyecto.jTIntegracion, jTDetalleProductos.getValueAt(i, 4).toString());
 
                                 
-                            } else if (jTDetalleProductos.getValueAt(i, 2).toString().equals("Circuito-TE") && jTDetalleProductos.getValueAt(i, 1).toString().equals("EN")) {
+                            } else if (jTDetalleProductos.getValueAt(i, 2).toString().equals("Circuito-TE") && jTDetalleProductos.getValueAt(i, 1).toString().equals("EN")) {// Este se va a mantener...
                                 
                                 viewProyecto.jLIDPCBEN.setText(jTDetalleProductos.getValueAt(i, 0).toString());
                                 viewProyecto.jRPIntegracion.setSelected(true);
@@ -723,7 +727,7 @@ public class ConsutaProyecto extends javax.swing.JFrame {
 
                                 
                             } else if ((jTDetalleProductos.getValueAt(i, 2).toString().equals("Circuito") || jTDetalleProductos.getValueAt(i, 2).toString().equals("Circuito GF")) && (jTDetalleProductos.getValueAt(i, 1).toString().equals("ALMACEN") || jTDetalleProductos.getValueAt(i, 1).toString().equals("FE"))) {
-                                if (jTDetalleProductos.getValueAt(i, 2).toString().equals("Circuito GF")) {
+                                if (jTDetalleProductos.getValueAt(i, 2).toString().equals("Circuito GF")) {//Esto se va a eliminar
                                     
                                     viewProyecto.jLIDCircuitoGF.setText(jTDetalleProductos.getValueAt(i, 0).toString());//Detalle de proyecto
                                     
@@ -735,10 +739,11 @@ public class ConsutaProyecto extends javax.swing.JFrame {
                                 }
                                 // ...
                                 boolean estado= (jTDetalleProductos.getValueAt(i, 4).toString().equals("Por iniciar"));
-//                                viewProyecto.jCRuteoC.setEnabled(estado);
-//                                viewProyecto.jCAntisolderC.setEnabled(estado);
-//                                viewProyecto.jCAntisolderC.setSelected(Boolean.valueOf(jTDetalleProductos.getValueAt(i, 7).toString()));
-//                                viewProyecto.jCAntisolderC.setEnabled(estado);
+                                // ...
+                                viewProyecto.cbColorCircuito.setSelectedIndex(Integer.parseInt(jTDetalleProductos.getValueAt(i, 7).toString()));
+                                viewProyecto.cbEspesorCircuito.setSelectedIndex(Integer.parseInt(jTDetalleProductos.getValueAt(i, 9).toString()));
+                                viewProyecto.cbColorCircuito.setEnabled(estado);
+                                viewProyecto.cbEspesorCircuito.setEnabled(estado);
                                 viewProyecto.jCRuteoC.setSelected(Boolean.valueOf(jTDetalleProductos.getValueAt(i, 8).toString()));
                                 viewProyecto.jCRuteoC.setEnabled(estado);
                                 viewProyecto.jCCircuito.setSelected(true);
@@ -1104,7 +1109,7 @@ public class ConsutaProyecto extends javax.swing.JFrame {
         try {
             crs = obj.consultar_Detalle_Proyecto(numer_Orden);
             DefaultTableModel productos = new DefaultTableModel(null, encabezadosTBProductos);
-            String registro[] = new String[9];
+            String registro[] = new String[10];
             //...
             while (crs.next()) {
                     //Detalles del proyecto o productos...
@@ -1121,12 +1126,16 @@ public class ConsutaProyecto extends javax.swing.JFrame {
                     registro[6] = crs.getString("PNC");// PNC (Aplica o no aplica como Producto no conforme)
                     registro[7] = crs.getString("Antisolder");// 
                     registro[8] = crs.getString("Ruteo");// 
+                    registro[9] = crs.getString("idEspesor");// 
                     // ...
                     productos.addRow(registro);
             }
             crs.close();
             jTDetalleProductos.setModel(productos);
-            tamañoColumnasTabla(jTDetalleProductos,new Objeto_tabla[]{new Objeto_tabla(7,0), new Objeto_tabla(8,0)});
+            tamañoColumnasTabla(jTDetalleProductos,
+                                new Objeto_tabla[]{new Objeto_tabla(7,0),
+                                                   new Objeto_tabla(8,0), 
+                                                   new Objeto_tabla(9,0)});
             FormatoTabla formato = new FormatoTabla(4);
             jTDetalleProductos.setDefaultRenderer(Object.class, formato);
             //...

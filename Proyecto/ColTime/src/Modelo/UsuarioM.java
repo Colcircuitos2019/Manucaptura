@@ -164,7 +164,9 @@ public class UsuarioM {
             ps.setString(2, pasw);
             rs = ps.executeQuery();
             if (rs.next()) {
+                
                 cargo = rs.getInt(1);
+                
             }
             //Destrucción de conexiones
             con.close();

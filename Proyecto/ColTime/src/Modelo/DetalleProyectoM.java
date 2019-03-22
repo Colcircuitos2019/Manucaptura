@@ -86,7 +86,7 @@ public class DetalleProyectoM {
     }
 
     //Este metodo también funcionara para registrar y modificar los productos no conformes PNC.
-    public boolean registrar_Detalle_Proycto(String cantidad, String area, String tipoProducto, int estado, String numerOrden, String material, int accion, int idDetalleProducto, int pnc, String procesoPNC, int antisolder, int ruteo) {
+    public boolean registrar_Detalle_Proycto(String cantidad, String area, String tipoProducto, int estado, String numerOrden, String material, int accion, int idDetalleProducto, int pnc, String procesoPNC, String idColor_antisolder, int ruteo, int idEspesor) {
         try {
             conexion = new Conexion(1);
             conexion.establecerConexion();
@@ -110,17 +110,17 @@ public class DetalleProyectoM {
                 } else {
                     
                     //Si no se registra el producto no conforme desde 0 
-                    Qry = "SELECT FU_RegistrarDetalleProyecto(?,?,?,?,?,?,?,?,?,?)";
+                    Qry = "SELECT FU_RegistrarDetalleProyecto(?,?,?,?,?,?,?,?,?,?,?)";
                     ps = con.prepareStatement(Qry);
                     ps.setInt(1, Integer.parseInt(numerOrden));
                     if (material.equals("GF")) { // Ya no se va a trabajar con una área de almacen, sino que almacen pasa a ser trabajado como un proceso.
                         //No se permitiran registrar productos no conformes de GF ni de componentes
                         if (area.equals("FE") && tipoProducto.equals("PCB")) {//Gran formato de la PCB del teclado
-                            ps.setString(2, "PCB GF");
+                            ps.setString(2, "PCB GF");//Esto va a desaparecer...
                         } else if (area.equals("FE") && tipoProducto.equals("Circuito")) {
-                            ps.setString(2, "Circuito GF");
+                            ps.setString(2, "Circuito GF");//Esto va a desaparecer
                         }
-                        ps.setString(4, "ALMACEN");
+                        ps.setString(4, "ALMACEN");//Esto va a desaparecer...
                     } else {
                         ps.setString(4, area);
                     }
@@ -130,13 +130,14 @@ public class DetalleProyectoM {
                     ps.setString(6, material);
                     ps.setInt(7, pnc);
                     ps.setString(8, procesoPNC);
-                    ps.setInt(9, antisolder);
+                    ps.setString(9, idColor_antisolder);
                     ps.setInt(10, ruteo);
+                    ps.setInt(11, idEspesor);
                     //Ejecucion de la sentencia 
                     rs = ps.executeQuery();
                     rs.next();
                     res = rs.getBoolean(1);
-                    //Evadir esta función siemmpre y cuando el negocio sea Almacen.
+                    //Evadir esta función siemmpre y cuando el area sea Almacen.(Esto tambie va a desaparacer)
                     //Tipo de negocio
                     int idTipoProducto = 0;
                     if (!area.equals("ALMACEN")) {
@@ -147,7 +148,7 @@ public class DetalleProyectoM {
                         case "FE": // Formato estandar
                             // ...
                             //Se registran los procesos de FE para este subproyecto.
-                            if (material.equals("GF")) { // Se valida que sea GF.
+                            if (material.equals("GF")) { // Se valida que sea GF. (Esto va a desaparecer...)
                             //Negocio del almacen
                                 //Se registran los procesos de GF en el almacen y se inicia la toma de tiempos. 
                                 Qry = "CALL PA_RegistrarDetalleAlmacen(?,?,?)";
@@ -158,24 +159,24 @@ public class DetalleProyectoM {
                                 } else if (area.equals("FE") && tipoProducto.equals("Circuito")) {
                                     ps.setInt(2, 8);
                                 }
-                                ps.setInt(3, 20);//Proceso de GF "20"
+                                ps.setInt(3, 20);//Proceso de GF "20" //Esto se va a desaparecer...
                                 ps.execute();
                             } else {//tener en cuenta que los procesos se van a traer de la tabla procesos dependiendo del tipo de negocio!!
                                 // ...
                                 //Registro de Procesos del producto del área de formato estandar - FE
-                                registrarProcesosAreaProducto(numerOrden, idTipoProducto, procesoPNC, material, 1, antisolder, ruteo);
+                                registrarProcesosAreaProducto(numerOrden, idTipoProducto, procesoPNC, material, 1, idColor_antisolder, ruteo);
                                 // ...
                             }
                             // ...
                             break;
                         case "TE": // Teclados
                             //Registro de Procesos del producto del área de Teclados - TE
-                            registrarProcesosAreaProducto(numerOrden, idTipoProducto, procesoPNC, material, 2, antisolder, ruteo);
+                            registrarProcesosAreaProducto(numerOrden, idTipoProducto, procesoPNC, material, 2, idColor_antisolder, ruteo);
                             break;
                         case "EN": // Ensamble
                             // ...
                             //Registro de Procesos del producto del área de Teclados - TE
-                            registrarProcesosAreaProducto(numerOrden, idTipoProducto, procesoPNC, material, 3, antisolder, ruteo);
+                            registrarProcesosAreaProducto(numerOrden, idTipoProducto, procesoPNC, material, 3, idColor_antisolder, ruteo);
                             // ...
                             break;
                         default: // Almacen
@@ -328,7 +329,7 @@ public class DetalleProyectoM {
                 }
             } else if (accion == 2) {
                 
-                modificarInformacionProductosProyectoM(numerOrden, idDetalleProducto, cantidad, material, (area.equals("FE")?1:(area.equals("TE")?2:3)), tipoProducto, procesoPNC, antisolder, ruteo);
+                modificarInformacionProductosProyectoM(numerOrden, idDetalleProducto, cantidad, material, (area.equals("FE")?1:(area.equals("TE")?2:3)), tipoProducto, procesoPNC, idColor_antisolder, ruteo, idEspesor);
             
             }
             //Cierre de conexiones
@@ -342,7 +343,7 @@ public class DetalleProyectoM {
         return res;
     }
 //    // Actualizar y agregarle los dos parametros de antisolder y ruteo para la validacion de campos
-    private void registrarProcesosAreaProducto(String numerOrden, int idTipoProducto, String procesoPNC, String material, int area, int antisolder, int ruteo){
+    private void registrarProcesosAreaProducto(String numerOrden, int idTipoProducto, String procesoPNC, String material, int area, String idColor_antisolder, int ruteo){
         // ...
         String Qry="";
         try {
@@ -359,14 +360,14 @@ public class DetalleProyectoM {
             if(idDetalleProducto > 0){
                 
                 //Consultar el ID de la condicion que se cumple para la asignacion de los procesos del producto...
-                Qry = "SELECT FU_ClasificarCondicionProducto(?,?,?,?,?,?,?) as idCondicional";//
+                Qry = "SELECT FU_ClasificarCondicionProducto(?,?,?,?,?,?,?) as idCondicional";
                 ps = con.prepareStatement(Qry);
                 ps.setString(1, numerOrden);
                 ps.setInt(2, idTipoProducto);
                 ps.setString(3, (procesoPNC == null ? "" : procesoPNC));
                 ps.setString(4, material);
                 ps.setInt(5, area);
-                ps.setInt(6, antisolder);
+                ps.setString(6, idColor_antisolder);
                 ps.setInt(7, ruteo);
                 rs = ps.executeQuery();
                 rs.next();
@@ -433,19 +434,19 @@ public class DetalleProyectoM {
             case "Troquel":
                 tipo = 4;
                 break;
-            case "Circuito GF":
+            case "Circuito GF":// Esto va a desaparecer
                 tipo = 8;
                 break;
-            case "PCB GF":
+            case "PCB GF"://Esto va a desaparecer
                 tipo = 9;
                 break;
-            case "Circuito COM":
+            case "Circuito COM": // Esto va a desaparecer
                 tipo = 10;
                 break;
-            case "PCB COM":
+            case "PCB COM": // Esto va a desaparecer
                 tipo = 11;
                 break;
-            case "Circuito-TE":
+            case "Circuito-TE": // Creo que este tambien va a desaparecer...
                 tipo = 12;
                 break;
         }
@@ -596,13 +597,13 @@ public class DetalleProyectoM {
     }
     // ...
     
-    private void modificarInformacionProductosProyectoM(String numerOrden,int idDetalleProyecto, String cantidad, String material, int area, String tipoProducto, String procesoPNC, int antisolder, int ruteo) {
+    private void modificarInformacionProductosProyectoM(String numerOrden,int idDetalleProyecto, String cantidad, String material, int area, String tipoProducto, String procesoPNC, String idColor_antisolder, int ruteo, int idEspesor) {
         //PreparedSteamate y detalle----------------------------------->
         try {
             String Qry = "";
             int idTipoProducto = numeroDelTipo(tipoProducto);
             //1- Modificar la informacion del producto detalle del proyecto siempre y cuando sea necesario
-            Qry = "SELECT FU_ModificarInfoDetalleProyecto(?,?,?,?,?,?,?,?)";//
+            Qry = "SELECT FU_ModificarInfoDetalleProyecto(?,?,?,?,?,?,?,?,?)";// modificar procedimiento almacenado
             ps = con.prepareStatement(Qry);
             ps.setInt(1, idDetalleProyecto);
             ps.setString(2, cantidad);
@@ -624,9 +625,10 @@ public class DetalleProyectoM {
             }
             // ...
             ps.setString(5, procesoPNC);
-            ps.setInt(6, antisolder);
+            ps.setString(6, idColor_antisolder);
             ps.setInt(7, ruteo);
             ps.setInt(8, idTipoProducto);
+            ps.setInt(9, idEspesor);
             rs = ps.executeQuery();
             rs.next();
             res = rs.getBoolean(1);
@@ -642,7 +644,7 @@ public class DetalleProyectoM {
                 if(rs.getBoolean("respuesta")){
                     
                     //Registrar nuevamente los procesos de acuerdo a la condicion que se cumpla...
-                    registrarProcesosAreaProducto(numerOrden, idTipoProducto, procesoPNC, material, area, antisolder, ruteo);
+                    registrarProcesosAreaProducto(numerOrden, idTipoProducto, procesoPNC, material, area, idColor_antisolder, ruteo);
                     
                 }
                 
@@ -745,7 +747,7 @@ public class DetalleProyectoM {
             ps.close();
             con.close();
         } catch (Exception e) {
-//            JOptionPane.showMessageDialog(null, "¡Error!" + e);
+            e.printStackTrace();
         }
         return crs;
     }

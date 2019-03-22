@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 21-03-2019 a las 22:19:56
+-- Tiempo de generación: 22-03-2019 a las 22:23:16
 -- Versión del servidor: 10.1.29-MariaDB
 -- Versión de PHP: 7.2.0
 
@@ -366,7 +366,15 @@ END$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_ConsultarDetalleProyecto` (IN `orden` VARCHAR(11))  NO SQL
 BEGIN
 
-SELECT d.idDetalle_proyecto,n.nom_area,t.nombre,d.canitadad_total,d.estado, d.PNC,d.material, d.antisolder, d.ruteo,d.ubicacion,p.parada FROM producto t  JOIN detalle_proyecto d on t.idProducto=d.idProducto JOIN area n on d.idArea=n.idArea JOIN proyecto p ON d.proyecto_numero_orden=p.numero_orden WHERE d.proyecto_numero_orden=orden;
+IF orden = "" THEN
+
+	SELECT p.numero_orden, d.idDetalle_proyecto, n.nom_area, t.nombre, d.canitadad_total, d.estado, d.PNC, d.material, (SELECT c.color FROM color_antisolder c WHERE c.idColor_antisolder=d.antisolder) AS color_antisodler, d.antisolder, d.ruteo, d.ubicacion, p.parada, (SELECT e.nom_espesor FROM espesor e WHERE e.idEspesor=d.idEspesor) AS espesor,d.idEspesor FROM producto t  JOIN detalle_proyecto d on t.idProducto=d.idProducto JOIN area n on d.idArea=n.idArea JOIN proyecto p ON d.proyecto_numero_orden=p.numero_orden;
+
+ELSE
+
+	SELECT p.numero_orden, d.idDetalle_proyecto, n.nom_area, t.nombre, d.canitadad_total, d.estado, d.PNC, d.material, (SELECT c.color FROM color_antisolder c WHERE c.idColor_antisolder=d.antisolder) AS color_antisodler, d.antisolder, d.ruteo, d.ubicacion, p.parada, (SELECT e.nom_espesor FROM espesor e WHERE e.idEspesor=d.idEspesor) AS espesor, d.idEspesor FROM producto t  JOIN detalle_proyecto d on t.idProducto=d.idProducto JOIN area n on d.idArea=n.idArea JOIN proyecto p ON d.proyecto_numero_orden=p.numero_orden WHERE d.proyecto_numero_orden LIKE CONCAT(orden,'%');
+
+END IF;
 
 END$$
 
@@ -2275,13 +2283,25 @@ RETURN 1;
 
 END$$
 
-CREATE DEFINER=`root`@`localhost` FUNCTION `FU_ClasificarCondicionProducto` (`orden` VARCHAR(10), `idProducto` INT, `ubic` VARCHAR(25), `material` VARCHAR(2), `area` INT, `antisolder` TINYINT, `ruteo` TINYINT) RETURNS INT(11) NO SQL
+CREATE DEFINER=`root`@`localhost` FUNCTION `FU_ClasificarCondicionProducto` (`orden` VARCHAR(10), `idProducto` INT, `ubic` VARCHAR(25), `material` VARCHAR(2), `area` INT, `idColor_antisolder` VARCHAR(2), `ruteo` TINYINT) RETURNS INT(11) NO SQL
 BEGIN
+
+DECLARE lleva_antisolder int;
+
+IF idColor_antisolder="0" THEN
+#No lleva antisolder
+	SET lleva_antisolder = 0;
+
+ELSE
+#Si lleva antisolder
+	SET lleva_antisolder = 1;
+
+END IF;
 
 # ...
 IF (idProducto=1 or idProducto=7) AND area = 1 THEN # Circuito o PCB
 	# ...
-    RETURN (SELECT c.idCondicion FROM condicion_producto c WHERE c.idProducto=idProducto AND c.material=material AND c.antisorder=antisolder AND c.ruteo=ruteo AND c.area=area LIMIT 1);
+    RETURN (SELECT c.idCondicion FROM condicion_producto c WHERE c.idProducto=idProducto AND c.material=material AND c.antisorder=lleva_antisolder AND c.ruteo=ruteo AND c.area=area LIMIT 1);
     # ...
 ELSE
 #...
@@ -2515,15 +2535,15 @@ RETURN 1;
 END IF;
 END$$
 
-CREATE DEFINER=`root`@`localhost` FUNCTION `FU_ModificarInfoDetalleProyecto` (`idDetalleProducto` INT, `cantidad` VARCHAR(6), `material` VARCHAR(6), `area` INT, `ubicacion` VARCHAR(25), `antisolder` TINYINT(1), `ruteo` TINYINT(1), `idProducto` INT) RETURNS TINYINT(1) NO SQL
+CREATE DEFINER=`root`@`localhost` FUNCTION `FU_ModificarInfoDetalleProyecto` (`idDetalleProducto` INT, `cantidad` VARCHAR(6), `material` VARCHAR(6), `area` INT, `ubicacion` VARCHAR(25), `idColor_antisolder` VARCHAR(2), `ruteo` TINYINT(1), `idProducto` INT, `idEspesor` TINYINT) RETURNS TINYINT(1) NO SQL
 BEGIN
 
 #Seimpre se van actualizar las cantidades del producto...
 UPDATE detalle_proyecto dp SET dp.canitadad_total = cantidad WHERE dp.idDetalle_proyecto = idDetalleProducto;
 # ...
-IF !EXISTS(SELECT * FROM detalle_proyecto d WHERE d.idDetalle_proyecto = idDetalleProducto AND d.idProducto = idProducto AND d.material = material AND d.idArea = area AND d.antisolder = antisolder AND d.ruteo = ruteo) THEN
+IF !EXISTS(SELECT * FROM detalle_proyecto d WHERE d.idDetalle_proyecto = idDetalleProducto AND d.idProducto = idProducto AND d.material = material AND d.idArea = area AND d.antisolder = idColor_antisolder AND d.ruteo = ruteo AND d.idEspesor = idEspesor) THEN
 
-UPDATE detalle_proyecto dp SET dp.material = material,dp.ubicacion = ubicacion,dp.antisolder = antisolder,dp.ruteo = ruteo WHERE dp.idDetalle_proyecto = idDetalleProducto;
+UPDATE detalle_proyecto dp SET dp.material = material, dp.ubicacion = ubicacion, dp.antisolder = idColor_antisolder, dp.ruteo = ruteo, dp.idEspesor = idEspesor WHERE dp.idDetalle_proyecto = idDetalleProducto;
   # ...
   RETURN 1;# Se actualizo la informacion
   # ...
@@ -2536,16 +2556,20 @@ END IF;
 # ...
 END$$
 
-CREATE DEFINER=`root`@`localhost` FUNCTION `FU_RegistrarDetalleProyecto` (`orden` INT(11), `idProductoP` VARCHAR(20), `cantidad` VARCHAR(6), `area` VARCHAR(20), `estado` TINYINT(1), `material` VARCHAR(6), `pnc` TINYINT(1), `ubic` VARCHAR(30), `antisolder` TINYINT, `ruteo` TINYINT) RETURNS TINYINT(1) NO SQL
+CREATE DEFINER=`root`@`localhost` FUNCTION `FU_RegistrarDetalleProyecto` (`orden` INT(11), `idProductoP` VARCHAR(20), `cantidad` VARCHAR(6), `area` VARCHAR(20), `estado` TINYINT(1), `material` VARCHAR(6), `pnc` TINYINT(1), `ubic` VARCHAR(30), `idColor_antisolder` VARCHAR(2), `ruteo` TINYINT, `idEspesor` TINYINT) RETURNS TINYINT(1) NO SQL
 BEGIN
-IF material != '' THEN
-	INSERT INTO `detalle_proyecto`(`idProducto`, `canitadad_total`, `proyecto_numero_orden`, `idArea`, `estado`,`material`,`PNC`,`ubicacion`,`antisolder`,`ruteo`) VALUES ((SELECT idproducto from producto where nombre =idProductoP), cantidad, orden, (SELECT idArea FROM area WHERE nom_area = area), estado, material, pnc, ubic, antisolder, ruteo);
+IF material != '' THEN#Esto se puede reducir a un solo
+
+	INSERT INTO `detalle_proyecto`(`idProducto`, `canitadad_total`, `proyecto_numero_orden`, `idArea`, `estado`,`material`,`PNC`,`ubicacion`,`antisolder`,`ruteo`, `idEspesor`) VALUES ((SELECT idproducto from producto where nombre =idProductoP), cantidad, orden, (SELECT idArea FROM area WHERE nom_area = area), estado, material, pnc, ubic, idColor_antisolder, ruteo, idEspesor);
  	RETURN 1;
 #
 ELSE
-	INSERT INTO `detalle_proyecto`(`idProducto`, `canitadad_total`, `proyecto_numero_orden`, `idArea`, `estado`,`PNC`,`ubicacion`,`antisolder`,`ruteo`) VALUES ((SELECT idproducto from producto where nombre =idProductoP),cantidad,orden, (SELECT idArea FROM area WHERE nom_area = area), estado, pnc, ubic, antisolder, ruteo);
+
+	INSERT INTO `detalle_proyecto`(`idProducto`, `canitadad_total`, `proyecto_numero_orden`, `idArea`, `estado`,`PNC`,`ubicacion`,`antisolder`,`ruteo`, `idEspesor`) VALUES ((SELECT idproducto from producto where nombre =idProductoP),cantidad,orden, (SELECT idArea FROM area WHERE nom_area = area), estado, pnc, ubic, idColor_antisolder, ruteo, idEspesor);
 	RETURN 1;
+    
 END IF;
+
 END$$
 
 CREATE DEFINER=`root`@`localhost` FUNCTION `FU_RegistrarModificarProcesos` (`idProceso` INT, `nombre` VARCHAR(30), `area` INT) RETURNS TINYINT(1) NO SQL
@@ -3012,7 +3036,45 @@ INSERT INTO `detalle_formato_estandar` (`idDetalle_formato_estandar`, `tiempo_po
 (32, '00:00:00', '00:00:00', '0', NULL, NULL, 7, 1, 1, NULL, NULL, 0, 1, '1', '0000-00-00'),
 (33, '00:00:00', '00:00:00', '0', NULL, NULL, 7, 3, 1, NULL, NULL, 0, 2, '0', '0000-00-00'),
 (34, '00:00:00', '00:00:00', '0', NULL, NULL, 7, 4, 1, NULL, NULL, 0, 3, '0', '0000-00-00'),
-(35, '00:00:00', '00:00:00', '0', NULL, NULL, 7, 5, 1, NULL, NULL, 0, 4, '0', '0000-00-00');
+(35, '00:00:00', '00:00:00', '0', NULL, NULL, 7, 5, 1, NULL, NULL, 0, 4, '0', '0000-00-00'),
+(64, '00:00:00', '00:00:00', '0', NULL, NULL, 8, 1, 1, NULL, NULL, 0, 1, '10', '0000-00-00'),
+(65, '00:00:00', '00:00:00', '0', NULL, NULL, 8, 2, 1, NULL, NULL, 0, 2, '0', '0000-00-00'),
+(66, '00:00:00', '00:00:00', '0', NULL, NULL, 8, 3, 1, NULL, NULL, 0, 3, '0', '0000-00-00'),
+(67, '00:00:00', '00:00:00', '0', NULL, NULL, 8, 4, 1, NULL, NULL, 0, 4, '0', '0000-00-00'),
+(68, '00:00:00', '00:00:00', '0', NULL, NULL, 8, 5, 1, NULL, NULL, 0, 5, '0', '0000-00-00'),
+(69, '00:00:00', '00:00:00', '0', NULL, NULL, 8, 6, 1, NULL, NULL, 0, 6, '0', '0000-00-00'),
+(70, '00:00:00', '00:00:00', '0', NULL, NULL, 8, 7, 1, NULL, NULL, 0, 7, '0', '0000-00-00'),
+(71, '00:00:00', '00:00:00', '0', NULL, NULL, 8, 8, 1, NULL, NULL, 0, 8, '0', '0000-00-00'),
+(72, '00:00:00', '00:00:00', '0', NULL, NULL, 8, 9, 1, NULL, NULL, 0, 9, '0', '0000-00-00'),
+(73, '00:00:00', '00:00:00', '0', NULL, NULL, 8, 10, 1, NULL, NULL, 0, 10, '0', '0000-00-00'),
+(101, '00:00:00', '00:00:00', '0', NULL, NULL, 9, 1, 1, NULL, NULL, 0, 1, '10', '0000-00-00'),
+(102, '00:00:00', '00:00:00', '0', NULL, NULL, 9, 3, 1, NULL, NULL, 0, 2, '0', '0000-00-00'),
+(103, '00:00:00', '00:00:00', '0', NULL, NULL, 9, 4, 1, NULL, NULL, 0, 3, '0', '0000-00-00'),
+(104, '00:00:00', '00:00:00', '0', NULL, NULL, 9, 5, 1, NULL, NULL, 0, 4, '0', '0000-00-00'),
+(105, '00:00:00', '00:00:00', '0', NULL, NULL, 9, 6, 1, NULL, NULL, 0, 5, '0', '0000-00-00'),
+(106, '00:00:00', '00:00:00', '0', NULL, NULL, 9, 7, 1, NULL, NULL, 0, 6, '0', '0000-00-00'),
+(107, '00:00:00', '00:00:00', '0', NULL, NULL, 9, 8, 1, NULL, NULL, 0, 7, '0', '0000-00-00'),
+(108, '00:00:00', '00:00:00', '0', NULL, NULL, 9, 9, 1, NULL, NULL, 0, 8, '0', '0000-00-00'),
+(109, '00:00:00', '00:00:00', '0', NULL, NULL, 9, 10, 1, NULL, NULL, 0, 9, '0', '0000-00-00'),
+(110, '00:00:00', '00:00:00', '0', NULL, NULL, 10, 1, 1, NULL, NULL, 0, 1, '10', '0000-00-00'),
+(111, '00:00:00', '00:00:00', '0', NULL, NULL, 10, 2, 1, NULL, NULL, 0, 2, '0', '0000-00-00'),
+(112, '00:00:00', '00:00:00', '0', NULL, NULL, 10, 3, 1, NULL, NULL, 0, 3, '0', '0000-00-00'),
+(113, '00:00:00', '00:00:00', '0', NULL, NULL, 10, 4, 1, NULL, NULL, 0, 4, '0', '0000-00-00'),
+(114, '00:00:00', '00:00:00', '0', NULL, NULL, 10, 5, 1, NULL, NULL, 0, 5, '0', '0000-00-00'),
+(115, '00:00:00', '00:00:00', '0', NULL, NULL, 10, 6, 1, NULL, NULL, 0, 6, '0', '0000-00-00'),
+(116, '00:00:00', '00:00:00', '0', NULL, NULL, 10, 7, 1, NULL, NULL, 0, 7, '0', '0000-00-00'),
+(117, '00:00:00', '00:00:00', '0', NULL, NULL, 10, 8, 1, NULL, NULL, 0, 8, '0', '0000-00-00'),
+(118, '00:00:00', '00:00:00', '0', NULL, NULL, 10, 9, 1, NULL, NULL, 0, 9, '0', '0000-00-00'),
+(119, '00:00:00', '00:00:00', '0', NULL, NULL, 10, 10, 1, NULL, NULL, 0, 10, '0', '0000-00-00'),
+(129, '00:00:00', '00:00:00', '0', NULL, NULL, 11, 1, 1, NULL, NULL, 0, 1, '10', '0000-00-00'),
+(130, '00:00:00', '00:00:00', '0', NULL, NULL, 11, 2, 1, NULL, NULL, 0, 2, '0', '0000-00-00'),
+(131, '00:00:00', '00:00:00', '0', NULL, NULL, 11, 3, 1, NULL, NULL, 0, 3, '0', '0000-00-00'),
+(132, '00:00:00', '00:00:00', '0', NULL, NULL, 11, 4, 1, NULL, NULL, 0, 4, '0', '0000-00-00'),
+(133, '00:00:00', '00:00:00', '0', NULL, NULL, 11, 5, 1, NULL, NULL, 0, 5, '0', '0000-00-00'),
+(134, '00:00:00', '00:00:00', '0', NULL, NULL, 11, 7, 1, NULL, NULL, 0, 7, '0', '0000-00-00'),
+(135, '00:00:00', '00:00:00', '0', NULL, NULL, 11, 8, 1, NULL, NULL, 0, 8, '0', '0000-00-00'),
+(136, '00:00:00', '00:00:00', '0', NULL, NULL, 11, 10, 1, NULL, NULL, 0, 9, '0', '0000-00-00'),
+(137, '00:00:00', '00:00:00', '0', NULL, NULL, 11, 6, 1, NULL, NULL, 0, 6, '0', '0000-00-00');
 
 -- --------------------------------------------------------
 
@@ -3038,12 +3100,12 @@ CREATE TABLE `detalle_proyecto` (
   `Total_timepo_Unidad` varchar(20) NOT NULL DEFAULT '00:00:00',
   `fecha_salida` datetime DEFAULT NULL,
   `lider_proyecto` varchar(13) DEFAULT NULL,
-  `antisolder` varchar(12) DEFAULT NULL,
+  `antisolder` varchar(2) DEFAULT NULL,
   `ruteo` tinyint(1) DEFAULT '0',
   `mes_de_corte` varchar(10) NOT NULL DEFAULT '0000-00-00',
   `cantidad_terminada` varchar(6) NOT NULL DEFAULT '0',
   `fecha_terminacion_cantidad` varchar(10) DEFAULT NULL,
-  `idEspesor` tinyint(3) DEFAULT NULL
+  `idEspesor` tinyint(3) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -3051,13 +3113,17 @@ CREATE TABLE `detalle_proyecto` (
 --
 
 INSERT INTO `detalle_proyecto` (`idDetalle_proyecto`, `idProducto`, `canitadad_total`, `material`, `proyecto_numero_orden`, `idArea`, `estado`, `PNC`, `ubicacion`, `pro_porIniciar`, `pro_Ejecucion`, `pro_Pausado`, `pro_Terminado`, `tiempo_total`, `Total_timepo_Unidad`, `fecha_salida`, `lider_proyecto`, `antisolder`, `ruteo`, `mes_de_corte`, `cantidad_terminada`, `fecha_terminacion_cantidad`, `idEspesor`) VALUES
-(1, 2, '10', 'FV', 1, 1, 2, 0, NULL, 4, 0, 0, 4, '00:05:08', '00:00:00', NULL, NULL, '0', 0, '2019-03-21', '0', NULL, NULL),
-(2, 4, '2', 'FV', 1, 1, 3, 0, NULL, 0, 0, 0, 3, '00:03:58', '00:02:00', '2019-03-21 07:56:43', NULL, '0', 0, '2019-02-21', '2', '2019-02-21', NULL),
-(3, 3, '1', 'FV', 1, 1, 3, 0, NULL, 0, 0, 0, 3, '00:17:28', '00:17:28', '2019-03-21 11:04:55', NULL, '0', 0, '2019-03-21', '1', '2019-03-21', NULL),
-(4, 1, '15', 'FV', 1, 1, 2, 0, NULL, 5, 0, 0, 4, '00:06:33', '00:00:00', NULL, NULL, '1', 1, '2019-03-21', '0', NULL, NULL),
-(5, 5, '5', NULL, 1, 2, 1, 0, NULL, 4, 0, 0, 0, '00:00:00', '00:00:00', NULL, NULL, '0', 0, '2019-03-21', '0', NULL, NULL),
-(6, 2, '10', 'FV', 2, 1, 1, 0, NULL, 8, 0, 0, 0, '00:00:00', '00:00:00', NULL, NULL, '0', 0, '2019-03-21', '0', NULL, NULL),
-(7, 6, '1', NULL, 2, 1, 1, 0, NULL, 4, 0, 0, 0, '00:00:00', '00:00:00', NULL, NULL, '0', 0, '2019-03-21', '0', NULL, NULL);
+(1, 2, '10', 'FV', 1, 1, 2, 0, NULL, 4, 0, 0, 4, '00:05:08', '00:00:00', NULL, NULL, '0', 0, '2019-03-21', '0', NULL, 0),
+(2, 4, '2', 'FV', 1, 1, 3, 0, NULL, 0, 0, 0, 3, '00:03:58', '00:02:00', '2019-03-21 07:56:43', NULL, '0', 0, '2019-02-21', '2', '2019-02-21', 0),
+(3, 3, '1', 'FV', 1, 1, 3, 0, NULL, 0, 0, 0, 3, '00:17:28', '00:17:28', '2019-03-21 11:04:55', NULL, '0', 0, '2019-03-21', '1', '2019-03-21', 0),
+(4, 1, '15', 'FV', 1, 1, 2, 0, NULL, 5, 0, 0, 4, '00:06:33', '00:00:00', NULL, NULL, '1', 1, '2019-03-21', '0', NULL, 0),
+(5, 5, '5', NULL, 1, 2, 1, 0, NULL, 4, 0, 0, 0, '00:00:00', '00:00:00', NULL, NULL, '0', 0, '2019-03-21', '0', NULL, 0),
+(6, 2, '10', 'FV', 2, 1, 1, 0, NULL, 8, 0, 0, 0, '00:00:00', '00:00:00', NULL, NULL, '0', 0, '2019-03-21', '0', NULL, 0),
+(7, 6, '1', NULL, 2, 1, 1, 0, NULL, 4, 0, 0, 0, '00:00:00', '00:00:00', NULL, NULL, '0', 0, '2019-03-21', '0', NULL, 0),
+(8, 1, '10', 'TH', 3, 1, 1, 0, NULL, 10, 0, 0, 0, '00:00:00', '00:00:00', NULL, NULL, '1', 1, '0000-00-00', '0', NULL, 4),
+(9, 1, '10', 'FV', 4, 1, 1, 0, NULL, 9, 0, 0, 0, '00:00:00', '00:00:00', NULL, NULL, '4', 1, '0000-00-00', '0', NULL, 2),
+(10, 7, '10', 'TH', 4, 1, 1, 0, NULL, 10, 0, 0, 0, '00:00:00', '00:00:00', NULL, NULL, '7', 1, '0000-00-00', '0', NULL, 6),
+(11, 1, '10', 'TH', 5, 1, 1, 0, NULL, 9, 0, 0, 0, '00:00:00', '00:00:00', NULL, NULL, '1', 0, '0000-00-00', '0', NULL, 4);
 
 -- --------------------------------------------------------
 
@@ -3403,7 +3469,10 @@ CREATE TABLE `proyecto` (
 
 INSERT INTO `proyecto` (`numero_orden`, `usuario_numero_documento`, `nombre_cliente`, `nombre_proyecto`, `tipo_proyecto`, `fecha_ingreso`, `fecha_entrega`, `fecha_salidal`, `estado`, `eliminacion`, `parada`, `entregaCircuitoFEoGF`, `entregaCOMCircuito`, `entregaPCBFEoGF`, `entregaPCBCom`, `novedades`, `estadoEmpresa`, `NFEE`) VALUES
 (1, '981130', 'Juan David Marulanda', 'Prueba de desarrollo reporte de tiempos numero 1', 'Normal', '2019-03-21 07:31:35', '2019-03-01', NULL, 2, 1, 1, NULL, NULL, NULL, NULL, NULL, 'A tiempo', NULL),
-(2, '981130', 'Juan David Marulanda', 'Prueba de desarrollo reporte corte de tiempos numero 2', 'RQT', '2019-03-21 11:17:37', '2019-03-22', NULL, 1, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+(2, '981130', 'Juan David Marulanda', 'Prueba de desarrollo reporte corte de tiempos numero 2', 'RQT', '2019-03-21 11:17:37', '2019-03-22', NULL, 1, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(3, '981130', 'juan david marulanda', 'prueba de desarrollo color del antisolder', 'Normal', '2019-03-22 06:57:39', '2019-03-22', NULL, 1, 1, 1, NULL, NULL, NULL, NULL, '', NULL, NULL),
+(4, '981130', 'Juan David Marulanda Paniagua', 'prueba de desarrollo registro de espesor de las tarjetas', 'Normal', '2019-03-22 07:16:00', '2019-03-01', NULL, 1, 1, 1, NULL, NULL, NULL, NULL, '', NULL, NULL),
+(5, '981130', 'Juan David Marulanda', 'prueba de desarrollo generacion de QR comun numero 5', 'Normal', '2019-03-22 15:12:54', '2019-03-22', NULL, 1, 1, 1, NULL, NULL, NULL, NULL, '', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -3731,13 +3800,13 @@ ALTER TABLE `detalle_ensamble`
 -- AUTO_INCREMENT de la tabla `detalle_formato_estandar`
 --
 ALTER TABLE `detalle_formato_estandar`
-  MODIFY `idDetalle_formato_estandar` smallint(6) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
+  MODIFY `idDetalle_formato_estandar` smallint(6) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=138;
 
 --
 -- AUTO_INCREMENT de la tabla `detalle_proyecto`
 --
 ALTER TABLE `detalle_proyecto`
-  MODIFY `idDetalle_proyecto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `idDetalle_proyecto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT de la tabla `detalle_teclados`
@@ -3773,7 +3842,7 @@ ALTER TABLE `producto`
 -- AUTO_INCREMENT de la tabla `proyecto`
 --
 ALTER TABLE `proyecto`
-  MODIFY `numero_orden` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `numero_orden` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT de la tabla `tiempo_invertido_mes_proceso`
