@@ -61,7 +61,7 @@ public class ProyectoM {
         return res;
     }
 
-    public boolean estadoProyecto(int orden) {
+    public boolean estadoProyecto(int orden) {// Esto ya no se va a realizar más...
         try {
             conexion = new Conexion(1);
             conexion.establecerConexion();

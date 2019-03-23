@@ -1498,27 +1498,28 @@ public class proyecto extends javax.swing.JPanel {
     }//GEN-LAST:event_cbColorPCBItemStateChanged
 //Metodos---------------------------------------------------------------------->
 
-    private void cambiarEstadoProyectoEjecucionOParada(int op) {// Esto se va a modificar <----- Pendiente
-        int seleccion = JOptionPane.showOptionDialog(null, (op == 1) ? "¿Seguro desea poner en ejecucion este numero de orden?" : "¿Seguro desea parar este numero de orden?",
+    private void cambiarEstadoProyectoEjecucionOParada(int accion) {
+        // Accion 1 = Activar 2 = Parar
+        int seleccion = JOptionPane.showOptionDialog(null, (accion == 1) ? "¿Seguro desea poner en ejecucion este numero de orden?" : "¿Seguro desea parar este numero de orden?",
                 "seleccione...", JOptionPane.YES_NO_CANCEL_OPTION,
                 JOptionPane.QUESTION_MESSAGE, null,// null para icono por defecto.
                 new Object[]{"SI", "NO"}, "SI");
         if (seleccion == 0) {
-            if (estadoProyecto()) {
-                if (estadoDeOrden(op)) {
+//            if (estadoProyecto()) {
+                if (estadoDeOrden(accion)) {
                     //Mensaje de cambio de estado todo un exito.
 //                    modificarInformacionProyecto(1);//Modifica sin preguntar <-- Esto ya no se va a realizar acá...
-                    //new rojerusan.RSNotifyAnimated("Listo!", "El estado del proyecto fue cambiado exitosamente.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.SUCCESS).setVisible(true);
+                    new rojerusan.RSNotifyAnimated("Listo!", "El estado del proyecto fue cambiado exitosamente.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.SUCCESS).setVisible(true);
                     limpiarCamposFormulario();
                     limpiarID();
                     estadoInicialComponentesFormulario();
                     estadoInicialBotonesFormulario();
                 }
-            } else {
-                new rojerusan.RSNotifyAnimated("Alerta!", "No se puede cambiar el estado del proyecto porque esta en ejecución.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.WARNING).setVisible(true);
-            }
+//            } else {
+//                new rojerusan.RSNotifyAnimated("Alerta!", "No se puede cambiar el estado del proyecto porque esta en ejecución.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.WARNING).setVisible(true);
+//            }
         } else {
-            if (op == 1) {//No esta parada
+            if (accion == 1) {//No esta parada
                 jRParada.setSelected(true);
             } else {//esta parada
                 jREjecucion.setSelected(true);
@@ -1748,39 +1749,42 @@ public class proyecto extends javax.swing.JPanel {
                                 cod.renderBarcode(path + "ImágenesQR\\" + jTNorden.getText() + " " + tipoProyectoImagen(crs.getInt(2), crs.getInt(3)) + ".png");
 //                              ...
                                 Image imagenQR = Image.getInstance(path + "ImágenesQR\\" + jTNorden.getText() + " " + tipoProyectoImagen(crs.getInt(2), crs.getInt(3)) + ".png");
-                                int j = (crs.getInt(3) == 1 ? ((crs.getInt(2) == 1 || crs.getInt(2) == 12) ? 12 : 4) : 4);
-                                for (int i = 0; i < j; i++) {
-                                    imagenQR.setWidthPercentage(60);//Tamaño del QR con el cual va a ser insertado en el documento PDF
-                                    imagenQR.setAlignment(Image.ALIGN_CENTER);//Alineamiento de lo Codigos en las celdas
-                                    //Personalizar cell
-                                    PdfPCell celda = new PdfPCell();
+                                
+                                imagenQR.setWidthPercentage(60);//Tamaño del QR con el cual va a ser insertado en el documento PDF
+                                imagenQR.setAlignment(Image.ALIGN_CENTER);//Alineamiento de lo Codigos en las celdas
+                                //Personalizar cell
+                                PdfPCell celda = new PdfPCell();
 //                                  celda.setBorder(Rectangle.NO_BORDER);
-                                    //Numero de orden del proyecto
-                                    Paragraph orden = new Paragraph("Orden: " + jTNorden.getText(), tall);
-                                    orden.setAlignment(1);
-                                    celda.addElement(orden);
-                                    //Referencia de área y producto
-                                    celda.addElement(tipoProyecto(crs.getInt(2), crs.getInt(3)));
-                                    //Imagen de QR
-                                    celda.addElement(imagenQR);
-                                    //Fecha de entrega del proyecto
-                                    Paragraph Fecha = new Paragraph("Entrega: " + crs.getString(4), tall);
-                                    Fecha.setAlignment(1);
-                                    celda.addElement(Fecha);
-                                    //Nombre del proyecto
-                                    Paragraph proyecto = new Paragraph("Proyecto: " + crs.getString(5), tall);
-                                    proyecto.setAlignment(1);
-                                    celda.addElement(proyecto);
-                                    if ((crs.getInt(2) == 1 || crs.getInt(2) == 12) && (crs.getInt(2) == 1)) {
-                                        //Material del equipo
-                                        Paragraph material = new Paragraph("Material: " + crs.getString(7), tall);
-                                        material.setAlignment(1);
-                                        celda.addElement(material);
-                                    }
-                                    //Cantidad Total de equipos
-                                    Paragraph cantidad = new Paragraph("Cantidad: " + crs.getString(6), tall);
-                                    cantidad.setAlignment(1);
-                                    celda.addElement(cantidad);
+                                //Numero de orden del proyecto
+                                Paragraph orden = new Paragraph("Orden: " + jTNorden.getText(), tall);
+                                orden.setAlignment(1);
+                                celda.addElement(orden);
+                                //Referencia de área y producto
+                                celda.addElement(tipoProyecto(crs.getInt(2), crs.getInt(3)));
+                                //Imagen de QR
+                                celda.addElement(imagenQR);
+                                //Fecha de entrega del proyecto
+                                Paragraph Fecha = new Paragraph("Entrega: " + crs.getString(4), tall);
+                                Fecha.setAlignment(1);
+                                celda.addElement(Fecha);
+                                //Nombre del proyecto
+                                Paragraph proyecto = new Paragraph("Proyecto: " + crs.getString(5), tall);
+                                proyecto.setAlignment(1);
+                                celda.addElement(proyecto);
+                                if ((crs.getInt(2) == 1 || crs.getInt(2) == 12) && (crs.getInt(2) == 1)) {
+                                    //Material del equipo
+                                    Paragraph material = new Paragraph("Material: " + crs.getString(7), tall);
+                                    material.setAlignment(1);
+                                    celda.addElement(material);
+                                }
+                                //Cantidad Total de equipos
+                                Paragraph cantidad = new Paragraph("Cantidad: " + crs.getString(6), tall);
+                                cantidad.setAlignment(1);
+                                celda.addElement(cantidad);
+                                
+                                int j = (crs.getInt(3) == 1 ? ((crs.getInt(2) == 1 || crs.getInt(2) == 12) ? 12 : 4) : 4);
+                                
+                                for (int i = 0; i < j; i++) {
                                     tabla.addCell(celda);
                                 }
 //                              Elimina las imagenes del QR 

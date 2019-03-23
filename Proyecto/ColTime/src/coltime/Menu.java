@@ -1778,67 +1778,83 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
     }
 //Fin de la configuracion de los puertos seriales-------------------------------
 
-    public void LecturaCodigoQR(String codigo) {
-      String infoP[] = codigo.split(";");
-        //Esta validacion queda mejor a nivel de la base de datos o del modelo...
-//        if (infoP.length == 6 || (infoP.length == 7 && ((!infoP[6].equals("0") && !infoP[3].equals("18")) || ((infoP[6].equals("0") || !infoP[6].equals("18")) && infoP[3].equals("18"))))) {
-        Proyecto validar = new Proyecto();
-        // Se validara primero el permiso que tiene el ususario para leer los códigos QR de esta orden y despues se validara si la orden existe o esta parada.
-        if (validar.validarEliminacion(Integer.parseInt(infoP[0]))) {//Valido si la orden esta eliminada o no
-            if (validar.validarEjecucionOParada(Integer.parseInt(infoP[0]))) {//Valida que la orden no este parada
-                //#--------------------------------------------------------------------------------------------------
-                if ((infoP.length == 6 && cargo!=2) || (cargo==2 && infoP.length == 7 || infoP.length == 6) || (cargo==3 && infoP.length == 7)) {//Se valida que si se lea el codigo QR que es necesario
-                    switch (Integer.parseInt(infoP[2])) {
-                        //Se tiene que validar el estado del proyecto a ver si permite o no registrar la toma de tiempo.
-                        case 1:
-                            if (producF == null) {
-                                producF = new ControlDelTiempo();
-                                producF.setName("FE");
-                                producF.setTitle("Formato estandar");
-                                producF.setVisible(true);
-                                producF.setNegocio(1);
-                                producF.setVista(producF);
-                            }
-                            producF.RegistrarTomaTiempoNegocio(infoP, cargo, producF, myPS);
-                            break;
-                        case 2:
-                            if (producT == null) {
-                                producT = new ControlDelTiempo();
-                                producT.setName("TE");
-                                producT.setTitle("Teclados");
-                                producT.setVisible(true);
-                                producT.setNegocio(2);
-                                producT.setVista(producT);   
-                            }
-                            producT.RegistrarTomaTiempoNegocio(infoP, cargo, producT, myPS);
-                            break;
-                        case 3:
-                            if (producE == null) {
-                                producE = new ControlDelTiempo();
-                                producE.setName("IN");
-                                producE.setTitle("Ensamble");
-                                producE.setVisible(true);
-                                producE.setNegocio(3);
-                                producE.setVista(producE);
-                            }
-                            producE.RegistrarTomaTiempoNegocio(infoP, cargo, producE, myPS);
-                            break;
-                    }
-                }
-                //#--------------------------------------------------------------------------------------------------
-            } else {
-                //El proyecto no puede realizar la toma de tiempo porque esta parada.
-//                enviarMensajeCelular("¡Alerta!" + "n/" + "Esta orden esta parada, no puedes realizar la toma de tiempo de esta orden.");
-                new rojerusan.RSNotifyAnimated("¡Alerta!", "Esta orden esta parada, no puedes realizar la toma de tiempo de esta orden.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.ERROR).setVisible(true);
+    public void LecturaCodigoQR(String informacion_codigo) {
+        
+        String sub_trama[] = informacion_codigo.split("_");
+        
+        String trama_QR[] = sub_trama[0].split("@");
+        
+        
+        // ...
+        for (int i = 0; i < trama_QR.length; i++) {
+            // ...
+            
+            String infoP[] = null;
+            if(sub_trama.length ==2){
+               infoP = (trama_QR[i] + sub_trama[1]).split(";");
+            }else{
+               infoP = trama_QR[i].split(";");
             }
-        } else {
-            //Este mensaje se retornara al dispositivo móvil.
-            //El proyecto no existe - Esta eliminado
-//            enviarMensajeCelular("¡Alerta!" + "n/" + "Este numero de orden no existe.");
-            new rojerusan.RSNotifyAnimated("¡Alerta!", "Este numero de orden no existe.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.WARNING).setVisible(true);
+            // ...
+            
+            //Esta validacion queda mejor a nivel de la base de datos o del modelo...
+            Proyecto validar = new Proyecto();
+            // Se validara primero el permiso que tiene el ususario para leer los códigos QR de esta orden y despues se validara si la orden existe o esta parada.
+            if (validar.validarEliminacion(Integer.parseInt(infoP[0]))) {//Valido si la orden esta eliminada o no
+                if (validar.validarEjecucionOParada(Integer.parseInt(infoP[0]))) {//Valida que la orden no este parada
+                    //#--------------------------------------------------------------------------------------------------
+                    if ((infoP.length == 6 && cargo != 2) || (cargo == 2 && infoP.length == 7 || infoP.length == 6) || (cargo == 3 && infoP.length == 7)) {//Se valida que si se lea el codigo QR que es necesario
+                        // ...
+                        switch (Integer.parseInt(infoP[2])) {
+                            //Se tiene que validar el estado del proyecto a ver si permite o no registrar la toma de tiempo.
+                            case 1:
+                                if (producF == null) {
+                                    producF = new ControlDelTiempo();
+                                    producF.setName("FE");
+                                    producF.setTitle("Formato estandar");
+                                    producF.setVisible(true);
+                                    producF.setNegocio(1);
+                                    producF.setVista(producF);
+                                }
+                                    producF.RegistrarTomaTiempoNegocio(infoP, cargo, producF, myPS);
+                                break;
+                            case 2:
+                                if (producT == null) {
+                                    producT = new ControlDelTiempo();
+                                    producT.setName("TE");
+                                    producT.setTitle("Teclados");
+                                    producT.setVisible(true);
+                                    producT.setNegocio(2);
+                                    producT.setVista(producT);
+                                }
+                                    producT.RegistrarTomaTiempoNegocio(infoP, cargo, producT, myPS);
+                                break;
+                            case 3:
+                                if (producE == null) {
+                                    producE = new ControlDelTiempo();
+                                    producE.setName("IN");
+                                    producE.setTitle("Ensamble");
+                                    producE.setVisible(true);
+                                    producE.setNegocio(3);
+                                    producE.setVista(producE);
+                                }
+                                producE.RegistrarTomaTiempoNegocio(infoP, cargo, producE, myPS);
+                                break;
+                        }
+                    }
+                  //#--------------------------------------------------------------------------------------------------
+                } else {
+                    //El proyecto no puede realizar la toma de tiempo porque esta parada.
+//                  enviarMensajeCelular("¡Alerta!" + "n/" + "Esta orden esta parada, no puedes realizar la toma de tiempo de esta orden.");
+                    new rojerusan.RSNotifyAnimated("¡Alerta!", "Esta orden esta parada, no puedes realizar la toma de tiempo de esta orden.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.ERROR).setVisible(true);
+                }
+            } else {
+                //Este mensaje se retornara al dispositivo móvil.
+                //El proyecto no existe - Esta eliminado
+//              enviarMensajeCelular("¡Alerta!" + "n/" + "Este numero de orden no existe.");
+                new rojerusan.RSNotifyAnimated("¡Alerta!", "Este numero de orden no existe.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.WARNING).setVisible(true);
+            }
         }
-//        }
-//       
     }
 
     public void limpiarInformacionAreas() {

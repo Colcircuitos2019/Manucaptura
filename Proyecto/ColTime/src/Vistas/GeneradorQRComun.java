@@ -317,7 +317,7 @@ public class GeneradorQRComun extends javax.swing.JPanel {
     }//GEN-LAST:event_jTNumerOrdenKeyReleased
 
     private void btnGenerarQRComunActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGenerarQRComunActionPerformed
-
+        generarQRdeProduccion();
     }//GEN-LAST:event_btnGenerarQRComunActionPerformed
 
     private void btnEliminarProductoSeleccionadoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarProductoSeleccionadoActionPerformed
@@ -382,14 +382,17 @@ public class GeneradorQRComun extends javax.swing.JPanel {
                     }
                     //Validacion 2= Validar que los registros seleccionados sean del mismo tipo... <Pendiente> step 2
                     if(jTDetalleProductosSeleccionados.getRowCount() > 0){
-                        String producto="", material="",cAntisolder="", espesor="";
+                        String producto="", material="",cAntisolder="", espesor="", cantidad="";
                         // ...
+                        //Preguntarle a doña Viviana Si la cantidad puede ser igual o diferente de los productos...
                         producto = jTDetalleProductosSeleccionados.getValueAt(0, 3).toString();
+                        cantidad = jTDetalleProductosSeleccionados.getValueAt(0, 4).toString();
                         material = (jTDetalleProductosSeleccionados.getValueAt(0, 6)==null?"":jTDetalleProductosSeleccionados.getValueAt(0, 6).toString());
                         cAntisolder = (jTDetalleProductosSeleccionados.getValueAt(0, 8)==null?"":jTDetalleProductosSeleccionados.getValueAt(0, 8).toString());
                         espesor = (jTDetalleProductosSeleccionados.getValueAt(0, 10)==null?"":jTDetalleProductosSeleccionados.getValueAt(0, 10).toString());
                         // ...
                         if(!(producto.equals(jTDetalleProductos.getValueAt(rowSelected, 3).toString()) &&
+                                cantidad.equals(jTDetalleProductos.getValueAt(rowSelected, 4).toString()) &&
                            material.equals((jTDetalleProductos.getValueAt(rowSelected, 6)==null?"":jTDetalleProductos.getValueAt(rowSelected, 6).toString())) &&
                            cAntisolder.equals((jTDetalleProductos.getValueAt(rowSelected, 8)==null?"":jTDetalleProductos.getValueAt(rowSelected, 8).toString())) &&
                            espesor.equals(jTDetalleProductos.getValueAt(rowSelected, 10)==null?"":jTDetalleProductos.getValueAt(rowSelected, 10).toString()))){
@@ -566,121 +569,119 @@ public class GeneradorQRComun extends javax.swing.JPanel {
                     if (!folder.exists()) {
                         folder.mkdirs();
                     }
-                    //Tamaño de la fuente    
+                    //Tamaño de la fuente del PDF
                     com.itextpdf.text.Font tall = new com.itextpdf.text.Font();
                     tall.setSize(7);
-                    //Generar codigos QR
-                    //Encabezado
+                    //Encabezado del PDF
                     PdfPCell header = new PdfPCell();
-//                      Image logo = Image.getInstance(getClass().getResource("/imagenesEmpresa/logo.png"));
-//                      logo.scaleAbsolute(350, 125);
-//                      logo.setAlignment(Image.ALIGN_CENTER);
                     header.setBorder(Rectangle.NO_BORDER);
                     header.setColspan(4);
-//                      tabla.addCell(header);
-//                      tabla.setWidthPercentage(100);
-//                      tabla.setWidths(new float[]{3, 3, 3});
                     //se creo y se abrio el documento        L   R   T   B
                     Document doc = new Document(PageSize.A4, 20, 150, 30, 170);
-                    //se obtine la ruta del proyecto en tiempo de ejecucion.
-//                      String ruta = System.getProperty("user.dir");
-                    PdfWriter pdf = PdfWriter.getInstance(doc, new FileOutputStream(path + jTNorden.getText() + ".pdf"));// Cambiar El nombre de documento
-                    doc.open();
-//                      doc.add(logo);
-//                    consultarFechaActualServidor();
-//                      doc.add(new Paragraph("Generado: " + fecha));
+
                     // Trama para el QR comun, el caracter en comun por el cual van a ser separados es un @
                     String trama="";
+                    String name_PDF="";
+                    
                     for (int row = 0; row < jTDetalleProductosSeleccionados.getRowCount(); row++) {
                         trama += jTDetalleProductosSeleccionados.getValueAt(row,0).toString()+";"+// Numero de Orden
                                  jTDetalleProductosSeleccionados.getValueAt(row,1).toString()+";"+// ID Producto
-                                 jTDetalleProductosSeleccionados.getValueAt(row,2).toString()+"@";// Área
+                                 clasificarIndiceArea(jTDetalleProductosSeleccionados.getValueAt(row,2).toString())+"@";// Área
+                        
+                        name_PDF+=jTDetalleProductosSeleccionados.getValueAt(row,0).toString()+"_";// Nombre del PDF
                     }
-                    trama = trama.substring(trama.length()-2);
-                    // ...
+                    //...
+                    trama = trama.substring(0,trama.length()-1);
+                    trama += "_";
+                    name_PDF = name_PDF.substring(0,name_PDF.length()-1);
                     
-                        //Crear tabla de codigos QR
-                        PdfPTable tabla = new PdfPTable(4);
-                        tabla.addCell(header);
-                        tabla.setWidthPercentage(100);
-                        tabla.setWidths(new float[]{3, 3, 3, 3});
-                        //Creo la cadena de texto que contendra el QR
-                        if (crs.getInt(3) != 4) {
-                            QRCode cod = new QRCode();//Libreria para los QR
-                            //Numero de orden         //idDetalleProyecto             //Área 
-                            cod.setData(texto);
-                            cod.setDataMode(QRCode.MODE_BYTE);
+                    //se obtine la ruta del proyecto en tiempo de ejecucion.
+                    PdfWriter pdf = PdfWriter.getInstance(doc, new FileOutputStream(path + name_PDF + ".pdf"));// Cambiar El nombre de documento
+                    doc.open();
+                    
+                    //Crear tabla de codigos QR
+                    PdfPTable tabla = new PdfPTable(4);
+                    tabla.addCell(header);
+                    tabla.setWidthPercentage(100);
+                    tabla.setWidths(new float[]{3, 3, 3, 3});
+                    //Creo la cadena de texto que contendra el QR
+                    QRCode cod = new QRCode();//Libreria para los QR
+                    
+                    cod.setData(trama);
+                    cod.setDataMode(QRCode.MODE_BYTE);
 //                              ...
-                            cod.setUOM(udm);
-                            cod.setLeftMargin(mi);
-                            cod.setResolution(resol);
-                            cod.setRightMargin(md);
-                            cod.setTopMargin(ms);
-                            cod.setBottomMargin(min);
-                            cod.setRotate(rot);
-                            cod.setModuleSize(tam);//Tamaño del QR con el cul se genera
-                            cod.renderBarcode(path + "ImágenesQR\\" + jTNorden.getText() + " " + tipoProyectoImagen(crs.getInt(2), crs.getInt(3)) + ".png");
+                    cod.setUOM(udm);
+                    cod.setLeftMargin(mi);
+                    cod.setResolution(resol);
+                    cod.setRightMargin(md);
+                    cod.setTopMargin(ms);
+                    cod.setBottomMargin(min);
+                    cod.setRotate(rot);
+                    cod.setModuleSize(tam);//Tamaño del QR con el cul se genera
+                    cod.renderBarcode(path + "ImágenesQR\\" + name_PDF + ".png");
 //                              ...
-                            Image imagenQR = Image.getInstance(path + "ImágenesQR\\" + jTNorden.getText() + " " + tipoProyectoImagen(crs.getInt(2), crs.getInt(3)) + ".png");
-                            int j = (crs.getInt(3) == 1 ? ((crs.getInt(2) == 1 || crs.getInt(2) == 12) ? 12 : 4) : 4);
-                            for (int i = 0; i < j; i++) {
-                                imagenQR.setWidthPercentage(60);//Tamaño del QR con el cual va a ser insertado en el documento PDF
-                                imagenQR.setAlignment(Image.ALIGN_CENTER);//Alineamiento de lo Codigos en las celdas
-                                //Personalizar cell
-                                PdfPCell celda = new PdfPCell();
-//                                  celda.setBorder(Rectangle.NO_BORDER);
-                                //Numero de orden del proyecto
-                                Paragraph orden = new Paragraph("Orden: " + jTNorden.getText(), tall);
-                                orden.setAlignment(1);
-                                celda.addElement(orden);
-                                //Referencia de área y producto
-                                celda.addElement(tipoProyecto(crs.getInt(2), crs.getInt(3)));
-                                //Imagen de QR
-                                celda.addElement(imagenQR);
-                                //Fecha de entrega del proyecto
-                                Paragraph Fecha = new Paragraph("Entrega: " + crs.getString(4), tall);
-                                Fecha.setAlignment(1);
-                                celda.addElement(Fecha);
-                                //Nombre del proyecto
-                                Paragraph proyecto = new Paragraph("Proyecto: " + crs.getString(5), tall);
-                                proyecto.setAlignment(1);
-                                celda.addElement(proyecto);
-                                if ((crs.getInt(2) == 1 || crs.getInt(2) == 12) && (crs.getInt(2) == 1)) {
-                                    //Material del equipo
-                                    Paragraph material = new Paragraph("Material: " + crs.getString(7), tall);
-                                    material.setAlignment(1);
-                                    celda.addElement(material);
-                                }
-                                //Cantidad Total de equipos
-                                Paragraph cantidad = new Paragraph("Cantidad: " + crs.getString(6), tall);
-                                cantidad.setAlignment(1);
-                                celda.addElement(cantidad);
-                                tabla.addCell(celda);
-                            }
-//                              Elimina las imagenes del QR 
-//                              El nombre de la imagen se puede hacer para que lo retorne una funcion para que sea una manera más optima de hacerlo
-                            File QRdelet = new File(path + "ImágenesQR\\" + jTNorden.getText() + " " + tipoProyectoImagen(crs.getInt(2), crs.getInt(3)) + ".png");
-                            QRdelet.delete();
-                            //...
-                            cont++;
-                            header.setBorder(Rectangle.NO_BORDER);
-                            header.addElement(new Paragraph());
-                            header.setColspan(4);
-                            tabla.addCell(header);
-                            doc.add(tabla);
-                        }
-                        tabla = null;
-                        //Agregar una nueva hoja de PDF
-                        doc.newPage();
-                    crs.close();
+                    Image imagenQR = Image.getInstance(path + "ImágenesQR\\" + name_PDF + ".png");
+                    // ...
+                        imagenQR.setWidthPercentage(60);//Tamaño del QR con el cual va a ser insertado en el documento PDF
+                        imagenQR.setAlignment(Image.ALIGN_CENTER);//Alineamiento de lo Codigos en las celdas
+                    for (int i = 0; i < 10; i++) {
+                        
+                    }
+                    //Personalizar cell
+                    PdfPCell celda = new PdfPCell();
+                    //celda.setBorder(Rectangle.NO_BORDER);
+                    //Numero de orden del proyecto
+                    Paragraph orden = new Paragraph("Ordenes: " + name_PDF, tall);
+                    orden.setAlignment(1);
+                    celda.addElement(orden);
+                    // Referencia de área y producto
+                    Paragraph tipo = new Paragraph();
+                    tipo.setSpacingAfter(8);
+                    celda.addElement(tipo);
+                    // Imagen de QR
+                    celda.addElement(imagenQR);
+                    // Tipo de Material
+                    Paragraph Fecha = new Paragraph("Material: " + jTDetalleProductosSeleccionados.getValueAt(0,6).toString(), tall);
+                    Fecha.setAlignment(1);
+                    celda.addElement(Fecha);
+                    // Nombre del proyecto
+                    Paragraph proyecto = new Paragraph("Espesor: " + jTDetalleProductosSeleccionados.getValueAt(0,10).toString(), tall);
+                    proyecto.setAlignment(1);
+                    celda.addElement(proyecto);
+                    // Cantidad Total de equipos
+                    Paragraph cantidad = new Paragraph("Cantidad: " + jTDetalleProductosSeleccionados.getValueAt(0,4).toString(), tall);
+                    cantidad.setAlignment(1);
+                    celda.addElement(cantidad);
+                    // ...
+                    for (int i = 0; i < 4; i++) {
+                        tabla.addCell(celda);
+                    }
+                    // Elimina las imagenes del QR 
+                    // El nombre de la imagen se puede hacer para que lo retorne una funcion para que sea una manera más optima de hacerlo
+                    File QRdelet = new File(path + "ImágenesQR\\" + name_PDF + ".png");
+                    QRdelet.delete();
+                    //...
+                    cont++;
+                    header.setBorder(Rectangle.NO_BORDER);
+                    header.addElement(new Paragraph());
+                    header.setColspan(4);
+                    tabla.addCell(header);
+                    doc.add(tabla);
+                    
+                    tabla = null;    
+                    //Agregar una nueva hoja de PDF
+                    doc.newPage();
                     doc.close();
                     //...
                     if (cont == 0) {
-                        File PDF = new File(path + jTNorden.getText() + ".pdf");
+                        File PDF = new File(path + name_PDF + ".pdf");
                         PDF.delete();
                     } else {
-                        new rojerusan.RSNotifyAnimated("¡Listo!", "Los codigos QR de la orden N°" + jTNorden.getText() + " fueron generados exitosamente.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.SUCCESS).setVisible(true);
+                        new rojerusan.RSNotifyAnimated("¡Listo!", "El QR en común de las ordenes: "+ name_PDF + "fue generado correctamente.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.SUCCESS).setVisible(true);
                         System.gc();//Garbages collector.
+                        jTDetalleProductosSeleccionados.setModel(clasesColumnas());
+                        personalizacionJTable(jTDetalleProductosSeleccionados);
+                        btnGenerarQRComun.setEnabled(false);
                     }
                     //...
                 } else {
@@ -696,6 +697,23 @@ public class GeneradorQRComun extends javax.swing.JPanel {
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "Error! " + e);
         }
+    }
+    
+    private String clasificarIndiceArea(String area){
+        
+        switch(area){
+            case "FE":
+                area="1";
+                break;
+            case "TE":
+                area="2";
+                break;
+            case "EN":
+                area="3";
+                break;
+        }
+        
+        return area;
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
