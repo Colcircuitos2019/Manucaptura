@@ -209,6 +209,11 @@ public class Proyecto {
         return modelo.consultarEspesorTarjetaM();
     }
     
+    public void actualizarEstadoProyecto(int num_orden) {
+        ProyectoM modelo = new ProyectoM();
+        modelo.actualizarEstadoProyectoM(num_orden);
+    }
+    
     //Finalizacion de la clase automatica---------------------------------------------------------------->
     @Override
     protected void finalize() throws Throwable {

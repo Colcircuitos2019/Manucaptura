@@ -23,10 +23,10 @@ public class detalleProyecto extends javax.swing.JDialog {
         } else if (area == 3) {
             this.setTitle(orden + " - " + "Ensamble");
         } else {
-            this.setTitle(orden + " - " + "Almacen");
+            this.setTitle(orden + " - " + "Almacen");// Esto va a desaparecer...
         }
 
-        this.detalle = detalle;
+        this.idDetalleProducto = detalle;
         this.area = area;
         this.setLocationRelativeTo(null);
         this.permiso = permiso;
@@ -64,7 +64,7 @@ public class detalleProyecto extends javax.swing.JDialog {
     }
     //variables
     private CachedRowSet crs = null;
-    protected static int detalle = 0, cargo = 0;
+    protected static int idDetalleProducto = 0, cargo = 0;
     private static int area = 0, permiso = 0;
     int rows = -1;
 
@@ -485,13 +485,13 @@ public class detalleProyecto extends javax.swing.JDialog {
             if (value instanceof JButton) {
                 JButton boton;
                 boton = (JButton) value;
-                if (boton.getText().equals("Tiempo") && !TDetalleProduccion.getValueAt(row, 7).toString().equals("Pausado")) {
+                if (boton.getText().equals("Tiempo") && !TDetalleProduccion.getValueAt(row, 7).toString().equals("Pausado")) {// <- Esto va a desaparecer...
                     //Finalizar la toma de tiempo de los procesos del almacen(Solo lo pueden realizar los encargado de almacen)
                     if (boton.getActionCommand().equals("1")) {
                         FE_TE_IN almacen = new FE_TE_IN();
                         String idDetalle = "";
                         //<Gran formato>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-                        if (TDetalleProduccion.getValueAt(row, 0).toString().equals("GF")) {
+                        if (TDetalleProduccion.getValueAt(row, 0).toString().equals("GF")) {// Esto va a desaparecer...
                             //Se pide la cantidad que se recibio del gran formato.
                             String cantidad = JOptionPane.showInputDialog("Cantidades recibidas:");
                             if (cantidad != null) {//Presiona el botono "NO"
@@ -502,7 +502,7 @@ public class detalleProyecto extends javax.swing.JDialog {
                                         proceso = 20;//Proceso de gran formato.
                                     }
                                     String orden[] = this.getTitle().split("-");                                                  //Cantidad//   
-                                    if (almacen.pararTiempoAlmacen(Integer.parseInt(orden[0].trim()), Integer.parseInt(idDetalle), Integer.parseInt(cantidad), detalle, proceso)) {
+                                    if (almacen.pararTiempoAlmacen(Integer.parseInt(orden[0].trim()), Integer.parseInt(idDetalle), Integer.parseInt(cantidad), idDetalleProducto, proceso)) {
                                         //Mensaje de confirmación.
                                         new rojerusan.RSNotifyAnimated("¡Listo!", "Mensaje", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.SUCCESS).setVisible(true);
                                         cargarTabla();
@@ -518,7 +518,7 @@ public class detalleProyecto extends javax.swing.JDialog {
                             if (JOptionPane.showOptionDialog(null, "¿Seguro desea terminar la toma de tiempos de los componentes.", "Seguridad", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null/*icono*/, botones, botones[0]) == 0) {
                                 idDetalle = String.valueOf(TDetalleProduccion.getValueAt(row, 13));//Identificador
                                 String orden[] = this.getTitle().split("-");                                         //Cantidad//      Proceso  
-                                almacen.pararTiempoAlmacen(Integer.parseInt(orden[0].trim()), Integer.parseInt(idDetalle), 0, detalle, 19);//
+                                almacen.pararTiempoAlmacen(Integer.parseInt(orden[0].trim()), Integer.parseInt(idDetalle), 0, idDetalleProducto, 19);//
                                 //Mensaje de confirmación de la terminación de la toma de tiempo
                                 new rojerusan.RSNotifyAnimated("¡Listo!", "Toma de tiempo finalizada correctamente.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.SUCCESS).setVisible(true);
                                 cargarTabla();
@@ -530,9 +530,9 @@ public class detalleProyecto extends javax.swing.JDialog {
                     //Boton para reiniciar la toma de tiempo(Solo lo puede realizar el administrador)
                     if (boton.getActionCommand().equals("1")) {
                         if (JOptionPane.showOptionDialog(null, "¿Seguro desea reinicializar la toma de tiempo? Perdera toda esta información.", "Seguridad", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null/*icono*/, botones, botones[0]) == 0) {
-                            String idDetalle = String.valueOf(TDetalleProduccion.getValueAt(row, 13));//Identificador!!
-                            DetalleProyecto obj = new DetalleProyecto();
-                            if (obj.ReiniciarDetalle(Integer.parseInt(idDetalle), area, detalle)) {///Pendiente???¿¿¿???¿¿¿XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+                            String idDetalleProceso = String.valueOf(TDetalleProduccion.getValueAt(row, 14));//Identificador!!
+                            DetalleProyecto controlador = new DetalleProyecto();
+                            if (controlador.ReiniciarDetalle(Integer.parseInt(idDetalleProceso), area, idDetalleProducto)) {///Pendiente???¿¿¿???¿¿¿XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
                                 new rojerusan.RSNotifyAnimated("¡Listo!", "El proceso: " + TDetalleProduccion.getValueAt(row, 0) + " fue reinicializado corresctamente.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.SUCCESS).setVisible(true);
                                 cargarTabla();
                             } else {
@@ -587,10 +587,10 @@ public class detalleProyecto extends javax.swing.JDialog {
 
     private void cargarTabla() {
         Tabla personalizar = new Tabla();
-        personalizar.visualizar(TDetalleProduccion, detalle, area);//Consulta de la informacion de los proceso
+        personalizar.visualizar(TDetalleProduccion, idDetalleProducto, area);//Consulta de la informacion de los proceso
         try {
             DetalleProyecto obj = new DetalleProyecto();
-            crs = obj.ConsultarInformacionFiltrariaDelDetalle(detalle);//Consulta la información filtraria.
+            crs = obj.ConsultarInformacionFiltrariaDelDetalle(idDetalleProducto);//Consulta la información filtraria.
             crs.next();
             jTNombreCliente.setText("  " + crs.getString(1));//Orden
             jTNombreProyecto.setText("  " + crs.getString(2));//Nombre proyecto
@@ -613,7 +613,7 @@ public class detalleProyecto extends javax.swing.JDialog {
                 }   
             }
         } catch (Exception e) {
-//            JOptionPane.showMessageDialog(null, "Error!! " + e);
+            e.printStackTrace();
         }
         // ...
         if (permiso == 1 || area == 4) {
@@ -630,7 +630,7 @@ public class detalleProyecto extends javax.swing.JDialog {
             editarTamañoColumnas();
         }
         //Seleccion de orden de proceso inicial
-        if(cargo!=3 && (cargo != 2 && area != 2)){
+        if(cargo!=3 && (cargo != 2 && area == 2)){
             //orden de ejecucion de los procesos
             TDetalleProduccion.getColumnModel().getColumn(12).setMinWidth(0);
             TDetalleProduccion.getColumnModel().getColumn(12).setMaxWidth(0);

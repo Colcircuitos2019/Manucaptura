@@ -238,7 +238,7 @@ public class Empleados extends javax.swing.JDialog {
                 detalleProyecto obj= new detalleProyecto();
                 //Actualizar lider de produccion
                 Empleado empl= new Empleado();
-                empl.actualizarLiderProyecto(obj.detalle,String.valueOf(jTblEmpleado.getValueAt(jTblEmpleado.getSelectedRow(), 0)));//ID detalle del proyecto y numero de documento del lider del proyecto
+                empl.actualizarLiderProyecto(obj.idDetalleProducto,String.valueOf(jTblEmpleado.getValueAt(jTblEmpleado.getSelectedRow(), 0)));//ID detalle del proyecto y numero de documento del lider del proyecto
                 obj.jLiderProyecto.setText("  "+String.valueOf(jTblEmpleado.getValueAt(jTblEmpleado.getSelectedRow(),1)));//Nombre del lider del proyecto
                 this.dispose();
             }

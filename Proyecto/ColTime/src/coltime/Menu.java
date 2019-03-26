@@ -7,7 +7,7 @@ import Controlador.FE_TE_IN;
 import Controlador.HiloLectura;
 import Controlador.Proyecto;
 import Controlador.Usuario;
-import Controlador.generarXlsx;
+//import Controlador.generarXlsx;
 import Controlador.rutaQR;
 import Vistas.CambiarContraseña;
 import Vistas.ClausulasPrivacidad;
@@ -479,7 +479,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
                 btn6ActionPerformed(evt);
             }
         });
-        jPMenu.add(btn6, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 280, 190, 42));
+        jPMenu.add(btn6, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 278, 190, 42));
 
         btn7.setForeground(new java.awt.Color(128, 128, 131));
         btn7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/QRs_comun.png"))); // NOI18N
@@ -499,7 +499,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
                 btn7ActionPerformed(evt);
             }
         });
-        jPMenu.add(btn7, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 322, 190, 42));
+        jPMenu.add(btn7, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 320, 190, 42));
 
         jPContenido.setLayout(new javax.swing.BoxLayout(jPContenido, javax.swing.BoxLayout.LINE_AXIS));
 
@@ -1104,7 +1104,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
                         producF.setTitle("Formato estandar");
                         producF.setVisible(true);
                         producF.negocioFE = 1;
-                        producF.setNegocio(1);
+                        producF.setArea(1);
                         producF.setVista(producF);
                     }
                     producF.agregarBotones(producF, Integer.parseInt(crs.getString(1)));
@@ -1118,7 +1118,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
                         producT.setTitle("Teclados");
                         producT.setVisible(true);
                         producT.negocioTE = 2;
-                        producT.setNegocio(2);
+                        producT.setArea(2);
                         producT.setVista(producT);
                     }
                     producT.agregarBotones(producT, Integer.parseInt(crs.getString(1)));
@@ -1136,7 +1136,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
                         producE.setTitle("Ensamble");
                         producE.setVisible(true);
                         producE.negocioIN = 3;
-                        producE.setNegocio(3);
+                        producE.setArea(3);
                         producE.setVista(producE);
                     }
                     producE.agregarBotones(producE, Integer.parseInt(crs.getString(1)));
@@ -1789,56 +1789,38 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
         for (int i = 0; i < trama_QR.length; i++) {
             // ...
             
-            String infoP[] = null;
+            String infoProductoQR[] = null;
             if(sub_trama.length ==2){
-               infoP = (trama_QR[i] + sub_trama[1]).split(";");
+               infoProductoQR = (trama_QR[i] + sub_trama[1]).split(";");
             }else{
-               infoP = trama_QR[i].split(";");
+               infoProductoQR = trama_QR[i].split(";");
             }
             // ...
             
             //Esta validacion queda mejor a nivel de la base de datos o del modelo...
             Proyecto validar = new Proyecto();
             // Se validara primero el permiso que tiene el ususario para leer los códigos QR de esta orden y despues se validara si la orden existe o esta parada.
-            if (validar.validarEliminacion(Integer.parseInt(infoP[0]))) {//Valido si la orden esta eliminada o no
-                if (validar.validarEjecucionOParada(Integer.parseInt(infoP[0]))) {//Valida que la orden no este parada
+            if (validar.validarEliminacion(Integer.parseInt(infoProductoQR[0]))) {//Valido si la orden esta eliminada o no
+                if (validar.validarEjecucionOParada(Integer.parseInt(infoProductoQR[0]))) {//Valida que la orden no este parada
                     //#--------------------------------------------------------------------------------------------------
-                    if ((infoP.length == 6 && cargo != 2) || (cargo == 2 && infoP.length == 7 || infoP.length == 6) || (cargo == 3 && infoP.length == 7)) {//Se valida que si se lea el codigo QR que es necesario
+                    if ((infoProductoQR.length == 6 && cargo != 2) || (cargo == 2 && infoProductoQR.length == 7 || infoProductoQR.length == 6) || (cargo == 3 && infoProductoQR.length == 7)) {//Se valida que si se lea el codigo QR que es necesario
                         // ...
-                        switch (Integer.parseInt(infoP[2])) {
+                        switch (Integer.parseInt(infoProductoQR[2])) {
                             //Se tiene que validar el estado del proyecto a ver si permite o no registrar la toma de tiempo.
                             case 1:
-                                if (producF == null) {
-                                    producF = new ControlDelTiempo();
-                                    producF.setName("FE");
-                                    producF.setTitle("Formato estandar");
-                                    producF.setVisible(true);
-                                    producF.setNegocio(1);
-                                    producF.setVista(producF);
-                                }
-                                    producF.RegistrarTomaTiempoNegocio(infoP, cargo, producF, myPS);
+                                
+                                producF =registrarTiemposEjecucionProducto(infoProductoQR, producF, "FE", "Formato estandar", 1, trama_QR.length);
+                                
                                 break;
                             case 2:
-                                if (producT == null) {
-                                    producT = new ControlDelTiempo();
-                                    producT.setName("TE");
-                                    producT.setTitle("Teclados");
-                                    producT.setVisible(true);
-                                    producT.setNegocio(2);
-                                    producT.setVista(producT);
-                                }
-                                    producT.RegistrarTomaTiempoNegocio(infoP, cargo, producT, myPS);
+                                
+                                producT = registrarTiemposEjecucionProducto(infoProductoQR, producT, "TE", "Teclados", 2, trama_QR.length);
+                                
                                 break;
                             case 3:
-                                if (producE == null) {
-                                    producE = new ControlDelTiempo();
-                                    producE.setName("IN");
-                                    producE.setTitle("Ensamble");
-                                    producE.setVisible(true);
-                                    producE.setNegocio(3);
-                                    producE.setVista(producE);
-                                }
-                                producE.RegistrarTomaTiempoNegocio(infoP, cargo, producE, myPS);
+                                // ...
+                                producE = registrarTiemposEjecucionProducto(infoProductoQR, producE, "IN", "Ensmble", 3, trama_QR.length);
+                                // ...
                                 break;
                         }
                     }
@@ -1855,6 +1837,20 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
                 new rojerusan.RSNotifyAnimated("¡Alerta!", "Este numero de orden no existe.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.WARNING).setVisible(true);
             }
         }
+    }
+    
+    private ControlDelTiempo registrarTiemposEjecucionProducto(String[] infoProductoQR,ControlDelTiempo view, String name, String title, int area, int cantidadProductosQR){
+        if (view == null) {
+            view = new ControlDelTiempo();
+            view.setName(name);
+            view.setTitle(title);
+            view.setVisible(true);
+            view.setArea(area);
+            view.setVista(view);
+        }
+        view.RegistrarTomaTiempoNegocio(infoProductoQR, cargo, view, myPS, cantidadProductosQR);
+        
+        return view;
     }
 
     public void limpiarInformacionAreas() {

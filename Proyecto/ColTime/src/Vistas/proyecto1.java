@@ -20,7 +20,7 @@ public class proyecto1 extends javax.swing.JPanel {
             jLMaterial.setVisible(false);
         }
     }
-
+    // NOTA IMPORTANTE!!! Por el momento no se van a trabajar PNC(Productos no conforme) en ningun área de producción por temas de tiempo...
     public proyecto1(){}
 
     @SuppressWarnings("unchecked")
@@ -126,6 +126,7 @@ public class proyecto1 extends javax.swing.JPanel {
         btnGuardar.setBorderPainted(false);
         btnGuardar.setContentAreaFilled(false);
         btnGuardar.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnGuardar.setEnabled(false);
         btnGuardar.setFocusPainted(false);
         btnGuardar.setFocusable(false);
         btnGuardar.addActionListener(new java.awt.event.ActionListener() {
@@ -176,6 +177,7 @@ public class proyecto1 extends javax.swing.JPanel {
         btnNuevo.setBorderPainted(false);
         btnNuevo.setContentAreaFilled(false);
         btnNuevo.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnNuevo.setEnabled(false);
         btnNuevo.setFocusPainted(false);
         btnNuevo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -187,6 +189,7 @@ public class proyecto1 extends javax.swing.JPanel {
         btnBuscarPNC.setBorderPainted(false);
         btnBuscarPNC.setContentAreaFilled(false);
         btnBuscarPNC.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnBuscarPNC.setEnabled(false);
         btnBuscarPNC.setFocusPainted(false);
         btnBuscarPNC.setFocusable(false);
         btnBuscarPNC.addActionListener(new java.awt.event.ActionListener() {
@@ -199,6 +202,7 @@ public class proyecto1 extends javax.swing.JPanel {
         btnModificarPNC.setBorderPainted(false);
         btnModificarPNC.setContentAreaFilled(false);
         btnModificarPNC.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnModificarPNC.setEnabled(false);
         btnModificarPNC.setFocusPainted(false);
         btnModificarPNC.setFocusable(false);
         btnModificarPNC.addActionListener(new java.awt.event.ActionListener() {
@@ -219,6 +223,7 @@ public class proyecto1 extends javax.swing.JPanel {
         btnDelete.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/delete.png"))); // NOI18N
         btnDelete.setBorderPainted(false);
         btnDelete.setContentAreaFilled(false);
+        btnDelete.setEnabled(false);
         btnDelete.setFocusPainted(false);
         btnDelete.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/img/delete1 (2).png"))); // NOI18N
         btnDelete.addActionListener(new java.awt.event.ActionListener() {
@@ -675,8 +680,8 @@ public class proyecto1 extends javax.swing.JPanel {
             if (Integer.parseInt(jTCantindad.getText()) > 0) {
                 if (Integer.parseInt(jTCantindad.getText()) <= cantidad) {
                     obj.setCantidad(jTCantindad.getText());
-                    obj.setNegocio(jTNegocio.getText());
-                    obj.setTipoNegocio(jTTipoNegocio.getText());
+                    obj.setArea(jTNegocio.getText());
+                    obj.setProducto(jTTipoNegocio.getText());
                     obj.setMaterial(jLMaterial.getText());//...Pendiente...
                     res = obj.registrarModificarPNC(jTNorden.getText(), op, Integer.parseInt(jLDetalle.getText()), cbProcedoPNC.getSelectedItem().toString());
                     if (res) {

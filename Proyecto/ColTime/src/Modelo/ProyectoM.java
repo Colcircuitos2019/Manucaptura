@@ -31,32 +31,34 @@ public class ProyectoM {
             con = conexion.getConexion();
             //Query------------------------------------------------------------>
             String Qry = "";
-            if (op == 1) { // Ejecutar nuevamente los procesos <-- ya no es necesario
-                Qry = "CALL PA_DetallesEnEjecucion(?,?)";
-                ps = con.prepareStatement(Qry);
-                ps.setInt(1, orden);
-                ps.setInt(2, 2);
-                rs = ps.executeQuery();
-                while (rs.next()) {
-                    //Activas detalles del almacen...  
-                    Qry = "CALL PA_IniciarTomaTiempoDetalleAlmacen(?)";
-                    ps = con.prepareStatement(Qry);
-                    ps.setInt(1, rs.getInt(1));
-                    ps.execute();
-                }
-            }
+//            if (op == 1) { // Ejecutar nuevamente los procesos <-- ya no es necesario
+//                Qry = "CALL PA_DetallesEnEjecucion(?,?)";// Esto se va a eliminar...
+//                ps = con.prepareStatement(Qry);
+//                ps.setInt(1, orden);
+//                ps.setInt(2, 2);
+//                rs = ps.executeQuery();
+//                while (rs.next()) {
+//                    //Activas detalles del almacen...  
+//                    Qry = "CALL PA_IniciarTomaTiempoDetalleAlmacen(?)";//Esto se va a eliminar
+//                    ps = con.prepareStatement(Qry);
+//                    ps.setInt(1, rs.getInt(1));
+//                    ps.execute();
+//                }
+//            }
             Qry = "CALL PA_EjecucionoParada(?,?)";
             ps = con.prepareStatement(Qry);
             ps.setInt(1, orden);
             ps.setInt(2, op);
-            res = !ps.execute();
+            rs = ps.executeQuery();
+            rs.next();
+            res = rs.getBoolean("respuesta");
             //Cierre de conexiones
             con.close();
             conexion.destruir();
             conexion.cerrar(rs);
             ps.close();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Error! " + e);
+            e.printStackTrace();
         }
         return res;
     }
@@ -215,6 +217,7 @@ public class ProyectoM {
             ps.close();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "¡Error! Registro Modificacion info_proyecto: " + e);
+            e.printStackTrace();
         }
         return res;
     }
@@ -310,6 +313,27 @@ public class ProyectoM {
             JOptionPane.showMessageDialog(null, "¡Error!" + e);
         }
         return res;
+    }
+    
+    public void actualizarEstadoProyectoM(int num_orden) {
+
+        try {
+            conexion = new Conexion(1);
+            conexion.establecerConexion();
+            con = conexion.getConexion();
+            //Query------------------------------------------------------------>
+            String Qry = "CALL PA_CambiarEstadoDeProyecto(?)";
+            ps = con.prepareStatement(Qry);
+            ps.setInt(1, num_orden);
+            ps.execute();
+            //Cierre de conexiones
+            conexion.destruir();
+            ps.close();
+            con.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     private int nArea(String area) {

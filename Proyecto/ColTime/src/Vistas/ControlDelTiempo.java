@@ -22,13 +22,12 @@ public class ControlDelTiempo extends javax.swing.JFrame implements ActionListen
         initComponents();
         this.setExtendedState(ControlDelTiempo.MAXIMIZED_BOTH);
         this.setIconImage(new ImageIcon(getClass().getResource("/imagenesEmpresa/favicon.png")).getImage());
-//        jButton1.setVisible(false);
     }
 
     //Variables---------------------------------------------------------------->
     int px = 0;
     int py = 0;
-    private int negocio=0;
+    private int area=0;
     static int cantidad = 0, filas = 1, unidad = 14, conta = 8;
     boolean res = false;
     private ControlDelTiempo vista = null;
@@ -38,8 +37,8 @@ public class ControlDelTiempo extends javax.swing.JFrame implements ActionListen
     public static int negocioIN = 0;
     Object VistaLeida = null;
 
-    public void setNegocio(int negocio) {
-        this.negocio = negocio;
+    public void setArea(int area) {
+        this.area = area;
     }
 
     public void setVista(ControlDelTiempo vista) {
@@ -168,7 +167,7 @@ public class ControlDelTiempo extends javax.swing.JFrame implements ActionListen
     }//GEN-LAST:event_formWindowClosing
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        validarExitenciadeBotones(negocio, vista);//Actualizar la vista
+        validarExitenciadeBotones(area, vista);//Actualizar la vista
     }//GEN-LAST:event_jButton1ActionPerformed
     //Metodos para la campura del tiempo--------------------------------------->
 //    validarExitenciadeBotones(3,vista); Actualizar autimaticamente la vista, esta pendiente para una futura versión...
@@ -200,18 +199,24 @@ public class ControlDelTiempo extends javax.swing.JFrame implements ActionListen
         }
     }
 
-    public void RegistrarTomaTiempoNegocio(String datos[], int cargo, ControlDelTiempo vista, PrintStream myPS) {
+    public void RegistrarTomaTiempoNegocio(String datos[], int cargo, ControlDelTiempo vista, PrintStream myPS, int cantiProductosQR) {
         FE_TE_IN obj = new FE_TE_IN();
         this.vista = vista;
 //#------------------------------------------------------------------
 //Restricciones de permisos
 /*FE=1 TE=2 EN=3 AL=4*/
         if (cargo == 2 && (Integer.parseInt(datos[2]) == 1 || Integer.parseInt(datos[2]) == 2)) {//Tiene permiso de leer FE y TE
-            res = obj.iniciar_Pausar_Reiniciar_Toma_Tiempo(Integer.parseInt(datos[0]), Integer.parseInt(datos[1]), Integer.parseInt(datos[2]), Integer.parseInt(datos[3]), Integer.parseInt(datos[4]), Integer.parseInt(datos[5]), myPS, (datos.length==7?Integer.parseInt(datos[6]):0));
+            // Esto dos se pueden resumir en una solo linea de código...
+            res = obj.iniciar_Pausar_Reiniciar_Toma_Tiempo(Integer.parseInt(datos[0]), Integer.parseInt(datos[1]), Integer.parseInt(datos[2]), Integer.parseInt(datos[3]), Integer.parseInt(datos[4]), Integer.parseInt(datos[5]), myPS, (datos.length==7?Integer.parseInt(datos[6]):0), cantiProductosQR);
+        
         } else if (cargo == 3 && (Integer.parseInt(datos[2]) == 3 || Integer.parseInt(datos[2]) == 2)) {//Tiene permiso de leer EN y TE
-            res = obj.iniciar_Pausar_Reiniciar_Toma_Tiempo(Integer.parseInt(datos[0]), Integer.parseInt(datos[1]), Integer.parseInt(datos[2]), Integer.parseInt(datos[3]), Integer.parseInt(datos[4]), Integer.parseInt(datos[5]), myPS,(datos.length==7?Integer.parseInt(datos[6]):0));
+            
+            res = obj.iniciar_Pausar_Reiniciar_Toma_Tiempo(Integer.parseInt(datos[0]), Integer.parseInt(datos[1]), Integer.parseInt(datos[2]), Integer.parseInt(datos[3]), Integer.parseInt(datos[4]), Integer.parseInt(datos[5]), myPS,(datos.length==7?Integer.parseInt(datos[6]):0), cantiProductosQR);
+        
         } else {
+            // ...
             new rojerusan.RSNotifyAnimated("¡Alerta!", "No tienes permiso de leer el QR", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.WARNING).setVisible(true);
+            // ...
             if (Menu.producF == vista) {//Se valida que la vista que no se este utilizando se apunte a null y se finalice
                 Menu.producF = null;
             } else if (Menu.producT == vista) {
@@ -223,7 +228,7 @@ public class ControlDelTiempo extends javax.swing.JFrame implements ActionListen
         }
 //        if (res) {
             validarExitenciadeBotones(Integer.parseInt(datos[2]), vista);
-            negocio=Integer.parseInt(datos[2]);
+            area = Integer.parseInt(datos[2]);
 //        }
 //#------------------------------------------------------------------
     }

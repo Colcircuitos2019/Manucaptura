@@ -60,7 +60,7 @@ public class DetalleProyectoM {
             ps.setInt(3, op);
             //Tipo de negocio
             int tipoN = numeroDelTipo(tipo);
-
+            // ...
             ps.setInt(4, tipoN);
             //Negocio
             if (negocio.equals("FE")) {
@@ -70,7 +70,7 @@ public class DetalleProyectoM {
             } else {
                 ps.setInt(5, 3);
             }
-
+            // ...
             rs = ps.executeQuery();
             rs.next();
             cantidad = rs.getInt(1);
@@ -81,6 +81,7 @@ public class DetalleProyectoM {
             con.close();
         } catch (Exception e) {
 //            JOptionPane.showMessageDialog(null, "¡Error!" + e);
+            e.printStackTrace();
         }
         return cantidad;
     }
@@ -113,20 +114,21 @@ public class DetalleProyectoM {
                     Qry = "SELECT FU_RegistrarDetalleProyecto(?,?,?,?,?,?,?,?,?,?,?)";
                     ps = con.prepareStatement(Qry);
                     ps.setInt(1, Integer.parseInt(numerOrden));
-                    if (material.equals("GF")) { // Ya no se va a trabajar con una área de almacen, sino que almacen pasa a ser trabajado como un proceso.
-                        //No se permitiran registrar productos no conformes de GF ni de componentes
-                        if (area.equals("FE") && tipoProducto.equals("PCB")) {//Gran formato de la PCB del teclado
-                            ps.setString(2, "PCB GF");//Esto va a desaparecer...
-                        } else if (area.equals("FE") && tipoProducto.equals("Circuito")) {
-                            ps.setString(2, "Circuito GF");//Esto va a desaparecer
-                        }
-                        ps.setString(4, "ALMACEN");//Esto va a desaparecer...
-                    } else {
-                        ps.setString(4, area);
-                    }
+//                    if (material.equals("GF")) { // Ya no se va a trabajar con una área de almacen, sino que almacen pasa a ser trabajado como un proceso.
+//                        //No se permitiran registrar productos no conformes de GF ni de componentes
+//                        if (area.equals("FE") && tipoProducto.equals("PCB")) {//Gran formato de la PCB del teclado
+//                            ps.setString(2, "PCB GF");//Esto va a desaparecer...
+//                        } else if (area.equals("FE") && tipoProducto.equals("Circuito")) {
+//                            ps.setString(2, "Circuito GF");//Esto va a desaparecer
+//                        }
+//                        ps.setString(4, "ALMACEN");//Esto va a desaparecer...
+//                    } else {
+//                        ps.setString(4, area);
+//                    }
                     ps.setString(2, tipoProducto);
                     ps.setString(3, cantidad);
-                    ps.setInt(5, estado);
+                    ps.setString(4, area);
+                    ps.setInt(5, (material.equals("GF")?3:estado));// Esto es momentanea hasta que se decida que se va hacer con los GF
                     ps.setString(6, material);
                     ps.setInt(7, pnc);
                     ps.setString(8, procesoPNC);
@@ -139,34 +141,37 @@ public class DetalleProyectoM {
                     res = rs.getBoolean(1);
                     //Evadir esta función siemmpre y cuando el area sea Almacen.(Esto tambie va a desaparacer)
                     //Tipo de negocio
-                    int idTipoProducto = 0;
-                    if (!area.equals("ALMACEN")) {
-                        idTipoProducto = numeroDelTipo(tipoProducto);
-                    }
+//                    int idTipoProducto = 0;
+//                    if (!area.equals("ALMACEN")) {
+//                        idTipoProducto = numeroDelTipo(tipoProducto);
+//                    }}
+                    int idTipoProducto = numeroDelTipo(tipoProducto);
                     //...
                     switch(area){
                         case "FE": // Formato estandar
                             // ...
+                            //Registro de Procesos del producto del área de formato estandar - FE
+                            registrarProcesosAreaProducto(numerOrden, idTipoProducto, procesoPNC, material, 1, idColor_antisolder, ruteo);
                             //Se registran los procesos de FE para este subproyecto.
-                            if (material.equals("GF")) { // Se valida que sea GF. (Esto va a desaparecer...)
-                            //Negocio del almacen
-                                //Se registran los procesos de GF en el almacen y se inicia la toma de tiempos. 
-                                Qry = "CALL PA_RegistrarDetalleAlmacen(?,?,?)";
-                                ps = con.prepareStatement(Qry);
-                                ps.setInt(1, Integer.parseInt(numerOrden));
-                                if (area.equals("FE") && tipoProducto.equals("PCB")) {//Gran formato de la PCB del teclado
-                                    ps.setInt(2, 9);
-                                } else if (area.equals("FE") && tipoProducto.equals("Circuito")) {
-                                    ps.setInt(2, 8);
-                                }
-                                ps.setInt(3, 20);//Proceso de GF "20" //Esto se va a desaparecer...
-                                ps.execute();
-                            } else {//tener en cuenta que los procesos se van a traer de la tabla procesos dependiendo del tipo de negocio!!
-                                // ...
-                                //Registro de Procesos del producto del área de formato estandar - FE
-                                registrarProcesosAreaProducto(numerOrden, idTipoProducto, procesoPNC, material, 1, idColor_antisolder, ruteo);
-                                // ...
-                            }
+//                            if (material.equals("GF")) { // Se valida que sea GF. (Esto va a desaparecer...)
+//                            //Negocio del almacen
+//                                //Se registran los procesos de GF en el almacen y se inicia la toma de tiempos. 
+//                                Qry = "CALL PA_RegistrarDetalleAlmacen(?,?,?)";// <--- Pendiente eliminar el proedure
+//                                ps = con.prepareStatement(Qry);
+//                                ps.setInt(1, Integer.parseInt(numerOrden));
+//                                if (area.equals("FE") && tipoProducto.equals("PCB")) {//Gran formato de la PCB del teclado
+//                                    ps.setInt(2, 9);
+//                                } else if (area.equals("FE") && tipoProducto.equals("Circuito")) {
+//                                    ps.setInt(2, 8);
+//                                }
+//                                ps.setInt(3, 20);//Proceso de GF "20" //Esto se va a desaparecer...
+//                                ps.execute();
+//                            } else {//tener en cuenta que los procesos se van a traer de la tabla procesos dependiendo del tipo de negocio!!
+//                                // ...
+//                                //Registro de Procesos del producto del área de formato estandar - FE
+//                                registrarProcesosAreaProducto(numerOrden, idTipoProducto, procesoPNC, material, 1, idColor_antisolder, ruteo);
+//                                // ...
+//                            }
                             // ...
                             break;
                         case "TE": // Teclados
@@ -179,19 +184,19 @@ public class DetalleProyectoM {
                             registrarProcesosAreaProducto(numerOrden, idTipoProducto, procesoPNC, material, 3, idColor_antisolder, ruteo);
                             // ...
                             break;
-                        default: // Almacen
-                            //tener en cuenta que los procesos se van a traer de la tabla procesos dependiendo del tipo de negocio!!
-                            Qry = "CALL PA_RegistrarDetalleAlmacen(?,?,?)";
-                            ps = con.prepareStatement(Qry);
-                            ps.setInt(1, Integer.parseInt(numerOrden));
-                            if (tipoProducto.equals("Circuito COM")) {//Componentes de circuito.
-                                ps.setInt(2, 10);
-                            } else if (tipoProducto.equals("PCB COM")) {//Componentes de PCB.
-                                ps.setInt(2, 11);
-                            }
-                            ps.setInt(3, 19);//Proceso de componentes "19".
-                            ps.execute();
-                            break;
+//                        default: // Almacen
+//                            //tener en cuenta que los procesos se van a traer de la tabla procesos dependiendo del tipo de negocio!!
+//                            Qry = "CALL PA_RegistrarDetalleAlmacen(?,?,?)";//<--- Pendiente eliminar el procedure
+//                            ps = con.prepareStatement(Qry);
+//                            ps.setInt(1, Integer.parseInt(numerOrden));
+//                            if (tipoProducto.equals("Circuito COM")) {//Componentes de circuito.
+//                                ps.setInt(2, 10);
+//                            } else if (tipoProducto.equals("PCB COM")) {//Componentes de PCB.
+//                                ps.setInt(2, 11);
+//                            }
+//                            ps.setInt(3, 19);//Proceso de componentes "19".
+//                            ps.execute();
+//                            break;
                     }
 //                    if (area.equals("IN")) {// Ya no se van a registrar PNC para los productos de EN
 //                        //Se registran los procesos de IN para este subproyecto.
@@ -409,7 +414,7 @@ public class DetalleProyectoM {
         }
         // ...
     }
-
+    
     private int numeroDelTipo(String tipoNegocio) {
         int tipo = 0;
         switch (tipoNegocio) {
@@ -509,7 +514,7 @@ public class DetalleProyectoM {
         return res;
     }
 //----------------------------------------------
-// Modificar este procedimiento para que me permita modificar unicamente los procesos de los productos a los cuales se les cambio algo en la condición 
+// Modificar este procedimiento para que me permita modificar unicamente los procesos de los productos a los cuales se les cambio algo en la condición <- esto se puede modificar o eliminar
     private void modificarDetalleProyectos(String numerOrden, int idDetalleProyecto, String cantidad, String material, String area, String tipoProducto, String procesoPNC) {
         //PreparedSteamate y detalle----------------------------------->
         try {
@@ -984,27 +989,31 @@ public class DetalleProyectoM {
         return res;
     }
 
-    public boolean ReiniciarDetalle(int idDetalle, int area, int detalleproducto) {
+    public boolean ReiniciarDetalle(int idDetalleProceso, int area, int idDetalleProducto) {
         //Cuerpo del procedimiento
         try {
             conexion = new Conexion(1);
             conexion.establecerConexion();
             con = conexion.getConexion();
             //Query------------------------------------------------------------>
-            String Qry = "SELECT FU_ReiniciarTiempo(?,?)";
+            String Qry = "CALL PA_ReiniciarTiempo(?,?)";
             ps = con.prepareStatement(Qry);
-            ps.setInt(1, idDetalle);
+            ps.setInt(1, idDetalleProceso);
             ps.setInt(2, area);
             rs = ps.executeQuery();
             rs.next();
-            res = rs.getBoolean(1);
+            // ...
+            if(rs.getBoolean("respuesta")){
+
+                FE_TE_INM produccion = new FE_TE_INM();
+                //Se actualiza la suma total de tiempos totales de procesos
+                produccion.calculatTiempoTotalProducto(idDetalleProducto, area);//
+                //Se actualiza el total de producto por minuto siempre y cuando el estado del producto sea terminado
+                produccion.calcularTiempoTotalPorUnidad(idDetalleProducto, area);//
+                // ...
+                res = true;
+            }
             //Cierre de conexiones
-            FE_TE_INM produccion = new FE_TE_INM();
-            //Se actualiza la suma total de tiempos totales de procesos
-            produccion.calculatTiempoTotalProducto(detalleproducto, area);
-            //Se actualiza el total de producto por minuto siempre y cuando el estado del producto sea terminado
-            produccion.calcularTiempoTotalPorUnidad(detalleproducto, area);
-            //...
             conexion.cerrar(rs);
             conexion.destruir();
             ps.close();

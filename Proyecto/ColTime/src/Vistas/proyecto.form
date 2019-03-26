@@ -1019,7 +1019,6 @@
                   <Properties>
                     <Property name="toolTipText" type="java.lang.String" value=""/>
                     <Property name="dateFormatString" type="java.lang.String" value="dd/MM/yyyy"/>
-                    <Property name="enabled" type="boolean" value="false"/>
                     <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                       <Font name="Arial" size="14" style="0"/>
                     </Property>
@@ -1037,7 +1036,6 @@
                   <Properties>
                     <Property name="toolTipText" type="java.lang.String" value=""/>
                     <Property name="dateFormatString" type="java.lang.String" value="dd/MM/yyyy"/>
-                    <Property name="enabled" type="boolean" value="false"/>
                     <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                       <Font name="Arial" size="14" style="0"/>
                     </Property>
@@ -1055,7 +1053,6 @@
                   <Properties>
                     <Property name="toolTipText" type="java.lang.String" value=""/>
                     <Property name="dateFormatString" type="java.lang.String" value="dd/MM/yyyy"/>
-                    <Property name="enabled" type="boolean" value="false"/>
                     <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                       <Font name="Arial" size="14" style="0"/>
                     </Property>
@@ -1147,7 +1144,6 @@
                   <Properties>
                     <Property name="toolTipText" type="java.lang.String" value=""/>
                     <Property name="dateFormatString" type="java.lang.String" value="dd/MM/yyyy"/>
-                    <Property name="enabled" type="boolean" value="false"/>
                     <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                       <Font name="Arial" size="14" style="0"/>
                     </Property>
@@ -1729,6 +1725,7 @@
                     <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
                       <ComponentRef name="ParadasOEjecucion"/>
                     </Property>
+                    <Property name="selected" type="boolean" value="true"/>
                     <Property name="text" type="java.lang.String" value="Ejecuci&#xf3;n"/>
                     <Property name="enabled" type="boolean" value="false"/>
                   </Properties>

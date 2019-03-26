@@ -30,7 +30,7 @@ public class FE_TE_INM {
     //Metodos------------------------------------------------->
     //No se te olvide tener en cuenta el id del lector y concatenar a la informacion despues de leer el código QR***
     //Depurar esta seccion de còdigo para optimizarlo...
-public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetalle, int area, int idLector, int cantidadTerminada, int operarios, PrintStream myPS, int procesoPasoCantidades) {
+public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetalle, int area, int idLector, int cantidadTerminada, int operarios, PrintStream myPS, int procesoPasoCantidades, int cantiProductosQR) {
         // Queda pendiente la toma de tiempos del área de almacen
         try {
             conexion = new Conexion(1);
@@ -70,11 +70,12 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
                 //Validar que el proceso si tenga cantidades para pasar...
                 if (accion) {
                     //...
-                    Qry = "CALL PA_CalcularTiempoEjecucionProceso(?,?,?)";
+                    Qry = "CALL PA_CalcularTiempoEjecucionProceso(?,?,?,?)";
                     ps = con.prepareStatement(Qry);
                     ps.setInt(1, idDetalle);
                     ps.setInt(2, idLector);
                     ps.setInt(3, area);
+                    ps.setInt(4, cantiProductosQR);
                     rs = ps.executeQuery();
                     rs.next();
                     // ...
@@ -151,6 +152,7 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
             System.gc();
         } catch (Exception e) {
 //            JOptionPane.showMessageDialog(null, "Error! " + e);
+            e.printStackTrace();
         }
         return res;
     }
@@ -215,12 +217,12 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
         return res;//Falta asignarle este true a una variable
     }
     
-    public void calcularTiempoTotalPorUnidad(int idDetalle, int area) {
+    public void calcularTiempoTotalPorUnidad(int idDetalleProducto, int area) {
         ResultSet rs = null;
         try {
             String Qry = "CALL PA_ConsultarTiempoPorUnidadProcesosTerminados(?,?)";
             ps = con.prepareStatement(Qry);
-            ps.setInt(1, idDetalle);
+            ps.setInt(1, idDetalleProducto);
             ps.setInt(2, area);
             rs = ps.executeQuery();
             // ...
@@ -229,7 +231,7 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
             if(!tiempoTotalProducto.equals("00:00:00")){
                 Qry = "CALL PA_ActualizarTiempoTotalPorUnidad(?,?)";
                 ps = con.prepareStatement(Qry);
-                ps.setInt(1, idDetalle);
+                ps.setInt(1, idDetalleProducto);
                 ps.setString(2, tiempoTotalProducto);
                 ps.executeQuery(); 
             }
@@ -265,7 +267,7 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
         return tiempo;
     }
 
-    public void calculatTiempoTotalProducto(int idDetalle, int area) {
+    public void calculatTiempoTotalProducto(int idDetalleProducto, int area) {
         ResultSet rs = null;
         try {
             conexion = new Conexion(1);
@@ -274,7 +276,7 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
 //          Query------------------------------------------------------------>
             String Qry = "CALL PA_TiempoEjecucionProceso(?,?)";
             ps = con.prepareStatement(Qry);
-            ps.setInt(1, idDetalle);
+            ps.setInt(1, idDetalleProducto);
             ps.setInt(2, area);
             rs = ps.executeQuery();
             // ...
@@ -282,7 +284,7 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
             // ...
             Qry = "CALL PA_ActualizarTiempoTotalProducto(?,?)";
             ps = con.prepareStatement(Qry);
-            ps.setInt(1, idDetalle);
+            ps.setInt(1, idDetalleProducto);
             ps.setString(2, tiempo_total);
             ps.execute();
             //...

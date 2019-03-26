@@ -13,8 +13,8 @@ public class DetalleProyecto {
     private CachedRowSet crs = null;
     //Atributos------------------------------------------------------>
     private String cantidad = "";
-    private String negocio = "";
-    private String tipoNegocio = "";
+    private String area = "";
+    private String producto = "";
     private int estado = 0;
     private String material = "";
 
@@ -27,20 +27,20 @@ public class DetalleProyecto {
         this.cantidad = cantidad;
     }
 
-    public String getNegocio() {
-        return negocio;
+    public String getArea() {
+        return area;
     }
 
-    public void setNegocio(String negocio) {
-        this.negocio = negocio;
+    public void setArea(String area) {
+        this.area = area;
     }
 
-    public String getTipoNegocio() {
-        return tipoNegocio;
+    public String getProducto() {
+        return producto;
     }
 
-    public void setTipoNegocio(String tipoNegocio) {
-        this.tipoNegocio = tipoNegocio;
+    public void setProducto(String producto) {
+        this.producto = producto;
     }
 
     public int getEstado() {
@@ -66,13 +66,13 @@ public class DetalleProyecto {
     //Metodos----------------------------------------------------->
     public boolean registrar_Detalle_Proyecto(String numerOrden, int accion, int idDetalleProducto, String idColor_antisolder, int ruteo, int idEspesor) {
         DetalleProyectoM obj = new DetalleProyectoM();
-        return obj.registrar_Detalle_Proycto(cantidad, negocio, tipoNegocio, 1, numerOrden, material, accion, idDetalleProducto, 0, null, idColor_antisolder, ruteo, idEspesor);
+        return obj.registrar_Detalle_Proycto(cantidad, area, producto, 1, numerOrden, material, accion, idDetalleProducto, 0, null, idColor_antisolder, ruteo, idEspesor);
     }
 
-    //Se encarga de los  PNC
+    //Se encarga de los  PNC <--- esto ya no se va a utilizar por el momento en ninguna área... <Pendiente>
     public boolean registrarModificarPNC(String numerOrden, int op, int id, String ubicacion) { // Todo lo relacionado con los productos no conforme va a cambiar...
         DetalleProyectoM obj = new DetalleProyectoM();
-        return obj.registrar_Detalle_Proycto(cantidad, negocio, tipoNegocio, 1, numerOrden, material, op, id, 1, ubicacion, "0", 0, 0);
+        return obj.registrar_Detalle_Proycto(cantidad, area, producto, 1, numerOrden, material, op, id, 1, ubicacion, "0", 0, 0);
     }
 
     //Validar el estado del PNC para saber si se puede modificar o eliminar.
@@ -122,9 +122,9 @@ public class DetalleProyecto {
     }
 
 //  Reiniciar toma de tiempo
-    public boolean ReiniciarDetalle(int detalle, int negocio, int detalleproducto) {
+    public boolean ReiniciarDetalle(int idDetalleProceso, int area, int idDetalleProducto) {
         DetalleProyectoM obj = new DetalleProyectoM();
-        return obj.ReiniciarDetalle(detalle, negocio, detalleproducto);
+        return obj.ReiniciarDetalle(idDetalleProceso, area, idDetalleProducto);
     }
 
     //Elimina los detalles del proyecto de la base de datos (solo los que son PNC).
@@ -162,7 +162,7 @@ public class DetalleProyecto {
         DetalleProyectoM obj = new DetalleProyectoM();
         return obj.seleccionPrimerProcesoENoTEM(detalle, idProceso, area);
     }
-
+    
     @Override
     protected void finalize() throws Throwable {
         super.finalize(); //To change body of generated methods, choose Tools | Templates.
