@@ -276,7 +276,6 @@
                         <Property name="focusable" type="boolean" value="false"/>
                         <Property name="name" type="java.lang.String" value="Detalle" noResource="true"/>
                         <Property name="rowHeight" type="int" value="18"/>
-                        <Property name="rowMargin" type="int" value="1"/>
                         <Property name="selectionBackground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                           <Color blue="ff" green="b3" red="3f" type="rgb"/>
                         </Property>
@@ -380,7 +379,6 @@
                         <Property name="focusable" type="boolean" value="false"/>
                         <Property name="name" type="java.lang.String" value="Detalle" noResource="true"/>
                         <Property name="rowHeight" type="int" value="18"/>
-                        <Property name="rowMargin" type="int" value="1"/>
                         <Property name="selectionBackground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                           <Color blue="ff" green="b3" red="3f" type="rgb"/>
                         </Property>

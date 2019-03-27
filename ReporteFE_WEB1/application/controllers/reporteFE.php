@@ -54,12 +54,16 @@ class reporteFE extends CI_Controller
 		// ...
 		$cuerpoHTML="";
 		$rowProyectoHTML="";
-		$rep=0;	
+		$rep=0;
+		$parada = 0;
 		// ...
 		$infoProduccion = $this->reporteFEM->consultarInformacionCuerpoTablaM();
 		// ...
 		foreach ($infoProduccion as $infoProyecto) {
+			//...
 			if($rep==0){//Es la primera vez que ingresa al ciclo?
+				// ...
+				$parada = $infoProyecto->parada;
 				$rowProyectoHTML.="<tr>
 									 <td style=\"background-color:".$this->clasificacionColoTipoDesarrolloProyecto($infoProyecto->tipo_proyecto).";\">".$infoProyecto->proyecto_numero_orden."</td>
 									 <td>".$infoProyecto->material."</td>
@@ -83,18 +87,20 @@ class reporteFE extends CI_Controller
 			//  El numero de orden del row anteriror es el mismo que el siguiente row
 				if ($camposValidacion["num_Orden"] === $infoProyecto->proyecto_numero_orden && $camposValidacion["tipo_producto"] == $infoProyecto->nombre && $camposValidacion["PNC"] == $infoProyecto->ubicacion) {//Es un proceso del mismo proyecto
 					// ...
+						$parada = $infoProyecto->parada;
 					// Estado en que se encuentra el proceso 
 						$procesosProyecto[$infoProyecto->idproceso]["estado"] = (int)$infoProyecto->estado;
 					// Cantidad terminada por el proceso
 						$procesosProyecto[$infoProyecto->idproceso]["cantidadP"] = (int)$infoProyecto->cantidadProceso;
 					// ...
-				}else{//Es el proceso de otro proyecto
+				}else{ //Es el proceso de otro proyecto
 					// ...
 			// 		// Crear html de los procesos
-					$rowProyectoHTML.= $this->construccionRowProyecto($procesosProyecto, $camposValidacion["PNC"]);
+					$rowProyectoHTML.= $this->construccionRowProyecto($procesosProyecto, $camposValidacion["PNC"], $parada);
 					// ...
 					$cuerpoHTML.= $rowProyectoHTML;
 			// 		// ...
+					$parada = 1;
 			// 		// Estado inicial de las varialbes
 					$procesosProyecto = $this->ProcesosEstadoInicial();
 					// ...
@@ -128,7 +134,7 @@ class reporteFE extends CI_Controller
 		// ...
 		if ($rep === 1) {
 			// ...
-			$rowProyectoHTML.= $this->construccionRowProyecto($procesosProyecto, $camposValidacion["PNC"]);
+			$rowProyectoHTML.= $this->construccionRowProyecto($procesosProyecto, $camposValidacion["PNC"], $parada);
 			// ...
 			$cuerpoHTML.= $rowProyectoHTML;
 			// ...
@@ -154,13 +160,13 @@ class reporteFE extends CI_Controller
 
 	}
 
-	public function construccionRowProyecto($procesos, $PNC)
+	public function construccionRowProyecto($procesos, $PNC, $parada)
 	{	$cuerpoHTML="";
 		// ... 
 		foreach ($procesos as $proceso) {
 			# ...
 			if(isset($proceso["estado"])){
-				$cuerpoHTML.="<td style=\"background-color:".$this->clasificarColorEstoProcesos($proceso["estado"]).";\">". ($proceso["estado"]=="0"?0:$proceso["cantidadP"]) ."</td>";
+				$cuerpoHTML.="<td style=\"background-color:".$this->clasificarColorEstoProcesos($proceso["estado"], $parada).";\">". ($proceso["estado"]=="0"?0:$proceso["cantidadP"]) ."</td>";
 			}
 			# ...
 		}
@@ -170,10 +176,13 @@ class reporteFE extends CI_Controller
 		return $cuerpoHTML;
 	}
 
-	public function clasificarColorEstoProcesos($estado)
+	public function clasificarColorEstoProcesos($estado, $parada)
 	{
 		$color="";
-		switch ($estado) {
+
+		if ($parada == 1) {
+			
+			switch ($estado) {
 			case 2://Pausado
 				$color="#FB5353";//Rojo
 				break;
@@ -189,6 +198,12 @@ class reporteFE extends CI_Controller
 			default: // N/A no aplica 
 				$color="#B0B0B0";//Gris
 				break;		
+			}
+
+		}else{
+
+			$color="red";
+
 		}
 
 		return $color;
@@ -197,17 +212,19 @@ class reporteFE extends CI_Controller
 	public function clasificacionColoTipoDesarrolloProyecto($desarrollo)
 	{
 		$color="";
-		switch ($desarrollo) {
-			case 'RQT':
-				$color="#FFAFAF";//Rosado
-				break;
-			case "Quick":
-				$color="#01AEF0";//Azul
-				break;
-			case "Normal":
-				$color="#FFF";//Blanco
-				break;
-		}
+			
+			switch ($desarrollo) {
+				case 'RQT':
+					$color="#FFAFAF";//Rosado
+					break;
+				case "Quick":
+					$color="#01AEF0";//Azul
+					break;
+				case "Normal":
+					$color="#FFF";//Blanco
+					break;
+			}
+		
 		// 
 		return $color;
 	}

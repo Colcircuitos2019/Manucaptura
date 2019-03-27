@@ -55,7 +55,8 @@ class reporteEN extends CI_Controller
 		$cantidadProceso=0;
 		$cantidadRestante=0;
 		$rowProyectoHTML="";
-		$rep=0;	
+		$rep=0;
+		$parada = 0;	
 
 		$infoProduccion = $this->reporteENM->consultarInformacionCuerpoTablaM();
 		// ...
@@ -63,6 +64,7 @@ class reporteEN extends CI_Controller
 		foreach ($infoProduccion as $infoProyecto) {
 			if($rep==0){//Es la primera vez que ingresa al ciclo?
 				$cantidadTotal = (int) $infoProyecto->canitadad_total;
+				$parada = $infoProyecto->parada;
 				$rowProyectoHTML.="<tr>
 									 <td style=\"background-color: ".$this->clasificacionColoTipoDesarrolloProyecto($infoProyecto->tipo_proyecto).";\">".$infoProyecto->proyecto_numero_orden."</td>
 									 <td>".$cantidadTotal."</td>
@@ -78,6 +80,8 @@ class reporteEN extends CI_Controller
 				//...
 				if ($num_Orden === $infoProyecto->proyecto_numero_orden) {//Es un proceso del mismo proyecto
 					// ...
+					$parada = $infoProyecto->parada;					
+					// ...
 					$ordenProcesos[$infoProyecto->nombre_proceso] = array('estado'=> $infoProyecto->estado,'cantidad_proceso'=> $infoProyecto->cantidadProceso);
 					// ...
 					$cantidadProceso += (int) $infoProyecto->cantidadProceso;//Cantidad terminada del proceso
@@ -86,7 +90,7 @@ class reporteEN extends CI_Controller
 
 					// Crear html de los procesos
 					for ($i=0; $i < count($procesos); $i++) { 
-						$rowProyectoHTML.="<td style=\"background-color: ".$this->clasificarColorEstoProcesos($ordenProcesos[$procesos[$i]]['estado']).";\">". $ordenProcesos[$procesos[$i]]['cantidad_proceso']."</td>";
+						$rowProyectoHTML.="<td style=\"background-color: ".$this->clasificarColorEstoProcesos($ordenProcesos[$procesos[$i]]['estado'], $parada).";\">". $ordenProcesos[$procesos[$i]]['cantidad_proceso']."</td>";
 					}
 					//Cantidades terminadas del proyecto
 					// 				                   Cantidad terminada                          Restantes
@@ -97,6 +101,7 @@ class reporteEN extends CI_Controller
 					// Agregar la fila a la tabla
 					$cuerpoHTML.=$rowProyectoHTML;
 					// ...
+					$parada = 1;
 					// Estado inicial de las varialbes
 					$rowProyectoHTML="";
 					$cantidadTotal=0;
@@ -124,7 +129,7 @@ class reporteEN extends CI_Controller
 		if ($rep === 1) {
 			// Crear html de los procesos
 			for ($i=0; $i < count($procesos); $i++) { 
-				$rowProyectoHTML.="<td style=\"background-color: ".$this->clasificarColorEstoProcesos($ordenProcesos[$procesos[$i]]['estado']).";\">". $ordenProcesos[$procesos[$i]]['cantidad_proceso']."</td>";
+				$rowProyectoHTML.="<td style=\"background-color: ".$this->clasificarColorEstoProcesos($ordenProcesos[$procesos[$i]]['estado'], $parada).";\">". $ordenProcesos[$procesos[$i]]['cantidad_proceso']."</td>";
 			}
 			//Cantidades terminadas del proyecto
 			// 				                   Cantidad terminada                          Restantes
@@ -148,22 +153,33 @@ class reporteEN extends CI_Controller
 		return $names->nombre1.' '.$names->nombre2.' '.$names->apellido1.' '.$names->apellido2;//No olvidar capitalizar este string
 	}
 
-	public function clasificarColorEstoProcesos($estado)
+	public function clasificarColorEstoProcesos($estado, $parada)
 	{
 		$color="";
-		switch ($estado) {
+		if ($parada == 1) {
+			
+			switch ($estado) {
 			case 2://Pausado
-				$color="#FB5353";
+				$color="#FB5353";//Rojo
 				break;
 			case 3://Terminado
-				$color="#74FB53";
+				$color="#74FB53";//Verde
 				break;
 			case 4://Ejecucion
-				$color="#FFA81B";
+				$color="#FFA81B";//Naranjado
 				break;
-			default://Por iniciar
-				$color="#FFF";
-				break;	
+			case 1://Por iniciar
+				$color="#FFF";//Blanco
+				break;
+			default: // N/A no aplica 
+				$color="#B0B0B0";//Gris
+				break;		
+			}
+
+		}else{
+
+			$color="red";
+
 		}
 
 		return $color;

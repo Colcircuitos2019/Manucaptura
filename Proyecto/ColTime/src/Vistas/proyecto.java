@@ -1502,7 +1502,7 @@ public class proyecto extends javax.swing.JPanel {
                 JOptionPane.QUESTION_MESSAGE, null,// null para icono por defecto.
                 new Object[]{"SI", "NO"}, "SI");
         if (seleccion == 0) {
-//            if (estadoProyecto()) {
+//            if (estadoProyecto()) {<---- Este metodo se va a eliminar
                 if (estadoDeOrden(accion)) {
                     //Mensaje de cambio de estado todo un exito.
 //                    modificarInformacionProyecto(1);//Modifica sin preguntar <-- Esto ya no se va a realizar acá...
@@ -1511,6 +1511,7 @@ public class proyecto extends javax.swing.JPanel {
                     limpiarID();
                     estadoInicialComponentesFormulario();
                     estadoInicialBotonesFormulario();
+                    ocultarFechas();
                 }
 //            } else {
 //                new rojerusan.RSNotifyAnimated("Alerta!", "No se puede cambiar el estado del proyecto porque esta en ejecución.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.WARNING).setVisible(true);
@@ -2010,6 +2011,7 @@ public class proyecto extends javax.swing.JPanel {
                     estadoInicialComponentesFormulario();
                     estadoInicialBotonesFormulario();
                     btnNuevo.setEnabled(true);
+                    ocultarFechas();
                 } else {
                     new rojerusan.RSNotifyAnimated("Error!", "La informacion filtraria del proyecto con el numero de orden: " + jTNorden.getText() + " no pudo ser modificado exitosamente.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.ERROR).setVisible(true);
                 }
@@ -2086,6 +2088,7 @@ public class proyecto extends javax.swing.JPanel {
                     generarQRdeProduccion();
                 }
                 limpiarID();
+                ocultarFechas();
             } else {
                 //Mensaje de error
                 new rojerusan.RSNotifyAnimated("¡Error!", "El detalle no pudo ser " + (accion == 2 ? "modificado" : "registrada") + " satisfactoriamente", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.ERROR).setVisible(true);

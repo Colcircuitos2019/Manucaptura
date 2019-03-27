@@ -613,21 +613,22 @@ public class DetalleProyectoM {
             ps.setInt(1, idDetalleProyecto);
             ps.setString(2, cantidad);
             ps.setString(3, material);
-            if (material.equals("GF")) {
-                ps.setInt(4, 4);
-            } else {
-                switch(area){
-                    case 1: // Formato estandar - FE
-                        ps.setInt(4, 1);
-                        break;
-                    case 2: // Teclados - TE
-                        ps.setInt(4, 2);
-                        break;
-                    case 3: // Ensamble - EN
-                        ps.setInt(4, 3);
-                        break;
-                };
-            }
+            switch (area) {
+                case 1: // Formato estandar - FE
+                    ps.setInt(4, 1);
+                    break;
+                case 2: // Teclados - TE
+                    ps.setInt(4, 2);
+                    break;
+                case 3: // Ensamble - EN
+                    ps.setInt(4, 3);
+                    break;
+            };
+//            if (material.equals("GF")) { // Esto ya no se va a utilzar
+//                ps.setInt(4, 4);
+//            } else {
+//                
+//            }
             // ...
             ps.setString(5, procesoPNC);
             ps.setString(6, idColor_antisolder);

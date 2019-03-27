@@ -622,11 +622,8 @@ public class GeneradorQRComun extends javax.swing.JPanel {
 //                              ...
                     Image imagenQR = Image.getInstance(path + "ImágenesQR\\" + name_PDF + ".png");
                     // ...
-                        imagenQR.setWidthPercentage(60);//Tamaño del QR con el cual va a ser insertado en el documento PDF
-                        imagenQR.setAlignment(Image.ALIGN_CENTER);//Alineamiento de lo Codigos en las celdas
-                    for (int i = 0; i < 10; i++) {
-                        
-                    }
+                    imagenQR.setWidthPercentage(60);//Tamaño del QR con el cual va a ser insertado en el documento PDF
+                    imagenQR.setAlignment(Image.ALIGN_CENTER);//Alineamiento de lo Codigos en las celdas
                     //Personalizar cell
                     PdfPCell celda = new PdfPCell();
                     //celda.setBorder(Rectangle.NO_BORDER);
@@ -641,11 +638,11 @@ public class GeneradorQRComun extends javax.swing.JPanel {
                     // Imagen de QR
                     celda.addElement(imagenQR);
                     // Tipo de Material
-                    Paragraph Fecha = new Paragraph("Material: " + jTDetalleProductosSeleccionados.getValueAt(0,6).toString(), tall);
+                    Paragraph Fecha = new Paragraph("Material: " + (jTDetalleProductosSeleccionados.getValueAt(0,6)==null?"": jTDetalleProductosSeleccionados.getValueAt(0,6).toString()), tall);
                     Fecha.setAlignment(1);
                     celda.addElement(Fecha);
                     // Nombre del proyecto
-                    Paragraph proyecto = new Paragraph("Espesor: " + jTDetalleProductosSeleccionados.getValueAt(0,10).toString(), tall);
+                    Paragraph proyecto = new Paragraph("Espesor: " + (jTDetalleProductosSeleccionados.getValueAt(0,10)==null?"": jTDetalleProductosSeleccionados.getValueAt(0,10).toString()), tall);
                     proyecto.setAlignment(1);
                     celda.addElement(proyecto);
                     // Cantidad Total de equipos

@@ -157,6 +157,7 @@ public class UsuarioM {
             conexion = new Conexion(1);
             conexion.establecerConexion();
             con = conexion.getConexion();
+            
             //Query y ejecución------------------------------------------------------------>
             String Qry = "SELECT FU_IniciarSesion(?,?)";
             ps = con.prepareCall(Qry);
@@ -164,10 +165,11 @@ public class UsuarioM {
             ps.setString(2, pasw);
             rs = ps.executeQuery();
             if (rs.next()) {
-                
+                // ...
                 cargo = rs.getInt(1);
-                
+                // ...
             }
+            
             //Destrucción de conexiones
             con.close();
             conexion.destruir();
