@@ -624,11 +624,6 @@ public class DetalleProyectoM {
                     ps.setInt(4, 3);
                     break;
             };
-//            if (material.equals("GF")) { // Esto ya no se va a utilzar
-//                ps.setInt(4, 4);
-//            } else {
-//                
-//            }
             // ...
             ps.setString(5, procesoPNC);
             ps.setString(6, idColor_antisolder);

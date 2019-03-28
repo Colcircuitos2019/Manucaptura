@@ -1801,9 +1801,10 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
             Proyecto validar = new Proyecto();
             // Se validara primero el permiso que tiene el ususario para leer los códigos QR de esta orden y despues se validara si la orden existe o esta parada.
             if (validar.validarEliminacion(Integer.parseInt(infoProductoQR[0]))) {//Valido si la orden esta eliminada o no
+                // ...
                 if (validar.validarEjecucionOParada(Integer.parseInt(infoProductoQR[0]))) {//Valida que la orden no este parada
-                    //#--------------------------------------------------------------------------------------------------
-                    if ((infoProductoQR.length == 6 && cargo != 2) || (cargo == 2 && infoProductoQR.length == 7 || infoProductoQR.length == 6) || (cargo == 3 && infoProductoQR.length == 7)) {//Se valida que si se lea el codigo QR que es necesario
+                    
+                    if (validarEstructuraCorrectaDelQR(infoProductoQR.length)) {//Se valida que si se lea el codigo QR que es necesario
                         // ...
                         switch (Integer.parseInt(infoProductoQR[2])) {
                             //Se tiene que validar el estado del proyecto a ver si permite o no registrar la toma de tiempo.
@@ -1824,12 +1825,13 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
                                 break;
                         }
                     }
-                  //#--------------------------------------------------------------------------------------------------
+                
                 } else {
                     //El proyecto no puede realizar la toma de tiempo porque esta parada.
 //                  enviarMensajeCelular("¡Alerta!" + "n/" + "Esta orden esta parada, no puedes realizar la toma de tiempo de esta orden.");
                     new rojerusan.RSNotifyAnimated("¡Alerta!", "Esta orden esta parada, no puedes realizar la toma de tiempo de esta orden.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.ERROR).setVisible(true);
                 }
+                
             } else {
                 //Este mensaje se retornara al dispositivo móvil.
                 //El proyecto no existe - Esta eliminado
@@ -1839,7 +1841,26 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
         }
     }
     
+    private boolean validarEstructuraCorrectaDelQR(int longitudInfoQR){
+        boolean repuesta =false;
+        switch(cargo){
+            case 2: // Encargado de FE y TE
+                if(longitudInfoQR == 6 || longitudInfoQR == 7){
+                    repuesta = true;
+                }
+                break;
+            case 3: // Encargado de EN
+                if(longitudInfoQR == 7){
+                    repuesta = true;
+                }
+                break;
+        }
+        // ...
+        return repuesta;
+    }
+    
     private ControlDelTiempo registrarTiemposEjecucionProducto(String[] infoProductoQR,ControlDelTiempo view, String name, String title, int area, int cantidadProductosQR){
+        
         if (view == null) {
             view = new ControlDelTiempo();
             view.setName(name);
@@ -1848,6 +1869,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
             view.setArea(area);
             view.setVista(view);
         }
+        
         view.RegistrarTomaTiempoNegocio(infoProductoQR, cargo, view, myPS, cantidadProductosQR);
         
         return view;
@@ -1876,7 +1898,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
                     new Object[]{"SI", "NO"}, "SI") == 0) {
                 sesion(0, jDocumento.getText());
                 //Esto ezsta pendiente para la proxima actualización
-//                guardarImagenMenuUsuario(); 
+//                guardarImagenMenuUsuario(); <--- pendiente para futuras versiones...
                 System.exit(0);
             }
         } else {
@@ -1884,27 +1906,6 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
             this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         }
     }
-    //!!!!!!!!!!!!!!!!!!!!!!!
-//Toma de tiempo automatica---------------------------------------------------->
-    //---------------------------------------------------------------------------->
-    //--------------------------------------------------------------------------->
-//    @Override
-//    public void run() {
-//        CPS = new ConexionPS();//Establecemos la conecion con el puerto serial(COM)
-//        while (true) {
-//            //El puerto es asignado desde esta variable "puertoActual".
-//            CPS.enlacePuertos(this);//Si detecta algo en el puerto COM va a tomar o detener el tiempo!!
-//            if (!diponible) {//Se va a salir del ciclo infinito y va a finalizar el hilo(Thread).
-//                //Se selecciona el item Activado de: Menu Principal>Configuración>Lectura>Desactivado.
-//                jRLDesactivado.setSelected(true);
-//                break;
-//            }
-//        }
-//    }
-    //------------------------------------------------------------------------->
-    //------------------------------------------------------------------------->
-//Fin de toma de tiempo automatica-------------------------------------------->
-    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     public void InformacionAreasProduccion() {
         Proyecto obj = new Proyecto();
@@ -2003,13 +2004,6 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
         }
     }
 
-    //Este procedimiento es para validar quienes tienen permiso de utilizar el lector (Encargados FE-TE-EN)
-//    public void permisoUtilizarLector() {
-//        if (cargo != 1 || cargo != 4) {
-//            jTLector.setEnabled(false);
-//            jTLector.setVisible(false);
-//        }
-//    }
     public void sesion(int sec, String doc) {
         Controlador.Usuario obj = new Controlador.Usuario();
         obj.sesion(sec, doc);

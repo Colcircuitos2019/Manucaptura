@@ -169,7 +169,6 @@ public class UsuarioM {
                 cargo = rs.getInt(1);
                 // ...
             }
-            
             //Destrucción de conexiones
             con.close();
             conexion.destruir();

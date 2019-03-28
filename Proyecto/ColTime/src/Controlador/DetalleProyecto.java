@@ -116,9 +116,9 @@ public class DetalleProyecto {
     }
 
     //Valida el estado del detalle del proyecto y del proyecto para saber si lo modifica o cambia el estado.
-    public boolean validarEliminacionModificar(int negocio, int orden, int tipo, int detalle, int accion) {
+    public boolean validarEliminacionModificar(int area, int orden, int tipo, int detalle, int accion) {
         DetalleProyectoM obj = new DetalleProyectoM();
-        return obj.validarEliminacionModificarM(orden, negocio, tipo, detalle, accion);
+        return obj.validarEliminacionModificarM(orden, area, tipo, detalle, accion);
     }
 
 //  Reiniciar toma de tiempo

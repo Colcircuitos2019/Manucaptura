@@ -642,8 +642,8 @@ public class ConsutaProyecto extends javax.swing.JFrame {
                                 viewProyecto.btnUpdate.setEnabled(false);
                                 break;
                         }
-                        viewProyecto.jRPCBCOM.setSelected(false);
-                        viewProyecto.jRPIntegracion.setSelected(false);
+                        viewProyecto.jRPCBCOM.setSelected(false);// Ya no se esta utilizando
+                        viewProyecto.jCPIntegracionPCB.setSelected(false);
                         
                         //Enviar Informacion del detalle de los productos...
                         for (int i = 0; i < jTDetalleProductos.getRowCount(); i++) {// Aun no valida cuales no son productos no conformes PNC
@@ -701,7 +701,6 @@ public class ConsutaProyecto extends javax.swing.JFrame {
                                     viewProyecto.cbEspesorPCB.setSelectedIndex(Integer.parseInt(jTDetalleProductos.getValueAt(i, 9).toString()));
                                     // ...
                                     viewProyecto.cbMaterialPCBTE.setSelectedItem(jTDetalleProductos.getValueAt(i, 5).toString());
-                                    viewProyecto.jLMaterialPCB.setText(jTDetalleProductos.getValueAt(i, 5).toString());
                                     viewProyecto.jTPCBTE.setText(jTDetalleProductos.getValueAt(i, 3).toString());
                                     
                                     break;
@@ -733,7 +732,6 @@ public class ConsutaProyecto extends javax.swing.JFrame {
                                             viewProyecto.jTCircuito.setText(jTDetalleProductos.getValueAt(i, 3).toString());
                                             viewProyecto.cbMaterialCircuito.setEnabled(estado);
                                             viewProyecto.cbMaterialCircuito.setSelectedItem(jTDetalleProductos.getValueAt(i, 5).toString());
-                                            viewProyecto.jLMaterialCircuito.setText(jTDetalleProductos.getValueAt(i, 5).toString());
                                             
                                             break;
                                        
@@ -746,6 +744,15 @@ public class ConsutaProyecto extends javax.swing.JFrame {
                                     viewProyecto.jCTeclado.setSelected(true);
                                     viewProyecto.jTTeclado.setText(jTDetalleProductos.getValueAt(i, 3).toString());
                                     validarEstadoComponentesProductos(viewProyecto.jCTeclado, viewProyecto.jTTeclado, jTDetalleProductos.getValueAt(i, 4).toString());
+                                    
+                                    break;
+                                case "Circuito-TE":
+
+                                    viewProyecto.jLIDPCBEN.setText(jTDetalleProductos.getValueAt(i, 0).toString());
+                                    viewProyecto.jCPIntegracionPCB.setSelected(true);
+                                    viewProyecto.jCPIntegracionPCB.setEnabled(true);
+                                    viewProyecto.jTTPCBEN.setText(jTDetalleProductos.getValueAt(i, 3).toString());// Pendiente colocar campo para ingresar la cantidad...
+                                    validarEstadoComponentesProductos(viewProyecto.jCPIntegracionPCB, viewProyecto.jTTPCBEN, jTDetalleProductos.getValueAt(i, 4).toString());
                                     
                                     break;
                             }
@@ -766,9 +773,9 @@ public class ConsutaProyecto extends javax.swing.JFrame {
 
                         if (!TProyecto.getValueAt(f, 12).toString().equals("null")) {
                             fechaEntrega = fecha.parse(TProyecto.getValueAt(f, 12).toString());//Fecha de entrega PCB GF
-                            viewProyecto.jDFechaEntregaPCBGF.setDate(fechaEntrega);
-                            viewProyecto.jDFechaEntregaPCBGF.setVisible(true);
-                            viewProyecto.jLCircuitoGF.setVisible(true);
+                            viewProyecto.jDFechaEntregaPCBEN.setDate(fechaEntrega);
+                            viewProyecto.jDFechaEntregaPCBEN.setVisible(true);
+                            viewProyecto.jLPCBTE.setVisible(true);
                         }
 
                         if (!TProyecto.getValueAt(f, 13).toString().equals("null")) {

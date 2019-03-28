@@ -630,7 +630,7 @@ public class detalleProyecto extends javax.swing.JDialog {
             editarTamañoColumnas();
         }
         //Seleccion de orden de proceso inicial
-        if(cargo!=3 && (cargo != 2 && area == 2)){
+        if(cargo!=3 && (cargo != 2 && (area == 2 || area == 3))){
             //orden de ejecucion de los procesos
             TDetalleProduccion.getColumnModel().getColumn(12).setMinWidth(0);
             TDetalleProduccion.getColumnModel().getColumn(12).setMaxWidth(0);

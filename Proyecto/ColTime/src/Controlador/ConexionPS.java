@@ -95,19 +95,18 @@ public class ConexionPS {
                             //La trama es:"N°Orden;DetalleSistema;Área;LectorID;Cantidad;N°Operarios;Proceso-Envio-Cantidades".
                             valorBeta = mySC.next();//Valor de entrada
                             //...
-                            //Se encarga de escribir en un archivo plano los códigos que son leidos del puerto serial.
-                            escribirRecepcionDatos(valorBeta);
-                            //...
                             //La longitud del vector del codigo QR tiene que ser de 6 o 7 espacios, tambien el proceso que recibe tiene que ser diferente a 0 si el proceso no es 18="Empaque"
                             String infoP[] = valorBeta.split(";");//Validar Código QR
 //                            if (infoP.length == 6 || (infoP.length == 7 && ((!infoP[6].equals("0") && !infoP[3].equals("18")) || ((infoP[6].equals("0") || !infoP[6].equals("18")) && infoP[3].equals("18"))))) {
                             //El codigo de operario siempre va a contener una longitud del vecto de 6 espaciós en la memoria EEPROM
                                 //...
                                 if (Character.isDigit(valorBeta.charAt(0))) {//Valida que el valor de entrada sea el correcto//Funcionamiento con wifi
+                                    // ...
+                                    escribirEnArchivoPlanoRecepcionDeDatos(valorBeta, infoP[2]);
                                     //...
                                     obj.LecturaCodigoQR(valorBeta);//Se encargara de ler el codigo QR
                                     //--------------------------------------------------
-                                    //Limpieza de la memoria RAM
+                                    //Limpieza de la memoria volatil (RAM)
                                     System.gc();//Garbage collector.
                                 }
 //                            }
@@ -160,7 +159,6 @@ public class ConexionPS {
             }
             // ...
         } catch (Exception e) {
-            //JOptionPane.showMessageDialog(null, "Error: " + e);
             //Si la variable ErrorConexionPuerto es igual a 1 significa que se pudo establecer conexion pero se presento algune problema con el puerto.
             if (ErrorConexionPuerto == 0) {
                 JOptionPane.showMessageDialog(null, "El puerto " + obj.puertoActual + " esta abierto, por favor cierrelo para poder realizar la operación.");
@@ -200,43 +198,44 @@ public class ConexionPS {
                 pos++;
             }
         } catch (Exception e) {
-//            JOptionPane.showMessageDialog(null, "Error: " + e);
+            e.printStackTrace();
         }
         return v;
     }
 
-    public void escribirRecepcionDatos(String QR) {
-        //---
-        Calendar calendario = Calendar.getInstance();
-        PrintWriter pw = null;
-        FileWriter fw = null;
-        File folder = new File("C:\\FormatoEstandar");
-        if (!folder.exists()) {
-            folder.mkdirs();
-        }
-        //---
-        File archivo = new File("C:\\FormatoEstandar\\" + formato.format(fecha) + ".txt");
-        if (!archivo.exists()) {
-            try {
-                archivo.createNewFile();
-            } catch (Exception e) {
-                //error
-                e.printStackTrace();
-            }
-        }
-        //---
+    public void escribirEnArchivoPlanoRecepcionDeDatos(String QR, String area) {
         try {
+            //---
+            Calendar calendario = Calendar.getInstance();
+            PrintWriter pw = null;
+            FileWriter fw = null;
+            File folder = new File("C:\\Toma_Tiempo");
+            // ...
+            if (!folder.exists()) {
+                folder.mkdirs();
+            }
+            //---
+            File archivo = new File("C:\\Toma_Tiempo\\" + formato.format(fecha) + "_" + area + ".txt");
+            
+            if (!archivo.exists()) {
+                
+                archivo.createNewFile();
+                
+            }
+            //---
             int hora = calendario.get(Calendar.HOUR_OF_DAY);
             int minutos = calendario.get(Calendar.MINUTE);
             int segundos = calendario.get(Calendar.SECOND);
-
+            // ...
             fw = new FileWriter(archivo, true);
             pw = new PrintWriter(fw);
-            pw.println(QR + '-' + hora + ':' + minutos + ':' + segundos);
+            pw.println(QR + " - " + hora + ':' + minutos + ':' + segundos);
             pw.close();
-            String documento = "";
+            // ...
         } catch (Exception e) {
+            
             e.printStackTrace();
+            
         }
     }
 

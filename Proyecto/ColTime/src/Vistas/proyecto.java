@@ -33,7 +33,7 @@ public class proyecto extends javax.swing.JPanel {
     //De esta forma esta estructurado el QR de proyectos.
 //NumOrden; Nombre Cliente; Nombre Proyecto; Negocios implicados; Tipo de proyecto; Fecha de entrega al cliente; Cantidad del Conversos; Cantidad del Troque; Cantidad del Repujado; Cantidad del Stencil; Cantidad del Circuito_FE; Material del Circuito; ¿Antisolder del circuito_FE?; ¿Ruteo del circuito_FE?; Cantidad de la PCB_TE; Material de la PCB; ¿Antisolder de la PCB_TE?; ¿Ruteo de la PCB_TE?; Componentes de la PCB_TE; Integraciòn del PCB_TE; Cantidad de Teclados; Cantidad de ensamble; Fecha de entrega del Circuito_FE(TH,FV,GF) a ensamble; Fecha de entrega de los componentes del circuito_FE; Fecha de entrega de la PCB_TE(TH,FV,GF); Fecha de entrega de componentes de la PCB_TE  
     //Variables e instancias
-    static int accion = 0; //1=Registrar, 2=Modificar
+    static int accion = 1; //1=Registrar, 2=Modificar
     static int componentes = 0;
     boolean v[] = new boolean[12];
     int udm = 0, resol = 100, rot = 0;
@@ -62,6 +62,7 @@ public class proyecto extends javax.swing.JPanel {
             btnActivar.setVisible(false);
             consultarEspesoresTarjeta();
             consultarColoresAntisolder();
+            jRPCBCOM.setVisible(false);// Por el momento esto no va a ser visible
             // ...
             if (lector == null) {
                 disponibilidad = true;
@@ -112,7 +113,7 @@ public class proyecto extends javax.swing.JPanel {
         cbMaterialPCBTE = new elaprendiz.gui.comboBox.ComboBoxRound();
         jTIntegracion = new elaprendiz.gui.textField.TextFieldRoundBackground();
         jCIntegracion = new javax.swing.JCheckBox();
-        jLCircuitoGF = new javax.swing.JLabel();
+        jLPCBTE = new javax.swing.JLabel();
         jLabel19 = new javax.swing.JLabel();
         jCRuteoC = new javax.swing.JCheckBox();
         jLabel11 = new javax.swing.JLabel();
@@ -120,7 +121,7 @@ public class proyecto extends javax.swing.JPanel {
         jCRuteoP = new javax.swing.JCheckBox();
         jDFechaEntregaFE = new com.toedter.calendar.JDateChooser();
         jDFechaEntregaFECOM = new com.toedter.calendar.JDateChooser();
-        jDFechaEntregaPCBGF = new com.toedter.calendar.JDateChooser();
+        jDFechaEntregaPCBEN = new com.toedter.calendar.JDateChooser();
         jLabel24 = new javax.swing.JLabel();
         jLCircuitoFE = new javax.swing.JLabel();
         jLComCircuitos = new javax.swing.JLabel();
@@ -130,11 +131,7 @@ public class proyecto extends javax.swing.JPanel {
         jLIDCircuitoGF = new javax.swing.JLabel();
         jLIDCircuitoCOM = new javax.swing.JLabel();
         jLIDPCBCOM = new javax.swing.JLabel();
-        jLIDPCBGF = new javax.swing.JLabel();
-        jRPIntegracion = new javax.swing.JRadioButton();
         jLIDPCBEN = new javax.swing.JLabel();
-        jLMaterialPCB = new javax.swing.JLabel();
-        jLMaterialCircuito = new javax.swing.JLabel();
         cbEspesorCircuito = new elaprendiz.gui.comboBox.ComboBoxRound();
         jLabel25 = new javax.swing.JLabel();
         cbEspesorPCB = new elaprendiz.gui.comboBox.ComboBoxRound();
@@ -143,6 +140,8 @@ public class proyecto extends javax.swing.JPanel {
         cbColorPCB = new elaprendiz.gui.comboBox.ComboBoxRound();
         jLabel27 = new javax.swing.JLabel();
         jLabel28 = new javax.swing.JLabel();
+        jTTPCBEN = new elaprendiz.gui.textField.TextFieldRoundBackground();
+        jCPIntegracionPCB = new javax.swing.JCheckBox();
         jPDetalles = new javax.swing.JPanel();
         jDeEntrega = new com.toedter.calendar.JDateChooser();
         jLabel10 = new javax.swing.JLabel();
@@ -539,10 +538,10 @@ public class proyecto extends javax.swing.JPanel {
         });
         jPDetalles1.add(jCIntegracion, new org.netbeans.lib.awtextra.AbsoluteConstraints(695, 19, -1, -1));
 
-        jLCircuitoGF.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        jLCircuitoGF.setForeground(new java.awt.Color(128, 128, 131));
-        jLCircuitoGF.setText("Fecha de entrega PCB GF");
-        jPDetalles1.add(jLCircuitoGF, new org.netbeans.lib.awtextra.AbsoluteConstraints(460, 200, -1, -1));
+        jLPCBTE.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        jLPCBTE.setForeground(new java.awt.Color(128, 128, 131));
+        jLPCBTE.setText("Fecha de entrega PCB a EN");
+        jPDetalles1.add(jLPCBTE, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 200, -1, -1));
 
         jLabel19.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel19.setForeground(new java.awt.Color(128, 128, 131));
@@ -583,10 +582,10 @@ public class proyecto extends javax.swing.JPanel {
         jDFechaEntregaFECOM.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
         jPDetalles1.add(jDFechaEntregaFECOM, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 220, 130, 20));
 
-        jDFechaEntregaPCBGF.setToolTipText("");
-        jDFechaEntregaPCBGF.setDateFormatString("dd/MM/yyyy");
-        jDFechaEntregaPCBGF.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
-        jPDetalles1.add(jDFechaEntregaPCBGF, new org.netbeans.lib.awtextra.AbsoluteConstraints(460, 220, 130, -1));
+        jDFechaEntregaPCBEN.setToolTipText("");
+        jDFechaEntregaPCBEN.setDateFormatString("dd/MM/yyyy");
+        jDFechaEntregaPCBEN.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
+        jPDetalles1.add(jDFechaEntregaPCBEN, new org.netbeans.lib.awtextra.AbsoluteConstraints(460, 220, 130, -1));
 
         jLabel24.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel24.setForeground(new java.awt.Color(128, 128, 131));
@@ -595,13 +594,13 @@ public class proyecto extends javax.swing.JPanel {
 
         jLCircuitoFE.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLCircuitoFE.setForeground(new java.awt.Color(128, 128, 131));
-        jLCircuitoFE.setText("Fecha de entrega FE Circuito");
-        jPDetalles1.add(jLCircuitoFE, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 200, -1, -1));
+        jLCircuitoFE.setText("Fecha de entrega Circuito a EN");
+        jPDetalles1.add(jLCircuitoFE, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 200, -1, -1));
 
         jLComCircuitos.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLComCircuitos.setForeground(new java.awt.Color(128, 128, 131));
         jLComCircuitos.setText("Fecha de entrega COM Circuito");
-        jPDetalles1.add(jLComCircuitos, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 200, -1, -1));
+        jPDetalles1.add(jLComCircuitos, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 200, -1, -1));
 
         jRPCBCOM.setBackground(new java.awt.Color(255, 255, 255));
         jRPCBCOM.setText("COM");
@@ -611,7 +610,7 @@ public class proyecto extends javax.swing.JPanel {
                 jRPCBCOMActionPerformed(evt);
             }
         });
-        jPDetalles1.add(jRPCBCOM, new org.netbeans.lib.awtextra.AbsoluteConstraints(760, 80, -1, 20));
+        jPDetalles1.add(jRPCBCOM, new org.netbeans.lib.awtextra.AbsoluteConstraints(790, 20, 20, 20));
 
         jDFechaEntregaPCBCOMGF.setToolTipText("");
         jDFechaEntregaPCBCOMGF.setDateFormatString("dd/MM/yyyy");
@@ -620,8 +619,8 @@ public class proyecto extends javax.swing.JPanel {
 
         jLpcbGF.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLpcbGF.setForeground(new java.awt.Color(128, 128, 131));
-        jLpcbGF.setText("Fecha de entrega COM GF");
-        jPDetalles1.add(jLpcbGF, new org.netbeans.lib.awtextra.AbsoluteConstraints(640, 200, -1, -1));
+        jLpcbGF.setText("Fecha de entrega COM PCB");
+        jPDetalles1.add(jLpcbGF, new org.netbeans.lib.awtextra.AbsoluteConstraints(630, 200, -1, -1));
 
         jLIDCircuitoGF.setText("0");
         jPDetalles1.add(jLIDCircuitoGF, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 100, 10, -1));
@@ -630,29 +629,10 @@ public class proyecto extends javax.swing.JPanel {
         jPDetalles1.add(jLIDCircuitoCOM, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 100, 10, -1));
 
         jLIDPCBCOM.setText("0");
-        jPDetalles1.add(jLIDPCBCOM, new org.netbeans.lib.awtextra.AbsoluteConstraints(780, 60, 10, -1));
-
-        jLIDPCBGF.setText("0");
-        jPDetalles1.add(jLIDPCBGF, new org.netbeans.lib.awtextra.AbsoluteConstraints(800, 60, 10, -1));
-
-        jRPIntegracion.setBackground(new java.awt.Color(255, 255, 255));
-        jRPIntegracion.setText("IN");
-        jRPIntegracion.setEnabled(false);
-        jRPIntegracion.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jRPIntegracionActionPerformed(evt);
-            }
-        });
-        jPDetalles1.add(jRPIntegracion, new org.netbeans.lib.awtextra.AbsoluteConstraints(760, 105, 50, 20));
+        jPDetalles1.add(jLIDPCBCOM, new org.netbeans.lib.awtextra.AbsoluteConstraints(780, 20, 10, -1));
 
         jLIDPCBEN.setText("0");
-        jPDetalles1.add(jLIDPCBEN, new org.netbeans.lib.awtextra.AbsoluteConstraints(800, 140, 10, -1));
-
-        jLMaterialPCB.setText("M");
-        jPDetalles1.add(jLMaterialPCB, new org.netbeans.lib.awtextra.AbsoluteConstraints(790, 40, -1, -1));
-
-        jLMaterialCircuito.setText("M");
-        jPDetalles1.add(jLMaterialCircuito, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 100, 10, -1));
+        jPDetalles1.add(jLIDPCBEN, new org.netbeans.lib.awtextra.AbsoluteConstraints(800, 60, 10, -1));
 
         cbEspesorCircuito.setForeground(new java.awt.Color(102, 102, 102));
         cbEspesorCircuito.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Seleccione..." }));
@@ -721,6 +701,29 @@ public class proyecto extends javax.swing.JPanel {
         jLabel28.setForeground(new java.awt.Color(255, 51, 51));
         jLabel28.setText("*");
         jPDetalles1.add(jLabel28, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 90, -1, -1));
+
+        jTTPCBEN.setColorDeBorde(new java.awt.Color(204, 204, 204));
+        jTTPCBEN.setColorDeTextoBackground(new java.awt.Color(255, 255, 255));
+        jTTPCBEN.setEnabled(false);
+        jTTPCBEN.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
+        jTTPCBEN.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                jTTPCBENKeyTyped(evt);
+            }
+        });
+        jPDetalles1.add(jTTPCBEN, new org.netbeans.lib.awtextra.AbsoluteConstraints(763, 103, 45, 25));
+
+        jCPIntegracionPCB.setBackground(new java.awt.Color(255, 255, 255));
+        jCPIntegracionPCB.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jCPIntegracionPCB.setForeground(new java.awt.Color(102, 102, 102));
+        jCPIntegracionPCB.setText("EN");
+        jCPIntegracionPCB.setEnabled(false);
+        jCPIntegracionPCB.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCPIntegracionPCBActionPerformed(evt);
+            }
+        });
+        jPDetalles1.add(jCPIntegracionPCB, new org.netbeans.lib.awtextra.AbsoluteConstraints(760, 80, 50, 20));
 
         jPanel2.add(jPDetalles1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 192, 820, 250));
 
@@ -1145,19 +1148,16 @@ public class proyecto extends javax.swing.JPanel {
     }//GEN-LAST:event_btnNuevoActionPerformed
 
     public void modificarInformacionProyecto() {
-//        if (op == 1) {
-//            validarFormularioDeProyecto(accion);
-//        } else {
             int seleccion = JOptionPane.showOptionDialog(null, "¿Seguro desea modificar la información de este proyecto?",
                     "seleccione...", JOptionPane.YES_NO_CANCEL_OPTION,
                     JOptionPane.QUESTION_MESSAGE, null,// null para icono por defecto.
                     new Object[]{"SI", "NO"}, "SI");
+            
             if (seleccion == 0) {
                 
                 validarFormularioDeProyecto(accion);
                 
             }
-//        }
     }
     
     private void btnBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarActionPerformed
@@ -1167,7 +1167,7 @@ public class proyecto extends javax.swing.JPanel {
     }//GEN-LAST:event_btnBuscarActionPerformed
 
     private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
-        modificarInformacionProyecto();//Modifica proyectos
+        modificarInformacionProyecto();
     }//GEN-LAST:event_btnUpdateActionPerformed
 
     private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
@@ -1297,7 +1297,6 @@ public class proyecto extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_btnActivarActionPerformed
 
-
     private void jCConversorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCConversorActionPerformed
         activarjTfilex(jCConversor, jTConversor);
     }//GEN-LAST:event_jCConversorActionPerformed
@@ -1342,12 +1341,12 @@ public class proyecto extends javax.swing.JPanel {
             cbEspesorPCB.setEnabled(false);
             jCRuteoP.setEnabled(false);
             jRPCBCOM.setEnabled(false);
-            jRPIntegracion.setEnabled(false);
+            jCPIntegracionPCB.setEnabled(false);
             jRPCBCOM.setSelected(false);
-            jRPIntegracion.setSelected(false);
-            jDFechaEntregaPCBGF.setDate(null);
-            jDFechaEntregaPCBGF.setVisible(false);
-            jLCircuitoGF.setVisible(false);
+            jCPIntegracionPCB.setSelected(false);
+            jDFechaEntregaPCBEN.setDate(null);
+            jDFechaEntregaPCBEN.setVisible(false);
+            jLPCBTE.setVisible(false);
             jDFechaEntregaPCBCOMGF.setDate(null);
             jDFechaEntregaPCBCOMGF.setVisible(false);
             jLpcbGF.setVisible(false);
@@ -1360,12 +1359,7 @@ public class proyecto extends javax.swing.JPanel {
 
     private void jCIntegracionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCIntegracionActionPerformed
         activarjTfilex(jCIntegracion, jTIntegracion);
-//        if (jCCircuito.isSelected() && jCIntegracion.isSelected()) {
-//            jDFechaEntregaFECOM.setEnabled(true);
-//        } else {
-//            jDFechaEntregaFECOM.setEnabled(false);
-//        }
-        //Validacion para saber si lleva otras fechas de control.
+        // ...
         fechaEntregaFEoGF();
     }//GEN-LAST:event_jCIntegracionActionPerformed
 
@@ -1408,20 +1402,15 @@ public class proyecto extends javax.swing.JPanel {
                 }
             }
             jRPCBCOM.setEnabled(true);
-            jRPIntegracion.setEnabled(true);
+            jCPIntegracionPCB.setEnabled(true);
         } else {
             jRPCBCOM.setEnabled(false);
-            jRPIntegracion.setEnabled(false);
+            jCPIntegracionPCB.setEnabled(false);
         }
     }//GEN-LAST:event_cbMaterialPCBTEItemStateChanged
 
     private void jRPCBCOMActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRPCBCOMActionPerformed
-        if (jRPCBCOM.isSelected()) {// Esto ya no se va a utilizar más...
-            if (cbMaterialPCBTE.getSelectedItem().toString().equals("TH") || cbMaterialPCBTE.getSelectedItem().toString().equals("FV")) {
-                jLpcbGF.setText("Fecha de entrega COM PCB FE");
-            } else if (cbMaterialPCBTE.getSelectedItem().toString().equals("GF")) {
-                jLpcbGF.setText("Fecha de entrega COM PCB GF");
-            }
+        if (jRPCBCOM.isSelected()) {
             jLpcbGF.setVisible(true);
             jDFechaEntregaPCBCOMGF.setVisible(true);
         } else {
@@ -1430,22 +1419,6 @@ public class proyecto extends javax.swing.JPanel {
             jDFechaEntregaPCBCOMGF.setDate(null);
         }
     }//GEN-LAST:event_jRPCBCOMActionPerformed
-
-    private void jRPIntegracionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRPIntegracionActionPerformed
-        if (jRPIntegracion.isSelected()) {//Esto ya no se va a utilizar más...
-            if (cbMaterialPCBTE.getSelectedItem().toString().equals("TH") || cbMaterialPCBTE.getSelectedItem().toString().equals("FV")) {
-                jLCircuitoGF.setText("Fecha de entrega PCB FE");
-            } else if (cbMaterialPCBTE.getSelectedItem().toString().equals("GF")) {
-                jLCircuitoGF.setText("Fecha de entrega PCB GF");
-            }
-            jLCircuitoGF.setVisible(true);
-            jDFechaEntregaPCBGF.setVisible(true);
-        } else {
-            jLCircuitoGF.setVisible(false);
-            jDFechaEntregaPCBGF.setVisible(false);
-            jDFechaEntregaPCBGF.setDate(null);
-        }
-    }//GEN-LAST:event_jRPIntegracionActionPerformed
 
     private void jTNombreProyectoKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTNombreProyectoKeyReleased
         validarCampos();
@@ -1493,6 +1466,23 @@ public class proyecto extends javax.swing.JPanel {
     private void cbColorPCBItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cbColorPCBItemStateChanged
         // TODO add your handling code here:
     }//GEN-LAST:event_cbColorPCBItemStateChanged
+
+    private void jTTPCBENKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTTPCBENKeyTyped
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTTPCBENKeyTyped
+
+    private void jCPIntegracionPCBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCPIntegracionPCBActionPerformed
+        activarjTfilex(jCPIntegracionPCB, jTTPCBEN);
+        //...
+        if (jCPIntegracionPCB.isSelected()) {
+            jLPCBTE.setVisible(true);
+            jDFechaEntregaPCBEN.setVisible(true);
+        } else {
+            jLPCBTE.setVisible(false);
+            jDFechaEntregaPCBEN.setVisible(false);
+            jDFechaEntregaPCBEN.setDate(null);
+        }
+    }//GEN-LAST:event_jCPIntegracionPCBActionPerformed
 //Metodos---------------------------------------------------------------------->
 
     private void cambiarEstadoProyectoEjecucionOParada(int accion) {
@@ -1525,10 +1515,10 @@ public class proyecto extends javax.swing.JPanel {
         }
     }
 
-    private boolean estadoProyecto() {
-        Proyecto obj = new Proyecto();
-        return obj.estadoProyecto(Integer.parseInt(jTNorden.getText()));
-    }
+//    private boolean estadoProyecto() { // Esto ya no se va a utilizar más
+//        Proyecto obj = new Proyecto();
+//        return obj.estadoProyecto(Integer.parseInt(jTNorden.getText()));
+//    }
 
     private boolean estadoDeOrden(int estado) {
         Proyecto obj = new Proyecto();
@@ -1663,8 +1653,8 @@ public class proyecto extends javax.swing.JPanel {
         jLComCircuitos.setVisible(false);
         jDFechaEntregaFECOM.setVisible(false);
         //3
-        jLCircuitoGF.setVisible(false);
-        jDFechaEntregaPCBGF.setVisible(false);
+        jLPCBTE.setVisible(false);
+        jDFechaEntregaPCBEN.setVisible(false);
         //4
         jLpcbGF.setVisible(false);
         jDFechaEntregaPCBCOMGF.setVisible(false);
@@ -1854,15 +1844,15 @@ public class proyecto extends javax.swing.JPanel {
     private boolean validarFechaEntregaPCB() {
         boolean respues = true;
         if (jCPCBTE.isSelected()) {
-            if (jRPIntegracion.isSelected() && jCPCBTE.isSelected()) {
-                if (jRPIntegracion.isSelected() && jRPCBCOM.isSelected()) {//Integración y Componentes
-                    if (jDFechaEntregaPCBCOMGF.getDate() != null && jDFechaEntregaPCBGF.getDate() != null) {
+            if (jCPIntegracionPCB.isSelected() && jCPCBTE.isSelected()) {
+                if (jCPIntegracionPCB.isSelected() && jRPCBCOM.isSelected()) {//Integración y Componentes
+                    if (jDFechaEntregaPCBCOMGF.getDate() != null && jDFechaEntregaPCBEN.getDate() != null) {
                         respues = true;
                     } else {
                         respues = false;
                     }
-                } else if (jRPIntegracion.isSelected()) {//Solo integración
-                    if (jDFechaEntregaPCBGF.getDate() != null) {// Pre condición:jDFechaEntregaPCBCOMGF.getDate() != null &&
+                } else if (jCPIntegracionPCB.isSelected()) {//Solo integración
+                    if (jDFechaEntregaPCBEN.getDate() != null) {// Pre condición:jDFechaEntregaPCBCOMGF.getDate() != null &&
                         respues = true;
                     } else {
                         respues = false;
@@ -1935,88 +1925,106 @@ public class proyecto extends javax.swing.JPanel {
         if (!jTIntegracion.getText().trim().equals("")) {
             cant++;
         }
+        // ...
         return cant;
     }
 
     private void registrarModificarInformacionDelProyecto(int accion) {
         // accion 1 = Registrar, accion 2 = Modificar 
-        if (accion == 1) { // Cambiar esto por un switch
-            //Para registrar no se tiene que validar los proyectos que no se pueden eliminar
-            accionRegistrarModificar();
-            // ...
-        } else if (accion == 2) { // Modificar Proyecto
-            //Validar que los detalles del proyecto puedan ser modificados o si no el proyecto no va a poder ser modificado de ninguna manera.
-            String v[] = new String[8];
-            int i = 0;
-            boolean res = true;
-            DetalleProyecto controladorProducto = new DetalleProyecto();
-            // ...
-            if (!jLIDCircuito.getText().equals("0") && jCCircuito.isSelected() == false) {
-                v[i] = String.valueOf(controladorProducto.validarEliminacionModificar(1, Integer.parseInt(jTNorden.getText()), 1, 0, 1));
-                i++;
-            }
-            if (!jLIDTeclado.getText().equals("0") && jCTeclado.isSelected() == false) {
-                v[i] = String.valueOf(controladorProducto.validarEliminacionModificar(2, Integer.parseInt(jTNorden.getText()), 5, 0, 1));
-                i++;
-            }
-            if (!jLIDIntegracion.getText().equals("0") && jCIntegracion.isSelected() == false) {
-                v[i] = String.valueOf(controladorProducto.validarEliminacionModificar(3, Integer.parseInt(jTNorden.getText()), 1, 0, 1));
-                i++;
-            }
-            if (!jLIDConversor.getText().equals("0") && jCConversor.isSelected() == false) {
-                v[i] = String.valueOf(controladorProducto.validarEliminacionModificar(1, Integer.parseInt(jTNorden.getText()), 2, 0, 1));
-                i++;
-            }
-            if (!jLIDTroquel.getText().equals("0") && jCTroquel.isSelected() == false) {
-                v[i] = String.valueOf(controladorProducto.validarEliminacionModificar(1, Integer.parseInt(jTNorden.getText()), 4, 0, 1));
-                i++;
-            }
-            if (!jLIDRepujado.getText().equals("0") && jCRepujado.isSelected() == false) {
-                v[i] = String.valueOf(controladorProducto.validarEliminacionModificar(1, Integer.parseInt(jTNorden.getText()), 3, 0, 1));
-                i++;
-            }
-            if (!jLIDStencil.getText().equals("0") && jCStencil.isSelected() == false) {
-                v[i] = String.valueOf(controladorProducto.validarEliminacionModificar(1, Integer.parseInt(jTNorden.getText()), 6, 0, 1));
-                i++;
-            }
-            if (!jLIDPCB.getText().equals("0") && jCPCBTE.isSelected() == false) {
-                v[i] = String.valueOf(controladorProducto.validarEliminacionModificar(1, Integer.parseInt(jTNorden.getText()), 7, 0, 1));
-                i++;
-            }
-            //Se verifica que todos los proyectos se puedan eliminar, incluso los pnc
-            for (int j = 0; j < v.length; j++) {
-                if (v[j] == null) {
-                    break;
-                } else {
-                    if (v[j].equals("false")) {
-                        res = false;
+        
+        switch(accion){
+            case 1: // Registrar Proyecto
+                
+                    accionRegistrarModificar();
+                
+                break;
+            case 2: // Modificar PRoyecto
+                
+                //Validar que los detalles del proyecto puedan ser modificados o si no el proyecto no va a poder ser modificado de ninguna manera.
+                String v[] = new String[9];
+                int i = 0;
+                boolean respuesta = true;
+                DetalleProyecto controladorProducto = new DetalleProyecto();
+                // ...
+                if (!jLIDCircuito.getText().equals("0") && jCCircuito.isSelected() == false) {
+                    v[i] = String.valueOf(controladorProducto.validarEliminacionModificar(1, Integer.parseInt(jTNorden.getText()), 1, 0, 1)); // Circuito
+                    i++;
+                }
+                if (!jLIDTeclado.getText().equals("0") && jCTeclado.isSelected() == false) {
+                    v[i] = String.valueOf(controladorProducto.validarEliminacionModificar(2, Integer.parseInt(jTNorden.getText()), 5, 0, 1)); // Teclado
+                    i++;
+                }
+                if (!jLIDPCBEN.getText().equals("0") && jCPIntegracionPCB.isSelected() == false) {
+                    v[i] = String.valueOf(controladorProducto.validarEliminacionModificar(3, Integer.parseInt(jTNorden.getText()), 12, 0, 1)); // Ensamble PCB Teclado
+                    i++;
+                }
+                if (!jLIDIntegracion.getText().equals("0") && jCIntegracion.isSelected() == false) {
+                    v[i] = String.valueOf(controladorProducto.validarEliminacionModificar(3, Integer.parseInt(jTNorden.getText()), 1, 0, 1)); // Ensamble
+                    i++;
+                }
+                if (!jLIDConversor.getText().equals("0") && jCConversor.isSelected() == false) {
+                    v[i] = String.valueOf(controladorProducto.validarEliminacionModificar(1, Integer.parseInt(jTNorden.getText()), 2, 0, 1)); // Conversor
+                    i++;
+                }
+                if (!jLIDTroquel.getText().equals("0") && jCTroquel.isSelected() == false) {
+                    v[i] = String.valueOf(controladorProducto.validarEliminacionModificar(1, Integer.parseInt(jTNorden.getText()), 4, 0, 1)); //Troquel
+                    i++;
+                }
+                if (!jLIDRepujado.getText().equals("0") && jCRepujado.isSelected() == false) {
+                    v[i] = String.valueOf(controladorProducto.validarEliminacionModificar(1, Integer.parseInt(jTNorden.getText()), 3, 0, 1)); //Repujado
+                    i++;
+                }
+                if (!jLIDStencil.getText().equals("0") && jCStencil.isSelected() == false) {
+                    v[i] = String.valueOf(controladorProducto.validarEliminacionModificar(1, Integer.parseInt(jTNorden.getText()), 6, 0, 1)); //Stencil
+                    i++;
+                }
+                if (!jLIDPCB.getText().equals("0") && jCPCBTE.isSelected() == false) {
+                    v[i] = String.valueOf(controladorProducto.validarEliminacionModificar(1, Integer.parseInt(jTNorden.getText()), 7, 0, 1)); // PCB TE
+                    i++;
+                }
+                //Se verifica que todos los proyectos se puedan eliminar
+                for (int j = 0; j < v.length; j++) {
+                    if (v[j] == null) {
                         break;
+                    } else {
+                        if (v[j].equals("false")) {
+                            respuesta = false;
+                            break;
+                        }
                     }
                 }
-            }
-            //si es true se podran eliminar todos los proyectos y podra seguir con la modificacion de la informacion del proyecto
-            if (res) {
-                // ...
-                accionRegistrarModificar();
-                // ...
-            } else {
-                //Se modificara solo la información filtraria y el detalle
-                new rojerusan.RSNotifyAnimated("¡Error!", "No se puede modificar el detalle de este proyecto porque ya esta en ejecución.", 8, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.ERROR).setVisible(true);
-                Controlador.Proyecto procet = new Controlador.Proyecto();
-                asignacionDeInformacionAlObjetoProyecto(procet);
-                if (procet.registrar_Modificar_Proyecto(Menu.jDocumento.getText(), 2)) {//El dos es para poder modificar solo la informacion del proyecto
-                    new rojerusan.RSNotifyAnimated("Listo!!", "La informacion filtraria del proyecto con el numero de orden: " + jTNorden.getText() + " fue modificado exitosamente.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.SUCCESS).setVisible(true);
-                    limpiarID();
-                    limpiarCamposFormulario();
-                    estadoInicialComponentesFormulario();
-                    estadoInicialBotonesFormulario();
-                    btnNuevo.setEnabled(true);
-                    ocultarFechas();
+                
+                //si es true se podran eliminar todos los proyectos y podra seguir con la modificacion de la informacion del proyecto
+                if (respuesta) {
+                    // ...
+                    accionRegistrarModificar();
+                    // ...
                 } else {
-                    new rojerusan.RSNotifyAnimated("Error!", "La informacion filtraria del proyecto con el numero de orden: " + jTNorden.getText() + " no pudo ser modificado exitosamente.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.ERROR).setVisible(true);
+                    //Se modificara solo la información filtraria y el detalle
+                    new rojerusan.RSNotifyAnimated("¡Error!", "No se puede modificar el detalle de este proyecto porque ya esta en ejecución.", 8, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.ERROR).setVisible(true);
+                    Controlador.Proyecto procet = new Controlador.Proyecto();
+                    asignacionDeInformacionAlObjetoProyecto(procet);
+                    
+                    if (procet.registrar_Modificar_Proyecto(Menu.jDocumento.getText(), 2)) {//El dos es para poder modificar solo la informacion del proyecto
+                        
+                        new rojerusan.RSNotifyAnimated("Listo!!", "La informacion filtraria del proyecto con el numero de orden: " + jTNorden.getText() + " fue modificado exitosamente.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.SUCCESS).setVisible(true);
+                        limpiarID();
+                        limpiarCamposFormulario();
+                        estadoInicialComponentesFormulario();
+                        estadoInicialBotonesFormulario();
+                        btnNuevo.setEnabled(true);
+                        ocultarFechas();
+                        
+                    } else {
+                        
+                        new rojerusan.RSNotifyAnimated("Error!", "La informacion filtraria del proyecto con el numero de orden: " + jTNorden.getText() + " no pudo ser modificado exitosamente.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.ERROR).setVisible(true);
+                    
+                    }
                 }
-            }
+                
+                break;
         }
+
     }
 
     private void asignacionDeInformacionAlObjetoProyecto(Controlador.Proyecto obj) {
@@ -2060,8 +2068,8 @@ public class proyecto extends javax.swing.JPanel {
         } else {
             obj.setFechaCiccuitoCOMFEoGF(null);
         }
-        if (jDFechaEntregaPCBGF.getDate() != null) {//Fecha de la PCB del teclado a EN
-            obj.setFechaPCBFEoGF(fecha.format(jDFechaEntregaPCBGF.getDate()));
+        if (jDFechaEntregaPCBEN.getDate() != null) {//Fecha de la PCB del teclado a EN
+            obj.setFechaPCBFEoGF(fecha.format(jDFechaEntregaPCBEN.getDate()));
         } else {
             obj.setFechaPCBFEoGF(null);
         }
@@ -2075,6 +2083,7 @@ public class proyecto extends javax.swing.JPanel {
     private void accionRegistrarModificar() {
         Proyecto conrolador_proyecto = new Proyecto();// Controlador
         asignacionDeInformacionAlObjetoProyecto(conrolador_proyecto);//Informacion general del proyecto
+        
         //Registrar o modificar la información del proyecto
         if (conrolador_proyecto.registrar_Modificar_Proyecto(Menu.jDocumento.getText(), accion)) {
             //accion = 1 (Registrar), accion = 2 (Modificar)
@@ -2140,7 +2149,7 @@ public class proyecto extends javax.swing.JPanel {
         jREjecucion.setEnabled(false);
         jRParada.setEnabled(false);
         jRPCBCOM.setEnabled(false);
-        jRPIntegracion.setEnabled(false);
+        jCPIntegracionPCB.setEnabled(false);
         jPEstadoProyecto.setVisible(false);
     }
 
@@ -2213,73 +2222,36 @@ public class proyecto extends javax.swing.JPanel {
     }
 
     private void VerificarQueSeElimina(DetalleProyecto obj) {//Falata la eliminacion Cuando se presenta una integración
-        if (!jLIDCircuito.getText().equals("0") && jCCircuito.isSelected() == false) {
+        
+        if (!jLIDCircuito.getText().equals("0") && jCCircuito.isSelected() == false) { // Circuito - FE
             //Eliminar el detalle del proyecto si ya no esta seleccionado
             subEliminardetalle(obj, Integer.parseInt(jLIDCircuito.getText()), Integer.parseInt(jTNorden.getText()), "FE", "Circuito");
         }
-        if (!jLIDCircuito.getText().equals("0") && (jLMaterialCircuito.getText().equals("GF") || cbMaterialCircuito.getSelectedItem().toString().equals("GF"))) {//Probelmas al saber que variable de material de utiliza pra le elminacion
-            subEliminardetalle(obj, Integer.parseInt(jLIDCircuito.getText()), Integer.parseInt(jTNorden.getText()), "FE", "Circuito");
-        }
-        if (!jLIDTeclado.getText().equals("0") && jCTeclado.isSelected() == false) {
+        if (!jLIDTeclado.getText().equals("0") && jCTeclado.isSelected() == false) { // Teclado
             subEliminardetalle(obj, Integer.parseInt(jLIDTeclado.getText()), Integer.parseInt(jTNorden.getText()), "TE", "Teclado");
         }
-        if (!jLIDIntegracion.getText().equals("0") && jCIntegracion.isSelected() == false) {
+        if (!jLIDIntegracion.getText().equals("0") && jCIntegracion.isSelected() == false) { // Ensamble
             subEliminardetalle(obj, Integer.parseInt(jLIDIntegracion.getText()), Integer.parseInt(jTNorden.getText()), "EN", "Circuito");
         }
-        if (!jLIDConversor.getText().equals("0") && jCConversor.isSelected() == false) {
+        if (!jLIDConversor.getText().equals("0") && jCConversor.isSelected() == false) { // Conversor
             subEliminardetalle(obj, Integer.parseInt(jLIDConversor.getText()), Integer.parseInt(jTNorden.getText()), "FE", "Conversor");
         }
-        if (!jLIDTroquel.getText().equals("0") && jCTroquel.isSelected() == false) {
+        if (!jLIDTroquel.getText().equals("0") && jCTroquel.isSelected() == false) { // Troquel
             subEliminardetalle(obj, Integer.parseInt(jLIDTroquel.getText()), Integer.parseInt(jTNorden.getText()), "FE", "Troquel");
         }
-        if (!jLIDRepujado.getText().equals("0") && jCRepujado.isSelected() == false) {
+        if (!jLIDRepujado.getText().equals("0") && jCRepujado.isSelected() == false) { // Repujado
             subEliminardetalle(obj, Integer.parseInt(jLIDRepujado.getText()), Integer.parseInt(jTNorden.getText()), "FE", "Repujado");
         }
-        if (!jLIDStencil.getText().equals("0") && jCStencil.isSelected() == false) {
+        if (!jLIDStencil.getText().equals("0") && jCStencil.isSelected() == false) { // Stencial <- Pendiente discutir lo del material
             subEliminardetalle(obj, Integer.parseInt(jLIDStencil.getText()), Integer.parseInt(jTNorden.getText()), "FE", "Stencil");
         }
-        if (!jLIDPCB.getText().equals("0") && jCPCBTE.isSelected() == false) {
+        if (!jLIDPCB.getText().equals("0") && jCPCBTE.isSelected() == false) { // PCB TE
             subEliminardetalle(obj, Integer.parseInt(jLIDPCB.getText()), Integer.parseInt(jTNorden.getText()), "FE", "PCB");
         }
-        if (!jLIDPCB.getText().equals("0") && jLMaterialPCB.getText().equals("GF")) {// ESto se va a poder eliminar
-            subEliminardetalle(obj, Integer.parseInt(jLIDPCB.getText()), Integer.parseInt(jTNorden.getText()), "FE", "PCB");
-        }
-        if (!jLIDPCB.getText().equals("0") && (jLMaterialPCB.getText().equals("TH") || jLMaterialPCB.getText().equals("FV")) && cbMaterialPCBTE.getSelectedItem().toString().equals("GF")) {// Esto se va a eliminar
-            subEliminardetalle(obj, Integer.parseInt(jLIDPCB.getText()), Integer.parseInt(jTNorden.getText()), "FE", "PCB");
-        }
-        if (jRPIntegracion.isSelected() == false && !jLIDPCBEN.getText().equals("0")) {
+        if (jCPIntegracionPCB.isSelected() == false && !jLIDPCBEN.getText().equals("0")) { // Integracion de PCB TE
             subEliminardetalle(obj, Integer.parseInt(jLIDPCBEN.getText()), Integer.parseInt(jTNorden.getText()), "EN", "Circuito-TE");
         }
-//        if (jCCircuito.isSelected()) {
-//            if (!jLIDCircuitoGF.getText().equals("0") && (cbMaterialCircuito.getSelectedItem().toString().equals("TH") || cbMaterialCircuito.getSelectedItem().toString().equals("FV"))) {
-//                //Se eliminara el gran formato y se registrara la otra forma de circuito.
-//                subEliminardetalle(obj, Integer.parseInt(jLIDCircuito.getText()), Integer.parseInt(jTNorden.getText()), "ALMACEN", "Circuito GF");
-//            }
-//        } else {
-//            if (!jLIDCircuitoGF.getText().equals("0") && jLMaterialCircuito.getText().equals("GF")) {
-//                //Se eliminara el gran formato y se registrara la otra forma de circuito.
-//                subEliminardetalle(obj, Integer.parseInt(jLIDCircuito.getText()), Integer.parseInt(jTNorden.getText()), "ALMACEN", "Circuito GF");
-//            }
-//        }
-//        if (!jLIDPCBGF.getText().equals("0") && jLMaterialPCB.getText().equals("GF") && !jLMaterialPCB.getText().equals(cbMaterialPCBTE.getSelectedItem().toString())) {// Esto se va a eliminar
-//            //Se eliminara el gran formato y se registrara la otra forma de circuito.
-//            subEliminardetalle(obj, Integer.parseInt(jLIDPCBGF.getText()), Integer.parseInt(jTNorden.getText()), "ALMACEN", "PCB GF");
-//        }
-//        if (jRPCBCOM.isSelected() == false && !jLIDPCBCOM.getText().equals("0")) {
-//            subEliminardetalle(obj, Integer.parseInt(jLIDPCBCOM.getText()), Integer.parseInt(jTNorden.getText()), "ALMACEN", "PCB COM");
-//        }
-//        if ((jCCircuito.isSelected() == false || jCIntegracion.isSelected() == false) && !jLIDCircuitoCOM.getText().equals("0")) {
-//            subEliminardetalle(obj, Integer.parseInt(jLIDCircuitoCOM.getText()), Integer.parseInt(jTNorden.getText()), "ALMACEN", "Circuito COM");
-//        }
-        //Eliminación de toda la información si los check-box no estan seleccionados.
-//        if (!jCPCBTE.isSelected() && jLMaterialPCB.getText().equals("GF")) { // Esto se va a eliminar
-//            if (!jLIDPCBGF.getText().equals("0")) {
-//                subEliminardetalle(obj, Integer.parseInt(jLIDPCBGF.getText()), Integer.parseInt(jTNorden.getText()), "ALMACEN", "PCB GF");
-//            }
-//            if (!jLIDPCBCOM.getText().equals("0")) {
-//                subEliminardetalle(obj, Integer.parseInt(jLIDPCBCOM.getText()), Integer.parseInt(jTNorden.getText()), "ALMACEN", "PCB COM");
-//            }
-//        }
+        
     }
 
     private boolean RegistrarModificarDetalle(String numeroOrden, int op) {
@@ -2302,6 +2274,7 @@ public class proyecto extends javax.swing.JPanel {
             }
             //Fin del registro del Conversor
         }
+        
         if (jCTroquel.isSelected()) {
             //Registrar Troquel-------------------------------------------->
             if (jLIDTroquel.getText().equals("0")) {
@@ -2314,6 +2287,7 @@ public class proyecto extends javax.swing.JPanel {
             }
             //Fin del registro del Troquel
         }
+        
         if (jCRepujado.isSelected()) {
             //Registrar Repujado------------------------------------------->
             if (jLIDRepujado.getText().equals("0")) {
@@ -2326,6 +2300,7 @@ public class proyecto extends javax.swing.JPanel {
             }
             //Fin del registro del Repujado
         }
+        
         if (jCStencil.isSelected()) {
             //Registrar Stencil-------------------------------------------->
             if (jLIDStencil.getText().equals("0")) {
@@ -2338,19 +2313,9 @@ public class proyecto extends javax.swing.JPanel {
             }
             //Fin del registro del Stencil
         }
+        
         if (jCCircuito.isSelected()) {
-            //Registrar PCB de FE------------------------------------------>
-//            if (cbMaterialCircuito.getSelectedIndex() == 3) {// Esto se va a eliminar
-//                //Registro de circuito GF al almacen
-//                if (jLIDCircuitoGF.getText().equals("0")) {
-//                    op1 = op;
-//                    op = 1;
-//                }
-//                res = subRegistrarModificarProyecto(obj, jTCircuito.getText(), "FE", "Circuito", numeroOrden, cbMaterialCircuito.getSelectedItem().toString(), op, Integer.parseInt(jLIDCircuitoGF.getText()), "0", 0, 0);
-//                if (jLIDCircuitoGF.getText().equals("0")) {
-//                    op = op1;
-//                }
-//            } else {
+            //Registrar Circuito de FE------------------------------------------>
                 if (jLIDCircuito.getText().equals("0")) {
                     op1 = op;
                     op = 1;
@@ -2359,47 +2324,33 @@ public class proyecto extends javax.swing.JPanel {
                 if (jLIDCircuito.getText().equals("0")) {
                     op = op1;
                 }
-//            }
-            //Fin del registro del PCB FE
+            //Fin del registro del Circuito FE
         }
+        
         if (jCPCBTE.isSelected()) {
             //Registrar PCB de TE------------------------------------------>
-//            if (cbMaterialPCBTE.getSelectedIndex() == 3) {// esto se va a eliminar
-//                if (jLIDPCBGF.getText().equals("0")) {//Esto va a desaparecer...
-//                    op1 = op;
-//                    op = 1;
-//                }
-//                res = subRegistrarModificarProyecto(obj, jTPCBTE.getText(), "FE", "PCB", numeroOrden, cbMaterialPCBTE.getSelectedItem().toString(), op, Integer.parseInt(jLIDPCBGF.getText()), "0", 0, 0);
-//                if (jLIDPCBGF.getText().equals("0")) {
-//                    op = op1;
-//                }
-//            } else {
-                if (jLIDPCB.getText().equals("0")) {
-                    op1 = op;
-                    op = 1;
-                }
-                res = subRegistrarModificarProyecto(obj, jTPCBTE.getText(), "FE", "PCB", numeroOrden, cbMaterialPCBTE.getSelectedItem().toString(), op, Integer.parseInt(jLIDPCB.getText()), String.valueOf(cbColorPCB.getSelectedIndex()), (jCRuteoP.isSelected()?1:0), cbEspesorPCB.getSelectedIndex());
-                if (jLIDPCB.getText().equals("0")) {
-                    op = op1;
-                }
-//            }
-            //Registro de componentes PCB COM <-- Por el momento no se va a utilizar
-//            if (jCPCBTE.isSelected() && jRPCBCOM.isSelected() && jLIDPCBCOM.getText().equals("0")) {//Esto de los componenetes de la PCB va a desaparecer...
-//                op1 = op;
-//                op = 1;
-//                res = subRegistrarModificarProyecto(obj, "", "ALMACEN", "PCB COM", numeroOrden, "", op, Integer.parseInt(jLIDPCBCOM.getText()), "0", 0, 0);
-//                op = op1;
-//            }
-//            //------------------------------------------------------------------------------------------------------------------------
-//            if (jCPCBTE.isSelected() && jRPIntegracion.isSelected() && jLIDPCBEN.getText().equals("0")) {
-//                op1 = op;
-//                op = 1;
-//                res = subRegistrarModificarProyecto(obj, jTPCBTE.getText(), "EN", "Circuito-TE", numeroOrden, "", op, Integer.parseInt(jLIDPCBCOM.getText()), "0", 0, 0);
-//                op = op1;
-//            }
+            if (jLIDPCB.getText().equals("0")) {
+                op1 = op;
+                op = 1;
+            }
+            res = subRegistrarModificarProyecto(obj, jTPCBTE.getText(), "FE", "PCB", numeroOrden, cbMaterialPCBTE.getSelectedItem().toString(), op, Integer.parseInt(jLIDPCB.getText()), String.valueOf(cbColorPCB.getSelectedIndex()), (jCRuteoP.isSelected()?1:0), cbEspesorPCB.getSelectedIndex());
+            if (jLIDPCB.getText().equals("0")) {
+                op = op1;
+            }
+                
+            // ...
+            if (jLIDPCBEN.getText().equals("0")) { // Ensamble de la PCB del teclado
+                op1 = op;
+                op = 1;
+            }
+            res = subRegistrarModificarProyecto(obj, jTTPCBEN.getText(), "EN", "Circuito-TE", numeroOrden, "", op, Integer.parseInt(jLIDPCBEN.getText()), "0", 0, 0);
+            if (jLIDPCBEN.getText().equals("0")) {
+                op = op1;
+            }
             //------------------------------------------------------------------------------------------------------------------------
             //Fin del registro del PCB TE
         }
+        
         if (jCTeclado.isSelected()) {
             //Registrar Teclado-------------------------------------------->
             if (jLIDTeclado.getText().equals("0")) {
@@ -2509,7 +2460,7 @@ public class proyecto extends javax.swing.JPanel {
         editor1.setEditable(false);
         JTextFieldDateEditor editor2 = (JTextFieldDateEditor) jDFechaEntregaFECOM.getDateEditor();
         editor2.setEditable(false);
-        JTextFieldDateEditor editor3 = (JTextFieldDateEditor) jDFechaEntregaPCBGF.getDateEditor();
+        JTextFieldDateEditor editor3 = (JTextFieldDateEditor) jDFechaEntregaPCBEN.getDateEditor();
         editor3.setEditable(false);
         JTextFieldDateEditor editor4 = (JTextFieldDateEditor) jDFechaEntregaPCBCOMGF.getDateEditor();
         editor4.setEditable(false);
@@ -2527,10 +2478,8 @@ public class proyecto extends javax.swing.JPanel {
         //Identificadores de productos de almacen
         jLIDCircuitoGF.setVisible(false);//ID del Circuito Cuando es GF
         jLIDCircuitoCOM.setVisible(false);//ID de los componenetes del circuito
-        jLIDPCBGF.setVisible(false);//ID de la PCB cuando es GF
+//        jLIDPCBEnsamble.setVisible(false);//ID de la PCB cuando es GF
         jLIDPCBCOM.setVisible(false);//ID de los componentes del circuito
-        jLMaterialPCB.setVisible(false);
-        jLMaterialCircuito.setVisible(false);
         jLIDPCBEN.setVisible(false);//ID de integracion de la PCB
     }
 
@@ -2563,6 +2512,7 @@ public class proyecto extends javax.swing.JPanel {
         jTNombreCliente.setText("");
         jTNombreProyecto.setText("");
         jDeEntrega.setCalendar(null);
+        jDFechaEntregaPCBEN.setCalendar(null);
         jLIngreso.setText("DD-MM-YYYY");
         cbTipoEjecucion.setSelectedIndex(0);
         jCRuteoP.setSelected(false);
@@ -2616,10 +2566,12 @@ public class proyecto extends javax.swing.JPanel {
         jLNCaracteres.setVisible(false);
         jScrollPane1.setVisible(false);
         jTNovedades.setLineWrap(true);
-        jDFechaEntregaPCBGF.setVisible(false);
-        jLCircuitoGF.setVisible(false);
+        jDFechaEntregaPCBEN.setVisible(false);
+        jLPCBTE.setVisible(false);
         jLpcbGF.setVisible(false);
         jDFechaEntregaPCBCOMGF.setVisible(false);
+        jCPIntegracionPCB.setSelected(false);
+        jTTPCBEN.setText("");
     }
     
     public void limpiarID() {
@@ -2631,12 +2583,10 @@ public class proyecto extends javax.swing.JPanel {
         jLIDPCB.setText("0");
         jLIDTeclado.setText("0");
         jLIDIntegracion.setText("0");
-        jLIDPCBGF.setText("0");
+        jLIDPCBEN.setText("0");
         jLIDPCBCOM.setText("0");
         jLIDCircuitoGF.setText("0");
         jLIDCircuitoCOM.setText("0");
-        jLMaterialPCB.setText("M");
-        jLMaterialCircuito.setText("M");
     }
     
     public void estadoBotonesSeleccionProductos(boolean estado) {
@@ -2673,46 +2623,44 @@ public class proyecto extends javax.swing.JPanel {
     public static elaprendiz.gui.comboBox.ComboBoxRound cbMaterialPCBTE;
     public static elaprendiz.gui.comboBox.ComboBoxRound cbTipoEjecucion;
     private javax.swing.ButtonGroup estadoProyecto;
-    public javax.swing.JCheckBox jCCircuito;
-    public javax.swing.JCheckBox jCConversor;
-    public javax.swing.JCheckBox jCIntegracion;
-    public javax.swing.JCheckBox jCPCBTE;
-    public javax.swing.JCheckBox jCRepujado;
-    public javax.swing.JCheckBox jCRuteoC;
-    public javax.swing.JCheckBox jCRuteoP;
-    public javax.swing.JCheckBox jCStencil;
-    public javax.swing.JCheckBox jCTeclado;
-    public javax.swing.JCheckBox jCTroquel;
+    public static javax.swing.JCheckBox jCCircuito;
+    public static javax.swing.JCheckBox jCConversor;
+    public static javax.swing.JCheckBox jCIntegracion;
+    public static javax.swing.JCheckBox jCPCBTE;
+    public static javax.swing.JCheckBox jCPIntegracionPCB;
+    public static javax.swing.JCheckBox jCRepujado;
+    public static javax.swing.JCheckBox jCRuteoC;
+    public static javax.swing.JCheckBox jCRuteoP;
+    public static javax.swing.JCheckBox jCStencil;
+    public static javax.swing.JCheckBox jCTeclado;
+    public static javax.swing.JCheckBox jCTroquel;
     public static com.toedter.calendar.JDateChooser jDFechaEntregaFE;
     public static com.toedter.calendar.JDateChooser jDFechaEntregaFECOM;
     public static com.toedter.calendar.JDateChooser jDFechaEntregaPCBCOMGF;
-    public static com.toedter.calendar.JDateChooser jDFechaEntregaPCBGF;
+    public static com.toedter.calendar.JDateChooser jDFechaEntregaPCBEN;
     public static com.toedter.calendar.JDateChooser jDNFEE;
     public static com.toedter.calendar.JDateChooser jDeEntrega;
     public static javax.swing.JLabel jLCircuitoFE;
     public static javax.swing.JLabel jLCircuitoFE1;
-    public static javax.swing.JLabel jLCircuitoGF;
     public static javax.swing.JLabel jLComCircuitos;
     public static javax.swing.JLabel jLEstado;
-    public javax.swing.JLabel jLIDCircuito;
+    public static javax.swing.JLabel jLIDCircuito;
     public static javax.swing.JLabel jLIDCircuitoCOM;
     public static javax.swing.JLabel jLIDCircuitoGF;
-    public javax.swing.JLabel jLIDConversor;
-    public javax.swing.JLabel jLIDIntegracion;
-    public javax.swing.JLabel jLIDPCB;
+    public static javax.swing.JLabel jLIDConversor;
+    public static javax.swing.JLabel jLIDIntegracion;
+    public static javax.swing.JLabel jLIDPCB;
     public static javax.swing.JLabel jLIDPCBCOM;
     public static javax.swing.JLabel jLIDPCBEN;
-    public static javax.swing.JLabel jLIDPCBGF;
-    public javax.swing.JLabel jLIDRepujado;
-    public javax.swing.JLabel jLIDStencil;
-    public javax.swing.JLabel jLIDTeclado;
-    public javax.swing.JLabel jLIDTroquel;
+    public static javax.swing.JLabel jLIDRepujado;
+    public static javax.swing.JLabel jLIDStencil;
+    public static javax.swing.JLabel jLIDTeclado;
+    public static javax.swing.JLabel jLIDTroquel;
     public static javax.swing.JLabel jLIngreso;
-    public static javax.swing.JLabel jLMaterialCircuito;
-    public static javax.swing.JLabel jLMaterialPCB;
     public static javax.swing.JLabel jLNCaracteres;
     public static javax.swing.JLabel jLNovedades;
     public static javax.swing.JLabel jLNovedades2;
+    public static javax.swing.JLabel jLPCBTE;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
@@ -2747,7 +2695,6 @@ public class proyecto extends javax.swing.JPanel {
     public static javax.swing.JRadioButton jRATiempo;
     public static javax.swing.JRadioButton jREjecucion;
     public static javax.swing.JRadioButton jRPCBCOM;
-    public static javax.swing.JRadioButton jRPIntegracion;
     public static javax.swing.JRadioButton jRParada;
     public static javax.swing.JRadioButton jRRetraso;
     public static javax.swing.JScrollPane jScrollPane1;
@@ -2761,6 +2708,7 @@ public class proyecto extends javax.swing.JPanel {
     public static elaprendiz.gui.textField.TextFieldRoundBackground jTPCBTE;
     public static elaprendiz.gui.textField.TextFieldRoundBackground jTRepujado;
     public static elaprendiz.gui.textField.TextFieldRoundBackground jTStencil;
+    public static elaprendiz.gui.textField.TextFieldRoundBackground jTTPCBEN;
     public static elaprendiz.gui.textField.TextFieldRoundBackground jTTeclado;
     public static elaprendiz.gui.textField.TextFieldRoundBackground jTTroquel;
     // End of variables declaration//GEN-END:variables

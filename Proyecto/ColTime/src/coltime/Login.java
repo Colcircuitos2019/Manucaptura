@@ -64,6 +64,7 @@ public class Login extends javax.swing.JFrame {
         jTUser.setColorDeBorde(new java.awt.Color(204, 204, 204));
         jTUser.setColorDeTextoBackground(new java.awt.Color(255, 255, 255));
         jTUser.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
+        jTUser.setNextFocusableComponent(jTPassword);
         jTUser.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 jTUserKeyPressed(evt);
@@ -103,6 +104,7 @@ public class Login extends javax.swing.JFrame {
         jTPassword.setHorizontalAlignment(javax.swing.JTextField.LEFT);
         jTPassword.setColorDeBorde(new java.awt.Color(204, 204, 204));
         jTPassword.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        jTPassword.setNextFocusableComponent(jTUser);
         jTPassword.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 jTPasswordKeyPressed(evt);
