@@ -1,13 +1,11 @@
 package coltime;
 
 import Controlador.ConexionPS;
-import Controlador.DetalleProyecto;
 import Controlador.DisponibilidadConexion;
 import Controlador.FE_TE_IN;
 import Controlador.HiloLectura;
 import Controlador.Proyecto;
 import Controlador.Usuario;
-//import Controlador.generarXlsx;
 import Controlador.rutaQR;
 import Vistas.CambiarContraseña;
 import Vistas.ClausulasPrivacidad;
@@ -29,7 +27,7 @@ import javax.sql.rowset.CachedRowSet;
 import javax.swing.ButtonGroup;
 import javax.swing.ButtonModel;
 import javax.swing.ImageIcon;
-import javax.swing.JFileChooser;
+//import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JRadioButtonMenuItem;
@@ -62,10 +60,10 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
         this.cargo = cargo;
         consultarImagenUsuario(doc);
         Animacion.Animacion.mover_derecha(935, 1135, 0, 2, jPanel3);
-        new CambiaPanel(jPContenido, new Inicio());
-        btn1.setColorHover(cor);
-        btn1.setColorNormal(cor);
-        btn1.setColorPressed(cor);
+        new CambiaPanel(jPContenido, new Inicio(cargo));
+        btnInicio.setColorHover(cor);
+        btnInicio.setColorNormal(cor);
+        btnInicio.setColorPressed(cor);
         //Imagen de la ventana.
         this.setIconImage(new ImageIcon(getClass().getResource("/imagenesEmpresa/favicon.png")).getImage());
         this.setLocationRelativeTo(null);
@@ -117,9 +115,9 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
     public static PrintStream myPS;
     ButtonGroup grupoCom = null;
     //Variables estaticas de conexion
-    public static String IP="192.168.4.173:3306";
-    public static String user= "coluser";// juanDavidM coluser
-    public static String pass= "";// 123
+    public static String IP="192.168.4.1:3306";
+    public static String user= "juanDavidM";// juanDavidM coluser
+    public static String pass= "123";// 123
             
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -143,12 +141,12 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
         jLEstadoLectura = new javax.swing.JLabel();
         jPanel4 = new javax.swing.JPanel();
         rSUsuario = new rojerusan.RSFotoCircle();
-        btn2 = new rsbuttom.RSButtonMetro();
-        btn1 = new rsbuttom.RSButtonMetro();
-        btn4 = new rsbuttom.RSButtonMetro();
-        btn3 = new rsbuttom.RSButtonMetro();
-        btn6 = new rsbuttom.RSButtonMetro();
-        btn7 = new rsbuttom.RSButtonMetro();
+        btnProyectos = new rsbuttom.RSButtonMetro();
+        btnInicio = new rsbuttom.RSButtonMetro();
+        btnProduccion = new rsbuttom.RSButtonMetro();
+        btnUsuarios = new rsbuttom.RSButtonMetro();
+        btnProcesos = new rsbuttom.RSButtonMetro();
+        btnGeneradorQR = new rsbuttom.RSButtonMetro();
         jPContenido = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
         jPanel3 = new javax.swing.JPanel();
@@ -380,126 +378,126 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
 
         jPMenu.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 190, 110));
 
-        btn2.setForeground(new java.awt.Color(128, 128, 131));
-        btn2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/market.png"))); // NOI18N
-        btn2.setText("PROYECTOS");
-        btn2.setBorderPainted(false);
-        btn2.setColorHover(new java.awt.Color(189, 189, 189));
-        btn2.setColorNormal(new java.awt.Color(219, 219, 219));
-        btn2.setColorPressed(new java.awt.Color(189, 189, 189));
-        btn2.setColorTextHover(new java.awt.Color(128, 128, 131));
-        btn2.setColorTextNormal(new java.awt.Color(128, 128, 131));
-        btn2.setColorTextPressed(new java.awt.Color(128, 128, 131));
-        btn2.setFocusable(false);
-        btn2.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        btn2.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
-        btn2.addActionListener(new java.awt.event.ActionListener() {
+        btnProyectos.setForeground(new java.awt.Color(128, 128, 131));
+        btnProyectos.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/market.png"))); // NOI18N
+        btnProyectos.setText("PROYECTOS");
+        btnProyectos.setBorderPainted(false);
+        btnProyectos.setColorHover(new java.awt.Color(189, 189, 189));
+        btnProyectos.setColorNormal(new java.awt.Color(219, 219, 219));
+        btnProyectos.setColorPressed(new java.awt.Color(189, 189, 189));
+        btnProyectos.setColorTextHover(new java.awt.Color(128, 128, 131));
+        btnProyectos.setColorTextNormal(new java.awt.Color(128, 128, 131));
+        btnProyectos.setColorTextPressed(new java.awt.Color(128, 128, 131));
+        btnProyectos.setFocusable(false);
+        btnProyectos.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        btnProyectos.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
+        btnProyectos.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btn2ActionPerformed(evt);
+                btnProyectosActionPerformed(evt);
             }
         });
-        jPMenu.add(btn2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 152, 190, 42));
+        jPMenu.add(btnProyectos, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 152, 190, 42));
 
-        btn1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/home.png"))); // NOI18N
-        btn1.setText(" INICIO");
-        btn1.setAutoscrolls(true);
-        btn1.setBorderPainted(false);
-        btn1.setColorHover(new java.awt.Color(189, 189, 189));
-        btn1.setColorNormal(new java.awt.Color(219, 219, 219));
-        btn1.setColorPressed(new java.awt.Color(189, 189, 189));
-        btn1.setColorTextHover(new java.awt.Color(128, 128, 131));
-        btn1.setColorTextNormal(new java.awt.Color(128, 128, 131));
-        btn1.setColorTextPressed(new java.awt.Color(128, 128, 131));
-        btn1.setDefaultCapable(false);
-        btn1.setFocusable(false);
-        btn1.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        btn1.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
-        btn1.addActionListener(new java.awt.event.ActionListener() {
+        btnInicio.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/home.png"))); // NOI18N
+        btnInicio.setText(" INICIO");
+        btnInicio.setAutoscrolls(true);
+        btnInicio.setBorderPainted(false);
+        btnInicio.setColorHover(new java.awt.Color(189, 189, 189));
+        btnInicio.setColorNormal(new java.awt.Color(219, 219, 219));
+        btnInicio.setColorPressed(new java.awt.Color(189, 189, 189));
+        btnInicio.setColorTextHover(new java.awt.Color(128, 128, 131));
+        btnInicio.setColorTextNormal(new java.awt.Color(128, 128, 131));
+        btnInicio.setColorTextPressed(new java.awt.Color(128, 128, 131));
+        btnInicio.setDefaultCapable(false);
+        btnInicio.setFocusable(false);
+        btnInicio.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        btnInicio.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
+        btnInicio.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btn1ActionPerformed(evt);
+                btnInicioActionPerformed(evt);
             }
         });
-        jPMenu.add(btn1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 110, 190, 42));
+        jPMenu.add(btnInicio, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 110, 190, 42));
 
-        btn4.setForeground(new java.awt.Color(128, 128, 131));
-        btn4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/collection.png"))); // NOI18N
-        btn4.setText("PRODUCCIÓN");
-        btn4.setBorderPainted(false);
-        btn4.setColorHover(new java.awt.Color(189, 189, 189));
-        btn4.setColorNormal(new java.awt.Color(219, 219, 219));
-        btn4.setColorPressed(new java.awt.Color(189, 189, 189));
-        btn4.setColorTextHover(new java.awt.Color(128, 128, 131));
-        btn4.setColorTextNormal(new java.awt.Color(128, 128, 131));
-        btn4.setColorTextPressed(new java.awt.Color(128, 128, 131));
-        btn4.setFocusable(false);
-        btn4.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        btn4.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
-        btn4.addActionListener(new java.awt.event.ActionListener() {
+        btnProduccion.setForeground(new java.awt.Color(128, 128, 131));
+        btnProduccion.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/collection.png"))); // NOI18N
+        btnProduccion.setText("PRODUCCIÓN");
+        btnProduccion.setBorderPainted(false);
+        btnProduccion.setColorHover(new java.awt.Color(189, 189, 189));
+        btnProduccion.setColorNormal(new java.awt.Color(219, 219, 219));
+        btnProduccion.setColorPressed(new java.awt.Color(189, 189, 189));
+        btnProduccion.setColorTextHover(new java.awt.Color(128, 128, 131));
+        btnProduccion.setColorTextNormal(new java.awt.Color(128, 128, 131));
+        btnProduccion.setColorTextPressed(new java.awt.Color(128, 128, 131));
+        btnProduccion.setFocusable(false);
+        btnProduccion.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        btnProduccion.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
+        btnProduccion.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btn4ActionPerformed(evt);
+                btnProduccionActionPerformed(evt);
             }
         });
-        jPMenu.add(btn4, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 236, 190, 42));
+        jPMenu.add(btnProduccion, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 236, 190, 42));
 
-        btn3.setForeground(new java.awt.Color(128, 128, 131));
-        btn3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/iconmonstr-user-8-32.png"))); // NOI18N
-        btn3.setText("USUARIOS");
-        btn3.setBorderPainted(false);
-        btn3.setColorHover(new java.awt.Color(189, 189, 189));
-        btn3.setColorNormal(new java.awt.Color(219, 219, 219));
-        btn3.setColorPressed(new java.awt.Color(189, 189, 189));
-        btn3.setColorTextHover(new java.awt.Color(128, 128, 131));
-        btn3.setColorTextNormal(new java.awt.Color(128, 128, 131));
-        btn3.setColorTextPressed(new java.awt.Color(128, 128, 131));
-        btn3.setFocusable(false);
-        btn3.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        btn3.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
-        btn3.addActionListener(new java.awt.event.ActionListener() {
+        btnUsuarios.setForeground(new java.awt.Color(128, 128, 131));
+        btnUsuarios.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/iconmonstr-user-8-32.png"))); // NOI18N
+        btnUsuarios.setText("USUARIOS");
+        btnUsuarios.setBorderPainted(false);
+        btnUsuarios.setColorHover(new java.awt.Color(189, 189, 189));
+        btnUsuarios.setColorNormal(new java.awt.Color(219, 219, 219));
+        btnUsuarios.setColorPressed(new java.awt.Color(189, 189, 189));
+        btnUsuarios.setColorTextHover(new java.awt.Color(128, 128, 131));
+        btnUsuarios.setColorTextNormal(new java.awt.Color(128, 128, 131));
+        btnUsuarios.setColorTextPressed(new java.awt.Color(128, 128, 131));
+        btnUsuarios.setFocusable(false);
+        btnUsuarios.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        btnUsuarios.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
+        btnUsuarios.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btn3ActionPerformed(evt);
+                btnUsuariosActionPerformed(evt);
             }
         });
-        jPMenu.add(btn3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 194, 190, 42));
+        jPMenu.add(btnUsuarios, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 194, 190, 42));
 
-        btn6.setForeground(new java.awt.Color(128, 128, 131));
-        btn6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/procesos.png"))); // NOI18N
-        btn6.setText("PROCESOS");
-        btn6.setBorderPainted(false);
-        btn6.setColorHover(new java.awt.Color(189, 189, 189));
-        btn6.setColorNormal(new java.awt.Color(219, 219, 219));
-        btn6.setColorPressed(new java.awt.Color(189, 189, 189));
-        btn6.setColorTextHover(new java.awt.Color(128, 128, 131));
-        btn6.setColorTextNormal(new java.awt.Color(128, 128, 131));
-        btn6.setColorTextPressed(new java.awt.Color(128, 128, 131));
-        btn6.setFocusable(false);
-        btn6.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        btn6.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
-        btn6.addActionListener(new java.awt.event.ActionListener() {
+        btnProcesos.setForeground(new java.awt.Color(128, 128, 131));
+        btnProcesos.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/procesos.png"))); // NOI18N
+        btnProcesos.setText("PROCESOS");
+        btnProcesos.setBorderPainted(false);
+        btnProcesos.setColorHover(new java.awt.Color(189, 189, 189));
+        btnProcesos.setColorNormal(new java.awt.Color(219, 219, 219));
+        btnProcesos.setColorPressed(new java.awt.Color(189, 189, 189));
+        btnProcesos.setColorTextHover(new java.awt.Color(128, 128, 131));
+        btnProcesos.setColorTextNormal(new java.awt.Color(128, 128, 131));
+        btnProcesos.setColorTextPressed(new java.awt.Color(128, 128, 131));
+        btnProcesos.setFocusable(false);
+        btnProcesos.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        btnProcesos.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
+        btnProcesos.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btn6ActionPerformed(evt);
+                btnProcesosActionPerformed(evt);
             }
         });
-        jPMenu.add(btn6, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 278, 190, 42));
+        jPMenu.add(btnProcesos, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 278, 190, 42));
 
-        btn7.setForeground(new java.awt.Color(128, 128, 131));
-        btn7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/QRs_comun.png"))); // NOI18N
-        btn7.setText("Generador QRs C");
-        btn7.setBorderPainted(false);
-        btn7.setColorHover(new java.awt.Color(189, 189, 189));
-        btn7.setColorNormal(new java.awt.Color(219, 219, 219));
-        btn7.setColorPressed(new java.awt.Color(189, 189, 189));
-        btn7.setColorTextHover(new java.awt.Color(128, 128, 131));
-        btn7.setColorTextNormal(new java.awt.Color(128, 128, 131));
-        btn7.setColorTextPressed(new java.awt.Color(128, 128, 131));
-        btn7.setFocusable(false);
-        btn7.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        btn7.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
-        btn7.addActionListener(new java.awt.event.ActionListener() {
+        btnGeneradorQR.setForeground(new java.awt.Color(128, 128, 131));
+        btnGeneradorQR.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/QRs_comun.png"))); // NOI18N
+        btnGeneradorQR.setText("Generador QRs C");
+        btnGeneradorQR.setBorderPainted(false);
+        btnGeneradorQR.setColorHover(new java.awt.Color(189, 189, 189));
+        btnGeneradorQR.setColorNormal(new java.awt.Color(219, 219, 219));
+        btnGeneradorQR.setColorPressed(new java.awt.Color(189, 189, 189));
+        btnGeneradorQR.setColorTextHover(new java.awt.Color(128, 128, 131));
+        btnGeneradorQR.setColorTextNormal(new java.awt.Color(128, 128, 131));
+        btnGeneradorQR.setColorTextPressed(new java.awt.Color(128, 128, 131));
+        btnGeneradorQR.setFocusable(false);
+        btnGeneradorQR.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        btnGeneradorQR.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
+        btnGeneradorQR.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btn7ActionPerformed(evt);
+                btnGeneradorQRActionPerformed(evt);
             }
         });
-        jPMenu.add(btn7, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 320, 190, 42));
+        jPMenu.add(btnGeneradorQR, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 320, 190, 42));
 
         jPContenido.setLayout(new javax.swing.BoxLayout(jPContenido, javax.swing.BoxLayout.LINE_AXIS));
 
@@ -1164,8 +1162,10 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
             case 1:
                 //Gestor Técnico
                 this.setTitle("Gestor Técnico: " + name);
-                btn3.setEnabled(false);
-                btn6.setEnabled(false);
+                btnUsuarios.setEnabled(false);
+                btnProcesos.setEnabled(false);
+                btnGeneradorQR.setEnabled(true);
+                btnProyectos.setEnabled(false);
                 //ItemMenu de Estado de lectura.
                 jMLectura.setVisible(false);
                 rutaQR.setVisible(false);
@@ -1175,38 +1175,30 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
             case 6:
                 //Gestor Comercial
                 this.setTitle("Gestor Comercial: " + name);
-                btn3.setEnabled(false);
-                btn6.setEnabled(false);
+                btnUsuarios.setEnabled(false);
+                btnProcesos.setEnabled(false);
+                btnGeneradorQR.setEnabled(false);
                 //ItemMenu de Estado de lectura.
                 jMLectura.setVisible(false);
                 rutaQR.setVisible(true);
                 jLEstadoLectura.setVisible(false);
                 jLabel14.setVisible(false);
                 break;
-            case 2:
-                //Encargado FE y TE
-                this.setTitle("Encargado FE y TE: " + name);
-                btn3.setEnabled(false);
-                btn6.setEnabled(false);
+            case 2: //Encargado FE y TE
+            case 3: //Encargado de EN 
+                this.setTitle((cargo==2?"Encargado FE y TE: ":"Encargado EN: ") + name);
+                btnUsuarios.setEnabled(false);
+                btnProcesos.setEnabled(false);
+                btnGeneradorQR.setEnabled(false);
                 //ItemMenu de Estado de lectura.
                 jMLectura.setVisible(true);
                 rutaQR.setVisible(false);
                 jLEstadoLectura.setVisible(true);
                 jLabel14.setVisible(true);
                 break;
-            case 3:
-                //Encargado de EN
-                this.setTitle("Encargado EN: " + name);
-                btn3.setEnabled(false);
-                btn6.setEnabled(false);
-                //ItemMenu de Estado de lectura.
-                jMLectura.setVisible(true);
-                rutaQR.setVisible(false);
-                jLEstadoLectura.setVisible(true);
-                jLabel14.setVisible(true);
-                break;
-            case 4:
+            case 4:// Administrador
                 this.setTitle("Administrador: " + name);
+                btnGeneradorQR.setEnabled(false);
                 //ItemMenu de Estado de lectura.
                 jMLectura.setVisible(false);
                 rutaQR.setVisible(true);
@@ -1216,9 +1208,10 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
             case 5:
                 //Almacen
                 this.setTitle("Almacen: " + name);
-                btn3.setEnabled(false);
-                btn2.setEnabled(false);
-                btn6.setEnabled(false);
+                btnGeneradorQR.setEnabled(false);
+                btnUsuarios.setEnabled(false);
+                btnProyectos.setEnabled(false);
+                btnProcesos.setEnabled(false);
                 //ItemMenu de Estado de lectura.
                 jMLectura.setVisible(false);
                 rutaQR.setVisible(false);
@@ -1228,36 +1221,36 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
         }
     }
 
-    private void btn2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn2ActionPerformed
+    private void btnProyectosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProyectosActionPerformed
         btnMenu.setEnabled(false);
-        if (!btn2.isSelected()) {
-            btn1.setColorHover(cor);
-            btn1.setColorNormal(corF);
-            btn1.setColorPressed(cor);
+        if (!btnProyectos.isSelected()) {
+            btnInicio.setColorHover(cor);
+            btnInicio.setColorNormal(corF);
+            btnInicio.setColorPressed(cor);
 
-            btn2.setColorHover(cor);
-            btn2.setColorNormal(cor);
-            btn2.setColorPressed(cor);
+            btnProyectos.setColorHover(cor);
+            btnProyectos.setColorNormal(cor);
+            btnProyectos.setColorPressed(cor);
 
-            btn3.setColorHover(cor);
-            btn3.setColorNormal(corF);
-            btn3.setColorPressed(cor);
+            btnUsuarios.setColorHover(cor);
+            btnUsuarios.setColorNormal(corF);
+            btnUsuarios.setColorPressed(cor);
 
-            btn4.setColorHover(cor);
-            btn4.setColorNormal(corF);
-            btn4.setColorPressed(cor);
+            btnProduccion.setColorHover(cor);
+            btnProduccion.setColorNormal(corF);
+            btnProduccion.setColorPressed(cor);
 
-            btn6.setColorHover(cor);
-            btn6.setColorNormal(corF);
-            btn6.setColorPressed(cor);
+            btnProcesos.setColorHover(cor);
+            btnProcesos.setColorNormal(corF);
+            btnProcesos.setColorPressed(cor);
             
-            btn7.setColorHover(cor);
-            btn7.setColorNormal(corF);
-            btn7.setColorPressed(cor);
+            btnGeneradorQR.setColorHover(cor);
+            btnGeneradorQR.setColorNormal(corF);
+            btnGeneradorQR.setColorPressed(cor);
         } else {
-            btn2.setColorHover(cor);
-            btn2.setColorNormal(cor);
-            btn2.setColorPressed(cor);
+            btnProyectos.setColorHover(cor);
+            btnProyectos.setColorNormal(cor);
+            btnProyectos.setColorPressed(cor);
         }
         switch (cargo) {
             case 1://Getosr Técnico
@@ -1274,38 +1267,38 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
                 cambiarpanelProyecto("proyectos2");
                 break;
         }
-    }//GEN-LAST:event_btn2ActionPerformed
+    }//GEN-LAST:event_btnProyectosActionPerformed
 
-    private void btn4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn4ActionPerformed
+    private void btnProduccionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProduccionActionPerformed
         btnMenu.setEnabled(false);
-        if (!btn4.isSelected()) {
-            btn1.setColorHover(cor);
-            btn1.setColorNormal(corF);
-            btn1.setColorPressed(cor);
+        if (!btnProduccion.isSelected()) {
+            btnInicio.setColorHover(cor);
+            btnInicio.setColorNormal(corF);
+            btnInicio.setColorPressed(cor);
 
-            btn2.setColorHover(cor);
-            btn2.setColorNormal(corF);
-            btn2.setColorPressed(cor);
+            btnProyectos.setColorHover(cor);
+            btnProyectos.setColorNormal(corF);
+            btnProyectos.setColorPressed(cor);
 
-            btn3.setColorHover(cor);
-            btn3.setColorNormal(corF);
-            btn3.setColorPressed(cor);
+            btnUsuarios.setColorHover(cor);
+            btnUsuarios.setColorNormal(corF);
+            btnUsuarios.setColorPressed(cor);
 
-            btn4.setColorHover(cor);
-            btn4.setColorNormal(cor);
-            btn4.setColorPressed(cor);
+            btnProduccion.setColorHover(cor);
+            btnProduccion.setColorNormal(cor);
+            btnProduccion.setColorPressed(cor);
 
-            btn6.setColorHover(cor);
-            btn6.setColorNormal(corF);
-            btn6.setColorPressed(cor);
+            btnProcesos.setColorHover(cor);
+            btnProcesos.setColorNormal(corF);
+            btnProcesos.setColorPressed(cor);
 
-            btn7.setColorHover(cor);
-            btn7.setColorNormal(corF);
-            btn7.setColorPressed(cor);
+            btnGeneradorQR.setColorHover(cor);
+            btnGeneradorQR.setColorNormal(corF);
+            btnGeneradorQR.setColorPressed(cor);
         } else {
-            btn3.setColorHover(cor);
-            btn3.setColorNormal(cor);
-            btn3.setColorPressed(cor);
+            btnUsuarios.setColorHover(cor);
+            btnUsuarios.setColorNormal(cor);
+            btnUsuarios.setColorPressed(cor);
         }
         if (bp == null) {
             bp = new Producciones(cargo);
@@ -1313,7 +1306,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
         } else {
             bp.isFocusableWindow();
         }
-    }//GEN-LAST:event_btn4ActionPerformed
+    }//GEN-LAST:event_btnProduccionActionPerformed
 
     private void btnMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMenuActionPerformed
         int posicionX = jPMenu.getX();
@@ -1328,40 +1321,40 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
         }
     }//GEN-LAST:event_btnMenuActionPerformed
 
-    private void btn1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn1ActionPerformed
+    private void btnInicioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnInicioActionPerformed
         btnMenu.setEnabled(true);
-        if (!btn1.isSelected()) {
-            btn1.setColorHover(cor);
-            btn1.setColorNormal(cor);
-            btn1.setColorPressed(cor);
+        if (!btnInicio.isSelected()) {
+            btnInicio.setColorHover(cor);
+            btnInicio.setColorNormal(cor);
+            btnInicio.setColorPressed(cor);
 
-            btn2.setColorHover(cor);
-            btn2.setColorNormal(corF);
-            btn2.setColorPressed(cor);
+            btnProyectos.setColorHover(cor);
+            btnProyectos.setColorNormal(corF);
+            btnProyectos.setColorPressed(cor);
 
-            btn3.setColorHover(cor);
-            btn3.setColorNormal(corF);
-            btn3.setColorPressed(cor);
+            btnUsuarios.setColorHover(cor);
+            btnUsuarios.setColorNormal(corF);
+            btnUsuarios.setColorPressed(cor);
 
-            btn4.setColorHover(cor);
-            btn4.setColorNormal(corF);
-            btn4.setColorPressed(cor);
+            btnProduccion.setColorHover(cor);
+            btnProduccion.setColorNormal(corF);
+            btnProduccion.setColorPressed(cor);
 
-            btn6.setColorHover(cor);
-            btn6.setColorNormal(corF);
-            btn6.setColorPressed(cor);
+            btnProcesos.setColorHover(cor);
+            btnProcesos.setColorNormal(corF);
+            btnProcesos.setColorPressed(cor);
             
-            btn7.setColorHover(cor);
-            btn7.setColorNormal(corF);
-            btn7.setColorPressed(cor);
+            btnGeneradorQR.setColorHover(cor);
+            btnGeneradorQR.setColorNormal(corF);
+            btnGeneradorQR.setColorPressed(cor);
 
         } else {
-            btn1.setColorHover(cor);
-            btn1.setColorNormal(cor);
-            btn1.setColorPressed(cor);
+            btnInicio.setColorHover(cor);
+            btnInicio.setColorNormal(cor);
+            btnInicio.setColorPressed(cor);
         }
         if (!jPContenido.getComponent(0).getName().equals("inicio")) {
-            new CambiaPanel(jPContenido, new Inicio());
+            new CambiaPanel(jPContenido, new Inicio(cargo));
             Vistas.proyecto pro = new proyecto();
 
             if (pro != null) {
@@ -1369,38 +1362,38 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
                 pro = null;
             }
         }
-    }//GEN-LAST:event_btn1ActionPerformed
+    }//GEN-LAST:event_btnInicioActionPerformed
 
-    private void btn3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn3ActionPerformed
+    private void btnUsuariosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUsuariosActionPerformed
         btnMenu.setEnabled(false);
-        if (!btn3.isSelected()) {
-            btn1.setColorHover(cor);
-            btn1.setColorNormal(corF);
-            btn1.setColorPressed(cor);
+        if (!btnUsuarios.isSelected()) {
+            btnInicio.setColorHover(cor);
+            btnInicio.setColorNormal(corF);
+            btnInicio.setColorPressed(cor);
 
-            btn2.setColorHover(cor);
-            btn2.setColorNormal(corF);
-            btn2.setColorPressed(cor);
+            btnProyectos.setColorHover(cor);
+            btnProyectos.setColorNormal(corF);
+            btnProyectos.setColorPressed(cor);
 
-            btn3.setColorHover(cor);
-            btn3.setColorNormal(cor);
-            btn3.setColorPressed(cor);
+            btnUsuarios.setColorHover(cor);
+            btnUsuarios.setColorNormal(cor);
+            btnUsuarios.setColorPressed(cor);
 
-            btn4.setColorHover(cor);
-            btn4.setColorNormal(corF);
-            btn4.setColorPressed(cor);
+            btnProduccion.setColorHover(cor);
+            btnProduccion.setColorNormal(corF);
+            btnProduccion.setColorPressed(cor);
 
-            btn6.setColorHover(cor);
-            btn6.setColorNormal(corF);
-            btn6.setColorPressed(cor);
+            btnProcesos.setColorHover(cor);
+            btnProcesos.setColorNormal(corF);
+            btnProcesos.setColorPressed(cor);
             
-            btn7.setColorHover(cor);
-            btn7.setColorNormal(corF);
-            btn7.setColorPressed(cor);
+            btnGeneradorQR.setColorHover(cor);
+            btnGeneradorQR.setColorNormal(corF);
+            btnGeneradorQR.setColorPressed(cor);
         } else {
-            btn3.setColorHover(cor);
-            btn3.setColorNormal(cor);
-            btn3.setColorPressed(cor);
+            btnUsuarios.setColorHover(cor);
+            btnUsuarios.setColorNormal(cor);
+            btnUsuarios.setColorPressed(cor);
         }
         if (!jPContenido.getComponent(0).getName().equals("usuarios")) {
             new CambiaPanel(jPContenido, new Usuarios1());
@@ -1409,7 +1402,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
                 pro = null;
             }
         }
-    }//GEN-LAST:event_btn3ActionPerformed
+    }//GEN-LAST:event_btnUsuariosActionPerformed
 
     private void jPSuperiorMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPSuperiorMousePressed
         posX = evt.getX();
@@ -1488,36 +1481,36 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
         }
     }//GEN-LAST:event_jPSuperiorMouseReleased
 
-    private void btn6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn6ActionPerformed
+    private void btnProcesosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProcesosActionPerformed
         btnMenu.setEnabled(false);
-        if (!btn4.isSelected()) {
-            btn1.setColorHover(cor);
-            btn1.setColorNormal(corF);
-            btn1.setColorPressed(cor);
+        if (!btnProduccion.isSelected()) {
+            btnInicio.setColorHover(cor);
+            btnInicio.setColorNormal(corF);
+            btnInicio.setColorPressed(cor);
 
-            btn2.setColorHover(cor);
-            btn2.setColorNormal(corF);
-            btn2.setColorPressed(cor);
+            btnProyectos.setColorHover(cor);
+            btnProyectos.setColorNormal(corF);
+            btnProyectos.setColorPressed(cor);
 
-            btn3.setColorHover(cor);
-            btn3.setColorNormal(corF);
-            btn3.setColorPressed(cor);
+            btnUsuarios.setColorHover(cor);
+            btnUsuarios.setColorNormal(corF);
+            btnUsuarios.setColorPressed(cor);
 
-            btn4.setColorHover(cor);
-            btn4.setColorNormal(corF);
-            btn4.setColorPressed(cor);
+            btnProduccion.setColorHover(cor);
+            btnProduccion.setColorNormal(corF);
+            btnProduccion.setColorPressed(cor);
 
-            btn6.setColorHover(cor);
-            btn6.setColorNormal(cor);
-            btn6.setColorPressed(cor);
+            btnProcesos.setColorHover(cor);
+            btnProcesos.setColorNormal(cor);
+            btnProcesos.setColorPressed(cor);
             
-            btn7.setColorHover(cor);
-            btn7.setColorNormal(corF);
-            btn7.setColorPressed(cor);
+            btnGeneradorQR.setColorHover(cor);
+            btnGeneradorQR.setColorNormal(corF);
+            btnGeneradorQR.setColorPressed(cor);
         } else {
-            btn6.setColorHover(cor);
-            btn6.setColorNormal(cor);
-            btn6.setColorPressed(cor);
+            btnProcesos.setColorHover(cor);
+            btnProcesos.setColorNormal(cor);
+            btnProcesos.setColorPressed(cor);
         }
         if (!jPContenido.getComponent(0).getName().equals("Procesos")) {
             new CambiaPanel(jPContenido, new Procesos_Condicion());
@@ -1526,7 +1519,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
                 pro = null;
             }
         }
-    }//GEN-LAST:event_btn6ActionPerformed
+    }//GEN-LAST:event_btnProcesosActionPerformed
 
     private void jLabel3MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel3MouseEntered
         jLabel3.setForeground(new Color(63, 179, 255));
@@ -1665,37 +1658,37 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
 //        System.out.println(IP);
     }//GEN-LAST:event_jMenuItem4ActionPerformed
 
-    private void btn7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn7ActionPerformed
+    private void btnGeneradorQRActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGeneradorQRActionPerformed
         btnMenu.setEnabled(true);
-        if (!btn1.isSelected()) {
-            btn1.setColorHover(cor);
-            btn1.setColorNormal(corF);
-            btn1.setColorPressed(cor);
+        if (!btnInicio.isSelected()) {
+            btnInicio.setColorHover(cor);
+            btnInicio.setColorNormal(corF);
+            btnInicio.setColorPressed(cor);
 
-            btn2.setColorHover(cor);
-            btn2.setColorNormal(corF);
-            btn2.setColorPressed(cor);
+            btnProyectos.setColorHover(cor);
+            btnProyectos.setColorNormal(corF);
+            btnProyectos.setColorPressed(cor);
 
-            btn3.setColorHover(cor);
-            btn3.setColorNormal(corF);
-            btn3.setColorPressed(cor);
+            btnUsuarios.setColorHover(cor);
+            btnUsuarios.setColorNormal(corF);
+            btnUsuarios.setColorPressed(cor);
 
-            btn4.setColorHover(cor);
-            btn4.setColorNormal(corF);
-            btn4.setColorPressed(cor);
+            btnProduccion.setColorHover(cor);
+            btnProduccion.setColorNormal(corF);
+            btnProduccion.setColorPressed(cor);
 
-            btn6.setColorHover(cor);
-            btn6.setColorNormal(corF);
-            btn6.setColorPressed(cor);
+            btnProcesos.setColorHover(cor);
+            btnProcesos.setColorNormal(corF);
+            btnProcesos.setColorPressed(cor);
             
-            btn7.setColorHover(cor);
-            btn7.setColorNormal(cor);
-            btn7.setColorPressed(cor);
+            btnGeneradorQR.setColorHover(cor);
+            btnGeneradorQR.setColorNormal(cor);
+            btnGeneradorQR.setColorPressed(cor);
 
         } else {
-            btn7.setColorHover(cor);
-            btn7.setColorNormal(cor);
-            btn7.setColorPressed(cor);
+            btnGeneradorQR.setColorHover(cor);
+            btnGeneradorQR.setColorNormal(cor);
+            btnGeneradorQR.setColorPressed(cor);
         }
         if (!jPContenido.getComponent(0).getName().equals("QRsComun")) {
             new CambiaPanel(jPContenido, new GeneradorQRComun());
@@ -1706,7 +1699,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
                 pro = null;
             }
         }       
-    }//GEN-LAST:event_btn7ActionPerformed
+    }//GEN-LAST:event_btnGeneradorQRActionPerformed
 
     private void rutaQRActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rutaQRActionPerformed
         //Parent, mensaje, titulo y tipo
@@ -2088,14 +2081,14 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
     public javax.swing.JLabel TIngresadosHoy;
     public javax.swing.JLabel TPorIniciar;
     public javax.swing.JLabel TTerminadosHoy;
-    public rsbuttom.RSButtonMetro btn1;
-    public rsbuttom.RSButtonMetro btn2;
-    public rsbuttom.RSButtonMetro btn3;
-    public rsbuttom.RSButtonMetro btn4;
-    public rsbuttom.RSButtonMetro btn6;
-    public rsbuttom.RSButtonMetro btn7;
     public javax.swing.JButton btnClausulasPrivacidad;
+    public rsbuttom.RSButtonMetro btnGeneradorQR;
+    public rsbuttom.RSButtonMetro btnInicio;
     public javax.swing.JButton btnMenu;
+    public rsbuttom.RSButtonMetro btnProcesos;
+    public rsbuttom.RSButtonMetro btnProduccion;
+    public rsbuttom.RSButtonMetro btnProyectos;
+    public rsbuttom.RSButtonMetro btnUsuarios;
     public javax.swing.ButtonGroup estadoLectura;
     public javax.swing.JButton jBMinimizar;
     public javax.swing.JButton jButton1;

@@ -14,9 +14,20 @@ import rojerusan.RSNotifyAnimated;
 
 public class Inicio extends javax.swing.JPanel {
 
-    public Inicio() {
+    public Inicio(int cargo) {
         initComponents();
         fechaYdatosProduccion();
+        // ...
+        boolean estado = false;
+        if(cargo == 4){// Los reportes unicamente seran para el administrador...
+            estado = true;
+        }
+        btnFE.setVisible(estado);
+        btnTE.setVisible(estado);
+        btnEN.setVisible(estado);
+        jLCorteTiemposMensuales.setVisible(estado);
+        // ...
+        jLDiagramas.setVisible(false);// Por el momento no se va a mostrar este componenete de la UI
         //estadoDeLectura();
     }
     //Variables
@@ -42,8 +53,11 @@ public class Inicio extends javax.swing.JPanel {
         jPanel2 = new javax.swing.JPanel();
         jPanel4 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
-        jLabel6 = new javax.swing.JLabel();
+        jLDiagramas = new javax.swing.JLabel();
         jLCorteTiemposMensuales = new javax.swing.JLabel();
+        btnFE = new javax.swing.JButton();
+        btnTE = new javax.swing.JButton();
+        btnEN = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
@@ -59,7 +73,6 @@ public class Inicio extends javax.swing.JPanel {
 
         seleccionMes.setTitle("Seleccione un mes...");
         seleccionMes.setBackground(new java.awt.Color(255, 255, 255));
-        seleccionMes.setMaximumSize(new java.awt.Dimension(433, 150));
         seleccionMes.setMinimumSize(new java.awt.Dimension(433, 150));
         seleccionMes.setResizable(false);
         seleccionMes.setSize(new java.awt.Dimension(433, 150));
@@ -196,13 +209,13 @@ public class Inicio extends javax.swing.JPanel {
                 .addContainerGap())
         );
 
-        jLabel6.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
-        jLabel6.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel6.setText("Áreas");
-        jLabel6.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        jLabel6.addMouseListener(new java.awt.event.MouseAdapter() {
+        jLDiagramas.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        jLDiagramas.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLDiagramas.setText("Áreas");
+        jLDiagramas.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jLDiagramas.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseReleased(java.awt.event.MouseEvent evt) {
-                jLabel6MouseReleased(evt);
+                jLDiagramasMouseReleased(evt);
             }
         });
 
@@ -213,6 +226,45 @@ public class Inicio extends javax.swing.JPanel {
         jLCorteTiemposMensuales.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseReleased(java.awt.event.MouseEvent evt) {
                 jLCorteTiemposMensualesMouseReleased(evt);
+            }
+        });
+
+        btnFE.setForeground(new java.awt.Color(0, 51, 255));
+        btnFE.setText("Genera Reporte Proyectos Terminados FE");
+        btnFE.setBorderPainted(false);
+        btnFE.setContentAreaFilled(false);
+        btnFE.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnFE.setFocusPainted(false);
+        btnFE.setFocusable(false);
+        btnFE.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnFEActionPerformed(evt);
+            }
+        });
+
+        btnTE.setForeground(new java.awt.Color(0, 51, 255));
+        btnTE.setText("Genera Reporte Proyectos Terminados TE");
+        btnTE.setBorderPainted(false);
+        btnTE.setContentAreaFilled(false);
+        btnTE.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnTE.setFocusPainted(false);
+        btnTE.setFocusable(false);
+        btnTE.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnTEActionPerformed(evt);
+            }
+        });
+
+        btnEN.setForeground(new java.awt.Color(0, 51, 255));
+        btnEN.setText("Genera Reporte Proyectos Terminados EN");
+        btnEN.setBorderPainted(false);
+        btnEN.setContentAreaFilled(false);
+        btnEN.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnEN.setFocusPainted(false);
+        btnEN.setFocusable(false);
+        btnEN.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnENActionPerformed(evt);
             }
         });
 
@@ -227,21 +279,34 @@ public class Inicio extends javax.swing.JPanel {
                         .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addContainerGap())
                     .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(btnFE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnTE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnEN)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLDiagramas, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
                         .addComponent(jLCorteTiemposMensuales, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addGap(0, 0, Short.MAX_VALUE))))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 96, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 62, Short.MAX_VALUE)
+                .addComponent(jLCorteTiemposMensuales, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLCorteTiemposMensuales, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(jLDiagramas, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnEN)
+                    .addComponent(btnTE)
+                    .addComponent(btnFE)))
         );
 
+        jPanel3.setBackground(new java.awt.Color(255, 255, 255));
         jPanel3.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(102, 102, 102)));
         jPanel3.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
 
@@ -382,7 +447,7 @@ public class Inicio extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jLabel6MouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel6MouseReleased
+    private void jLDiagramasMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLDiagramasMouseReleased
 //Muestra la estadistica de las areas y permitira buscar por rango de fechas
 //Falta el diagrama de cantidad de proyecto de a´reas de produccion con el rango de fechas--------------------------------------------------------------------------->
 //Tener en cuenta que lo reportes tiene que cargar los proceso que esten activos desde la base de datos, coregirlo porque se hizo quemado.
@@ -462,7 +527,7 @@ public class Inicio extends javax.swing.JPanel {
             Controlador.Diagramas dia = new Controlador.Diagramas();
             dia.EnrutamientoProceso(tipo, bus, inicio, finali);
         }
-    }//GEN-LAST:event_jLabel6MouseReleased
+    }//GEN-LAST:event_jLDiagramasMouseReleased
 
     private void jLCorteTiemposMensualesMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLCorteTiemposMensualesMouseReleased
         //Seleccionar primero el mes por el cual se quiere realizar el corte del mes...
@@ -527,6 +592,25 @@ public class Inicio extends javax.swing.JPanel {
        }
     }//GEN-LAST:event_jSeleccionarRutaActionPerformed
 
+    private void btnFEActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFEActionPerformed
+        generarReportesTiemposArea(1);
+    }//GEN-LAST:event_btnFEActionPerformed
+
+    private void btnTEActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTEActionPerformed
+        generarReportesTiemposArea(2);
+    }//GEN-LAST:event_btnTEActionPerformed
+
+    private void btnENActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnENActionPerformed
+        generarReportesTiemposArea(3);
+    }//GEN-LAST:event_btnENActionPerformed
+
+    private void generarReportesTiemposArea(int area){
+        //Consultar el reporte por rango de fechas...
+        RangoFechasReporteTiempos fechas = new RangoFechasReporteTiempos(null,false,area);
+        fechas.setLocationRelativeTo(this);
+        fechas.setVisible(true);
+    }
+    
     //Variables
     CachedRowSet crs = null;//Cantidad de proyectos para cada área respectiva
     //Metodos de la calse inicio
@@ -570,6 +654,9 @@ public class Inicio extends javax.swing.JPanel {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     public static elaprendiz.gui.button.ButtonColoredAction GenerarReporte;
+    private javax.swing.JButton btnEN;
+    private javax.swing.JButton btnFE;
+    private javax.swing.JButton btnTE;
     private javax.swing.JPanel contenedor;
     private javax.swing.JComboBox<String> jCMeses;
     private javax.swing.JComboBox<String> jComboBox1;
@@ -579,6 +666,7 @@ public class Inicio extends javax.swing.JPanel {
     private javax.swing.JLabel jLCantidadP;
     private javax.swing.JLabel jLCantidadT;
     private javax.swing.JLabel jLCorteTiemposMensuales;
+    private javax.swing.JLabel jLDiagramas;
     private javax.swing.JLabel jLFecha;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
@@ -586,7 +674,6 @@ public class Inicio extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
