@@ -81,7 +81,12 @@ void loop() {
     client.println(payload);  //Dato que va a retornar a la aplicacion movil "APP manucaptura"
   }
 
-  if (WiFi.status() != WL_CONNECTED) {
+  if (WiFi.status() != WL_CONNECTED) {// La conexion con la red aun existe ?
     setup();
   }
+
+  if(!WiFi.localIP().equals("192.168.1.101")){ // La dirección IP del modulo
+      setup();
+  }
+  
 }

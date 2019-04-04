@@ -138,7 +138,7 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
                     ps.setInt(3, idLector);
                     ps.setInt(4, area);
                     ps.setInt(5, operarios);
-                    res = !ps.execute();// retorna true si la funcion fue ejecutada correctamente  
+                    res = ps.execute();// retorna true si la funcion fue ejecutada correctamente  
                 }else{
                     res=false;
                 }
@@ -151,7 +151,6 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
             //Garbage collector...
             System.gc();
         } catch (Exception e) {
-//            JOptionPane.showMessageDialog(null, "Error! " + e);
             e.printStackTrace();
         }
         return res;

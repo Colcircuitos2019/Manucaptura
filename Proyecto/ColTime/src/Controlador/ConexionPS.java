@@ -106,7 +106,6 @@ public class ConexionPS {
                                     //...
                                     obj.LecturaCodigoQR(valorBeta);//Se encargara de ler el codigo QR
                                     //--------------------------------------------------
-                                    //Limpieza de la memoria volatil (RAM)
                                     System.gc();//Garbage collector.
                                 }
 //                            }

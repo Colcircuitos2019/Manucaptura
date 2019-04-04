@@ -7,6 +7,7 @@ import Controlador.HiloLectura;
 import Controlador.Proyecto;
 import Controlador.Usuario;
 import Controlador.rutaQR;
+import Controlador.socketCliente;
 import Vistas.CambiarContraseña;
 import Vistas.ClausulasPrivacidad;
 import Vistas.ControlDelTiempo;
@@ -27,7 +28,6 @@ import javax.sql.rowset.CachedRowSet;
 import javax.swing.ButtonGroup;
 import javax.swing.ButtonModel;
 import javax.swing.ImageIcon;
-//import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JRadioButtonMenuItem;
@@ -115,9 +115,9 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
     public static PrintStream myPS;
     ButtonGroup grupoCom = null;
     //Variables estaticas de conexion
-    public static String IP="192.168.4.1:3306";
-    public static String user= "juanDavidM";// juanDavidM coluser
-    public static String pass= "123";// 123
+    public static String IP="192.168.4.173:33066";
+    public static String user= "coluser";// juanDavidM coluser
+    public static String pass= "";// 123
             
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -1863,7 +1863,13 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
             view.setVista(view);
         }
         
-        view.RegistrarTomaTiempoNegocio(infoProductoQR, cargo, view, myPS, cantidadProductosQR);
+        boolean respuesta = view.RegistrarTomaTiempoProductoProceso(infoProductoQR, cargo, view, myPS, cantidadProductosQR);
+        
+        if(respuesta){
+            // Envia dato al socket servidor para que este se actualice...
+            socketCliente cliente = new socketCliente(1);
+            cliente.enviarInformacionServerSocket();
+        }
         
         return view;
     }

@@ -199,12 +199,12 @@ public class ControlDelTiempo extends javax.swing.JFrame implements ActionListen
         }
     }
 
-    public void RegistrarTomaTiempoNegocio(String datos[], int cargo, ControlDelTiempo vista, PrintStream myPS, int cantiProductosQR) {
+    public boolean RegistrarTomaTiempoProductoProceso(String datos[], int cargo, ControlDelTiempo vista, PrintStream myPS, int cantiProductosQR) {
         FE_TE_IN obj = new FE_TE_IN();
         this.vista = vista;
 //#------------------------------------------------------------------
-//Restricciones de permisos
-/*FE=1 TE=2 EN=3 AL=4*/
+//Restricciones de permisos de lectura...
+/*FE=1 TE=2 EN=3 AL=4*/ // Esta validacion a futuro no va a ser necesaria...
         if (cargo == 2 && (Integer.parseInt(datos[2]) == 1 || Integer.parseInt(datos[2]) == 2)) {//Tiene permiso de leer FE y TE
             // Esto dos se pueden resumir en una solo linea de código...
             res = obj.iniciar_Pausar_Reiniciar_Toma_Tiempo(Integer.parseInt(datos[0]), Integer.parseInt(datos[1]), Integer.parseInt(datos[2]), Integer.parseInt(datos[3]), Integer.parseInt(datos[4]), Integer.parseInt(datos[5]), myPS, (datos.length==7?Integer.parseInt(datos[6]):0), cantiProductosQR);
@@ -226,10 +226,11 @@ public class ControlDelTiempo extends javax.swing.JFrame implements ActionListen
             }
             vista.dispose();
         }
-//        if (res) {
-            validarExitenciadeBotones(Integer.parseInt(datos[2]), vista);
-            area = Integer.parseInt(datos[2]);
-//        }
+        
+        validarExitenciadeBotones(Integer.parseInt(datos[2]), vista);
+        area = Integer.parseInt(datos[2]);
+        
+        return res;
 //#------------------------------------------------------------------
     }
     
