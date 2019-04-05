@@ -16,7 +16,7 @@ public class DisponibilidadConexion implements Runnable {
     
     @Override
     public void run() {
-//        EN vista = new EN();
+//      EN vista = new EN();
         while (true) {
             Conexion conexion = new Conexion(1,objEN);
             conexion.establecerConexion();

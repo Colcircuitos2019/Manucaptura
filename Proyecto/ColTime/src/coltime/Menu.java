@@ -24,6 +24,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.PrintStream;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.sql.rowset.CachedRowSet;
 import javax.swing.ButtonGroup;
 import javax.swing.ButtonModel;
@@ -1867,13 +1870,42 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
         
         if(respuesta){
             // Envia dato al socket servidor para que este se actualice...
-            socketCliente cliente = new socketCliente(1);
-            cliente.enviarInformacionServerSocket();
+            socketCliente cliente = new socketCliente(1, area);
+            CachedRowSet  crs = cliente.consultarServidoresReportes();
+            try {
+                while (crs.next()) {
+                    
+                    if(!cliente.enviarInformacionServerSocket(crs.getString("ipServidor"), clasificarPuertoServidor(area))){
+                        
+                        cliente.gestionarDireccionServidor(crs.getString("ipServidor"), crs.getInt("reporte"), 0);// cambiar el estado del cliente que usa el reporte...
+                        
+                    } 
+                    
+                }
+            } catch (SQLException ex) {
+                Logger.getLogger(Menu.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
         
         return view;
     }
 
+    private int clasificarPuertoServidor(int area){
+        int puerto =0;
+        switch(area){
+            case 1://Formato estandar
+                puerto = 6000;
+                break;
+            case 2:// Teclados
+                puerto = 7000;
+                break;
+            case 3://Ensamble
+                puerto = 5000;
+                break;
+        }
+        return puerto;
+    }
+    
     public void limpiarInformacionAreas() {
         FIngresadosHoy.setText("0");
         FEjecucion.setText("0");

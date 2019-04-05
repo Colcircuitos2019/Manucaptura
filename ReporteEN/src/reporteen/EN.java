@@ -1,5 +1,14 @@
 package reporteen;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.sql.rowset.CachedRowSet;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
@@ -19,49 +28,83 @@ public class EN extends javax.swing.JFrame implements Runnable {
     Object row[];//Proyectos
     int cantTerminada = 0;
     static int posProceso = 0, rep = 0, canColumnas = 0, soloUnaVez = 0;
-    Thread hilo = null;
+    Thread innformacionProduccion = null;
 //Variables staticas
-    public static String IP = "192.168.4.1:3306";
-    public static String user = "juanDavidM";
-    public static String pass = "123";
-    
+    public static String IP = "192.168.4.173:33066";
+    public static String user = "root";
+    public static String pass = "SaAFjmXlMRvppyqW";
+
     public EN() {
         //...
         if (soloUnaVez == 0) {
             initComponents();
+            modelo = new Modelo(this);
             this.setExtendedState(EN.MAXIMIZED_BOTH);
-//          this.setTitle("Informe de Ensamble");
             this.setIconImage(new ImageIcon(getClass().getResource("/img/EN.png")).getImage());
             jTReporte.getTableHeader().setReorderingAllowed(false);
-            hilo = new Thread(this);
-            hilo.start();//Hilo de consulta de la información
+            innformacionProduccion = new Thread(this);
+            innformacionProduccion.start();//Hilo de consulta de la información
             //...
             DisponibilidadConexion conexion = new DisponibilidadConexion(this);
             Thread conec = new Thread(conexion);
             conec.start();//Hilo de validación de linea al servidor.
             soloUnaVez = 1;
-            modelo = new Modelo(this);
         }
     }
-    //Metodos
+
+    // Server socket Inicio-----------------------------------------------------
+    private final int PUERTO = 5000; // FE= 6000, EN= 5000 y TE= 7000
+    private ServerSocket servidor = null;
+    private Socket cliente = null;
+
+    DataInputStream input;
+    DataOutputStream output;
+    // Server socket fin -------------------------------------------------------
+
     @Override
     public void run() {
         try {
-            while (true) {
+
+            servidor = new ServerSocket(PUERTO);
+
+            if (gestionDireccionServidor(String.valueOf(InetAddress.getLocalHost()).split("/")[1], 1)) {
                 consultarProcesosEncabezados();
-                jPanel1.updateUI();
-                System.gc();//Garbaje collector
-//                Thread.sleep(5000);//5 segundos
             }
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "1-Error: " + e);
+
+            while (true) {
+
+                cliente = servidor.accept();
+
+                input = new DataInputStream(cliente.getInputStream());
+                String mensaje = input.readUTF();
+
+                if (mensaje.equals("true")) {
+
+                    consultarProcesosEncabezados();
+                    jPanel1.updateUI();
+                    System.gc();//Garbaje collector
+
+                }
+
+            }
+
+        } catch (IOException ex) {
+
+            Logger.getLogger(socketServidor.class.getName()).log(Level.SEVERE, null, ex);
+
         }
+    }
+
+    private boolean gestionDireccionServidor(String direccionIP, int estado) {
+
+        return modelo.gestionarDireccionServidor(direccionIP, estado);
+
     }
 
     private void consultarProcesosEncabezados() {
         try {
             String nuevaCadena = "";
-            betaNames="";
+            betaNames = "";
             int count = 0;
             Thread.sleep(5);
             crs = modelo.consultarProcesosM(3);//Ensamble=3
@@ -74,7 +117,7 @@ public class EN extends javax.swing.JFrame implements Runnable {
                 nuevaCadena += ";sub_" + namesBeta[i] + ";" + namesBeta[i];
             }
             //Columnas de cantidad total terminada
-            nuevaCadena+=";relleno;Terminados;relleno;Restantes";
+            nuevaCadena += ";relleno;Terminados;relleno;Restantes";
             //...
             names = (beta + nuevaCadena).split(";");//Encabezado de las columnas
             //...
@@ -101,24 +144,23 @@ public class EN extends javax.swing.JFrame implements Runnable {
                 if (rep == 0) {
                     row[0] = crs.getString(1);//Numero de orden
                     row[1] = crs.getString(2);//Cant
-//                  row[2] = crs.getString(6);//Tipo de proyecto Esto ya no existe
-                    row[2] = (crs.getString(7)==null?"-":consultarNombreEmpleadoLider(crs.getString(7)));//producto
+                    row[2] = (crs.getString(7) == null ? "-" : consultarNombreEmpleadoLider(crs.getString(7)));//producto
                     cantidadTotatlUnidades += crs.getInt(2);
                     //...
 //                    agregarNoperariosProceso();
-                      estadoProcesos();
+                    estadoProcesos();
                     rep = 1;
                 } else {
                     if (row[0].toString().equals(crs.getString(1))) {
                         //...
 //                        agregarNoperariosProceso();
-                          estadoProcesos();
+                        estadoProcesos();
                     } else {
                         //Cancular la cantidad total terminada
-                        row[names.length-3]=cantTerminada!=0?(Integer.parseInt(String.valueOf(row[1]))-cantTerminada):0;
+                        row[names.length - 3] = cantTerminada != 0 ? (Integer.parseInt(String.valueOf(row[1])) - cantTerminada) : 0;
                         //Cantidad restante del proyecto
-                        row[names.length - 1] = Integer.parseInt(String.valueOf(row[1]))- Integer.parseInt(String.valueOf(row[names.length-3]));
-                        cantTerminada=0;
+                        row[names.length - 1] = Integer.parseInt(String.valueOf(row[1])) - Integer.parseInt(String.valueOf(row[names.length - 3]));
+                        cantTerminada = 0;
                         //Añade la fila al modelo de la tabla...
                         df.addRow(row);
                         totalProyectos++;
@@ -127,19 +169,19 @@ public class EN extends javax.swing.JFrame implements Runnable {
                         row[0] = crs.getString(1);//Numero de orden
                         row[1] = crs.getString(2);//Cant
 //                        row[2] = crs.getString(6);//Tipo de proyecto
-                        row[2] = (crs.getString(7)==null?"-":consultarNombreEmpleadoLider(crs.getString(7)));//Lider de proyecto
+                        row[2] = (crs.getString(7) == null ? "-" : consultarNombreEmpleadoLider(crs.getString(7)));//Lider de proyecto
                         cantidadTotatlUnidades += crs.getInt(2);
                         //...
 //                        agregarNoperariosProceso();
-                          estadoProcesos();
+                        estadoProcesos();
                     }
                 }
             }
             if (rep == 1) {
                 //Calcular la cantidad terminada total del proyecto
-                row[names.length-3]=cantTerminada!=0?(Integer.parseInt(String.valueOf(row[1]))-cantTerminada):0;
+                row[names.length - 3] = cantTerminada != 0 ? (Integer.parseInt(String.valueOf(row[1])) - cantTerminada) : 0;
                 //Cantidad restante del proyecto
-                row[names.length-1]=Integer.parseInt(String.valueOf(row[1]))-cantTerminada;
+                row[names.length - 1] = Integer.parseInt(String.valueOf(row[1])) - cantTerminada;
                 cantTerminada = 0;
                 //Agregar la fila al modelo de la tabla...
                 df.addRow(row);
@@ -161,15 +203,15 @@ public class EN extends javax.swing.JFrame implements Runnable {
             JOptionPane.showMessageDialog(null, "3-Error: " + e);
         }
     }
-    
-    private void estadoProcesos(){//Calcular la cantidad pasada queda pendiente
+
+    private void estadoProcesos() {//Calcular la cantidad pasada queda pendiente
         try {
-            int pos=consultarPosicionProceso(crs.getString(3));// Posiciòn del proceso
+            int pos = consultarPosicionProceso(crs.getString(3));// Posiciòn del proceso
             row[pos - 1] = crs.getString(5);//Estado de proceso
             row[pos] = crs.getString(9);//Cantidades terminadas del proceso
-            cantTerminada+=crs.getInt(9);
+            cantTerminada += crs.getInt(9);
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null,"4-Error: " + e);
+            JOptionPane.showMessageDialog(null, "4-Error: " + e);
         }
     }
 
@@ -186,7 +228,7 @@ public class EN extends javax.swing.JFrame implements Runnable {
     }
 
     private int consultarPosicionProceso(String nombreProceso) {
-        for (int i = 2; i <= names.length-1; i++) {
+        for (int i = 2; i <= names.length - 1; i++) {
             if (names[i].equals(nombreProceso)) {
                 posProceso = i;
                 break;
@@ -194,19 +236,19 @@ public class EN extends javax.swing.JFrame implements Runnable {
         }
         return posProceso;
     }
-    
-    private String consultarNombreEmpleadoLider(String doc){
-        String name="";
+
+    private String consultarNombreEmpleadoLider(String doc) {
+        String name = "";
         try {
-            name= modelo.consultarNombreLiderProyectoM(doc);
+            name = modelo.consultarNombreLiderProyectoM(doc);
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null,"5-Error:"+e);
+            JOptionPane.showMessageDialog(null, "5-Error:" + e);
         }
         return name;
     }
 
     private void ColumnasAOcultar() {
-        for (int i = 3; i <= (namesBeta.length*2)+5; i++) {
+        for (int i = 3; i <= (namesBeta.length * 2) + 5; i++) {
             if (i % 2 == 1) {
                 jTReporte.getColumnModel().getColumn(i).setMinWidth(0);
                 jTReporte.getColumnModel().getColumn(i).setMaxWidth(0);
@@ -247,6 +289,11 @@ public class EN extends javax.swing.JFrame implements Runnable {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Informe de ensamble");
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
 
         jPanel1.setBackground(new java.awt.Color(204, 220, 226));
 
@@ -386,8 +433,16 @@ public class EN extends javax.swing.JFrame implements Runnable {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-       
+
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        try {
+            gestionDireccionServidor(String.valueOf(InetAddress.getLocalHost()).split("/")[1], 0);
+        } catch (UnknownHostException ex) {
+            Logger.getLogger(EN.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_formWindowClosing
 
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */

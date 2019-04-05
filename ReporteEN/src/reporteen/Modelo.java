@@ -29,7 +29,7 @@ public class Modelo {
             conexion.establecerConexion();
             con=conexion.getConexion();
             //Preparar la consulata
-            Query = "CALL PA_ConsultarPRocesosReporteENoTE(?)";
+            Query = "CALL PA_ConsultarProcesoAreaReporte(?)";
             ps = con.prepareStatement(Query);
             ps.setInt(1, area);
             rs = ps.executeQuery();
@@ -67,6 +67,32 @@ public class Modelo {
 //            JOptionPane.showMessageDialog(null, "Erro: " + e);
         }
         return crs;
+    }
+
+    public boolean gestionarDireccionServidor(String direccionIP, int estado) {
+        boolean respuesta = false;
+        try {
+            //Establecer la conexión
+            conexion=new Conexion(1,objEN);//Base de datos de SGN
+            conexion.establecerConexion();
+            con=conexion.getConexion();
+            //Preparar la consulata
+            Query = "CALL PA_GestionDireccionServerSocketReporte(?,?,?)";// pendiente procedure
+            ps = con.prepareStatement(Query);
+            ps.setString(1, direccionIP); // Direccion IP del server socket
+            ps.setInt(2, 1); // Reporte del área
+            ps.setInt(3, estado); // Estado de lectura
+            ps.execute();
+            respuesta= true;
+            //Cierre de conexiones
+            conexion.cerrar(rs);
+            conexion.destruir();
+            ps.close();
+            con.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return respuesta;
     }
     
         public String consultarNombreLiderProyectoM(String doc){

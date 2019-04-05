@@ -51,7 +51,7 @@ public class ControlDelTiempo extends javax.swing.JFrame implements ActionListen
 
         jPanel1 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        contenidoFE = new javax.swing.JPanel();
+        contenido = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
         jButton1 = new javax.swing.JButton();
 
@@ -68,22 +68,22 @@ public class ControlDelTiempo extends javax.swing.JFrame implements ActionListen
         jScrollPane1.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         jScrollPane1.setPreferredSize(new java.awt.Dimension(1094, 300));
 
-        contenidoFE.setBackground(new java.awt.Color(255, 255, 255));
-        contenidoFE.setMaximumSize(new java.awt.Dimension(40000, 40000));
-        contenidoFE.setPreferredSize(new java.awt.Dimension(0, 500));
+        contenido.setBackground(new java.awt.Color(255, 255, 255));
+        contenido.setMaximumSize(new java.awt.Dimension(40000, 40000));
+        contenido.setPreferredSize(new java.awt.Dimension(0, 500));
 
-        javax.swing.GroupLayout contenidoFELayout = new javax.swing.GroupLayout(contenidoFE);
-        contenidoFE.setLayout(contenidoFELayout);
-        contenidoFELayout.setHorizontalGroup(
-            contenidoFELayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        javax.swing.GroupLayout contenidoLayout = new javax.swing.GroupLayout(contenido);
+        contenido.setLayout(contenidoLayout);
+        contenidoLayout.setHorizontalGroup(
+            contenidoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 808, Short.MAX_VALUE)
         );
-        contenidoFELayout.setVerticalGroup(
-            contenidoFELayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        contenidoLayout.setVerticalGroup(
+            contenidoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 500, Short.MAX_VALUE)
         );
 
-        jScrollPane1.setViewportView(contenidoFE);
+        jScrollPane1.setViewportView(contenido);
 
         jPanel2.setBackground(new java.awt.Color(63, 179, 255));
         jPanel2.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
@@ -150,16 +150,9 @@ public class ControlDelTiempo extends javax.swing.JFrame implements ActionListen
     }// </editor-fold>//GEN-END:initComponents
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
-        if (this.contenidoFE.getComponentCount() == 0) {
+        if (this.contenido.getComponentCount() == 0) {
             this.dispose();
-            //Si la ventana es cerrada la variable de instancia es igualada a null
-            if (Menu.producF == vista) {
-                Menu.producF = null;
-            } else if (Menu.producE == vista) {
-                Menu.producE = null;
-            } else if (Menu.producT == vista) {
-                Menu.producT = null;
-            }
+            reinicializarObjetoVista();
         } else {
             new rojerusan.RSNotifyAnimated("¡Alerta!", "No puedes cerrar esta ventana mientras esta en ejecucion la toma de tiempos", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.WARNING).setVisible(true);
             this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -173,10 +166,10 @@ public class ControlDelTiempo extends javax.swing.JFrame implements ActionListen
 //    validarExitenciadeBotones(3,vista); Actualizar autimaticamente la vista, esta pendiente para una futura versión...
     //
     //Se valida que el bono no exista en el panle para no reprtirlo***  
-    public void validarExitenciadeBotones(int negocio, ControlDelTiempo vista) {
+    public void validarExitenciadeBotones(int area, ControlDelTiempo vista) {
         FE_TE_IN obj = new FE_TE_IN();
         //Buscamos los proyectos que estan en ejecucion.
-        crs = obj.consultarProyectosEnEjecucion(negocio);
+        crs = obj.consultarProyectosEnEjecucion(area);
         //Se sulven a posicionar todos los botones.
         try {
             //Se vuleven a reiniciar las variables con los valores predeterminados
@@ -187,13 +180,19 @@ public class ControlDelTiempo extends javax.swing.JFrame implements ActionListen
             unidad = 14;
             conta = 8;
             //Se limpa el panel para volver a organizar los botones
-            vista.contenidoFE.removeAll();
-            vista.contenidoFE.updateUI();
+            vista.contenido.removeAll();
+            vista.contenido.updateUI();
             //Se posicionan todos los botones
             while (crs.next()) {
                 agregarBotones(vista, Integer.parseInt(crs.getString(1)));
             }
+            // ...
             crs.close();
+            // ...
+//            if(vista.contenido.getComponentCount() == 0){ Pendiente
+//                vista.dispose();
+//                reinicializarObjetoVista();
+//            }
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, e);
         }
@@ -217,14 +216,8 @@ public class ControlDelTiempo extends javax.swing.JFrame implements ActionListen
             // ...
             new rojerusan.RSNotifyAnimated("¡Alerta!", "No tienes permiso de leer el QR", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.WARNING).setVisible(true);
             // ...
-            if (Menu.producF == vista) {//Se valida que la vista que no se este utilizando se apunte a null y se finalice
-                Menu.producF = null;
-            } else if (Menu.producT == vista) {
-                Menu.producT = null;
-            } else if (Menu.producE == vista) {
-                Menu.producE = null;
-            }
             vista.dispose();
+            reinicializarObjetoVista();
         }
         
         validarExitenciadeBotones(Integer.parseInt(datos[2]), vista);
@@ -232,6 +225,17 @@ public class ControlDelTiempo extends javax.swing.JFrame implements ActionListen
         
         return res;
 //#------------------------------------------------------------------
+    }
+    
+    private void reinicializarObjetoVista(){
+        //Si la ventana es cerrada la variable de instancia es igualada a null
+        if (Menu.producF == vista) {
+            Menu.producF = null;
+        } else if (Menu.producE == vista) {
+            Menu.producE = null;
+        } else if (Menu.producT == vista) {
+            Menu.producT = null;
+        }
     }
     
     public void agregarBotones(ControlDelTiempo vista, int orden) {
@@ -254,13 +258,13 @@ public class ControlDelTiempo extends javax.swing.JFrame implements ActionListen
             px = 0;
             filas++;
             if (cantidad == unidad * conta) {
-                vista.contenidoFE.setPreferredSize(new Dimension(vista.contenidoFE.getWidth(), vista.contenidoFE.getHeight() + 496));
+                vista.contenido.setPreferredSize(new Dimension(vista.contenido.getWidth(), vista.contenido.getHeight() + 496));
                 conta += 8;
             }
-            vista.contenidoFE.updateUI();
+            vista.contenido.updateUI();
         }
-        vista.contenidoFE.add(obj);
-        vista.contenidoFE.updateUI();
+        vista.contenido.add(obj);
+        vista.contenido.updateUI();
     }
 
     @Override
@@ -329,7 +333,7 @@ public class ControlDelTiempo extends javax.swing.JFrame implements ActionListen
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    public javax.swing.JPanel contenidoFE;
+    public javax.swing.JPanel contenido;
     private javax.swing.JButton jButton1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
