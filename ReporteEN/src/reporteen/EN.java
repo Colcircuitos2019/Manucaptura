@@ -1,5 +1,6 @@
 package reporteen;
 
+import java.awt.Color;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -45,15 +46,30 @@ public class EN extends javax.swing.JFrame implements Runnable {
             innformacionProduccion = new Thread(this);
             innformacionProduccion.start();//Hilo de consulta de la información
             //...
-            DisponibilidadConexion conexion = new DisponibilidadConexion(this);
-            Thread conec = new Thread(conexion);
-            conec.start();//Hilo de validación de linea al servidor.
+//            DisponibilidadConexion conexion = new DisponibilidadConexion(this);
+//            Thread conec = new Thread(conexion);
+//            conec.start();//Hilo de validación de linea al servidor.
+            estadoConexionServidor();
             soloUnaVez = 1;
         }
     }
 
+    private void estadoConexionServidor() {
+        Conexion conexion = new Conexion(1, this);
+        conexion.establecerConexion();
+        if (conexion.getConexion() != null) {
+            jLConexion.setText("Linea");
+            jLConexion.setForeground(Color.GREEN);
+        } else {
+            jLConexion.setText("Sin conexión");
+            jLConexion.setForeground(Color.RED);
+        }
+        conexion.destruir();
+    }
+
     // Server socket Inicio-----------------------------------------------------
-    private final int PUERTO = 5000; // FE= 6000, EN= 5000 y TE= 7000
+    private String direccionIP = consultarDireccionIPServer();
+    private final int PUERTO = consultarPuertoComunicacionServidor(direccionIP);
     private ServerSocket servidor = null;
     private Socket cliente = null;
 
@@ -63,44 +79,80 @@ public class EN extends javax.swing.JFrame implements Runnable {
 
     @Override
     public void run() {
-        try {
+        
+        while(true){
+            try {
 
-            servidor = new ServerSocket(PUERTO);
+                servidor = new ServerSocket(PUERTO);
 
-            if (gestionDireccionServidor(String.valueOf(InetAddress.getLocalHost()).split("/")[1], 1)) {
-                consultarProcesosEncabezados();
-            }
-
-            while (true) {
-
-                cliente = servidor.accept();
-
-                input = new DataInputStream(cliente.getInputStream());
-                String mensaje = input.readUTF();
-
-                if (mensaje.equals("true")) {
-
+                if (gestionDireccionServidor(direccionIP, PUERTO,1)) {
                     consultarProcesosEncabezados();
-                    jPanel1.updateUI();
-                    System.gc();//Garbaje collector
+                }
+
+                while (true) {
+
+                    cliente = servidor.accept();
+
+                    input = new DataInputStream(cliente.getInputStream());/*2*/
+                    String mensaje = input.readUTF();
+
+                    switch (mensaje) {
+                        case "true":// Se efectuo la lectura de un QR de porduccion o se ingreso un nuevo proyecto
+                            consultarProcesosEncabezados();
+                            jPanel1.updateUI();
+                            System.gc();//Garbaje collector
+                            break;
+                        case "1":
+                        case "2":
+                            if (mensaje.equals("1")) {
+                                jLConexion.setText("Linea");
+                                jLConexion.setForeground(Color.GREEN);
+                            } else {
+                                jLConexion.setText("Sin conexión");
+                                jLConexion.setForeground(Color.RED);
+                            }
+                            break;
+                    }
 
                 }
 
-            }
+            } catch (IOException ex) {
 
-        } catch (IOException ex) {
+                Logger.getLogger(socketServidor.class.getName()).log(Level.SEVERE, null, ex);
 
-            Logger.getLogger(socketServidor.class.getName()).log(Level.SEVERE, null, ex);
-
+            }        
         }
+        
     }
 
-    private boolean gestionDireccionServidor(String direccionIP, int estado) {
+    private boolean gestionDireccionServidor(String direccionIP, int puerto, int estado) {
 
-        return modelo.gestionarDireccionServidor(direccionIP, estado);
+        return modelo.gestionarDireccionServidor(direccionIP, puerto, estado);
 
     }
 
+    private int consultarPuertoComunicacionServidor(String direccionIP){
+        Modelo modelo = new Modelo(this);
+        int puerto = modelo.consultarPuertoComunicacionservidorM(direccionIP);
+        if(puerto!= 0){
+            return puerto;
+        }else{
+            return (int) (Math.random()* 1000) + 5000;
+        }
+
+    }
+    
+    private String consultarDireccionIPServer(){
+
+        String direccionIP ="";
+        try {
+            direccionIP = String.valueOf(InetAddress.getLocalHost()).split("/")[1];
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return direccionIP;
+    }
+    
     private void consultarProcesosEncabezados() {
         try {
             String nuevaCadena = "";
@@ -438,7 +490,7 @@ public class EN extends javax.swing.JFrame implements Runnable {
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
         try {
-            gestionDireccionServidor(String.valueOf(InetAddress.getLocalHost()).split("/")[1], 0);
+            gestionDireccionServidor(String.valueOf(InetAddress.getLocalHost()).split("/")[1], PUERTO,0);
         } catch (UnknownHostException ex) {
             Logger.getLogger(EN.class.getName()).log(Level.SEVERE, null, ex);
         }

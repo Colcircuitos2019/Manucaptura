@@ -2083,13 +2083,14 @@ public class proyecto extends javax.swing.JPanel {
     private void accionRegistrarModificar() {
         Proyecto conrolador_proyecto = new Proyecto();// Controlador
         asignacionDeInformacionAlObjetoProyecto(conrolador_proyecto);//Informacion general del proyecto
-        
+        Menu menu=new Menu();
         //Registrar o modificar la información del proyecto
-        if (conrolador_proyecto.registrar_Modificar_Proyecto(Menu.jDocumento.getText(), accion)) {
+        if (conrolador_proyecto.registrar_Modificar_Proyecto(menu.jDocumento.getText(), accion)) {
             //accion = 1 (Registrar), accion = 2 (Modificar)
             if (RegistrarModificarDetalle(jTNorden.getText(), accion)) {
                 //Mensaje de exito
                 new rojerusan.RSNotifyAnimated("Listo!!", ("El Proyecto con el numero de orden: " + jTNorden.getText() + " fue " + (accion == 2 ? "modificado" : "registrada") + " exitosamente."), 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.SUCCESS).setVisible(true);
+                menu.comunicacionServerSocket(0);
                 if (accion == 2) {
                     GenerarQR.setEnabled(false);
                 } else {

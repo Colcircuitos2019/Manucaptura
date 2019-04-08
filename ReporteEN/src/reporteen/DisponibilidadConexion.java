@@ -15,7 +15,7 @@ public class DisponibilidadConexion implements Runnable {
     }
     
     @Override
-    public void run() {
+    public void run() {// Eesta clase se va a eliminar ya no es necesaria...
 //      EN vista = new EN();
         while (true) {
             Conexion conexion = new Conexion(1,objEN);

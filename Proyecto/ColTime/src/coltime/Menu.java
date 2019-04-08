@@ -25,6 +25,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.PrintStream;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.sql.rowset.CachedRowSet;
@@ -38,11 +39,12 @@ import paneles.CambiaPanel;
 import rojerusan.RSNotifyAnimated;
 
 public class Menu extends javax.swing.JFrame implements ActionListener {
+
     //
     public Color cor = new Color(189, 189, 189);//girs
     public Color corF = new Color(219, 219, 219);//Gris
     //
-    public static Color verde = new Color(4,231,4);//Verde
+    public static Color verde = new Color(4, 231, 4);//Verde
     public static Color rojo = new Color(255, 0, 0);//Rojo
     //
     public static Producciones bp = null;
@@ -54,7 +56,9 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
     Thread tomaTiempo = null;
     public static String puertoActual = "COM6";//Por defecto va a ser el Puerto COM6
     proyecto pro = null;
-    rutaQR controlador=null;
+    rutaQR controlador = null;
+    public static ArrayList<Object> serversSockets = null; 
+
     ///---------------------------------------------------------------------------
     //Al generar el ejecutable o acceso directo, no carga el menu principal. Estar atento a esta novedad para solucionarlo lo más pronto posible.
     //----------------------------------------------------------------------------
@@ -81,7 +85,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
         //Puerto Por el cual se va a ingresar la información--------------------
         puertoActual = ConsultarPueroGurdado(doc);
         //Fine del puerto-------------------------------------------------------
-        //Validación continua de la conexion a la base de datos----------------- En linea o Sin conexión. 
+        //Validación continua de la conexion a la base de datos----------------- En linea o Sin conexión.
         DisponibilidadConexion dispo = new DisponibilidadConexion();
         Thread conec = new Thread(dispo);
         conec.start();
@@ -100,6 +104,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
         //!!!!!!!!!!!!!!!!!!!!!!!
         //Fin de toma de tiempos automatica-------------------------------------
     }
+
     //Constructor.
     public Menu() {
 
@@ -118,10 +123,10 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
     public static PrintStream myPS;
     ButtonGroup grupoCom = null;
     //Variables estaticas de conexion
-    public static String IP="192.168.4.173:33066";
-    public static String user= "coluser";// juanDavidM coluser
-    public static String pass= "";// 123
-            
+    public static String IP = "192.168.4.173:33066";
+    public static String user = "coluser";// juanDavidM coluser
+    public static String pass = "";// 123
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -310,7 +315,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
         jLConexion.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLConexion.setForeground(new java.awt.Color(51, 255, 51));
         jLConexion.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLConexion.setText("Linea");
+        jLConexion.setText("-");
         jPanel9.add(jLConexion);
         jLConexion.setBounds(20, 30, 80, 14);
 
@@ -1189,7 +1194,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
                 break;
             case 2: //Encargado FE y TE
             case 3: //Encargado de EN 
-                this.setTitle((cargo==2?"Encargado FE y TE: ":"Encargado EN: ") + name);
+                this.setTitle((cargo == 2 ? "Encargado FE y TE: " : "Encargado EN: ") + name);
                 btnUsuarios.setEnabled(false);
                 btnProcesos.setEnabled(false);
                 btnGeneradorQR.setEnabled(false);
@@ -1246,7 +1251,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
             btnProcesos.setColorHover(cor);
             btnProcesos.setColorNormal(corF);
             btnProcesos.setColorPressed(cor);
-            
+
             btnGeneradorQR.setColorHover(cor);
             btnGeneradorQR.setColorNormal(corF);
             btnGeneradorQR.setColorPressed(cor);
@@ -1346,7 +1351,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
             btnProcesos.setColorHover(cor);
             btnProcesos.setColorNormal(corF);
             btnProcesos.setColorPressed(cor);
-            
+
             btnGeneradorQR.setColorHover(cor);
             btnGeneradorQR.setColorNormal(corF);
             btnGeneradorQR.setColorPressed(cor);
@@ -1389,7 +1394,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
             btnProcesos.setColorHover(cor);
             btnProcesos.setColorNormal(corF);
             btnProcesos.setColorPressed(cor);
-            
+
             btnGeneradorQR.setColorHover(cor);
             btnGeneradorQR.setColorNormal(corF);
             btnGeneradorQR.setColorPressed(cor);
@@ -1506,7 +1511,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
             btnProcesos.setColorHover(cor);
             btnProcesos.setColorNormal(cor);
             btnProcesos.setColorPressed(cor);
-            
+
             btnGeneradorQR.setColorHover(cor);
             btnGeneradorQR.setColorNormal(corF);
             btnGeneradorQR.setColorPressed(cor);
@@ -1620,7 +1625,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
                 HiloLectura lectura = new HiloLectura();
                 tomaTiempo = new Thread(lectura);
                 tomaTiempo.start();
-            }else{
+            } else {
                 jRLDesactivado.setSelected(true);
             }
         }
@@ -1647,16 +1652,16 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
     }//GEN-LAST:event_jMenu4MouseEntered
 
     private void btnClausulasPrivacidadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClausulasPrivacidadActionPerformed
-    ClausulasPrivacidad obj=new ClausulasPrivacidad(this, true);
-    obj.setLocationRelativeTo(null);
-    obj.setVisible(true);
-    
+        ClausulasPrivacidad obj = new ClausulasPrivacidad(this, true);
+        obj.setLocationRelativeTo(null);
+        obj.setVisible(true);
+
     }//GEN-LAST:event_btnClausulasPrivacidadActionPerformed
 
     private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
-        IP= JOptionPane.showInputDialog(this,"Cual es la dirección del servidor",IP);
-        user= JOptionPane.showInputDialog(this,"Cual el usuario del servidor",user);
-        pass= JOptionPane.showInputDialog(this,"Cual es la contraseña del usuario",pass);
+        IP = JOptionPane.showInputDialog(this, "Cual es la dirección del servidor", IP);
+        user = JOptionPane.showInputDialog(this, "Cual el usuario del servidor", user);
+        pass = JOptionPane.showInputDialog(this, "Cual es la contraseña del usuario", pass);
         //...
 //        System.out.println(IP);
     }//GEN-LAST:event_jMenuItem4ActionPerformed
@@ -1683,7 +1688,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
             btnProcesos.setColorHover(cor);
             btnProcesos.setColorNormal(corF);
             btnProcesos.setColorPressed(cor);
-            
+
             btnGeneradorQR.setColorHover(cor);
             btnGeneradorQR.setColorNormal(cor);
             btnGeneradorQR.setColorPressed(cor);
@@ -1701,18 +1706,18 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
                 pro.disponibilidad = false;
                 pro = null;
             }
-        }       
+        }
     }//GEN-LAST:event_btnGeneradorQRActionPerformed
 
     private void rutaQRActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rutaQRActionPerformed
         //Parent, mensaje, titulo y tipo
-        if (controlador==null){
-            controlador= new rutaQR();  
+        if (controlador == null) {
+            controlador = new rutaQR();
         }
         controlador.consultarRutaQR(jDocumento.getText());
         String path = JOptionPane.showInputDialog(this, "Ingresa la ruta donde se guardaran los QR generados", controlador.getRutaQR());
-        if(path!=null){
-        //...El path tiene que ser diferente a null y a vacio. El path tiene que ser 
+        if (path != null) {
+            //...El path tiene que ser diferente a null y a vacio. El path tiene que ser 
             if (!path.equals("") && path.codePointAt(path.length() - 1) == 92) {
                 //Gestionar la ruta
                 controlador.setRutaQR(path);
@@ -1724,7 +1729,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
                 //...
             } else {
                 new rojerusan.RSNotifyAnimated("¡Alerta!", "La ruta especificada no esta bien estructurada.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.ERROR).setVisible(true);
-            }            
+            }
         }
     }//GEN-LAST:event_rutaQRActionPerformed
 //Metodos de la clase menu----------------------------------------------------->
@@ -1753,7 +1758,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
                     opPuerto.setSelected(true);
                 }
                 //Estado del boton depende del estado de lectura.
-                if(diponible){
+                if (diponible) {
                     opPuerto.setEnabled(false);
                 }
                 grupoCom.add(opPuerto);
@@ -1775,44 +1780,43 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
 //Fin de la configuracion de los puertos seriales-------------------------------
 
     public void LecturaCodigoQR(String informacion_codigo) {
-        
+
         String sub_trama[] = informacion_codigo.split("_");
-        
+
         String trama_QR[] = sub_trama[0].split("@");
-        
-        
+
         // ...
         for (int i = 0; i < trama_QR.length; i++) {
             // ...
-            
+
             String infoProductoQR[] = null;
-            if(sub_trama.length ==2){
-               infoProductoQR = (trama_QR[i] + sub_trama[1]).split(";");
-            }else{
-               infoProductoQR = trama_QR[i].split(";");
+            if (sub_trama.length == 2) {
+                infoProductoQR = (trama_QR[i] + sub_trama[1]).split(";");
+            } else {
+                infoProductoQR = trama_QR[i].split(";");
             }
             // ...
-            
+
             //Esta validacion queda mejor a nivel de la base de datos o del modelo...
             Proyecto validar = new Proyecto();
             // Se validara primero el permiso que tiene el ususario para leer los códigos QR de esta orden y despues se validara si la orden existe o esta parada.
             if (validar.validarEliminacion(Integer.parseInt(infoProductoQR[0]))) {//Valido si la orden esta eliminada o no
                 // ...
                 if (validar.validarEjecucionOParada(Integer.parseInt(infoProductoQR[0]))) {//Valida que la orden no este parada
-                    
+
                     if (validarEstructuraCorrectaDelQR(infoProductoQR.length)) {//Se valida que si se lea el codigo QR que es necesario
                         // ...
                         switch (Integer.parseInt(infoProductoQR[2])) {
                             //Se tiene que validar el estado del proyecto a ver si permite o no registrar la toma de tiempo.
                             case 1:
-                                
-                                producF =registrarTiemposEjecucionProducto(infoProductoQR, producF, "FE", "Formato estandar", 1, trama_QR.length);
-                                
+
+                                producF = registrarTiemposEjecucionProducto(infoProductoQR, producF, "FE", "Formato estandar", 1, trama_QR.length);
+
                                 break;
                             case 2:
-                                
+
                                 producT = registrarTiemposEjecucionProducto(infoProductoQR, producT, "TE", "Teclados", 2, trama_QR.length);
-                                
+
                                 break;
                             case 3:
                                 // ...
@@ -1821,13 +1825,13 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
                                 break;
                         }
                     }
-                
+
                 } else {
                     //El proyecto no puede realizar la toma de tiempo porque esta parada.
 //                  enviarMensajeCelular("¡Alerta!" + "n/" + "Esta orden esta parada, no puedes realizar la toma de tiempo de esta orden.");
                     new rojerusan.RSNotifyAnimated("¡Alerta!", "Esta orden esta parada, no puedes realizar la toma de tiempo de esta orden.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.ERROR).setVisible(true);
                 }
-                
+
             } else {
                 //Este mensaje se retornara al dispositivo móvil.
                 //El proyecto no existe - Esta eliminado
@@ -1836,17 +1840,17 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
             }
         }
     }
-    
-    private boolean validarEstructuraCorrectaDelQR(int longitudInfoQR){
-        boolean repuesta =false;
-        switch(cargo){
+
+    private boolean validarEstructuraCorrectaDelQR(int longitudInfoQR) {
+        boolean repuesta = false;
+        switch (cargo) {
             case 2: // Encargado de FE y TE
-                if(longitudInfoQR == 6 || longitudInfoQR == 7){
+                if (longitudInfoQR == 6 || longitudInfoQR == 7) {
                     repuesta = true;
                 }
                 break;
             case 3: // Encargado de EN
-                if(longitudInfoQR == 7){
+                if (longitudInfoQR == 7) {
                     repuesta = true;
                 }
                 break;
@@ -1854,9 +1858,9 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
         // ...
         return repuesta;
     }
-    
-    private ControlDelTiempo registrarTiemposEjecucionProducto(String[] infoProductoQR,ControlDelTiempo view, String name, String title, int area, int cantidadProductosQR){
-        
+
+    private ControlDelTiempo registrarTiemposEjecucionProducto(String[] infoProductoQR, ControlDelTiempo view, String name, String title, int area, int cantidadProductosQR) {
+
         if (view == null) {
             view = new ControlDelTiempo();
             view.setName(name);
@@ -1865,45 +1869,56 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
             view.setArea(area);
             view.setVista(view);
         }
-        
+
         boolean respuesta = view.RegistrarTomaTiempoProductoProceso(infoProductoQR, cargo, view, myPS, cantidadProductosQR);
-        
-        if(respuesta){
-            // Envia dato al socket servidor para que este se actualice...
-            socketCliente cliente = new socketCliente(1, area);
-            CachedRowSet  crs = cliente.consultarServidoresReportes();
+
+        if (respuesta) {
+            comunicacionServerSocket(area);
+        }
+
+        return view;
+    }
+
+    public void comunicacionServerSocket(int area) {
+        // Envia dato al socket servidor para que este se actualice...
+        socketCliente cliente = new socketCliente(area);
+        CachedRowSet crs = cliente.consultarServidoresReportes();
+        consultarServerSockets();
+        try {
+            while (crs.next()) {
+
+                if (!cliente.enviarInformacionServerSocket(crs.getString("ipServidor"), Integer.parseInt(crs.getString("puerto")), "true")) {
+
+                    cliente.gestionarDireccionServidor(crs.getString("ipServidor"), Integer.parseInt(crs.getString("puerto")), 0);// cambiar el estado del cliente que usa el reporte...
+
+                }
+
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(Menu.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public ArrayList<Object> consultarServerSockets(){
+        // ...
+        ArrayList<Object> serverScoekts = new ArrayList<Object>();
+        socketCliente cliente = new socketCliente(0);
+        // ...
+        CachedRowSet crs = cliente.consultarServidoresReportes();
+        if(crs != null){
             try {
                 while (crs.next()) {
-                    
-                    if(!cliente.enviarInformacionServerSocket(crs.getString("ipServidor"), clasificarPuertoServidor(area))){
-                        
-                        cliente.gestionarDireccionServidor(crs.getString("ipServidor"), crs.getInt("reporte"), 0);// cambiar el estado del cliente que usa el reporte...
-                        
-                    } 
-                    
+
+                    serverScoekts.add(new String[]{crs.getString("ipServidor"), (crs.getString("puerto"))});
+
                 }
             } catch (SQLException ex) {
                 Logger.getLogger(Menu.class.getName()).log(Level.SEVERE, null, ex);
             }
+            // ...
+            return serverScoekts;
         }
-        
-        return view;
-    }
-
-    private int clasificarPuertoServidor(int area){
-        int puerto =0;
-        switch(area){
-            case 1://Formato estandar
-                puerto = 6000;
-                break;
-            case 2:// Teclados
-                puerto = 7000;
-                break;
-            case 3://Ensamble
-                puerto = 5000;
-                break;
-        }
-        return puerto;
+        return serversSockets;
     }
     
     public void limpiarInformacionAreas() {
@@ -2193,7 +2208,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
     protected void finalize() throws Throwable {
         super.finalize(); //To change body of generated methods, choose Tools | Templates.
     }
-    
+
     /*
     //Modulo de reporte
         int seleccion = JOptionPane.showOptionDialog(null, "¿Qué reporte desea generar?",
@@ -2228,5 +2243,5 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
                 }
             }
         }
-    */
+     */
 }

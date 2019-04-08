@@ -15,30 +15,31 @@ public class socketCliente {
    
     private final String ipServerSocket = "192.168.4.173";
     private Socket cliente;
-    private final int puerto = 5000;
-    private int mensaje =0;
+//    private final int puerto = 5000;
+//    private int mensaje =0;
     private int area =0;
     // ...
     DataOutputStream outPut = null;
     DataInputStream inPut = null;
     // ...
     
-    public socketCliente(int mensaje, int area){
-        this.mensaje = mensaje;
+    public socketCliente(int area){
+//        this.mensaje = mensaje;
         this.area = area;
     }
+    public socketCliente(){}
 
-    public boolean enviarInformacionServerSocket( String ipServerSocket, int puerto){
+    public boolean enviarInformacionServerSocket( String ipServerSocket, int puerto, String mensaje){
         boolean respueta = false;
         try {
             cliente = new Socket();//Establecer conexion con el serversocket
-            cliente.connect(new InetSocketAddress(ipServerSocket, puerto), 500);
-            
+            cliente.connect(new InetSocketAddress(ipServerSocket, puerto), 1000);//Ruta de conexion(IP y puerto) y tiempo de espera
+            // ...
             outPut = new DataOutputStream(cliente.getOutputStream());// Enviar mensaje
-            outPut.writeUTF("true");
-            
+            outPut.writeUTF(mensaje);
+            // ...
             cliente.close();// Desconectar el socket cliente
-            
+            // ...
             respueta = true;
             
         } catch (IOException ex) {

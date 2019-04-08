@@ -69,7 +69,7 @@ public class Modelo {
         return crs;
     }
 
-    public boolean gestionarDireccionServidor(String direccionIP, int estado) {
+    public boolean gestionarDireccionServidor(String direccionIP, int puerto, int estado) {
         boolean respuesta = false;
         try {
             //Establecer la conexión
@@ -77,11 +77,12 @@ public class Modelo {
             conexion.establecerConexion();
             con=conexion.getConexion();
             //Preparar la consulata
-            Query = "CALL PA_GestionDireccionServerSocketReporte(?,?,?)";// pendiente procedure
+            Query = "CALL PA_GestionDireccionServerSocketReporte(?,?,?,?)";// pendiente procedure
             ps = con.prepareStatement(Query);
             ps.setString(1, direccionIP); // Direccion IP del server socket
-            ps.setInt(2, 1); // Reporte del área
+            ps.setInt(2, 3); // Reporte del área
             ps.setInt(3, estado); // Estado de lectura
+            ps.setInt(4, puerto); // puerto
             ps.execute();
             respuesta= true;
             //Cierre de conexiones
@@ -93,6 +94,33 @@ public class Modelo {
             e.printStackTrace();
         }
         return respuesta;
+    }
+    
+    public int consultarPuertoComunicacionservidorM(String direccionIP) {
+        int puerto = 0;
+        try {
+            //Establecer la conexión
+            conexion=new Conexion(1,objEN);//Base de datos de SGN
+            conexion.establecerConexion();
+            con=conexion.getConexion();
+            //Preparar la consulata
+            Query = "SELECT FU_ConsultarPuertoComunicacionServidorSocket(?,?)";// pendiente procedure
+            ps = con.prepareStatement(Query);
+            ps.setString(1, direccionIP); // Direccion IP del server socket
+            ps.setInt(2, 3); // area
+            rs = ps.executeQuery();
+            while(rs.next()){
+                puerto = rs.getInt(1);
+            }
+            //Cierre de conexiones
+            conexion.cerrar(rs);
+            conexion.destruir();
+            ps.close();
+            con.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return puerto;
     }
     
         public String consultarNombreLiderProyectoM(String doc){
