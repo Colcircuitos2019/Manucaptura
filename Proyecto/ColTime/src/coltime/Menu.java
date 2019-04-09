@@ -49,15 +49,15 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
     //
     public static Producciones bp = null;
     int cont = 0;
-    public static boolean diponible = false;//Se utiliza para saber si se cierra la conexion del puerto o no.
+    public static boolean estadoLecturaPuertoCOM = false;//Se utiliza para saber si se cierra la conexion del puerto o no.
     static int soloUnaVez = 0;
     ConexionPS CPS = null;
     DetallesAreaInfo informacion = null;
     Thread tomaTiempo = null;
-    public static String puertoActual = "COM6";//Por defecto va a ser el Puerto COM6
+    public static String puertoSerialActual = "COM6";//Por defecto va a ser el Puerto COM6
     proyecto pro = null;
     rutaQR controlador = null;
-    public static ArrayList<Object> serversSockets = null; 
+    public static ArrayList<Object> serversSockets = null;
 
     ///---------------------------------------------------------------------------
     //Al generar el ejecutable o acceso directo, no carga el menu principal. Estar atento a esta novedad para solucionarlo lo más pronto posible.
@@ -83,7 +83,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
         new rojerusan.RSNotifyAnimated("Bienvenido", nombre, 6, RSNotifyAnimated.PositionNotify.BottomLeft, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.SUCCESS).setVisible(true);
         soloUnaVez = 1;
         //Puerto Por el cual se va a ingresar la información--------------------
-        puertoActual = ConsultarPueroGurdado(doc);
+        puertoSerialActual = ConsultarPueroGurdado(doc);
         //Fine del puerto-------------------------------------------------------
         //Validación continua de la conexion a la base de datos----------------- En linea o Sin conexión.
         DisponibilidadConexion dispo = new DisponibilidadConexion();
@@ -95,7 +95,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
         //Solo funciona para los usuarios con cargo de Encargados de FE, TE o EN
         if (cargo == 2 || cargo == 3) {
             if (soloUnaVez == 1) {
-                diponible = true;
+                estadoLecturaPuertoCOM = true;
                 HiloLectura lectura = new HiloLectura();
                 tomaTiempo = new Thread(lectura);
                 tomaTiempo.start();
@@ -1095,6 +1095,13 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    public void estadoPertoSerialOperarios() {
+        //...
+        Proyecto controlador = new Proyecto();
+        controlador.actualizarEstadoLecturaPuertoSerial((estadoLecturaPuertoCOM ? 1 : 0), jDocumento.getText());
+        //...
+    }
+
     private void EnCasodeFallaDeLuz() {
         //Es metodo se hace con la finalidad de saber que proyectos no pausaron/terminaron el tiempo satisfactoriamente antes de que sucediera la falla de energia.
         //Solo se le realizara esta acción a los cargos de encargado ensamble, encargado de FE y TE 
@@ -1156,7 +1163,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
     //Queda pendiente hacerle sus respectivas validaciones.....................................................
     public static void estadoDeLectura() {
         //Se encarga de seleccionar el estado de lectura del sistema.
-        if (Menu.diponible) {//Activado!!
+        if (Menu.estadoLecturaPuertoCOM) {//Activado!!
             jLEstadoLectura.setText("Activado");
             jLEstadoLectura.setForeground(verde);
         } else {//Desactivado.
@@ -1444,9 +1451,9 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
                     new Object[]{"SI", "NO"}, "SI") == 0) {
                 //Cierra el menu y abre el login
 //                tomaTiempo.destroy();
-                diponible = false;//Variable del menu para los roles encargados de FE, TE y EN
+                estadoLecturaPuertoCOM = false;//Variable del menu para los roles encargados de FE, TE y EN
                 pro.disponibilidad = false;//Variable  de la vista proyecto para los roles administrativos del sistema.
-
+                // ...
                 if (bp != null) {
                     bp.jBSalir.doClick();//La vista de produccion tiene que cerrarce cuando se salga de la aplicación.
                 }
@@ -1616,15 +1623,17 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
 
     private void jRLActivadoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRLActivadoActionPerformed
         //
-        if (!diponible) {
+        if (!estadoLecturaPuertoCOM) {
             if (JOptionPane.showOptionDialog(null, "¿Seguro deseas reactivar el estado de lectura?",
                     "seleccione...", JOptionPane.YES_NO_CANCEL_OPTION,
                     JOptionPane.QUESTION_MESSAGE, null,// null para icono por defecto.
                     new Object[]{"SI", "NO"}, "SI") == 0) {
-                diponible = true;
+                estadoLecturaPuertoCOM = true;
+                // ...
                 HiloLectura lectura = new HiloLectura();
                 tomaTiempo = new Thread(lectura);
                 tomaTiempo.start();
+                // ...
             } else {
                 jRLDesactivado.setSelected(true);
             }
@@ -1634,12 +1643,12 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
 
     private void jRLDesactivadoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRLDesactivadoActionPerformed
         // 
-        if (diponible) {
+        if (estadoLecturaPuertoCOM) {
             if (JOptionPane.showOptionDialog(null, "¿Seguro deseas desactivar el estado de lectura?",
                     "seleccione...", JOptionPane.YES_NO_CANCEL_OPTION,
                     JOptionPane.QUESTION_MESSAGE, null,// null para icono por defecto.
                     new Object[]{"SI", "NO"}, "SI") == 0) {
-                diponible = false;//Se encarga de desactivar el estado de lectura.
+                estadoLecturaPuertoCOM = false;//Se encarga de desactivar el estado de lectura.
                 estadoDeLectura();
             }
         }
@@ -1754,11 +1763,11 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
                 opPuerto.setName(v[i]);//Nombre del componente
                 opPuerto.setActionCommand(v[i]);//Acción de comando
                 opPuerto.addActionListener(this);//Evento
-                if (puertoActual.equals(v[i])) {
+                if (puertoSerialActual.equals(v[i])) {
                     opPuerto.setSelected(true);
                 }
                 //Estado del boton depende del estado de lectura.
-                if (diponible) {
+                if (estadoLecturaPuertoCOM) {
                     opPuerto.setEnabled(false);
                 }
                 grupoCom.add(opPuerto);
@@ -1774,7 +1783,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         ButtonModel boton = grupoCom.getSelection();
         Usuario obj = new Usuario();
-        puertoActual = boton.getActionCommand();
+        puertoSerialActual = boton.getActionCommand();
         obj.RegistrarModificarPuertoSerialUsuario(jDocumento.getText(), boton.getActionCommand());
     }
 //Fin de la configuracion de los puertos seriales-------------------------------
@@ -1873,13 +1882,13 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
         boolean respuesta = view.RegistrarTomaTiempoProductoProceso(infoProductoQR, cargo, view, myPS, cantidadProductosQR);
 
         if (respuesta) {
-            comunicacionServerSocket(area);
+            comunicacionServerSocket(area, "true");
         }
 
         return view;
     }
 
-    public void comunicacionServerSocket(int area) {
+    public void comunicacionServerSocket(int area, String mensaje) {
         // Envia dato al socket servidor para que este se actualice...
         socketCliente cliente = new socketCliente(area);
         CachedRowSet crs = cliente.consultarServidoresReportes();
@@ -1887,9 +1896,9 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
         try {
             while (crs.next()) {
 
-                if (!cliente.enviarInformacionServerSocket(crs.getString("ipServidor"), Integer.parseInt(crs.getString("puerto")), "true")) {
+                if (!cliente.enviarInformacionServerSocket(crs.getString("ipServidor"), Integer.parseInt(crs.getString("puerto")), mensaje)) {
 
-                    cliente.gestionarDireccionServidor(crs.getString("ipServidor"), Integer.parseInt(crs.getString("puerto")), 0);// cambiar el estado del cliente que usa el reporte...
+                    cliente.gestionarDireccionServidor(crs.getString("ipServidor"), area, 0, crs.getString("puerto"));// cambiar el estado del cliente que usa el reporte...
 
                 }
 
@@ -1899,13 +1908,13 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
         }
     }
 
-    public ArrayList<Object> consultarServerSockets(){
+    public ArrayList<Object> consultarServerSockets() {
         // ...
         ArrayList<Object> serverScoekts = new ArrayList<Object>();
         socketCliente cliente = new socketCliente(0);
         // ...
         CachedRowSet crs = cliente.consultarServidoresReportes();
-        if(crs != null){
+        if (crs != null) {
             try {
                 while (crs.next()) {
 
@@ -1920,7 +1929,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
         }
         return serversSockets;
     }
-    
+
     public void limpiarInformacionAreas() {
         FIngresadosHoy.setText("0");
         FEjecucion.setText("0");
@@ -1942,9 +1951,15 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
                     "seleccione...", JOptionPane.YES_NO_CANCEL_OPTION,
                     JOptionPane.QUESTION_MESSAGE, null,// null para icono por defecto.
                     new Object[]{"SI", "NO"}, "SI") == 0) {
-                sesion(0, jDocumento.getText());
+                // ...
+                sesion(0, jDocumento.getText());// Cerrar Session
+                if(cargo==2 || cargo==3){
+                    comunicacionServerSocket(3,"des");// El primer parametro tiene que ser el área donde
+                    Proyecto controlador = new Proyecto();
+                    controlador.actualizarEstadoLecturaPuertoSerial(0, jDocumento.getText()); 
+                }
                 //Esto ezsta pendiente para la proxima actualización
-//                guardarImagenMenuUsuario(); <--- pendiente para futuras versiones...
+//              guardarImagenMenuUsuario(); <--- pendiente para futuras versiones...
                 System.exit(0);
             }
         } else {

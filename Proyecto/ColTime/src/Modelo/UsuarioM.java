@@ -346,32 +346,7 @@ public class UsuarioM {
             JOptionPane.showMessageDialog(null, "¡Error!" + e);
         }
     }
-    
-    public int actualizarEstadoLecturaPuertoSerial(int estado, String documento){
-        try {
-            conexion = new Conexion(1);
-            conexion.establecerConexion();
-            con = conexion.getConexion();
-            //Query y ejecución------------------------------------------------------------>
-            String Qry = "SELECT FU_ActualizarEstadoLecturaPuertoSerialFacilitadorOperarios(?,?);";//Estado del puerto y numero de documento
-            ps = con.prepareCall(Qry);
-            ps.setInt(1, estado);
-            ps.setString(2, documento);
-            rs= ps.executeQuery();
-            rs.next();
-            estado = rs.getInt(1);
-            //Destrucción de conexiones
-            con.close();
-            conexion.cerrar(rs);
-            conexion.destruir();
-            ps.close();
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "¡Error!" + e);
-        }
-        //...
-        return estado;
-    }
-    
+
     @Override
     protected void finalize() throws Throwable {
         super.finalize(); //To change body of generated methods, choose Tools | Templates.

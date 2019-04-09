@@ -4,6 +4,7 @@ import Controlador.DetalleProyecto;
 import Controlador.Empleado;
 import Controlador.FE_TE_IN;
 import Controlador.Tabla;
+import coltime.Menu;
 import javax.sql.rowset.CachedRowSet;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -514,7 +515,7 @@ public class detalleProyecto extends javax.swing.JDialog {
                             }
                         } else {//Si presiona el boton SI
                             //<Componentes>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-                            //Registro te tiempo de componentes
+                            //Registro te tiempo de componentes <Esto va a ser eliminado por que ya no es necesario para el funcionamiento del sistema.>
                             if (JOptionPane.showOptionDialog(null, "¿Seguro desea terminar la toma de tiempos de los componentes.", "Seguridad", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null/*icono*/, botones, botones[0]) == 0) {
                                 idDetalle = String.valueOf(TDetalleProduccion.getValueAt(row, 13));//Identificador
                                 String orden[] = this.getTitle().split("-");                                         //Cantidad//      Proceso  
@@ -535,6 +536,9 @@ public class detalleProyecto extends javax.swing.JDialog {
                             if (controlador.ReiniciarDetalle(Integer.parseInt(idDetalleProceso), area, idDetalleProducto)) {///Pendiente???¿¿¿???¿¿¿XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
                                 new rojerusan.RSNotifyAnimated("¡Listo!", "El proceso: " + TDetalleProduccion.getValueAt(row, 0) + " fue reinicializado corresctamente.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.SUCCESS).setVisible(true);
                                 cargarTabla();
+                                // ...
+                                enviarMensajeServerSocket();
+                                // ...
                             } else {
                                 new rojerusan.RSNotifyAnimated("¡Error!", "El proceso: " + TDetalleProduccion.getValueAt(row, 0) + " no pudo ser reinicializado.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.WARNING).setVisible(true);
                             }
@@ -543,7 +547,7 @@ public class detalleProyecto extends javax.swing.JDialog {
                 }
             }else if(value instanceof JRadioButton){
                 JRadioButton radioBoton= (JRadioButton) value;
-                if(!radioBoton.isSelected() && radioBoton.isEnabled()){//Validar si se puede modificar el proceso inial para poder ejecutar la toma de tiempo
+                if(!radioBoton.isSelected() && radioBoton.isEnabled()){//Validar si se puede modificar el proceso inicial para poder ejecutar la toma de tiempo
                     //Seleccionar Primer proceso del área...
                     DetalleProyecto obj = new DetalleProyecto();
                     v = radioBoton.getActionCommand().split("-");// Vector de una log maxima siempre de 2
@@ -551,6 +555,9 @@ public class detalleProyecto extends javax.swing.JDialog {
                     radioBoton.setSelected(true);
                     radioBoton.updateUI();
                     TDetalleProduccion.updateUI();
+                    // ...
+                    enviarMensajeServerSocket();
+                    // ...
                 }
             }
         }
@@ -585,6 +592,11 @@ public class detalleProyecto extends javax.swing.JDialog {
     private void TDetalleProduccionPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_TDetalleProduccionPropertyChange
     }//GEN-LAST:event_TDetalleProduccionPropertyChange
 
+    private void enviarMensajeServerSocket(){
+        Menu menu = new Menu();
+        menu.comunicacionServerSocket(area, "true");
+    }
+    
     private void cargarTabla() {
         Tabla personalizar = new Tabla();
         personalizar.visualizar(TDetalleProduccion, idDetalleProducto, area);//Consulta de la informacion de los proceso

@@ -44,7 +44,7 @@ public class ProyectoQR implements Runnable {
             Scanner mySC;
             while (commports.hasMoreElements()) {
                 myCPI = (CommPortIdentifier) commports.nextElement();
-                if (myCPI.getName().equals(menu.puertoActual)) {//Localización del puerto 
+                if (myCPI.getName().equals(menu.puertoSerialActual)) {//Localización del puerto 
                     puertoProyecto = 1;
                     puerto = myCPI.open("Puerto serial Proyecto", 1000);//Apertura Time y nombre del puerto
                     SerialPort mySP = (SerialPort) puerto;
@@ -102,7 +102,7 @@ public class ProyectoQR implements Runnable {
             this.pro.disponibilidad=false;
 //            puerto.close();
             if (ErrorConexionPuerto == 0) {
-                JOptionPane.showMessageDialog(null, "El puerto " + menu.puertoActual + " esta abierto, por favor cierrelo para poder realizar la operación.");
+                JOptionPane.showMessageDialog(null, "El puerto " + menu.puertoSerialActual + " esta abierto, por favor cierrelo para poder realizar la operación.");
             } else {
                 puerto.close();
                 viewProyecto.jLEstado.setText("Desactivado");

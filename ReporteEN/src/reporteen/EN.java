@@ -1,6 +1,7 @@
 package reporteen;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -32,24 +33,23 @@ public class EN extends javax.swing.JFrame implements Runnable {
     Thread innformacionProduccion = null;
 //Variables staticas
     public static String IP = "192.168.4.173:33066";
-    public static String user = "root";
-    public static String pass = "SaAFjmXlMRvppyqW";
+    public static String user = "root";//juanDavidM
+    public static String pass = "SaAFjmXlMRvppyqW";//
 
     public EN() {
         //...
         if (soloUnaVez == 0) {
             initComponents();
             modelo = new Modelo(this);
-            this.setExtendedState(EN.MAXIMIZED_BOTH);
-            this.setIconImage(new ImageIcon(getClass().getResource("/img/EN.png")).getImage());
-            jTReporte.getTableHeader().setReorderingAllowed(false);
+            this.setExtendedState(EN.MAXIMIZED_BOTH);// Extienete el jFrame a la totalidad del tamaño de la pantalla
+            this.setIconImage(new ImageIcon(getClass().getResource("/img/EN.png")).getImage());// Favicon del jFrame
+            jTReporte.getTableHeader().setReorderingAllowed(false);// Evita que los headers de la tabla se puedans desplazar...
+            // ...
+            estadoConexionServidor();
+            consultarEstadoLectura();
             innformacionProduccion = new Thread(this);
             innformacionProduccion.start();//Hilo de consulta de la información
             //...
-//            DisponibilidadConexion conexion = new DisponibilidadConexion(this);
-//            Thread conec = new Thread(conexion);
-//            conec.start();//Hilo de validación de linea al servidor.
-            estadoConexionServidor();
             soloUnaVez = 1;
         }
     }
@@ -59,7 +59,7 @@ public class EN extends javax.swing.JFrame implements Runnable {
         conexion.establecerConexion();
         if (conexion.getConexion() != null) {
             jLConexion.setText("Linea");
-            jLConexion.setForeground(Color.GREEN);
+            jLConexion.setForeground(new Color(0,185,0));
         } else {
             jLConexion.setText("Sin conexión");
             jLConexion.setForeground(Color.RED);
@@ -67,6 +67,16 @@ public class EN extends javax.swing.JFrame implements Runnable {
         conexion.destruir();
     }
 
+    private void consultarEstadoLectura(){
+        if(modelo.consultarEstadoLecturaPuertoSerial()){
+            jLEstadoLectura.setText("Activado");
+            jLEstadoLectura.setForeground(new Color(0, 185, 0));
+        } else {
+            jLEstadoLectura.setText("Desactivado");
+            jLEstadoLectura.setForeground(Color.RED);
+        }
+    }
+    
     // Server socket Inicio-----------------------------------------------------
     private String direccionIP = consultarDireccionIPServer();
     private final int PUERTO = consultarPuertoComunicacionServidor(direccionIP);
@@ -92,24 +102,36 @@ public class EN extends javax.swing.JFrame implements Runnable {
                 while (true) {
 
                     cliente = servidor.accept();
-
+                    // ...
                     input = new DataInputStream(cliente.getInputStream());/*2*/
                     String mensaje = input.readUTF();
-
+                    // ...
                     switch (mensaje) {
-                        case "true":// Se efectuo la lectura de un QR de porduccion o se ingreso un nuevo proyecto
+                        case "true":// Actualizar info reporte
+                            //Se genero alguna modificacion que afecta algun producto o se agregaron nuevas OP
                             consultarProcesosEncabezados();
                             jPanel1.updateUI();
                             System.gc();//Garbaje collector
                             break;
-                        case "1":
-                        case "2":
+                        case "1":// Existe conexion con el servidor: Linea.
+                        case "2":// No existe conexion con el servidor: Sin conexión.
+                            // La conexion con el servidor se modifico (Actualiza el estado de conezion DB)
                             if (mensaje.equals("1")) {
                                 jLConexion.setText("Linea");
-                                jLConexion.setForeground(Color.GREEN);
+                                jLConexion.setForeground(new Color(0,185,0));// verde
                             } else {
                                 jLConexion.setText("Sin conexión");
                                 jLConexion.setForeground(Color.RED);
+                            }
+                            break;
+                        case "act":// El estado de lectura esta activado.
+                        case "des":// El estado de lectura esta desactivado
+                            if (mensaje.equals("act")) {
+                                jLEstadoLectura.setText("Activado");
+                                jLEstadoLectura.setForeground(new Color(0, 185, 0));// verde
+                            } else {
+                                jLEstadoLectura.setText("Desactivado");
+                                jLEstadoLectura.setForeground(Color.RED);
                             }
                             break;
                     }
@@ -191,19 +213,23 @@ public class EN extends javax.swing.JFrame implements Runnable {
             row = null;
             crs = modelo.consultarInformacionEnsambleM();
             row = new Object[names.length];
+            int tipoProductoNew=0, tipoProductoOld=0;
             inicializarVector();//Vector en estado inicial
             while (crs.next()) {
                 if (rep == 0) {
                     row[0] = crs.getString(1);//Numero de orden
-                    row[1] = crs.getString(2);//Cant
+                    row[1] = crs.getString(2).equals("")?"0":crs.getString(2);//Cant
                     row[2] = (crs.getString(7) == null ? "-" : consultarNombreEmpleadoLider(crs.getString(7)));//producto
                     cantidadTotatlUnidades += crs.getInt(2);
                     //...
 //                    agregarNoperariosProceso();
                     estadoProcesos();
+                    tipoProductoNew= crs.getInt("idProducto");
                     rep = 1;
                 } else {
-                    if (row[0].toString().equals(crs.getString(1))) {
+                    tipoProductoOld = tipoProductoNew;
+                    tipoProductoNew= crs.getInt("idProducto");
+                    if (row[0].toString().equals(crs.getString(1)) && tipoProductoOld == tipoProductoNew) {
                         //...
 //                        agregarNoperariosProceso();
                         estadoProcesos();
@@ -219,7 +245,7 @@ public class EN extends javax.swing.JFrame implements Runnable {
                         inicializarVector();//Vector en estado inicial
                         //...
                         row[0] = crs.getString(1);//Numero de orden
-                        row[1] = crs.getString(2);//Cant
+                        row[1] = crs.getString(2).equals("")?"0":crs.getString(2);//Cant
 //                        row[2] = crs.getString(6);//Tipo de proyecto
                         row[2] = (crs.getString(7) == null ? "-" : consultarNombreEmpleadoLider(crs.getString(7)));//Lider de proyecto
                         cantidadTotatlUnidades += crs.getInt(2);
@@ -246,6 +272,10 @@ public class EN extends javax.swing.JFrame implements Runnable {
             df.addRow(row);
             jTReporte.setModel(df);
             jTReporte.setDefaultRenderer(Object.class, new Tabla());
+            jTReporte.getTableHeader().setFont(new Font("Arial", 1, 18));
+            jTReporte.getTableHeader().setForeground(Color.BLACK);
+            jLContadorActualizaciones.setText(String.valueOf(Integer.parseInt(jLContadorActualizaciones.getText()) + 1));
+            // ...
             ColumnasAOcultar();
             row = null;
             namesBeta = null;
@@ -337,7 +367,11 @@ public class EN extends javax.swing.JFrame implements Runnable {
         jTtipo8 = new javax.swing.JLabel();
         jTtipo9 = new javax.swing.JLabel();
         jLConexion = new javax.swing.JLabel();
-        jButton1 = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
+        jLEstadoLectura = new javax.swing.JLabel();
+        jestadoConexionServer = new javax.swing.JLabel();
+        jestadoConexionServer1 = new javax.swing.JLabel();
+        jLContadorActualizaciones = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Informe de ensamble");
@@ -359,6 +393,7 @@ public class EN extends javax.swing.JFrame implements Runnable {
 
             }
         ));
+        jTReporte.setEnabled(false);
         jTReporte.setFocusable(false);
         jTReporte.setGridColor(new java.awt.Color(153, 153, 153));
         jTReporte.setIntercellSpacing(new java.awt.Dimension(0, 1));
@@ -410,64 +445,102 @@ public class EN extends javax.swing.JFrame implements Runnable {
         jTtipo9.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/iconmonstr-shape-19-16 (5).png"))); // NOI18N
         jTtipo9.setText("Normal");
 
-        jLConexion.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+        jLConexion.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         jLConexion.setForeground(new java.awt.Color(0, 185, 0));
         jLConexion.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLConexion.setText("Linea");
 
-        jButton1.setText("Conexion");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/update.png"))); // NOI18N
+        jButton2.setBorderPainted(false);
+        jButton2.setContentAreaFilled(false);
+        jButton2.setFocusPainted(false);
+        jButton2.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/img/update1.png"))); // NOI18N
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                jButton2ActionPerformed(evt);
             }
         });
+
+        jLEstadoLectura.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        jLEstadoLectura.setForeground(new java.awt.Color(0, 185, 0));
+        jLEstadoLectura.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLEstadoLectura.setText("Activado");
+
+        jestadoConexionServer.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        jestadoConexionServer.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jestadoConexionServer.setText("Estado DB:");
+
+        jestadoConexionServer1.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        jestadoConexionServer1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jestadoConexionServer1.setText("Estado Lectura:");
+
+        jLContadorActualizaciones.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        jLContadorActualizaciones.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLContadorActualizaciones.setText("0");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(10, 10, 10)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 1262, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jTtipo9, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTtipo8, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTtipo7, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jTtipo9, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(6, 6, 6)
+                        .addComponent(jTtipo8, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(6, 6, 6)
+                        .addComponent(jTtipo7, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addComponent(jButton1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jLConexion, javax.swing.GroupLayout.PREFERRED_SIZE, 204, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(154, 154, 154)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jestadoConexionServer, javax.swing.GroupLayout.PREFERRED_SIZE, 204, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLConexion, javax.swing.GroupLayout.PREFERRED_SIZE, 204, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(2, 2, 2)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGap(4, 4, 4)
+                                .addComponent(jestadoConexionServer1, javax.swing.GroupLayout.PREFERRED_SIZE, 204, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jLEstadoLectura, javax.swing.GroupLayout.PREFERRED_SIZE, 204, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(6, 6, 6)
+                        .addComponent(jLContadorActualizaciones, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(10, 10, 10)
                         .addComponent(jTtipo3, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGap(6, 6, 6)
                         .addComponent(jTtipo4, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGap(6, 6, 6)
                         .addComponent(jTtipo5, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGap(6, 6, 6)
                         .addComponent(jTtipo2, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap())
+                .addGap(10, 10, 10))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 479, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 511, Short.MAX_VALUE)
+                .addGap(11, 11, 11)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jTtipo2, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jTtipo4, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jTtipo5, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jTtipo3, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jLConexion, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jButton1))
+                    .addComponent(jTtipo9, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jTtipo8, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jTtipo7, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jTtipo8, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jTtipo9, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jestadoConexionServer)
+                        .addGap(0, 0, 0)
+                        .addComponent(jLConexion, javax.swing.GroupLayout.PREFERRED_SIZE, 19, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jestadoConexionServer1)
+                        .addGap(0, 0, 0)
+                        .addComponent(jLEstadoLectura, javax.swing.GroupLayout.PREFERRED_SIZE, 19, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jLContadorActualizaciones, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jTtipo3, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jTtipo4, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jTtipo5, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jTtipo2, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(6, 6, 6))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -484,10 +557,6 @@ public class EN extends javax.swing.JFrame implements Runnable {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-
-    }//GEN-LAST:event_jButton1ActionPerformed
-
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
         try {
             gestionDireccionServidor(String.valueOf(InetAddress.getLocalHost()).split("/")[1], PUERTO,0);
@@ -495,6 +564,10 @@ public class EN extends javax.swing.JFrame implements Runnable {
             Logger.getLogger(EN.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_formWindowClosing
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton2ActionPerformed
 
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
@@ -538,8 +611,10 @@ public class EN extends javax.swing.JFrame implements Runnable {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     public static javax.swing.JLabel jLConexion;
+    private javax.swing.JLabel jLContadorActualizaciones;
+    public static javax.swing.JLabel jLEstadoLectura;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTReporte;
@@ -550,6 +625,8 @@ public class EN extends javax.swing.JFrame implements Runnable {
     private javax.swing.JLabel jTtipo7;
     private javax.swing.JLabel jTtipo8;
     private javax.swing.JLabel jTtipo9;
+    public static javax.swing.JLabel jestadoConexionServer;
+    public static javax.swing.JLabel jestadoConexionServer1;
     // End of variables declaration//GEN-END:variables
 
     @Override

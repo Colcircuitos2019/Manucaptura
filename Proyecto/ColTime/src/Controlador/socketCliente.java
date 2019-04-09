@@ -33,7 +33,7 @@ public class socketCliente {
         boolean respueta = false;
         try {
             cliente = new Socket();//Establecer conexion con el serversocket
-            cliente.connect(new InetSocketAddress(ipServerSocket, puerto), 1000);//Ruta de conexion(IP y puerto) y tiempo de espera
+            cliente.connect(new InetSocketAddress(ipServerSocket, puerto), 2500);//Ruta de conexion(IP y puerto) y tiempo de espera
             // ...
             outPut = new DataOutputStream(cliente.getOutputStream());// Enviar mensaje
             outPut.writeUTF(mensaje);
@@ -54,9 +54,9 @@ public class socketCliente {
         return modelo.consultarServidorSocketReporteM(area);
     }
     
-    public boolean gestionarDireccionServidor(String direccionIP, int area, int estado){
+    public boolean gestionarDireccionServidor(String direccionIP, int area, int estado, String puerto){
         socketServerM modelo = new socketServerM();
-        return modelo.gestionarDireccionServidorM(direccionIP, area, estado);
+        return modelo.gestionarDireccionServidorM(direccionIP, area, estado, puerto);
     }
             
 }

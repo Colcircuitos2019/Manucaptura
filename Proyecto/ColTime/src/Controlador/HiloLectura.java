@@ -12,9 +12,12 @@ public class HiloLectura implements Runnable {
         while (true) {
             //El puerto es asignado desde esta variable "puertoActual".
             CPS.enlacePuertos(menu);//Si detecta algo en el puerto COM va a tomar o detener el tiempo!!
-            if (!menu.diponible) {//Se va a salir del ciclo infinito y va a finalizar el hilo(Thread).
+            // ...
+            if (!menu.estadoLecturaPuertoCOM) {//Se va a salir del ciclo infinito y va a finalizar el hilo(Thread).
                 //Se selecciona el item Activado de: Menu Principal>Configuración>Lectura>Desactivado.
                 menu.jRLDesactivado.setSelected(true);
+                menu.comunicacionServerSocket(3,"des");// Envio de informacion... (act o des)
+                menu.estadoPertoSerialOperarios();
                 break;
             }
         }

@@ -214,6 +214,11 @@ public class Proyecto {
         modelo.actualizarEstadoProyectoM(num_orden);
     }
     
+    public void actualizarEstadoLecturaPuertoSerial(int estado, String documento) {
+        ProyectoM modelo = new ProyectoM();
+        modelo.actualizarEstadoLecturaPuertoSerialM(estado, documento);
+    }
+    
     //Finalizacion de la clase automatica---------------------------------------------------------------->
     @Override
     protected void finalize() throws Throwable {

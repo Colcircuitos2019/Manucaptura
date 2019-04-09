@@ -6,6 +6,7 @@
 package Vistas;
 
 import Controlador.Empleado;
+import coltime.Menu;
 import java.awt.Font;
 import javax.sql.rowset.CachedRowSet;
 import javax.swing.JOptionPane;
@@ -28,7 +29,7 @@ public class Empleados extends javax.swing.JDialog {
     //Variables...
     CachedRowSet crs;
     
-    private void consultarEmpleadosOperarios(String doc,String name){
+    private void consultarEmpleadosOperarios(String doc, String name){
         Empleado obj=new Empleado();
         crs= obj.consultarEmpleado(doc,name);
         //
@@ -233,13 +234,17 @@ public class Empleados extends javax.swing.JDialog {
 
     private void jTblEmpleadoMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTblEmpleadoMousePressed
         //Se encarga de enviar la informacion a la vista de detalles.
-        if (jTblEmpleado.getSelectedRow()>=0) {//Valda que si este parado sobre una fila valida de la tabla.
+        if (jTblEmpleado.getSelectedRow() >= 0) {//Valda que si este parado sobre una fila valida de la tabla.
             if(evt.getClickCount()==2){//Valida la cantidad de click que se dieron en la tabla.
-                detalleProyecto obj= new detalleProyecto();
+                detalleProyecto detalleProducto= new detalleProyecto();
                 //Actualizar lider de produccion
-                Empleado empl= new Empleado();
-                empl.actualizarLiderProyecto(obj.idDetalleProducto,String.valueOf(jTblEmpleado.getValueAt(jTblEmpleado.getSelectedRow(), 0)));//ID detalle del proyecto y numero de documento del lider del proyecto
-                obj.jLiderProyecto.setText("  "+String.valueOf(jTblEmpleado.getValueAt(jTblEmpleado.getSelectedRow(),1)));//Nombre del lider del proyecto
+                Empleado empleado= new Empleado();
+                empleado.actualizarLiderProyecto(detalleProducto.idDetalleProducto,String.valueOf(jTblEmpleado.getValueAt(jTblEmpleado.getSelectedRow(), 0)));//ID detalle del proyecto y numero de documento del lider del proyecto
+                detalleProducto.jLiderProyecto.setText("  "+String.valueOf(jTblEmpleado.getValueAt(jTblEmpleado.getSelectedRow(),1)));//Nombre del lider del proyecto
+                // ...
+                Menu menu = new Menu();
+                menu.comunicacionServerSocket(3, "true");
+                // ...
                 this.dispose();
             }
         }

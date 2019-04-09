@@ -53,18 +53,19 @@ public class socketServerM {
         return crs;
     }
     
-    public boolean gestionarDireccionServidorM(String direccionIP,int area, int estado) {
+    public boolean gestionarDireccionServidorM(String direccionIP,int area, int estado,String puerto) {
         boolean respuesta = false;
         try {
             conexion = new Conexion(1);
             conexion.establecerConexion();
             con = conexion.getConexion();
             // ... 
-            String Qry = "CALL PA_GestionDireccionServerSocketReporte(?,?,?);";
+            String Qry = "CALL PA_GestionDireccionServerSocketReporte(?,?,?,?);";
             ps = con.prepareCall(Qry);
             ps.setString(1, direccionIP);
             ps.setInt(2, area);
             ps.setInt(3, estado);
+            ps.setString(4, puerto);
             ps.execute();
             respuesta = true;
             // ...

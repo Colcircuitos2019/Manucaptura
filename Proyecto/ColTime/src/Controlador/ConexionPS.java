@@ -40,7 +40,6 @@ public class ConexionPS {
     public void enlacePuertos(Menu menu) {//Ese metodo lo utilizan los roles de encargados de FE, EN y TE
         Menu obj = new Menu();
         CommPort puerto = null;
-        int lectura; //Consultar el esato de lectura de la base de datos
         String valorBeta = "";
         int ErrorConexionPuerto = 0;
         try {
@@ -53,7 +52,7 @@ public class ConexionPS {
             while (commports.hasMoreElements()) {//Se valida que el puerto que necesito este disponible
                 existePuerto = 1;//Si ingreso es porque existe un puerto.
                 myCPI = (CommPortIdentifier) commports.nextElement();//...
-                if (myCPI.getName().equals(obj.puertoActual)) {//&& myCPI.PORT_SERIAL
+                if (myCPI.getName().equals(obj.puertoSerialActual)) {//&& myCPI.PORT_SERIAL
                     puerto = myCPI.open("Puerto Serial Operario", 1200);//Abro el puerto y le mando dos parametros que son el nombre de la apertura y el tiempo de respuesta
                     SerialPort mySP = (SerialPort) puerto;
                     //                       Baudios           Data bits               stopBists                  Parity
@@ -64,34 +63,34 @@ public class ConexionPS {
                     conexion = 1;
                     //Se selecciona el item Activado de: Menu Principal>Configuración>Lectura>Activado.
                     menu.jRLActivado.setSelected(true);
+                    menu.comunicacionServerSocket(3,"act");// Envio de informacion... (act o des)
                     //Cambio de la etiqueta del estado de lectura en la vista de menu ubicada en el menu lateral.
                     menu.estadoDeLectura();
                     //Guardar estado de lectura del puerto serial del usuario
-                    estadoPertoSerialOperarios(menu.diponible, menu);//Estado del puerto serial activado
+                    menu.estadoPertoSerialOperarios();
                     //Si la Variable no cambia de valor a 1 significa que el puerto esta ocupado por algun otro programa.
                     ErrorConexionPuerto = 1;
                     // ...
                     while (true) {//Valida el mismo puerto que se abrio!!
                         while (!mySC.hasNext()) {//Valida que en el puerto serial exista alguna linea de información...
-                            //Valida que el puerto serial tenga un tiempo de respues, si no lo tiene el sistema lo dara como que el puerto serial fue desconectado del equipo.
-                            //Y saltara una execión en el Try Catch
+                            // ...
                             mySP.isReceiveTimeoutEnabled();
-                            //Validar cuando se desconecta el puerto.
+                            // ...
                             mySC.close();
                             mySC = null;
                             mySC = new Scanner(mySP.getInputStream());
                             //Se va a cerrar la conexion del puerto si el usuario se salio de la sesión.
-                            if (!menu.diponible) {
+                            if (!menu.estadoLecturaPuertoCOM) {
                                 puerto.close();
                                 //Guardar estado de lectura del puerto serial del usuario
-                                estadoPertoSerialOperarios(menu.diponible, menu);//Estado del puerto serial Desactivado
+                                menu.estadoPertoSerialOperarios();//Estado del puerto serial Desactivado
                                 break;
                             }
                         }
-                        if (!menu.diponible) {//Si se cierra la sesion del encargado de algun area de producción tambien se tiene que cerrar el puerto, de lo contrario se seguira trabajando con el puerto. 
+                        if (!menu.estadoLecturaPuertoCOM) {//Si se cierra la sesion del encargado de algun area de producción tambien se tiene que cerrar el puerto, de lo contrario se seguira trabajando con el puerto. 
                             break;
                         } else {
-                            //Procedimiento de toma de tiempo                                              //
+                            //Procedimiento de toma de tiempo
                             //La trama es:"N°Orden;DetalleSistema;Área;LectorID;Cantidad;N°Operarios;Proceso-Envio-Cantidades".
                             valorBeta = mySC.next();//Valor de entrada
                             //...
@@ -111,7 +110,7 @@ public class ConexionPS {
 //                            }
                             //...
                         }
-                        if (!menu.diponible) {
+                        if (!menu.estadoLecturaPuertoCOM) {
                             break;
                         }
                     }
@@ -121,7 +120,7 @@ public class ConexionPS {
             if (conexion == 0) {// 0 =No se pudo realizar la conexion, 1: Conexion realizada correactamente.
                 //Se selecciona el item Activado de: Menu Principal>Configuración>Lectura>Desactivado.
                 menu.jRLDesactivado.setSelected(true);//Button radio desactivado selecionado
-                if (JOptionPane.showOptionDialog(null, "Error: " + "No se pudo conectar al puerto serial " + obj.puertoActual + ". " + "¿Desea seleccionar otro puerto serial disponible?",
+                if (JOptionPane.showOptionDialog(null, "Error: " + "No se pudo conectar al puerto serial " + obj.puertoSerialActual + ". " + "¿Desea seleccionar otro puerto serial disponible?",
                         "seleccione...", JOptionPane.YES_NO_CANCEL_OPTION,
                         JOptionPane.QUESTION_MESSAGE, null,// null para icono por defecto.
                         new Object[]{"SI", "NO"}, "SI") == 0) {
@@ -139,16 +138,16 @@ public class ConexionPS {
                         //Se registra o se modifica el puerto serial COM que el usuario selecciono.
                         reg.RegistrarModificarPuertoSerialUsuario(obj.jDocumento.getText(), dig.toString());
                         //Asignamos el nuevo puerto seria COM a la variable global.
-                        obj.puertoActual = obj.ConsultarPueroGurdado(obj.jDocumento.getText());
+                        obj.puertoSerialActual = obj.ConsultarPueroGurdado(obj.jDocumento.getText());
                     } else {
-                        menu.diponible = false;
+                        menu.estadoLecturaPuertoCOM = false;
                     }
                 } else {
-                    menu.diponible = false;
+                    menu.estadoLecturaPuertoCOM = false;
                 }
                 // ...
                 //Guardar estado de lectura del puerto serial del usuario
-                estadoPertoSerialOperarios(menu.diponible, menu);//Estado de lectuera del puerto serial desactivado
+                menu.estadoPertoSerialOperarios();//Estado de lectuera del puerto serial desactivado
             }
             // ...
             if (existePuerto == 0) {//Se mostrara un mensaje diciendo que no existe ningun puerto serial disponible
@@ -160,23 +159,18 @@ public class ConexionPS {
         } catch (Exception e) {
             //Si la variable ErrorConexionPuerto es igual a 1 significa que se pudo establecer conexion pero se presento algune problema con el puerto.
             if (ErrorConexionPuerto == 0) {
-                JOptionPane.showMessageDialog(null, "El puerto " + obj.puertoActual + " esta abierto, por favor cierrelo para poder realizar la operación.");
+                JOptionPane.showMessageDialog(null, "El puerto " + obj.puertoSerialActual + " esta abierto, por favor cierrelo para poder realizar la operación.");
             }else{
                 puerto.close();
             } 
-            menu.diponible = false;
+            menu.estadoLecturaPuertoCOM = false;
             //Cambio de la etiqueta del estado de lectura en la vista de menu ubicada en el menu lateral.
             menu.estadoDeLectura();//Desactivado
             //Guardar estado de lectura del puerto serial
-            estadoPertoSerialOperarios(menu.diponible, menu);//Estado de lectura del puerto es desactivado
+            menu.estadoPertoSerialOperarios();//Estado de lectura del puerto es desactivado
         }
     }
-// Pendiente por terminar...
-    public void estadoPertoSerialOperarios(boolean estado, Menu menu){
-        //...
-        model.actualizarEstadoLecturaPuertoSerial((estado?1:0), menu.jDocumento.getText());//Esta funcion retorna un booleano
-        //...
-    }
+    // ...
     
     public String[] puertosDisponibles() {
         int pos = 0;

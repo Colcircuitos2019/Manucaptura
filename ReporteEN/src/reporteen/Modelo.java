@@ -68,6 +68,32 @@ public class Modelo {
         }
         return crs;
     }
+    
+    public boolean consultarEstadoLecturaPuertoSerial() {
+        boolean respuesta= false;
+        try {
+            //Establecer la conexión
+            conexion=new Conexion(1,objEN);//Base de datos de SGN
+            conexion.establecerConexion();
+            con=conexion.getConexion();
+            //Preparar la consulata
+            Query = "CALL PA_ConsultarEstadoLecturaFacilitador(?)";
+            ps = con.prepareStatement(Query);
+            ps.setString(1,"1017156424");
+            rs = ps.executeQuery();
+            if(rs.next()){
+                respuesta =rs.getBoolean("estadoLectura");
+            }
+            //Cierre de conexiones
+            conexion.cerrar(rs);
+            conexion.destruir();
+            ps.close();
+            con.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return respuesta;
+    }
 
     public boolean gestionarDireccionServidor(String direccionIP, int puerto, int estado) {
         boolean respuesta = false;
@@ -77,7 +103,7 @@ public class Modelo {
             conexion.establecerConexion();
             con=conexion.getConexion();
             //Preparar la consulata
-            Query = "CALL PA_GestionDireccionServerSocketReporte(?,?,?,?)";// pendiente procedure
+            String Query = "CALL PA_GestionDireccionServerSocketReporte(?,?,?,?)";// pendiente procedure
             ps = con.prepareStatement(Query);
             ps.setString(1, direccionIP); // Direccion IP del server socket
             ps.setInt(2, 3); // Reporte del área

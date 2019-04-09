@@ -894,7 +894,7 @@ public class proyecto extends javax.swing.JPanel {
             }
         });
         jPanel5.add(btnGuardar);
-        btnGuardar.setBounds(59, 0, 57, 45);
+        btnGuardar.setBounds(59, 0, 57, 49);
 
         btnBuscar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/search.png"))); // NOI18N
         btnBuscar.setBorderPainted(false);
@@ -1819,7 +1819,11 @@ public class proyecto extends javax.swing.JPanel {
 
     private void validarFormularioDeProyecto(int accion) {
         //Validar los campos principales del proyecto-------------------------->
-        if (jDeEntrega.getDate() != null && cbTipoEjecucion.getSelectedIndex() > 0 && !jTNombreCliente.getText().equals("") && !jTNombreProyecto.getText().equals("") && contarRadiosPresionados() == validarCantidadesIngresadasProductos() && contarRadiosPresionados() > 0 && validarCantidadesIngresadasProductos() > 0 && validarFechaEntregaSiguienteProceso() && validarFechaEntregaPCB()) {
+        if (jDeEntrega.getDate() != null && cbTipoEjecucion.getSelectedIndex() > 0 &&
+            !jTNombreCliente.getText().equals("") && !jTNombreProyecto.getText().equals("") &&
+            contarRadiosPresionados() == validarCantidadesIngresadasProductos() &&
+            contarRadiosPresionados() > 0 && validarCantidadesIngresadasProductos() > 0 &&
+            validarFechaEntregaSiguienteProceso() && validarFechaEntregaPCB()) {
             
             //Ten en cuenta que se tiene que validar cuando se vaya a modificar estos mismos campos para saber si se elimina las fechas o no se eliminan.
             registrarModificarInformacionDelProyecto(accion);
@@ -1895,6 +1899,9 @@ public class proyecto extends javax.swing.JPanel {
         if (jCIntegracion.isSelected()) {
             cant++;
         }
+        if (jCPIntegracionPCB.isSelected()) {
+            cant++;
+        }
 
         return cant;
     }
@@ -1923,6 +1930,9 @@ public class proyecto extends javax.swing.JPanel {
             cant++;
         }
         if (!jTIntegracion.getText().trim().equals("")) {
+            cant++;
+        }
+        if (!jTTPCBEN.getText().trim().equals("")) {
             cant++;
         }
         // ...
@@ -2090,7 +2100,7 @@ public class proyecto extends javax.swing.JPanel {
             if (RegistrarModificarDetalle(jTNorden.getText(), accion)) {
                 //Mensaje de exito
                 new rojerusan.RSNotifyAnimated("Listo!!", ("El Proyecto con el numero de orden: " + jTNorden.getText() + " fue " + (accion == 2 ? "modificado" : "registrada") + " exitosamente."), 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.SUCCESS).setVisible(true);
-                menu.comunicacionServerSocket(0);
+                menu.comunicacionServerSocket(0,"true");
                 if (accion == 2) {
                     GenerarQR.setEnabled(false);
                 } else {
