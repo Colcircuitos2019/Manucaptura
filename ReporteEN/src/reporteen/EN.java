@@ -1,11 +1,15 @@
 package reporteen;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -14,15 +18,13 @@ import java.util.logging.Logger;
 import javax.sql.rowset.CachedRowSet;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
-//import javax.swing.JOptionPane;
+//import javax.swing.Timer;
 import javax.swing.table.DefaultTableModel;
-//import javax.swing.JOptionPane;
-//reporteen.MyRenderEN()
 
 public class EN extends javax.swing.JFrame implements Runnable {
 
 //Variables
-    CachedRowSet crs = null;
+//    CachedRowSet crs = null;
     String names[] = null;
     static String namesBeta[] = null, nombreProcesos[] = null;
     String beta = "N°Orden;Cant;Lider de proyecto", betaNames = "";
@@ -55,28 +57,68 @@ public class EN extends javax.swing.JFrame implements Runnable {
     }
 
     private void estadoConexionServidor() {
-        Conexion conexion = new Conexion(1, this);
-        conexion.establecerConexion();
-        if (conexion.getConexion() != null) {
-            jLConexion.setText("Linea");
-            jLConexion.setForeground(new Color(0,185,0));
-        } else {
+        if(validarConexionServerSocket()){
+            Conexion conexion = new Conexion(1, this);
+            conexion.establecerConexion();
+            if (conexion.getConexion() != null) {
+                jLConexion.setText("Linea");
+                jLConexion.setForeground(new Color(0, 185, 0));
+            } else {
+                jLConexion.setText("Sin conexión");
+                jLConexion.setForeground(Color.RED);
+            }
+            conexion.destruir();    
+        }else{
             jLConexion.setText("Sin conexión");
             jLConexion.setForeground(Color.RED);
         }
-        conexion.destruir();
     }
 
-    private void consultarEstadoLectura(){
-        if(modelo.consultarEstadoLecturaPuertoSerial()){
-            jLEstadoLectura.setText("Activado");
-            jLEstadoLectura.setForeground(new Color(0, 185, 0));
-        } else {
+    private void consultarEstadoLectura() {
+        if(validarConexionServerSocket()){
+            if (modelo.consultarEstadoLecturaPuertoSerial()) {
+                jLEstadoLectura.setText("Activado");
+                jLEstadoLectura.setForeground(new Color(0, 185, 0));
+            } else {
+                jLEstadoLectura.setText("Desactivado");
+                jLEstadoLectura.setForeground(Color.RED);
+            }
+        }else{
             jLEstadoLectura.setText("Desactivado");
             jLEstadoLectura.setForeground(Color.RED);
         }
     }
-    
+
+    private boolean validarConexionServerSocket() {
+
+        Socket cliente = new Socket();
+        Modelo modelo = new Modelo(this);
+        boolean respuesta = false;
+        CachedRowSet crs = modelo.consultarDireccionIPServerPrograma(3);// Area de ensamble - EN = 3
+        
+        try {
+            
+            while(crs.next()){
+               
+                cliente.connect(new InetSocketAddress(crs.getString("ipServidor"), crs.getInt("puerto")), 2000);
+                
+                DataOutputStream output = new DataOutputStream(cliente.getOutputStream());
+                output.writeUTF("1");
+                        
+                cliente.close();
+                respuesta = true;
+                
+            }
+
+        } catch (Exception ex) {
+            
+            Logger.getLogger(EN.class.getName()).log(Level.SEVERE, null, ex);
+            
+        }
+
+        return respuesta;
+    }
+
     // Server socket Inicio-----------------------------------------------------
     private String direccionIP = consultarDireccionIPServer();
     private final int PUERTO = consultarPuertoComunicacionServidor(direccionIP);
@@ -89,18 +131,19 @@ public class EN extends javax.swing.JFrame implements Runnable {
 
     @Override
     public void run() {
-        
-        while(true){
+
+        while (true) {
             try {
 
                 servidor = new ServerSocket(PUERTO);
 
-                if (gestionDireccionServidor(direccionIP, PUERTO,1)) {
+                if (gestionDireccionServidor(direccionIP, PUERTO, 1)) {
                     consultarProcesosEncabezados();
                 }
 
                 while (true) {
 
+//                    System.out.println(consultarDireccionIPServer()+":"+PUERTO);
                     cliente = servidor.accept();
                     // ...
                     input = new DataInputStream(cliente.getInputStream());/*2*/
@@ -118,7 +161,7 @@ public class EN extends javax.swing.JFrame implements Runnable {
                             // La conexion con el servidor se modifico (Actualiza el estado de conezion DB)
                             if (mensaje.equals("1")) {
                                 jLConexion.setText("Linea");
-                                jLConexion.setForeground(new Color(0,185,0));// verde
+                                jLConexion.setForeground(new Color(0, 185, 0));// verde
                             } else {
                                 jLConexion.setText("Sin conexión");
                                 jLConexion.setForeground(Color.RED);
@@ -140,11 +183,11 @@ public class EN extends javax.swing.JFrame implements Runnable {
 
             } catch (IOException ex) {
 
-                Logger.getLogger(socketServidor.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(EN.class.getName()).log(Level.SEVERE, null, ex);
 
-            }        
+            }
         }
-        
+
     }
 
     private boolean gestionDireccionServidor(String direccionIP, int puerto, int estado) {
@@ -153,20 +196,20 @@ public class EN extends javax.swing.JFrame implements Runnable {
 
     }
 
-    private int consultarPuertoComunicacionServidor(String direccionIP){
+    private int consultarPuertoComunicacionServidor(String direccionIP) {
         Modelo modelo = new Modelo(this);
         int puerto = modelo.consultarPuertoComunicacionservidorM(direccionIP);
-        if(puerto!= 0){
+        if (puerto != 0) {
             return puerto;
-        }else{
-            return (int) (Math.random()* 1000) + 5000;
+        } else {
+            return (int) (Math.random() * 1000) + 5000;
         }
 
     }
-    
-    private String consultarDireccionIPServer(){
 
-        String direccionIP ="";
+    private String consultarDireccionIPServer() {
+
+        String direccionIP = "";
         try {
             direccionIP = String.valueOf(InetAddress.getLocalHost()).split("/")[1];
         } catch (Exception e) {
@@ -174,34 +217,54 @@ public class EN extends javax.swing.JFrame implements Runnable {
         }
         return direccionIP;
     }
-    
+
     private void consultarProcesosEncabezados() {
         try {
             String nuevaCadena = "";
             betaNames = "";
             int count = 0;
-            Thread.sleep(5);
-            crs = modelo.consultarProcesosM(3);//Ensamble=3
-            while (crs.next()) {
-                betaNames += count == 0 ? crs.getString(2) : ";" + crs.getString(2);//Columna numero 2
-                count = 1;
+            
+            CachedRowSet crs = modelo.consultarProcesosM(3);//Ensamble=3
+            
+            if(false){
+                
+                while (crs.next()) {
+                    betaNames += count == 0 ? crs.getString(2) : ";" + crs.getString(2);//Columna numero 2
+                    count = 1;
+                }
+                namesBeta = betaNames.split(";");
+                for (int i = 0; i < namesBeta.length; i++) {
+                    nuevaCadena += ";sub_" + namesBeta[i] + ";" + namesBeta[i];
+                }
+                //Columnas de cantidad total terminada
+                nuevaCadena += ";relleno;Terminados;relleno;Restantes";
+                //...
+                names = (beta + nuevaCadena).split(";");//Encabezado de las columnas
+                //...
+                //Modelo de la tabla con encabezados
+                DefaultTableModel df = new DefaultTableModel(null, names);
+                //...
+                canColumnas = names.length;
+                //...
+                nuevaCadena = "";
+                consultarInformacionEnsamble(df);
+                
+            }else{
+
+//                new Timer(5000, new ActionListener() {
+//                    @Override
+//                    public void actionPerformed(ActionEvent e) {
+//                        JOptionPane.showMessageDialog(null, "El reporte no pudo ser actualizado, por favor intentalo nuevamente o contacta con el desarrollador.","Alerta", JOptionPane.WARNING_MESSAGE);
+//                    }
+//                }).start();
+                    jDMensaje.setSize(480, 162);
+                    jDMensaje.setVisible(true);
+                    jDMensaje.setLocationRelativeTo(null);
+                    Thread.sleep(5000);
+                    jDMensaje.dispose();
+                
             }
-            namesBeta = betaNames.split(";");
-            for (int i = 0; i < namesBeta.length; i++) {
-                nuevaCadena += ";sub_" + namesBeta[i] + ";" + namesBeta[i];
-            }
-            //Columnas de cantidad total terminada
-            nuevaCadena += ";relleno;Terminados;relleno;Restantes";
-            //...
-            names = (beta + nuevaCadena).split(";");//Encabezado de las columnas
-            //...
-            //Modelo de la tabla con encabezados
-            DefaultTableModel df = new DefaultTableModel(null, names);
-            //...
-            canColumnas = names.length;
-            //...
-            nuevaCadena = "";
-            consultarInformacionEnsamble(df);//Cuerpo del modelo...
+            
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "2-Error: " + e);
         }
@@ -211,28 +274,28 @@ public class EN extends javax.swing.JFrame implements Runnable {
         try {
             int totalProyectos = 0, cantidadTotatlUnidades = 0;
             row = null;
-            crs = modelo.consultarInformacionEnsambleM();
+            CachedRowSet crs = modelo.consultarInformacionEnsambleM();
             row = new Object[names.length];
-            int tipoProductoNew=0, tipoProductoOld=0;
+            int tipoProductoNew = 0, tipoProductoOld = 0;
             inicializarVector();//Vector en estado inicial
             while (crs.next()) {
                 if (rep == 0) {
                     row[0] = crs.getString(1);//Numero de orden
-                    row[1] = crs.getString(2).equals("")?"0":crs.getString(2);//Cant
+                    row[1] = crs.getString(2).equals("") ? "0" : crs.getString(2);//Cant
                     row[2] = (crs.getString(7) == null ? "-" : consultarNombreEmpleadoLider(crs.getString(7)));//producto
                     cantidadTotatlUnidades += crs.getInt(2);
                     //...
 //                    agregarNoperariosProceso();
-                    estadoProcesos();
-                    tipoProductoNew= crs.getInt("idProducto");
+                    estadoProcesos(crs);
+                    tipoProductoNew = crs.getInt("idProducto");
                     rep = 1;
                 } else {
                     tipoProductoOld = tipoProductoNew;
-                    tipoProductoNew= crs.getInt("idProducto");
+                    tipoProductoNew = crs.getInt("idProducto");
                     if (row[0].toString().equals(crs.getString(1)) && tipoProductoOld == tipoProductoNew) {
                         //...
 //                        agregarNoperariosProceso();
-                        estadoProcesos();
+                        estadoProcesos(crs);
                     } else {
                         //Cancular la cantidad total terminada
                         row[names.length - 3] = cantTerminada != 0 ? (Integer.parseInt(String.valueOf(row[1])) - cantTerminada) : 0;
@@ -245,13 +308,13 @@ public class EN extends javax.swing.JFrame implements Runnable {
                         inicializarVector();//Vector en estado inicial
                         //...
                         row[0] = crs.getString(1);//Numero de orden
-                        row[1] = crs.getString(2).equals("")?"0":crs.getString(2);//Cant
+                        row[1] = crs.getString(2).equals("") ? "0" : crs.getString(2);//Cant
 //                        row[2] = crs.getString(6);//Tipo de proyecto
                         row[2] = (crs.getString(7) == null ? "-" : consultarNombreEmpleadoLider(crs.getString(7)));//Lider de proyecto
                         cantidadTotatlUnidades += crs.getInt(2);
                         //...
 //                        agregarNoperariosProceso();
-                        estadoProcesos();
+                        estadoProcesos(crs);
                     }
                 }
             }
@@ -286,7 +349,7 @@ public class EN extends javax.swing.JFrame implements Runnable {
         }
     }
 
-    private void estadoProcesos() {//Calcular la cantidad pasada queda pendiente
+    private void estadoProcesos(CachedRowSet crs) {//Calcular la cantidad pasada queda pendiente
         try {
             int pos = consultarPosicionProceso(crs.getString(3));// Posiciòn del proceso
             row[pos - 1] = crs.getString(5);//Estado de proceso
@@ -356,6 +419,10 @@ public class EN extends javax.swing.JFrame implements Runnable {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jDMensaje = new javax.swing.JDialog();
+        jPanel2 = new javax.swing.JPanel();
+        jLMensaje = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
         jPanel1 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTReporte = new reporteen.MyRenderEN();
@@ -372,6 +439,56 @@ public class EN extends javax.swing.JFrame implements Runnable {
         jestadoConexionServer = new javax.swing.JLabel();
         jestadoConexionServer1 = new javax.swing.JLabel();
         jLContadorActualizaciones = new javax.swing.JLabel();
+
+        jDMensaje.setTitle("Alerta!");
+        jDMensaje.setMaximumSize(new java.awt.Dimension(480, 165));
+        jDMensaje.setMinimumSize(new java.awt.Dimension(480, 165));
+        jDMensaje.setResizable(false);
+
+        jPanel2.setBackground(new java.awt.Color(204, 220, 226));
+
+        jLMensaje.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        jLMensaje.setText("El reporte no pudo ser actualizado, por favor intentalo nuevamente.");
+        jLMensaje.setBorderPainted(false);
+        jLMensaje.setContentAreaFilled(false);
+        jLMensaje.setDebugGraphicsOptions(javax.swing.DebugGraphics.FLASH_OPTION);
+        jLMensaje.setFocusPainted(false);
+
+        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/warning_icon.png"))); // NOI18N
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLMensaje)
+                .addGap(18, 18, 18))
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGap(210, 210, 210)
+                .addComponent(jLabel1)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLMensaje, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(19, 19, 19))
+        );
+
+        javax.swing.GroupLayout jDMensajeLayout = new javax.swing.GroupLayout(jDMensaje.getContentPane());
+        jDMensaje.getContentPane().setLayout(jDMensajeLayout);
+        jDMensajeLayout.setHorizontalGroup(
+            jDMensajeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+        jDMensajeLayout.setVerticalGroup(
+            jDMensajeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        );
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Informe de ensamble");
@@ -559,14 +676,16 @@ public class EN extends javax.swing.JFrame implements Runnable {
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
         try {
-            gestionDireccionServidor(String.valueOf(InetAddress.getLocalHost()).split("/")[1], PUERTO,0);
+            gestionDireccionServidor(String.valueOf(InetAddress.getLocalHost()).split("/")[1], PUERTO, 0);
         } catch (UnknownHostException ex) {
             Logger.getLogger(EN.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_formWindowClosing
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // TODO add your handling code here:
+        consultarProcesosEncabezados();
+        consultarEstadoLectura();
+        estadoConexionServidor();
     }//GEN-LAST:event_jButton2ActionPerformed
 
     public static void main(String args[]) {
@@ -612,10 +731,14 @@ public class EN extends javax.swing.JFrame implements Runnable {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton2;
+    private javax.swing.JDialog jDMensaje;
     public static javax.swing.JLabel jLConexion;
     private javax.swing.JLabel jLContadorActualizaciones;
     public static javax.swing.JLabel jLEstadoLectura;
+    private javax.swing.JButton jLMensaje;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTReporte;
     private javax.swing.JLabel jTtipo2;

@@ -77,7 +77,7 @@ public class ProyectoQR implements Runnable {
 //                            String sub = valor.substring(0, 1);
 //                            System.out.println(valorQR);
                             //...
-                            if (Character.isDigit(valorQR.charAt(1))) {
+                            if (Character.isDigit(valorQR.charAt(0))) {
                                 //Procesar informacion QR
                                 llenarCamposFormProyectos(valorQR);
                             }
@@ -262,7 +262,7 @@ public class ProyectoQR implements Runnable {
                     
                 }
                 //Me va a guardar directamente la informacion del proyecto
-                viewProyecto.accionBtnGuardarProyecto(); //
+//                viewProyecto.accionBtnGuardarProyecto(); //
                 //...
             } else {
                 //Al QR del proyecto le falta información para poder realizar el registro

@@ -63,7 +63,10 @@ public class ConexionPS {
                     conexion = 1;
                     //Se selecciona el item Activado de: Menu Principal>Configuración>Lectura>Activado.
                     menu.jRLActivado.setSelected(true);
-                    menu.comunicacionServerSocket(3,"act");// Envio de informacion... (act o des)
+                    
+                    socketCliente clienteSocket = new socketCliente(3);
+                    clienteSocket.enviarInformacionSocketserver(clienteSocket.consultarServerSockets(), "act");// Actualizar estado DB de los reportes de produccion
+                    
                     //Cambio de la etiqueta del estado de lectura en la vista de menu ubicada en el menu lateral.
                     menu.estadoDeLectura();
                     //Guardar estado de lectura del puerto serial del usuario
@@ -138,7 +141,7 @@ public class ConexionPS {
                         //Se registra o se modifica el puerto serial COM que el usuario selecciono.
                         reg.RegistrarModificarPuertoSerialUsuario(obj.jDocumento.getText(), dig.toString());
                         //Asignamos el nuevo puerto seria COM a la variable global.
-                        obj.puertoSerialActual = obj.ConsultarPueroGurdado(obj.jDocumento.getText());
+                        obj.puertoSerialActual = obj.ConsultarPuertoGurdadoUsuario(obj.jDocumento.getText());
                     } else {
                         menu.estadoLecturaPuertoCOM = false;
                     }

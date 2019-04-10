@@ -83,18 +83,12 @@ public class MyRenderEN extends JTable {
 
         return cell;
     }
-//
-//    @Override
-//    public boolean isCellEditable(int row, int column) {
-//        return false; //To change body of generated methods, choose Tools | Templates.
-//    }
 
-//    @Override
-//    public JTableHeader getTableHeader() {
-//        JTableHeader cabeza = super.getTableHeader(); //To change body of generated methods, choose Tools | Templates.
-//        cabeza.setFont(new Font("Arial", 1, 20));
-//        cabeza.setForeground(Color.BLACK);
-//        return cabeza;
-//    }
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize(); //To change body of generated methods, choose Tools | Templates.
+    }
 
+    
+    
 }

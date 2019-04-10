@@ -5,6 +5,7 @@ import Controlador.DetalleProyecto;
 import Controlador.Proyecto;
 import Controlador.ProyectoQR;
 import Controlador.rutaQR;
+import Controlador.socketCliente;
 import coltime.Menu;
 import com.barcodelib.barcode.QRCode;
 import com.itextpdf.text.Document;
@@ -2041,8 +2042,6 @@ public class proyecto extends javax.swing.JPanel {
         obj.setNombreCliente(jTNombreCliente.getText());
         obj.setNombreProyecto(jTNombreProyecto.getText());
         obj.setTipoProyecto(cbTipoEjecucion.getSelectedItem().toString());
-//        obj.setAreaImplicadas(cbAreasImplicadas.getSelectedIndex());
-        //Este formatao se maneja en todas las fechas, si se modifica puede generar problemas 
         SimpleDateFormat fecha = new SimpleDateFormat("yyyy/MM/dd");
         obj.setFecha(fecha.format(jDeEntrega.getDate()));
         obj.setNum_orden(jTNorden.getText());
@@ -2094,21 +2093,32 @@ public class proyecto extends javax.swing.JPanel {
         Proyecto conrolador_proyecto = new Proyecto();// Controlador
         asignacionDeInformacionAlObjetoProyecto(conrolador_proyecto);//Informacion general del proyecto
         Menu menu=new Menu();
+        
         //Registrar o modificar la información del proyecto
         if (conrolador_proyecto.registrar_Modificar_Proyecto(menu.jDocumento.getText(), accion)) {
+            
             //accion = 1 (Registrar), accion = 2 (Modificar)
             if (RegistrarModificarDetalle(jTNorden.getText(), accion)) {
                 //Mensaje de exito
                 new rojerusan.RSNotifyAnimated("Listo!!", ("El Proyecto con el numero de orden: " + jTNorden.getText() + " fue " + (accion == 2 ? "modificado" : "registrada") + " exitosamente."), 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.SUCCESS).setVisible(true);
-                menu.comunicacionServerSocket(0,"true");
+                
+                socketCliente clienteSocket = new socketCliente(0);
+                clienteSocket.enviarInformacionSocketserver(clienteSocket.consultarServerSockets(), "true");
+                
                 if (accion == 2) {
+                    
                     GenerarQR.setEnabled(false);
+                    
                 } else {
+                    
                     conrolador_proyecto.actualizarEstadoProyecto(Integer.parseInt(jTNorden.getText()));// Actualizar el estado del proyecto <-- Esto se va hacer por el momento desde acá
                     generarQRdeProduccion();
+                    
                 }
+                
                 limpiarID();
                 ocultarFechas();
+                
             } else {
                 //Mensaje de error
                 new rojerusan.RSNotifyAnimated("¡Error!", "El detalle no pudo ser " + (accion == 2 ? "modificado" : "registrada") + " satisfactoriamente", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.ERROR).setVisible(true);
@@ -2135,7 +2145,6 @@ public class proyecto extends javax.swing.JPanel {
         jTNombreProyecto.setEnabled(false);
         jDeEntrega.setEnabled(false);
         cbTipoEjecucion.setEnabled(false);
-//        cbColorPCB.setEnabled(false);
         jCRuteoP.setEnabled(false);
         cbColorCircuito.setSelectedIndex(0);
         jCRuteoC.setEnabled(false);

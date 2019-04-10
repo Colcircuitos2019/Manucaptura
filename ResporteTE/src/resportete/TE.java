@@ -1,5 +1,14 @@
 package resportete;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.sql.rowset.CachedRowSet;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
@@ -17,11 +26,11 @@ public class TE extends javax.swing.JFrame implements Runnable {
             //...
             jTReporte.getTableHeader().setReorderingAllowed(false);
             //...
-            hilo = new Thread(this);
-            hilo.start();
+            informacionReporte = new Thread(this);
+            informacionReporte.start();
             //...
-            DisponibilidadConexion conexion=new DisponibilidadConexion();
-            Thread conc=new Thread(conexion);
+            DisponibilidadConexion conexion = new DisponibilidadConexion();
+            Thread conc = new Thread(conexion);
             conc.start();
         }
         unaSolaVez = 1;
@@ -35,21 +44,57 @@ public class TE extends javax.swing.JFrame implements Runnable {
     Object row[] = null;//Proyectos
     static int posProceso = 0, rep = 0, canColumnas = 0, unaSolaVez = 0;
     int totalProyectos = 0, cantidadTotatlUnidades = 0;
-    Thread hilo = null;
+    Thread informacionReporte = null;
 
     //Metodos
+    // Server socket Inicio-----------------------------------------------------
+    private final int PUERTO = 7000; // FE= 6000, EN= 5000 y TE= 7000
+    private ServerSocket servidor = null;
+    private Socket cliente = null;
+
+    DataInputStream input;
+    DataOutputStream output;
+    // Server socket fin -------------------------------------------------------
+
     @Override
     public void run() {
         try {
-            while (true) {
+
+            servidor = new ServerSocket(PUERTO);
+
+            if (gestionDireccionServidor(String.valueOf(InetAddress.getLocalHost()).split("/")[1], 1)) {
                 consultarProcesosEncabezados();
-                jPanel1.updateUI();
-                System.gc();//Garbaje collector
-                Thread.sleep(5000);//5 segundos
             }
-        } catch (Exception e) {
-//            JOptionPane.showMessageDialog(null, "Error: " + e);
+
+            while (true) {
+
+                cliente = servidor.accept();
+
+                input = new DataInputStream(cliente.getInputStream());
+                String mensaje = input.readUTF();
+
+                if (mensaje.equals("true")) {
+
+                    consultarProcesosEncabezados();
+                    jPanel1.updateUI();
+                    System.gc();//Garbaje collector
+
+                }
+
+            }
+
+        } catch (IOException ex) {
+
+            Logger.getLogger(socketServidor.class.getName()).log(Level.SEVERE, null, ex);
+
         }
+    }
+
+    private boolean gestionDireccionServidor(String direccionIP, int estado) {
+
+        Modelo modelo = new Modelo();
+        return modelo.gestionarDireccionServidor(direccionIP, estado);
+
     }
 
     private void consultarProcesosEncabezados() {
@@ -200,6 +245,11 @@ public class TE extends javax.swing.JFrame implements Runnable {
         jLConexion = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
 
         jPanel1.setBackground(new java.awt.Color(204, 220, 226));
 
@@ -328,6 +378,14 @@ public class TE extends javax.swing.JFrame implements Runnable {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        try {
+            gestionDireccionServidor(String.valueOf(InetAddress.getLocalHost()).split("/")[1], 0);
+        } catch (UnknownHostException ex) {
+            Logger.getLogger(TE.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_formWindowClosing
 
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */

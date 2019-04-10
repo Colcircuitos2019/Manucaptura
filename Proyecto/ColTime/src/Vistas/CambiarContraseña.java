@@ -257,7 +257,7 @@ public class CambiarContraseña extends javax.swing.JFrame {
     }//GEN-LAST:event_btnGuardarActionPerformed
 
     private void btnCloseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCloseActionPerformed
-        menu.obj=null;
+        menu.viewCambiarContraseña=null;
         this.dispose();
     }//GEN-LAST:event_btnCloseActionPerformed
 

@@ -7,9 +7,21 @@ package reportefe;
 
 //import java.util.logging.Level;
 //import java.util.logging.Logger;
+import java.awt.Color;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.UnknownHostException;
+//import java.net.UnknownHostException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.sql.rowset.CachedRowSet;
 import javax.swing.ImageIcon;
-import javax.swing.JOptionPane;
+//import javax.swing.JOptionPane;
 //import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
@@ -29,7 +41,7 @@ public class FE extends javax.swing.JFrame implements Runnable {
             this.setIconImage(new ImageIcon(getClass().getResource("/img/FE.png")).getImage());
             this.setExtendedState(FE.MAXIMIZED_BOTH);
             //Hilo de ejecución
-            informe.start();
+            informeProduccionFE.start();
             //...
             jTReporte.getTableHeader().setReorderingAllowed(false);
             //...
@@ -48,28 +60,187 @@ public class FE extends javax.swing.JFrame implements Runnable {
     String NamesOrden[] = new String[5];
     static int soloUnaVez = 0;
     int P = 0, Q = 0, C = 0, CTH = 0, QUE = 0, S = 0, E = 0, C2 = 0, R = 0, M = 0;
-    Thread informe = new Thread(this);//Hilo
+    Thread informeProduccionFE = new Thread(this);//Hilo
     Object cantidadProceso[] = new Object[26];
     //Variables de conexion a la base de datos
-    public static String IP = "192.168.4.1:3306";
-    public static String user = "juanDavidM";
-    public static String pass = "123";
+    public static String IP = "192.168.4.173:33066";
+    public static String user = "root";
+    public static String pass = "SaAFjmXlMRvppyqW";
     //Hilo de ejecución:
+
+//    private void ejecutarInforme() {
+//        while (true) {
+//            cargarTablaInformeFE();
+//            try {
+//                System.gc();//Garbaje colector
+//                Thread.sleep(500);//Se actualizara cada medio segundo
+//            } catch (InterruptedException ex) {
+//                Logger.getLogger(FE.class.getName()).log(Level.SEVERE, null, ex);
+//            }
+//        }
+//    }
+    // Server socket Inicio-----------------------------------------------------
+    private String direccionIP = consultarDireccionIPServer();
+    private final int PUERTO = consultarPuertoComunicacionServidor(direccionIP);
+    private ServerSocket servidor = null;
+    private Socket cliente = null;
+
+    DataInputStream input;
+    DataOutputStream output;
+    // Server socket fin -------------------------------------------------------
+
     @Override
     public void run() {
-        ejecutarInforme();
-    }
 
-    private void ejecutarInforme() {
         while (true) {
-            cargarTablaInformeFE();
             try {
-                System.gc();//Garbaje colector
-                Thread.sleep(500);//Se actualizara cada medio segundo
-            } catch (InterruptedException ex) {
-//                Logger.getLogger(FE.class.getName()).log(Level.SEVERE, null, ex);
+
+                servidor = new ServerSocket(PUERTO);
+
+                if (gestionDireccionServidor(direccionIP, PUERTO, 1)) {
+                    cargarTablaInformeFE();
+                }
+
+                while (true) {
+
+//                    System.out.println(consultarDireccionIPServer()+":"+PUERTO);
+                    cliente = servidor.accept();
+                    // ...
+                    input = new DataInputStream(cliente.getInputStream());/*2*/
+                    String mensaje = input.readUTF();
+                    // ...
+                    switch (mensaje) {
+                        case "true":// Actualizar info reporte
+                            //Se genero alguna modificacion que afecta algun producto o se agregaron nuevas OP
+                            cargarTablaInformeFE();
+                            jPanel1.updateUI();
+                            System.gc();//Garbaje collector
+                            break;
+                        case "1":// Existe conexion con el servidor: Linea.
+                        case "2":// No existe conexion con el servidor: Sin conexión.
+                            // La conexion con el servidor se modifico (Actualiza el estado de conezion DB)
+                            if (mensaje.equals("1")) {
+                                jLConexion.setText("Linea");
+                                jLConexion.setForeground(new Color(0, 185, 0));// verde
+                            } else {
+                                jLConexion.setText("Sin conexión");
+                                jLConexion.setForeground(Color.RED);
+                            }
+                            break;
+                        case "act":// El estado de lectura esta activado.
+                        case "des":// El estado de lectura esta desactivado
+                            if (mensaje.equals("act")) {
+                                jLEstadoLectura.setText("Activado");
+                                jLEstadoLectura.setForeground(new Color(0, 185, 0));// verde
+                            } else {
+                                jLEstadoLectura.setText("Desactivado");
+                                jLEstadoLectura.setForeground(Color.RED);
+                            }
+                            break;
+                    }
+
+                }
+
+            } catch (IOException ex) {
+
+                Logger.getLogger(FE.class.getName()).log(Level.SEVERE, null, ex);
+
             }
         }
+
+    }
+
+    private void estadoConexionServidor() {
+        if (validarConexionServerSocket()) {
+            Conexion conexion = new Conexion();
+            conexion.establecerConexion();
+            if (conexion.getConexion() != null) {
+                jLConexion.setText("Linea");
+                jLConexion.setForeground(new Color(0, 185, 0));
+            } else {
+                jLConexion.setText("Sin conexión");
+                jLConexion.setForeground(Color.RED);
+            }
+            conexion.destruir();
+        } else {
+            jLConexion.setText("Sin conexión");
+            jLConexion.setForeground(Color.RED);
+        }
+    }
+
+    private void consultarEstadoLectura() {
+        ProyectoController modelo = new ProyectoController();
+        if (validarConexionServerSocket()) {
+            if (modelo.consultarEstadoLecturaPuertoSerial()) {
+                jLEstadoLectura.setText("Activado");
+                jLEstadoLectura.setForeground(new Color(0, 185, 0));
+            } else {
+                jLEstadoLectura.setText("Desactivado");
+                jLEstadoLectura.setForeground(Color.RED);
+            }
+        } else {
+            jLEstadoLectura.setText("Desactivado");
+            jLEstadoLectura.setForeground(Color.RED);
+        }
+    }
+
+    private boolean validarConexionServerSocket() {
+
+        Socket cliente = new Socket();
+        ProyectoController modelo = new ProyectoController();
+        boolean respuesta = false;
+        CachedRowSet crs = modelo.consultarDireccionIPServerPrograma(3);// Area de ensamble - EN = 3
+
+        try {
+
+            while (crs.next()) {
+
+                cliente.connect(new InetSocketAddress(crs.getString("ipServidor"), crs.getInt("puerto")), 2000);
+
+                DataOutputStream output = new DataOutputStream(cliente.getOutputStream());
+                output.writeUTF("1");
+
+                cliente.close();
+                respuesta = true;
+
+            }
+
+        } catch (Exception ex) {
+
+            Logger.getLogger(FE.class.getName()).log(Level.SEVERE, null, ex);
+
+        }
+
+        return respuesta;
+    }
+    
+    private boolean gestionDireccionServidor(String direccionIP, int puerto, int estado) {
+
+        ProyectoController modelo = new ProyectoController();
+        return modelo.gestionarDireccionServidor(direccionIP, puerto, estado);
+
+    }
+
+    private int consultarPuertoComunicacionServidor(String direccionIP) {
+        ProyectoController modelo = new ProyectoController();
+        int puerto = modelo.consultarPuertoComunicacionservidorM(direccionIP);
+        if (puerto != 0) {
+            return puerto;
+        } else {
+            return (int) (Math.random() * 1000) + 5000;
+        }
+
+    }
+
+    private String consultarDireccionIPServer() {
+
+        String direccionIP = "";
+        try {
+            direccionIP = String.valueOf(InetAddress.getLocalHost()).split("/")[1];
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return direccionIP;
     }
 
     /* Indices del vector
@@ -97,6 +268,8 @@ public class FE extends javax.swing.JFrame implements Runnable {
                     -R=22;
                     -M=24;
      */
+    
+    
     private void cargarTablaInformeFE() {
         //                                                                              6                     8                    10                   12                   14                  16                  18                  20            22                    24   
         String names[] = {"N°Orden", "M.T", "Tipo", "Cant", "TipoNegocio", "sub_P", "Perforado", "sub_Q", "Quimicos", "sub_C", "Caminos", "sub_Que", "Quemado", "sub_CTH", "C.C.TH", "sub_S", "Screen", "sub_E", "Estañado", "sub_C2", "C2", "sub_R", "Ruteo", "sub_M", "Maquinas", "PNC"};
@@ -359,9 +532,9 @@ public class FE extends javax.swing.JFrame implements Runnable {
     private void organizarVector() {
         int cantidadPasada = 0, prceso = 8, subProceso = 7;
         //Dependiendo del proceso se organizan las cantidades
-        if (v[0].toString().equals("29649")) {
-            rep = rep;
-        }
+//        if (v[0].toString().equals("29649")) {
+//            rep = rep;
+//        }
         if (v[4].toString().equals("Troquel") || v[4].toString().equals("Repujado")) {//Se pasan la cantidad de productos de perforado a quemado
             v[12] = v[8];
             v[8] = 0;
@@ -471,6 +644,7 @@ public class FE extends javax.swing.JFrame implements Runnable {
 //            prceso = 8;
 //            subProceso = 7;
 //        }
+//Cantidades totales pertenecientes a cada procesos
         cantidadProceso[6] = Integer.parseInt(v[6].toString()) + Integer.parseInt(cantidadProceso[6].toString());//Perforado
         cantidadProceso[8] = Integer.parseInt(v[8].toString()) + Integer.parseInt(cantidadProceso[8].toString());//Quimicos
         cantidadProceso[10] = Integer.parseInt(v[10].toString()) + Integer.parseInt(cantidadProceso[10].toString());//Caminos
@@ -535,9 +709,18 @@ public class FE extends javax.swing.JFrame implements Runnable {
         jTtipo8 = new javax.swing.JLabel();
         jTtipo9 = new javax.swing.JLabel();
         jLConexion = new javax.swing.JLabel();
-        jButton1 = new javax.swing.JButton();
+        jestadoConexionServer = new javax.swing.JLabel();
+        jestadoConexionServer1 = new javax.swing.JLabel();
+        jLEstadoLectura = new javax.swing.JLabel();
+        jLContadorActualizaciones = new javax.swing.JLabel();
+        jButton2 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
 
         jPanel1.setBackground(new java.awt.Color(204, 220, 226));
 
@@ -616,15 +799,34 @@ public class FE extends javax.swing.JFrame implements Runnable {
         jTtipo9.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/iconmonstr-shape-19-16 (5).png"))); // NOI18N
         jTtipo9.setText("Normal");
 
-        jLConexion.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+        jLConexion.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         jLConexion.setForeground(new java.awt.Color(0, 185, 0));
         jLConexion.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLConexion.setText("Linea");
 
-        jButton1.setText("Conexion");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        jestadoConexionServer.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        jestadoConexionServer.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jestadoConexionServer.setText("Estado DB:");
+
+        jestadoConexionServer1.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        jestadoConexionServer1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jestadoConexionServer1.setText("Estado Lectura:");
+
+        jLEstadoLectura.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        jLEstadoLectura.setForeground(new java.awt.Color(0, 185, 0));
+        jLEstadoLectura.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLEstadoLectura.setText("Activado");
+
+        jLContadorActualizaciones.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        jLContadorActualizaciones.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLContadorActualizaciones.setText("0");
+
+        jButton2.setBorderPainted(false);
+        jButton2.setContentAreaFilled(false);
+        jButton2.setFocusPainted(false);
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                jButton2ActionPerformed(evt);
             }
         });
 
@@ -635,49 +837,68 @@ public class FE extends javax.swing.JFrame implements Runnable {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 1262, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 1262, Short.MAX_VALUE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jTtipo9, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jTtipo9, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTtipo8, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jTtipo8, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jTtipo7, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(30, 30, 30)
-                        .addComponent(jButton1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLConexion, javax.swing.GroupLayout.PREFERRED_SIZE, 204, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jestadoConexionServer, javax.swing.GroupLayout.PREFERRED_SIZE, 204, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLConexion, javax.swing.GroupLayout.PREFERRED_SIZE, 204, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(2, 2, 2)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGap(4, 4, 4)
+                                .addComponent(jestadoConexionServer1, javax.swing.GroupLayout.PREFERRED_SIZE, 204, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jLEstadoLectura, javax.swing.GroupLayout.PREFERRED_SIZE, 204, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(6, 6, 6)
+                        .addComponent(jLContadorActualizaciones, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
                         .addComponent(jTtipo3, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(5, 5, 5)
-                        .addComponent(jTtipo4, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTtipo5, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jTtipo4, javax.swing.GroupLayout.PREFERRED_SIZE, 87, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTtipo2, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jTtipo5, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jTtipo2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTtipo6, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(jTtipo6, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 462, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jTtipo6, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jTtipo2, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jTtipo4, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jTtipo5, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jTtipo3, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jTtipo7, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jLConexion, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jButton1))
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jTtipo8, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jTtipo9, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 444, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jTtipo6, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jTtipo2, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jTtipo5, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jTtipo4, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jTtipo3, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jTtipo8, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jTtipo9, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jTtipo7, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(jPanel1Layout.createSequentialGroup()
+                            .addComponent(jestadoConexionServer)
+                            .addGap(0, 0, 0)
+                            .addComponent(jLConexion, javax.swing.GroupLayout.PREFERRED_SIZE, 19, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(jPanel1Layout.createSequentialGroup()
+                            .addComponent(jestadoConexionServer1)
+                            .addGap(0, 0, 0)
+                            .addComponent(jLEstadoLectura, javax.swing.GroupLayout.PREFERRED_SIZE, 19, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(jLContadorActualizaciones, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -693,12 +914,22 @@ public class FE extends javax.swing.JFrame implements Runnable {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        IP = JOptionPane.showInputDialog(this, "Cual es la dirección del servidor", IP);
+    /*IP = JOptionPane.showInputDialog(this, "Cual es la dirección del servidor", IP);
         user = JOptionPane.showInputDialog(this, "Cual el usuario del servidor", user);
-        pass = JOptionPane.showInputDialog(this, "Cual es la contraseña del usuario", pass);
-    }//GEN-LAST:event_jButton1ActionPerformed
+        pass = JOptionPane.showInputDialog(this, "Cual es la contraseña del usuario", pass);*/
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        try {
+            gestionDireccionServidor(String.valueOf(InetAddress.getLocalHost()).split("/")[1], PUERTO, 0);
+        } catch (UnknownHostException ex) {
+            Logger.getLogger(FE.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_formWindowClosing
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        cargarTablaInformeFE();
+        consultarEstadoLectura();
+        estadoConexionServidor();
+    }//GEN-LAST:event_jButton2ActionPerformed
 
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
@@ -733,8 +964,10 @@ public class FE extends javax.swing.JFrame implements Runnable {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     public static javax.swing.JLabel jLConexion;
+    private javax.swing.JLabel jLContadorActualizaciones;
+    public static javax.swing.JLabel jLEstadoLectura;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTReporte;
@@ -746,6 +979,8 @@ public class FE extends javax.swing.JFrame implements Runnable {
     private javax.swing.JLabel jTtipo7;
     private javax.swing.JLabel jTtipo8;
     private javax.swing.JLabel jTtipo9;
+    public static javax.swing.JLabel jestadoConexionServer;
+    public static javax.swing.JLabel jestadoConexionServer1;
     // End of variables declaration//GEN-END:variables
 
 }

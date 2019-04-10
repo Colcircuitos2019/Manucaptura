@@ -5,7 +5,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import javax.sql.rowset.CachedRowSet;
-import javax.swing.JOptionPane;
 
 public class Modelo {
 
@@ -41,7 +40,7 @@ public class Modelo {
             ps.close();
             con.close();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Erro: " + e);
+            e.printStackTrace();
         }
         return crs;
     }
@@ -64,7 +63,7 @@ public class Modelo {
             ps.close();
             con.close();
         } catch (Exception e) {
-//            JOptionPane.showMessageDialog(null, "Erro: " + e);
+            e.printStackTrace();
         }
         return crs;
     }
@@ -103,12 +102,13 @@ public class Modelo {
             conexion.establecerConexion();
             con=conexion.getConexion();
             //Preparar la consulata
-            String Query = "CALL PA_GestionDireccionServerSocketReporte(?,?,?,?)";// pendiente procedure
+            String Query = "CALL PA_GestionDireccionServerSocketReporte(?,?,?,?,?)";
             ps = con.prepareStatement(Query);
             ps.setString(1, direccionIP); // Direccion IP del server socket
-            ps.setInt(2, 3); // Reporte del área
+            ps.setInt(2, 3); // Reporte del área --->el area tiene que ser versatil
             ps.setInt(3, estado); // Estado de lectura
             ps.setInt(4, puerto); // puerto
+            ps.setInt(5, 0); // programa
             ps.execute();
             respuesta= true;
             //Cierre de conexiones
@@ -130,10 +130,11 @@ public class Modelo {
             conexion.establecerConexion();
             con=conexion.getConexion();
             //Preparar la consulata
-            Query = "SELECT FU_ConsultarPuertoComunicacionServidorSocket(?,?)";// pendiente procedure
+            Query = "SELECT FU_ConsultarPuertoComunicacionServidorSocket(?,?,?)";
             ps = con.prepareStatement(Query);
             ps.setString(1, direccionIP); // Direccion IP del server socket
-            ps.setInt(2, 3); // area
+            ps.setInt(2, 3); // area ---> Esto tiene que ser versatil
+            ps.setInt(3, 0); // programa
             rs = ps.executeQuery();
             while(rs.next()){
                 puerto = rs.getInt(1);
@@ -149,7 +150,32 @@ public class Modelo {
         return puerto;
     }
     
-        public String consultarNombreLiderProyectoM(String doc){
+    public CachedRowSet consultarDireccionIPServerPrograma(int area) {
+        try {
+            //Establecer la conexión
+            conexion=new Conexion(1,objEN);//Base de datos de SGN
+            conexion.establecerConexion();
+            con=conexion.getConexion();
+            //Preparar la consulata
+            Query = "CALL PA_ConsultarDireccionIPServidorSocketPrograma(?)";
+            ps = con.prepareStatement(Query);
+            ps.setInt(1, area); // Area del programa...
+            rs = ps.executeQuery();
+            crs = new CachedRowSetImpl();
+            crs.populate(rs);
+            //Cierre de conexiones
+            conexion.cerrar(rs);
+            conexion.destruir();
+            ps.close();
+            con.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return crs;
+    }
+    
+    
+    public String consultarNombreLiderProyectoM(String doc){
         String empleado="";
         try {
             conexion=new Conexion(2,objEN);//Base de datos de SGN
@@ -173,7 +199,7 @@ public class Modelo {
             conexion.cerrar(rs);
             conexion.destruir();
         } catch (Exception e) {
-//            JOptionPane.showMessageDialog(null, e);
+            e.printStackTrace();
         }
         return empleado;
     }

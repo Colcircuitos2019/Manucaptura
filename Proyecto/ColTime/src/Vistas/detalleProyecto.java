@@ -4,6 +4,7 @@ import Controlador.DetalleProyecto;
 import Controlador.Empleado;
 import Controlador.FE_TE_IN;
 import Controlador.Tabla;
+import Controlador.socketCliente;
 import coltime.Menu;
 import javax.sql.rowset.CachedRowSet;
 import javax.swing.ImageIcon;
@@ -488,44 +489,44 @@ public class detalleProyecto extends javax.swing.JDialog {
                 boton = (JButton) value;
                 if (boton.getText().equals("Tiempo") && !TDetalleProduccion.getValueAt(row, 7).toString().equals("Pausado")) {// <- Esto va a desaparecer...
                     //Finalizar la toma de tiempo de los procesos del almacen(Solo lo pueden realizar los encargado de almacen)
-                    if (boton.getActionCommand().equals("1")) {
-                        FE_TE_IN almacen = new FE_TE_IN();
-                        String idDetalle = "";
-                        //<Gran formato>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-                        if (TDetalleProduccion.getValueAt(row, 0).toString().equals("GF")) {// Esto va a desaparecer...
-                            //Se pide la cantidad que se recibio del gran formato.
-                            String cantidad = JOptionPane.showInputDialog("Cantidades recibidas:");
-                            if (cantidad != null) {//Presiona el botono "NO"
-                                if (!cantidad.equals("") && Integer.parseInt(cantidad) >= 1) {//Validar la cantidad cuendo presiona el boton "SI"
-                                    idDetalle = String.valueOf(TDetalleProduccion.getValueAt(row, 13));//Identificador
-                                    int proceso = 0;
-                                    if (TDetalleProduccion.getValueAt(row, 0).toString().equals("GF")) {
-                                        proceso = 20;//Proceso de gran formato.
-                                    }
-                                    String orden[] = this.getTitle().split("-");                                                  //Cantidad//   
-                                    if (almacen.pararTiempoAlmacen(Integer.parseInt(orden[0].trim()), Integer.parseInt(idDetalle), Integer.parseInt(cantidad), idDetalleProducto, proceso)) {
-                                        //Mensaje de confirmación.
-                                        new rojerusan.RSNotifyAnimated("¡Listo!", "Mensaje", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.SUCCESS).setVisible(true);
-                                        cargarTabla();
-                                    }
-                                } else {
-                                    //Mensaje de ingresar una cantidad valida.
-                                    new rojerusan.RSNotifyAnimated("¡Alerta!", "Por favor ingrese una cantidad validad.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.WARNING).setVisible(true);
-                                }
-                            }
-                        } else {//Si presiona el boton SI
-                            //<Componentes>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-                            //Registro te tiempo de componentes <Esto va a ser eliminado por que ya no es necesario para el funcionamiento del sistema.>
-                            if (JOptionPane.showOptionDialog(null, "¿Seguro desea terminar la toma de tiempos de los componentes.", "Seguridad", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null/*icono*/, botones, botones[0]) == 0) {
-                                idDetalle = String.valueOf(TDetalleProduccion.getValueAt(row, 13));//Identificador
-                                String orden[] = this.getTitle().split("-");                                         //Cantidad//      Proceso  
-                                almacen.pararTiempoAlmacen(Integer.parseInt(orden[0].trim()), Integer.parseInt(idDetalle), 0, idDetalleProducto, 19);//
-                                //Mensaje de confirmación de la terminación de la toma de tiempo
-                                new rojerusan.RSNotifyAnimated("¡Listo!", "Toma de tiempo finalizada correctamente.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.SUCCESS).setVisible(true);
-                                cargarTabla();
-                            }
-                        }
-                    }
+//                    if (boton.getActionCommand().equals("1")) {
+//                        FE_TE_IN almacen = new FE_TE_IN();
+//                        String idDetalle = "";
+//                        //<Gran formato>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+////                        if (TDetalleProduccion.getValueAt(row, 0).toString().equals("GF")) {// Esto va a desaparecer...
+////                            //Se pide la cantidad que se recibio del gran formato.
+////                            String cantidad = JOptionPane.showInputDialog("Cantidades recibidas:");
+////                            if (cantidad != null) {//Presiona el botono "NO"
+////                                if (!cantidad.equals("") && Integer.parseInt(cantidad) >= 1) {//Validar la cantidad cuendo presiona el boton "SI"
+////                                    idDetalle = String.valueOf(TDetalleProduccion.getValueAt(row, 13));//Identificador
+////                                    int proceso = 0;
+////                                    if (TDetalleProduccion.getValueAt(row, 0).toString().equals("GF")) {
+////                                        proceso = 20;//Proceso de gran formato.
+////                                    }
+////                                    String orden[] = this.getTitle().split("-");                                                  //Cantidad//   
+////                                    if (almacen.pararTiempoAlmacen(Integer.parseInt(orden[0].trim()), Integer.parseInt(idDetalle), Integer.parseInt(cantidad), idDetalleProducto, proceso)) {
+////                                        //Mensaje de confirmación.
+////                                        new rojerusan.RSNotifyAnimated("¡Listo!", "Mensaje", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.SUCCESS).setVisible(true);
+////                                        cargarTabla();
+////                                    }
+////                                } else {
+////                                    //Mensaje de ingresar una cantidad valida.
+////                                    new rojerusan.RSNotifyAnimated("¡Alerta!", "Por favor ingrese una cantidad validad.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.WARNING).setVisible(true);
+////                                }
+////                            }
+////                        } else {//Si presiona el boton SI
+////                            //<Componentes>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+////                            //Registro te tiempo de componentes <Esto va a ser eliminado por que ya no es necesario para el funcionamiento del sistema.>
+////                            if (JOptionPane.showOptionDialog(null, "¿Seguro desea terminar la toma de tiempos de los componentes.", "Seguridad", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null/*icono*/, botones, botones[0]) == 0) {
+////                                idDetalle = String.valueOf(TDetalleProduccion.getValueAt(row, 13));//Identificador
+////                                String orden[] = this.getTitle().split("-");                                         //Cantidad//      Proceso  
+////                                almacen.pararTiempoAlmacen(Integer.parseInt(orden[0].trim()), Integer.parseInt(idDetalle), 0, idDetalleProducto, 19);//
+////                                //Mensaje de confirmación de la terminación de la toma de tiempo
+////                                new rojerusan.RSNotifyAnimated("¡Listo!", "Toma de tiempo finalizada correctamente.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.SUCCESS).setVisible(true);
+////                                cargarTabla();
+////                            }
+////                        }
+//                    }
                     //------------------------------------------------------------
                 } else {
                     //Boton para reiniciar la toma de tiempo(Solo lo puede realizar el administrador)
@@ -537,7 +538,8 @@ public class detalleProyecto extends javax.swing.JDialog {
                                 new rojerusan.RSNotifyAnimated("¡Listo!", "El proceso: " + TDetalleProduccion.getValueAt(row, 0) + " fue reinicializado corresctamente.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.SUCCESS).setVisible(true);
                                 cargarTabla();
                                 // ...
-                                enviarMensajeServerSocket();
+                                socketCliente clienteSocket = new socketCliente(area);
+                                clienteSocket.enviarInformacionSocketserver(clienteSocket.consultarServerSockets(), "true");// Actualizar estado DB de los reportes de produccion
                                 // ...
                             } else {
                                 new rojerusan.RSNotifyAnimated("¡Error!", "El proceso: " + TDetalleProduccion.getValueAt(row, 0) + " no pudo ser reinicializado.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.WARNING).setVisible(true);
@@ -556,7 +558,8 @@ public class detalleProyecto extends javax.swing.JDialog {
                     radioBoton.updateUI();
                     TDetalleProduccion.updateUI();
                     // ...
-                    enviarMensajeServerSocket();
+                    socketCliente clienteSocket = new socketCliente(area);
+                    clienteSocket.enviarInformacionSocketserver(clienteSocket.consultarServerSockets(), "true");// Actualizar estado DB de los reportes de produccion
                     // ...
                 }
             }
@@ -592,10 +595,6 @@ public class detalleProyecto extends javax.swing.JDialog {
     private void TDetalleProduccionPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_TDetalleProduccionPropertyChange
     }//GEN-LAST:event_TDetalleProduccionPropertyChange
 
-    private void enviarMensajeServerSocket(){
-        Menu menu = new Menu();
-        menu.comunicacionServerSocket(area, "true");
-    }
     
     private void cargarTabla() {
         Tabla personalizar = new Tabla();

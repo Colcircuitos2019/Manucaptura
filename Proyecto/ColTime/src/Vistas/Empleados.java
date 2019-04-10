@@ -6,6 +6,7 @@
 package Vistas;
 
 import Controlador.Empleado;
+import Controlador.socketCliente;
 import coltime.Menu;
 import java.awt.Font;
 import javax.sql.rowset.CachedRowSet;
@@ -242,8 +243,8 @@ public class Empleados extends javax.swing.JDialog {
                 empleado.actualizarLiderProyecto(detalleProducto.idDetalleProducto,String.valueOf(jTblEmpleado.getValueAt(jTblEmpleado.getSelectedRow(), 0)));//ID detalle del proyecto y numero de documento del lider del proyecto
                 detalleProducto.jLiderProyecto.setText("  "+String.valueOf(jTblEmpleado.getValueAt(jTblEmpleado.getSelectedRow(),1)));//Nombre del lider del proyecto
                 // ...
-                Menu menu = new Menu();
-                menu.comunicacionServerSocket(3, "true");
+                socketCliente clienteSocket = new socketCliente(3);
+                clienteSocket.enviarInformacionSocketserver(clienteSocket.consultarServerSockets(), "true");// actualizar informacion del reporte
                 // ...
                 this.dispose();
             }

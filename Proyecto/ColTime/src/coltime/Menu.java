@@ -8,6 +8,7 @@ import Controlador.Proyecto;
 import Controlador.Usuario;
 import Controlador.rutaQR;
 import Controlador.socketCliente;
+import Controlador.socketServidor;
 import Vistas.CambiarContraseña;
 import Vistas.ClausulasPrivacidad;
 import Vistas.ControlDelTiempo;
@@ -41,91 +42,85 @@ import rojerusan.RSNotifyAnimated;
 public class Menu extends javax.swing.JFrame implements ActionListener {
 
     //
-    public Color cor = new Color(189, 189, 189);//girs
-    public Color corF = new Color(219, 219, 219);//Gris
-    //
+    public static Color cor = new Color(189, 189, 189);//girs
+    public static Color corF = new Color(219, 219, 219);//Gris
     public static Color verde = new Color(4, 231, 4);//Verde
     public static Color rojo = new Color(255, 0, 0);//Rojo
     //
     public static Producciones bp = null;
-    int cont = 0;
-    public static boolean estadoLecturaPuertoCOM = false;//Se utiliza para saber si se cierra la conexion del puerto o no.
+    public static boolean estadoLecturaPuertoCOM = false;
     static int soloUnaVez = 0;
-    ConexionPS CPS = null;
+    private ConexionPS CPS = null;
     DetallesAreaInfo informacion = null;
     Thread tomaTiempo = null;
+    Thread serverSocket = null;
     public static String puertoSerialActual = "COM6";//Por defecto va a ser el Puerto COM6
     proyecto pro = null;
     rutaQR controlador = null;
-    public static ArrayList<Object> serversSockets = null;
+    public static ArrayList<Object> serversSocketsReportes = null;// Todos los reportes abiertos en las diferentes áreas de producción.
+    private int posX = 0, posY = 0;
+    public static int cargo = 0;
+    public static ControlDelTiempo producF = null, producT = null, producE = null;
+    int px = 0, cantidad = 0, unidad = 13, py = 0, filas = 1, cont = 0;
+    CachedRowSet crs = null;
+    public static CambiarContraseña viewCambiarContraseña = null;
+    public static PrintStream myPS;
+    ButtonGroup grupoCom = null;
+    public static String IP = "192.168.4.173:33066", user = "coluser", pass = "";
 
-    ///---------------------------------------------------------------------------
-    //Al generar el ejecutable o acceso directo, no carga el menu principal. Estar atento a esta novedad para solucionarlo lo más pronto posible.
-    //----------------------------------------------------------------------------
     public Menu(int cargo, String nombre, String doc) {
         initComponents();
         this.cargo = cargo;
-        consultarImagenUsuario(doc);
+        consultarImagenUsuario(doc);// Pendiente por implementar...
         Animacion.Animacion.mover_derecha(935, 1135, 0, 2, jPanel3);
         new CambiaPanel(jPContenido, new Inicio(cargo));
         btnInicio.setColorHover(cor);
         btnInicio.setColorNormal(cor);
         btnInicio.setColorPressed(cor);
-        //Imagen de la ventana.
         this.setIconImage(new ImageIcon(getClass().getResource("/imagenesEmpresa/favicon.png")).getImage());
         this.setLocationRelativeTo(null);
-        //Se encarga de asignarles las funciones que puede hacer cada usuario.
-        funcionalidades(cargo, nombre);
-        //se ecarga de consultar los proyectos que quedaron con la toma de tiempos abierta.
-        EnCasodeFallaDeLuz();
+        funcionalidadesUsuario(cargo, nombre);
+        consultarPtoyectosTomaDeTiempoAbierta();
         InformacionAreasProduccion();
-        //Mensaje de bienvenida-------------------------------------------------
-        new rojerusan.RSNotifyAnimated("Bienvenido", nombre, 6, RSNotifyAnimated.PositionNotify.BottomLeft, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.SUCCESS).setVisible(true);
-        soloUnaVez = 1;
-        //Puerto Por el cual se va a ingresar la información--------------------
-        puertoSerialActual = ConsultarPueroGurdado(doc);
-        //Fine del puerto-------------------------------------------------------
-        //Validación continua de la conexion a la base de datos----------------- En linea o Sin conexión.
-        DisponibilidadConexion dispo = new DisponibilidadConexion();
+        
+        if(cargo == 4 || cargo == 6){// El administrador o el gestor comercial
+        
+            socketCliente clienteSocket = new socketCliente(0);// Consultar todos los servers socket de los reportes de producción
+            serversSocketsReportes = clienteSocket.consultarServerSockets();
+            
+        }
+        
+        puertoSerialActual = ConsultarPuertoGurdadoUsuario(doc);
+        DisponibilidadConexion dispo = new DisponibilidadConexion();// Hilo ejecucion 1
         Thread conec = new Thread(dispo);
         conec.start();
-        //fin de la calidacion a la base de datos-------------------------------
-        //Toma de tiempos automatica--------------------------------------------
-        //!!!!!!!!!!!!!!!!!!!!!!!
-        //Solo funciona para los usuarios con cargo de Encargados de FE, TE o EN
-        if (cargo == 2 || cargo == 3) {
+        
+        soloUnaVez = 1;// Validar que el hilo de estado de lectura solo sea ejecutado una vez cuando se inica la aplicacion
+        if (cargo == 2 || cargo == 3) { // Encargado de FE o TE y Encargado de EN
+            
             if (soloUnaVez == 1) {
+                
                 estadoLecturaPuertoCOM = true;
-                HiloLectura lectura = new HiloLectura();
+                
+                HiloLectura lectura = new HiloLectura();// Hilo ejecucion 3
                 tomaTiempo = new Thread(lectura);
                 tomaTiempo.start();
+                // ...
+                socketServidor server = new socketServidor(); // Hilo ejecucion 2
+                serverSocket = new Thread(server);
+                serverSocket.start();
+                
             }
-        }//Generar el código del RUN en una clase aparte para poder ejecutarla multiples veces.
-        //!!!!!!!!!!!!!!!!!!!!!!!
-        //Fin de toma de tiempos automatica-------------------------------------
+            
+        }
+        
+        //Mensaje de bienvenida-------------------------------------------------
+        new rojerusan.RSNotifyAnimated("Bienvenido", nombre, 4, RSNotifyAnimated.PositionNotify.BottomLeft, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.SUCCESS).setVisible(true);
+
     }
 
     //Constructor.
-    public Menu() {
-
-    }
-    //Variables en uso de la clase
-    private int posX = 0;
-    private int posY = 0;
-    public static int cargo = 0;
-    public static ControlDelTiempo producF = null;
-    public static ControlDelTiempo producT = null;
-    public static ControlDelTiempo producE = null;
-    int px = 0, cantidad = 0, unidad = 13;
-    int py = 0, filas = 1;
-    CachedRowSet crs = null;
-    public static CambiarContraseña obj = null;
-    public static PrintStream myPS;
-    ButtonGroup grupoCom = null;
-    //Variables estaticas de conexion
-    public static String IP = "192.168.4.173:33066";
-    public static String user = "coluser";// juanDavidM coluser
-    public static String pass = "";// 123
+    public Menu() {}
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -1102,7 +1097,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
         //...
     }
 
-    private void EnCasodeFallaDeLuz() {
+    private void consultarPtoyectosTomaDeTiempoAbierta() {
         //Es metodo se hace con la finalidad de saber que proyectos no pausaron/terminaron el tiempo satisfactoriamente antes de que sucediera la falla de energia.
         //Solo se le realizara esta acción a los cargos de encargado ensamble, encargado de FE y TE 
         FE_TE_IN obj = new FE_TE_IN();
@@ -1172,7 +1167,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
         }
     }
 
-    private void funcionalidades(int cargo, String name) {
+    private void funcionalidadesUsuario(int cargo, String name) {
         switch (cargo) {
             case 1:
                 //Gestor Técnico
@@ -1437,9 +1432,9 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
     }//GEN-LAST:event_jBMinimizarActionPerformed
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
-        if (obj == null) {
-            obj = new CambiarContraseña();
-            obj.setVisible(true);
+        if (viewCambiarContraseña == null) {
+            viewCambiarContraseña = new CambiarContraseña();
+            viewCambiarContraseña.setVisible(true);
         }
     }//GEN-LAST:event_jMenuItem1ActionPerformed
 
@@ -1458,8 +1453,8 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
                     bp.jBSalir.doClick();//La vista de produccion tiene que cerrarce cuando se salga de la aplicación.
                 }
                 this.dispose();
-                if (obj != null) {
-                    obj.btnClose.doClick();
+                if (viewCambiarContraseña != null) {
+                    viewCambiarContraseña.btnClose.doClick();
                 }
                 try {
                     guardarImagenMenuUsuario();//Guarda la imagen del usuario
@@ -1538,7 +1533,6 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
 
     private void jLabel3MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel3MouseEntered
         jLabel3.setForeground(new Color(63, 179, 255));
-
     }//GEN-LAST:event_jLabel3MouseEntered
 
     private void jLabel3MouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel3MouseExited
@@ -1745,7 +1739,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
 //...
 //Configuracion de los puertos seriales-----------------------------------------
 
-    public static String ConsultarPueroGurdado(String doc) {
+    public static String ConsultarPuertoGurdadoUsuario(String doc) {
         Controlador.Usuario obj = new Controlador.Usuario();
         String puerto = obj.consultarPuertoUsario(doc);
         return puerto.equals("") ? "COM6" : puerto;
@@ -1774,7 +1768,9 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
                 jMenu4.add(opPuerto);
             }
         } catch (Exception e) {
+            
             JOptionPane.showMessageDialog(null, "Error: " + e);
+            
         }
     }
 
@@ -1882,53 +1878,34 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
         boolean respuesta = view.RegistrarTomaTiempoProductoProceso(infoProductoQR, cargo, view, myPS, cantidadProductosQR);
 
         if (respuesta) {
-            comunicacionServerSocket(area, "true");
+            
+            socketCliente clienteSocket = new socketCliente(3);// Consultar todos los servers socket de los reportes de producción
+            clienteSocket.enviarInformacionSocketserver(clienteSocket.consultarServerSockets(),"true");
+        
         }
 
         return view;
     }
 
-    public void comunicacionServerSocket(int area, String mensaje) {
-        // Envia dato al socket servidor para que este se actualice...
-        socketCliente cliente = new socketCliente(area);
-        CachedRowSet crs = cliente.consultarServidoresReportes();
-        consultarServerSockets();
-        try {
-            while (crs.next()) {
-
-                if (!cliente.enviarInformacionServerSocket(crs.getString("ipServidor"), Integer.parseInt(crs.getString("puerto")), mensaje)) {
-
-                    cliente.gestionarDireccionServidor(crs.getString("ipServidor"), area, 0, crs.getString("puerto"));// cambiar el estado del cliente que usa el reporte...
-
-                }
-
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(Menu.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
-    public ArrayList<Object> consultarServerSockets() {
-        // ...
-        ArrayList<Object> serverScoekts = new ArrayList<Object>();
-        socketCliente cliente = new socketCliente(0);
-        // ...
-        CachedRowSet crs = cliente.consultarServidoresReportes();
-        if (crs != null) {
-            try {
-                while (crs.next()) {
-
-                    serverScoekts.add(new String[]{crs.getString("ipServidor"), (crs.getString("puerto"))});
-
-                }
-            } catch (SQLException ex) {
-                Logger.getLogger(Menu.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            // ...
-            return serverScoekts;
-        }
-        return serversSockets;
-    }
+//    public void comunicacionServerSocket(int area, String mensaje) {
+//        // Envia dato a todos los reportes de produccion de las difetentes áreas de produccion para que se actualicen...
+//        socketCliente cliente = new socketCliente(area);
+//        CachedRowSet crs = cliente.consultarServidoresReportes();
+//        consultarServerSockets(0);
+//        try {
+//            while (crs.next()) {
+//
+//                if (!cliente.enviarInformacionServerSocket(crs.getString("ipServidor"), Integer.parseInt(crs.getString("puerto")), mensaje)) {
+//
+//                    cliente.gestionarDireccionServidor(crs.getString("ipServidor"),area, 0, 0, crs.getString("puerto"));//
+//                    
+//                }
+//
+//            }
+//        } catch (SQLException ex) {
+//            Logger.getLogger(Menu.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//    }
 
     public void limpiarInformacionAreas() {
         FIngresadosHoy.setText("0");
@@ -1954,7 +1931,12 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
                 // ...
                 sesion(0, jDocumento.getText());// Cerrar Session
                 if(cargo==2 || cargo==3){
-                    comunicacionServerSocket(3,"des");// El primer parametro tiene que ser el área donde
+                    
+                    socketCliente clienteSocket = new socketCliente(3);
+                    ArrayList<Object> serversSockets= clienteSocket.consultarServerSockets();
+                    clienteSocket.enviarInformacionSocketserver(serversSockets, "des");// Estado de lectura desactivado
+                    clienteSocket.enviarInformacionSocketserver(serversSockets, "2");// Conexion con el servidor perdida
+                    
                     Proyecto controlador = new Proyecto();
                     controlador.actualizarEstadoLecturaPuertoSerial(0, jDocumento.getText()); 
                 }
