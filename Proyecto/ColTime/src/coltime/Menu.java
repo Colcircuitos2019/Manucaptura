@@ -25,10 +25,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.PrintStream;
-import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.sql.rowset.CachedRowSet;
 import javax.swing.ButtonGroup;
 import javax.swing.ButtonModel;
@@ -85,7 +82,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
         
         if(cargo == 4 || cargo == 6){// El administrador o el gestor comercial
         
-            socketCliente clienteSocket = new socketCliente(0);// Consultar todos los servers socket de los reportes de producción
+            socketCliente clienteSocket = new socketCliente(new int[]{0});// Consultar todos los servers socket de los reportes de producción
             serversSocketsReportes = clienteSocket.consultarServerSockets();
             
         }
@@ -106,7 +103,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
                 tomaTiempo = new Thread(lectura);
                 tomaTiempo.start();
                 // ...
-                socketServidor server = new socketServidor(); // Hilo ejecucion 2
+                socketServidor server = new socketServidor(cargo); // Hilo ejecucion 2
                 serverSocket = new Thread(server);
                 serverSocket.start();
                 
@@ -1217,7 +1214,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
                 break;
             case 5:
                 //Almacen
-                this.setTitle("Almacen: " + name);
+                this.setTitle("Almacen: " + name);// Pendiente organizar...
                 btnGeneradorQR.setEnabled(false);
                 btnUsuarios.setEnabled(false);
                 btnProyectos.setEnabled(false);
@@ -1879,7 +1876,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
 
         if (respuesta) {
             
-            socketCliente clienteSocket = new socketCliente(3);// Consultar todos los servers socket de los reportes de producción
+            socketCliente clienteSocket = new socketCliente(cargo==2?new int[]{1,2}:new int[]{3});// Consultar todos los servers socket de los reportes de producción
             clienteSocket.enviarInformacionSocketserver(clienteSocket.consultarServerSockets(),"true");
         
         }
@@ -1932,7 +1929,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
                 sesion(0, jDocumento.getText());// Cerrar Session
                 if(cargo==2 || cargo==3){
                     
-                    socketCliente clienteSocket = new socketCliente(3);
+                    socketCliente clienteSocket = new socketCliente(cargo==2?new int[]{1,2}:new int[]{3});
                     ArrayList<Object> serversSockets= clienteSocket.consultarServerSockets();
                     clienteSocket.enviarInformacionSocketserver(serversSockets, "des");// Estado de lectura desactivado
                     clienteSocket.enviarInformacionSocketserver(serversSockets, "2");// Conexion con el servidor perdida

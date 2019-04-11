@@ -242,8 +242,8 @@ public class Empleados extends javax.swing.JDialog {
                 Empleado empleado= new Empleado();
                 empleado.actualizarLiderProyecto(detalleProducto.idDetalleProducto,String.valueOf(jTblEmpleado.getValueAt(jTblEmpleado.getSelectedRow(), 0)));//ID detalle del proyecto y numero de documento del lider del proyecto
                 detalleProducto.jLiderProyecto.setText("  "+String.valueOf(jTblEmpleado.getValueAt(jTblEmpleado.getSelectedRow(),1)));//Nombre del lider del proyecto
-                // ...
-                socketCliente clienteSocket = new socketCliente(3);
+                // ... cargo = 2= Encargado de FE y TE, 3 Encargado de EN
+                socketCliente clienteSocket = new socketCliente(detalleProducto.cargo==2?new int[]{1,2}:new int[]{3});// Son necesarias las áreas
                 clienteSocket.enviarInformacionSocketserver(clienteSocket.consultarServerSockets(), "true");// actualizar informacion del reporte
                 // ...
                 this.dispose();

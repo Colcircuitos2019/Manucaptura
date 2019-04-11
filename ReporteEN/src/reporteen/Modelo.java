@@ -15,22 +15,19 @@ public class Modelo {
     PreparedStatement ps = null;
     Connection con = null;
     String Query = "";
-    EN objEN;
 
-    public Modelo(EN objEN) {
-        this.objEN=objEN;
-    }
+    public Modelo() {}
 
-    public CachedRowSet consultarProcesosM(int area) {
+    public CachedRowSet consultarProcesosM() {
         try {
             //Establecer la conexión
-            conexion=new Conexion(1,objEN);//Base de datos de SGN
+            conexion=new Conexion(1);//Base de datos de SGN
             conexion.establecerConexion();
             con=conexion.getConexion();
             //Preparar la consulata
             Query = "CALL PA_ConsultarProcesoAreaReporte(?)";
             ps = con.prepareStatement(Query);
-            ps.setInt(1, area);
+            ps.setInt(1, 3);
             rs = ps.executeQuery();
             crs = new CachedRowSetImpl();
             crs.populate(rs);
@@ -45,14 +42,14 @@ public class Modelo {
         return crs;
     }
 
-    public CachedRowSet consultarInformacionEnsambleM() {
+    public CachedRowSet consultarInformacionProduccionM() {
         try {
             //Establecer la conexión
-            conexion=new Conexion(1,objEN);//Base de datos de SGN
+            conexion=new Conexion(1);//Base de datos de SGN
             conexion.establecerConexion();
             con=conexion.getConexion();
             //Preparar la consulata
-            Query = "CALL PA_InformeNEN()";
+            Query = "CALL PA_InformeNEN()";// Actualizar este procedure en el servidor
             ps = con.prepareStatement(Query);
             rs = ps.executeQuery();
             crs = new CachedRowSetImpl();
@@ -72,7 +69,7 @@ public class Modelo {
         boolean respuesta= false;
         try {
             //Establecer la conexión
-            conexion=new Conexion(1,objEN);//Base de datos de SGN
+            conexion=new Conexion(1);//Base de datos de SGN
             conexion.establecerConexion();
             con=conexion.getConexion();
             //Preparar la consulata
@@ -98,7 +95,7 @@ public class Modelo {
         boolean respuesta = false;
         try {
             //Establecer la conexión
-            conexion=new Conexion(1,objEN);//Base de datos de SGN
+            conexion=new Conexion(1);//Base de datos de SGN
             conexion.establecerConexion();
             con=conexion.getConexion();
             //Preparar la consulata
@@ -126,7 +123,7 @@ public class Modelo {
         int puerto = 0;
         try {
             //Establecer la conexión
-            conexion=new Conexion(1,objEN);//Base de datos de SGN
+            conexion=new Conexion(1);//Base de datos de SGN
             conexion.establecerConexion();
             con=conexion.getConexion();
             //Preparar la consulata
@@ -153,7 +150,7 @@ public class Modelo {
     public CachedRowSet consultarDireccionIPServerPrograma(int area) {
         try {
             //Establecer la conexión
-            conexion=new Conexion(1,objEN);//Base de datos de SGN
+            conexion=new Conexion(1);//Base de datos de SGN
             conexion.establecerConexion();
             con=conexion.getConexion();
             //Preparar la consulata
@@ -176,9 +173,9 @@ public class Modelo {
     
     
     public String consultarNombreLiderProyectoM(String doc){
-        String empleado="";
+        String empleado=null;
         try {
-            conexion=new Conexion(2,objEN);//Base de datos de SGN
+            conexion=new Conexion(2);//Base de datos de SGN
             conexion.establecerConexion();
             con=conexion.getConexion();
             //...

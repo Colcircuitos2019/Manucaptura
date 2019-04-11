@@ -14,7 +14,8 @@ import javax.sql.rowset.CachedRowSet;
 public class socketCliente {
    
     private Socket cliente;
-    private int area =0;
+    private int area[]=null;
+    private int cargo=0;
     /* Área:
         0 = Todas las areas de producción
         1 = Reportes abiertos de FE - Formato Estandar
@@ -26,12 +27,13 @@ public class socketCliente {
     DataInputStream inPut = null;
     // ...
     
-    public socketCliente(int area){
+    public socketCliente(int[] area){
         this.area = area;
     }
     public socketCliente(){}
  
     public void enviarInformacionSocketserver(ArrayList infoSocketServer, String mensaje) {
+        
         try {
             if (infoSocketServer != null) {
                 for (int i = 0; i < infoSocketServer.size(); i++) {
@@ -49,34 +51,44 @@ public class socketCliente {
                 }
             }
         } catch (Exception e) {
+            
             e.printStackTrace();
+            
         }
+        
     }
     
     public ArrayList<Object> consultarServerSockets() {// Son todos los server sockets de los reportes en general independientemente del área
         // ...
         ArrayList<Object> serverScoekts = null;
         // ...
-        CachedRowSet crs = consultarServidoresReportes();
-        if (crs != null) {
+        
+        for (int i = 0; i < area.length; i++) {
+          
+            CachedRowSet crs = consultarServidoresReportes(area[i]);
 
-            serverScoekts = new ArrayList<Object>();
+            if (crs != null) {
 
-            try {
-                while (crs.next()) {
+                serverScoekts = new ArrayList<Object>();
 
-                    serverScoekts.add(new String[]{crs.getString("ipServidor"), (crs.getString("puerto"))});
+                try {
+                    while (crs.next()) {
 
+                        serverScoekts.add(new String[]{crs.getString("ipServidor"), (crs.getString("puerto"))});
+
+                    }
+                } catch (Exception ex) {
+                    Logger.getLogger(socketCliente.class.getName()).log(Level.SEVERE, null, ex);
                 }
-            } catch (Exception ex) {
-                Logger.getLogger(socketCliente.class.getName()).log(Level.SEVERE, null, ex);
+                // ...
             }
-            // ...
+            
         }
+        
         return serverScoekts;
     }
     
-    public CachedRowSet consultarServidoresReportes(){
+    public CachedRowSet consultarServidoresReportes(int area){
         
         socketServerM modelo = new socketServerM();
         return modelo.consultarServidorSocketReporteM(area);

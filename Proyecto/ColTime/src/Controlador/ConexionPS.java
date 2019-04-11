@@ -63,8 +63,8 @@ public class ConexionPS {
                     conexion = 1;
                     //Se selecciona el item Activado de: Menu Principal>Configuración>Lectura>Activado.
                     menu.jRLActivado.setSelected(true);
-                    
-                    socketCliente clienteSocket = new socketCliente(3);
+                    // Cargos = 2 - Encargado de FE y TE, Encargado de EN
+                    socketCliente clienteSocket = new socketCliente(menu.cargo==2?new int[]{1,2}:new int[]{3});
                     clienteSocket.enviarInformacionSocketserver(clienteSocket.consultarServerSockets(), "act");// Actualizar estado DB de los reportes de produccion
                     
                     //Cambio de la etiqueta del estado de lectura en la vista de menu ubicada en el menu lateral.

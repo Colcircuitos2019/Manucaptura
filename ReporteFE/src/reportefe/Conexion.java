@@ -7,16 +7,13 @@ public class Conexion{
 
     private Connection conexion;
     static String bd = "coltime";
-    static String user = "coluser";//juanDavidM 
-    static String password = "";//123
-    static String server = "jdbc:mysql://192.168.4.173:3306/" + bd;
+    static String user = "coluser";
+    static String password = "";
+    static String server = "jdbc:mysql://192.168.4.173:33066/" + bd;
     //192.168.0.103
 
     public Conexion() {
-        FE obj=new FE();
-        user = obj.user;
-        password = obj.pass;
-        server = "jdbc:mysql://"+obj.IP+"/" + bd;
+        
     }
 
     public void establecerConexion() {

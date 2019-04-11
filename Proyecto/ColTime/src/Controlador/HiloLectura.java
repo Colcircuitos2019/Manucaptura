@@ -20,8 +20,8 @@ public class HiloLectura implements Runnable {
                 
                 //Se selecciona el item Activado de: Menu Principal>Configuración>Lectura>Desactivado.
                 menu.jRLDesactivado.setSelected(true);
-                
-                socketCliente clienteSocket = new socketCliente(3);
+                // Cargos = 2 - Encargado de FE y TE, Encargado de EN
+                socketCliente clienteSocket = new socketCliente(menu.cargo==2?new int[]{1,2}:new int[]{3});
                 clienteSocket.enviarInformacionSocketserver(clienteSocket.consultarServerSockets(), "des");// Actualizar estado DB de los reportes de produccion
                 
                 menu.estadoPertoSerialOperarios();

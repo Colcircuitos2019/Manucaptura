@@ -12,74 +12,65 @@ public class MyRenderEN extends JTable {
     Color green = new Color(116, 251, 83);
     Color red = new Color(251, 83, 83);
     Color blueligth = new Color(1, 174, 240);
-    int col=0;
+    int col = 0;
 
     @Override
     public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
         Component cell = super.prepareRenderer(renderer, row, column); //To change body of generated methods, choose Tools | Templates.
-//        if (column % 2 == 1) {//Impares
-//            //Colores por defecto
-//            cell.setBackground(Color.WHITE);
-//            cell.setForeground(Color.BLACK);
-//        } else {
-//            cell.setBackground(Color.WHITE);//white
-            
-            if (getValueAt(row, column ).toString().equals("*******")) {
-                cell.setBackground(new Color(34, 137, 254));//blue
-            }else{
-                cell.setBackground(Color.WHITE);//white
-            }
-//          ....
-            if ((column != 1 && column != 0 && column >= 4)) {
-//                if (column % 2 == 1) {//pares son los sub_procesos *******
-                    getValueAt(row, column - 1).toString();
-                    if(column % 2 == 0){
-                        switch (getValueAt(row, column - 1).toString()) {
-                            case "1"://Por iniciar
-                            case "":
-                                cell.setBackground(Color.WHITE);//white
-                                break;
-                            case "2"://Pausado
-                                cell.setBackground(red);//Red
-                                break;
-                            case "3"://Terminado
-                                cell.setBackground(green);//green
-                                break;
-                            case "4"://Ejecución
-                                cell.setBackground(orange);//Orange
-                                break;
-                            case "*******":
-                                cell.setBackground(new Color(34, 137, 254));//blue
-                                break;
-                            default:
-                                cell.setBackground(Color.WHITE);//white
-                                break;
-                        } 
-                    }
-//                }
-            } else {
-                if (column == 0) {
-                    switch (getValueAt(row, 2).toString()) {
+
+        cell.setBackground(Color.WHITE);
+        cell.setForeground(Color.BLACK);
+
+        try {
+
+            if (row < this.getRowCount() - 1) {
+
+                if (column == 0) {// Tipo de ejecucion del producto
+                    switch (this.getValueAt(row, 1).toString()) {
                         case "Normal":
-                            cell.setBackground(Color.WHITE);//white
+                            cell.setBackground(Color.white);
+                            cell.setForeground(Color.BLACK);
                             break;
                         case "Quick":
-                            cell.setBackground(blueligth);//Blueligth
+                            cell.setBackground(new Color(1, 174, 240));//Azul
+                            cell.setForeground(Color.WHITE);
                             break;
                         case "RQT":
-                            cell.setBackground(Color.PINK);//Pink
-                            break;
-                        default:
-                            cell.setBackground(Color.WHITE);//white
+                            cell.setBackground(Color.PINK);//Rosado
+                            cell.setForeground(Color.BLACK);
                             break;
                     }
-                } else {
-                    //Colores por defecto
-                    cell.setBackground(Color.white);
-                    cell.setForeground(Color.BLACK);
                 }
+
+                if (column >= 5 && column % 2 == 1) {
+
+                    switch (getValueAt(row, column - 1).toString()) {
+                        case "-1":
+                            cell.setBackground(Color.GRAY);// Parada
+                            break;
+                        case "1":// Por iniciar
+                            cell.setBackground(Color.WHITE);
+                            break;
+                        case "2":// Pausada
+                            cell.setBackground(Color.RED);
+                            break;
+                        case "3":// Terminada
+                            cell.setBackground(Color.GREEN);
+                            break;
+                        case "4": // En ejecucion
+                            cell.setBackground(Color.ORANGE);
+                            break;
+                    }
+
+                }
+
             }
-//        }
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+        }
 
         return cell;
     }
@@ -89,6 +80,4 @@ public class MyRenderEN extends JTable {
         super.finalize(); //To change body of generated methods, choose Tools | Templates.
     }
 
-    
-    
 }

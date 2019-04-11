@@ -14,6 +14,7 @@ public class socketServidor implements Runnable {
     
     private int puerto = 0;
     private int soloUnaVez = 0;
+    private int cargo = 0;
     private ServerSocket servidor=null;
     private Socket cliente = null;
     
@@ -22,7 +23,14 @@ public class socketServidor implements Runnable {
     
     String mensaje="";
     
-    public socketServidor(){}
+    public socketServidor(int cargo){
+        
+        //Cargos 2- Encargado de FE y TE, 3-Encargado de EN
+        if(cargo==3){
+            this.cargo = cargo;
+        }
+        
+    }
    
     @Override
     public void run() {
@@ -31,7 +39,7 @@ public class socketServidor implements Runnable {
             
             if(soloUnaVez == 0){
                 
-                puerto = consultarPuertoComunicacionServidor(consultarDireccionIPServer(), 0, 3);// --> el programa tamiben tiene que ser versatil
+                puerto = consultarPuertoComunicacionServidor(consultarDireccionIPServer(), 0, cargo);// --> el programa tamiben tiene que ser versatil
                 soloUnaVez = 1;
                 
             }
@@ -52,7 +60,7 @@ public class socketServidor implements Runnable {
             
             // ...
             servidor = new ServerSocket(puerto);
-            gestionDireccionServidor(consultarDireccionIPServer(), 3, String.valueOf(puerto));
+            gestionDireccionServidor(consultarDireccionIPServer(), cargo, String.valueOf(puerto));
             respuesta = true;
             // ...
             

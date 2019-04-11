@@ -1,10 +1,7 @@
 package reporteen;
 
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -13,18 +10,17 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.sql.rowset.CachedRowSet;
 import javax.swing.ImageIcon;
-import javax.swing.JOptionPane;
 //import javax.swing.Timer;
 import javax.swing.table.DefaultTableModel;
 
 public class EN extends javax.swing.JFrame implements Runnable {
 
-//Variables
-//    CachedRowSet crs = null;
+    //Variables
     String names[] = null;
     static String namesBeta[] = null, nombreProcesos[] = null;
     String beta = "N°Orden;Cant;Lider de proyecto", betaNames = "";
@@ -33,16 +29,13 @@ public class EN extends javax.swing.JFrame implements Runnable {
     int cantTerminada = 0;
     static int posProceso = 0, rep = 0, canColumnas = 0, soloUnaVez = 0;
     Thread innformacionProduccion = null;
-//Variables staticas
-    public static String IP = "192.168.4.173:33066";
-    public static String user = "root";//juanDavidM
-    public static String pass = "SaAFjmXlMRvppyqW";//
+    Object[] pie_pagina = null;
 
     public EN() {
         //...
         if (soloUnaVez == 0) {
             initComponents();
-            modelo = new Modelo(this);
+            modelo = new Modelo();
             this.setExtendedState(EN.MAXIMIZED_BOTH);// Extienete el jFrame a la totalidad del tamaño de la pantalla
             this.setIconImage(new ImageIcon(getClass().getResource("/img/EN.png")).getImage());// Favicon del jFrame
             jTReporte.getTableHeader().setReorderingAllowed(false);// Evita que los headers de la tabla se puedans desplazar...
@@ -57,8 +50,8 @@ public class EN extends javax.swing.JFrame implements Runnable {
     }
 
     private void estadoConexionServidor() {
-        if(validarConexionServerSocket()){
-            Conexion conexion = new Conexion(1, this);
+        if (validarConexionServerSocket()) {
+            Conexion conexion = new Conexion(1);
             conexion.establecerConexion();
             if (conexion.getConexion() != null) {
                 jLConexion.setText("Linea");
@@ -67,15 +60,15 @@ public class EN extends javax.swing.JFrame implements Runnable {
                 jLConexion.setText("Sin conexión");
                 jLConexion.setForeground(Color.RED);
             }
-            conexion.destruir();    
-        }else{
+            conexion.destruir();
+        } else {
             jLConexion.setText("Sin conexión");
             jLConexion.setForeground(Color.RED);
         }
     }
 
     private void consultarEstadoLectura() {
-        if(validarConexionServerSocket()){
+        if (validarConexionServerSocket()) {
             if (modelo.consultarEstadoLecturaPuertoSerial()) {
                 jLEstadoLectura.setText("Activado");
                 jLEstadoLectura.setForeground(new Color(0, 185, 0));
@@ -83,7 +76,7 @@ public class EN extends javax.swing.JFrame implements Runnable {
                 jLEstadoLectura.setText("Desactivado");
                 jLEstadoLectura.setForeground(Color.RED);
             }
-        }else{
+        } else {
             jLEstadoLectura.setText("Desactivado");
             jLEstadoLectura.setForeground(Color.RED);
         }
@@ -92,28 +85,28 @@ public class EN extends javax.swing.JFrame implements Runnable {
     private boolean validarConexionServerSocket() {
 
         Socket cliente = new Socket();
-        Modelo modelo = new Modelo(this);
+        Modelo modelo = new Modelo();
         boolean respuesta = false;
         CachedRowSet crs = modelo.consultarDireccionIPServerPrograma(3);// Area de ensamble - EN = 3
-        
+
         try {
-            
-            while(crs.next()){
-               
+
+            while (crs.next()) {
+
                 cliente.connect(new InetSocketAddress(crs.getString("ipServidor"), crs.getInt("puerto")), 2000);
-                
+
                 DataOutputStream output = new DataOutputStream(cliente.getOutputStream());
                 output.writeUTF("1");
-                        
+
                 cliente.close();
                 respuesta = true;
-                
+
             }
 
         } catch (Exception ex) {
-            
+
             Logger.getLogger(EN.class.getName()).log(Level.SEVERE, null, ex);
-            
+
         }
 
         return respuesta;
@@ -124,7 +117,7 @@ public class EN extends javax.swing.JFrame implements Runnable {
     private final int PUERTO = consultarPuertoComunicacionServidor(direccionIP);
     private ServerSocket servidor = null;
     private Socket cliente = null;
-
+    // ...
     DataInputStream input;
     DataOutputStream output;
     // Server socket fin -------------------------------------------------------
@@ -138,7 +131,7 @@ public class EN extends javax.swing.JFrame implements Runnable {
                 servidor = new ServerSocket(PUERTO);
 
                 if (gestionDireccionServidor(direccionIP, PUERTO, 1)) {
-                    consultarProcesosEncabezados();
+                    consultarInformacionProduccion();
                 }
 
                 while (true) {
@@ -152,7 +145,7 @@ public class EN extends javax.swing.JFrame implements Runnable {
                     switch (mensaje) {
                         case "true":// Actualizar info reporte
                             //Se genero alguna modificacion que afecta algun producto o se agregaron nuevas OP
-                            consultarProcesosEncabezados();
+                            consultarInformacionProduccion();
                             jPanel1.updateUI();
                             System.gc();//Garbaje collector
                             break;
@@ -197,7 +190,7 @@ public class EN extends javax.swing.JFrame implements Runnable {
     }
 
     private int consultarPuertoComunicacionServidor(String direccionIP) {
-        Modelo modelo = new Modelo(this);
+        Modelo modelo = new Modelo();
         int puerto = modelo.consultarPuertoComunicacionservidorM(direccionIP);
         if (puerto != 0) {
             return puerto;
@@ -218,203 +211,239 @@ public class EN extends javax.swing.JFrame implements Runnable {
         return direccionIP;
     }
 
-    private void consultarProcesosEncabezados() {
-        try {
-            String nuevaCadena = "";
-            betaNames = "";
-            int count = 0;
-            
-            CachedRowSet crs = modelo.consultarProcesosM(3);//Ensamble=3
-            
-            if(false){
-                
-                while (crs.next()) {
-                    betaNames += count == 0 ? crs.getString(2) : ";" + crs.getString(2);//Columna numero 2
-                    count = 1;
-                }
-                namesBeta = betaNames.split(";");
-                for (int i = 0; i < namesBeta.length; i++) {
-                    nuevaCadena += ";sub_" + namesBeta[i] + ";" + namesBeta[i];
-                }
-                //Columnas de cantidad total terminada
-                nuevaCadena += ";relleno;Terminados;relleno;Restantes";
-                //...
-                names = (beta + nuevaCadena).split(";");//Encabezado de las columnas
-                //...
-                //Modelo de la tabla con encabezados
-                DefaultTableModel df = new DefaultTableModel(null, names);
-                //...
-                canColumnas = names.length;
-                //...
-                nuevaCadena = "";
-                consultarInformacionEnsamble(df);
-                
-            }else{
+    // Nueva forma de cargar el reporte...
+    // -------------------------------------------------------------------------
+    private ArrayList<Object> encabezadoTabla() {
 
-//                new Timer(5000, new ActionListener() {
-//                    @Override
-//                    public void actionPerformed(ActionEvent e) {
-//                        JOptionPane.showMessageDialog(null, "El reporte no pudo ser actualizado, por favor intentalo nuevamente o contacta con el desarrollador.","Alerta", JOptionPane.WARNING_MESSAGE);
-//                    }
-//                }).start();
-                    jDMensaje.setSize(480, 162);
-                    jDMensaje.setVisible(true);
-                    jDMensaje.setLocationRelativeTo(null);
-                    Thread.sleep(5000);
-                    jDMensaje.dispose();
-                
+        ArrayList<Object> encabezado = new <Object>ArrayList();
+        encabezado.add("N°Orden");
+        encabezado.add("Ejecución");
+        encabezado.add("Cant");
+        encabezado.add("Lider Proyecto");
+
+        Modelo modelo = new Modelo();
+        CachedRowSet crs = modelo.consultarProcesosM();
+
+        try {
+
+            while (crs.next()) {
+
+                encabezado.add("sub_" + crs.getString("nombre_proceso"));
+                encabezado.add(crs.getString("nombre_proceso"));
+
             }
-            
+            // ...
+            encabezado.add("Terminado");
+            encabezado.add("Restantes");
+
+            pie_pagina = null;
+            pie_pagina = new Object[encabezado.size()];
+
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "2-Error: " + e);
+
+            e.printStackTrace();
+
+            return new <Object>ArrayList();
+
         }
+
+        return encabezado;
     }
 
-    private void consultarInformacionEnsamble(DefaultTableModel df) {
+    private void consultarInformacionProduccion() {
+
         try {
-            int totalProyectos = 0, cantidadTotatlUnidades = 0;
-            row = null;
-            CachedRowSet crs = modelo.consultarInformacionEnsambleM();
-            row = new Object[names.length];
-            int tipoProductoNew = 0, tipoProductoOld = 0;
-            inicializarVector();//Vector en estado inicial
+
+            Object encabezado[] = encabezadoTabla().toArray();
+            ArrayList<Object> informacion_produccion = new <Object>ArrayList();
+            Object[] row = null;
+            DefaultTableModel modelo_tabla = new DefaultTableModel(null, encabezado);
+            int rep = 0, cantidad_proyectos = 0, total_cantidades = 0, cantidad_procesos = 0;
+            String oldNumOrden = "", oldTipoProducto = "";
+            Modelo modelo = new Modelo();
+            CachedRowSet crs = modelo.consultarInformacionProduccionM();
+
             while (crs.next()) {
+
+                Proceso proceso = new Proceso();
+
                 if (rep == 0) {
-                    row[0] = crs.getString(1);//Numero de orden
-                    row[1] = crs.getString(2).equals("") ? "0" : crs.getString(2);//Cant
-                    row[2] = (crs.getString(7) == null ? "-" : consultarNombreEmpleadoLider(crs.getString(7)));//producto
-                    cantidadTotatlUnidades += crs.getInt(2);
-                    //...
-//                    agregarNoperariosProceso();
-                    estadoProcesos(crs);
-                    tipoProductoNew = crs.getInt("idProducto");
+
+                    informacion_produccion.add(new Object[]{crs.getString("proyecto_numero_orden"), crs.getString("tipo_proyecto"), crs.getString("parada")});
+                    informacion_produccion.add(crs.getString("canitadad_total"));
+                    total_cantidades += crs.getInt("canitadad_total");
+                    informacion_produccion.add((crs.getString("lider_proyecto")==null ? "-" : modelo.consultarNombreLiderProyectoM(crs.getString("lider_proyecto"))));
+                    // ...
+                    proceso.setNombre(crs.getString("nombre_proceso"));
+                    proceso.setEstado(crs.getInt("estado"));
+                    proceso.setCantidad(crs.getString("cantidadProceso"));
+                    cantidad_procesos+= crs.getInt("cantidadProceso");
+                    // ...
+                    informacion_produccion.add(proceso);
+                    // ...
+                    oldNumOrden = crs.getString("proyecto_numero_orden");
+                    oldTipoProducto = crs.getString("idProducto");
                     rep = 1;
+
                 } else {
-                    tipoProductoOld = tipoProductoNew;
-                    tipoProductoNew = crs.getInt("idProducto");
-                    if (row[0].toString().equals(crs.getString(1)) && tipoProductoOld == tipoProductoNew) {
-                        //...
-//                        agregarNoperariosProceso();
-                        estadoProcesos(crs);
+                    // Pendiente revisar la validacion (campo de PNC)
+                    if (oldNumOrden.equals(crs.getString("proyecto_numero_orden")) && oldTipoProducto.equals(crs.getString("idProducto"))) {
+
+                        proceso.setNombre(crs.getString("nombre_proceso"));
+                        proceso.setEstado(crs.getInt("estado"));
+                        proceso.setCantidad(crs.getString("cantidadProceso"));
+                        cantidad_procesos+= crs.getInt("cantidadProceso");
+                        // ...
+                        informacion_produccion.add(proceso);
+
                     } else {
-                        //Cancular la cantidad total terminada
-                        row[names.length - 3] = cantTerminada != 0 ? (Integer.parseInt(String.valueOf(row[1])) - cantTerminada) : 0;
-                        //Cantidad restante del proyecto
-                        row[names.length - 1] = Integer.parseInt(String.valueOf(row[1])) - Integer.parseInt(String.valueOf(row[names.length - 3]));
-                        cantTerminada = 0;
-                        //Añade la fila al modelo de la tabla...
-                        df.addRow(row);
-                        totalProyectos++;
-                        inicializarVector();//Vector en estado inicial
-                        //...
-                        row[0] = crs.getString(1);//Numero de orden
-                        row[1] = crs.getString(2).equals("") ? "0" : crs.getString(2);//Cant
-//                        row[2] = crs.getString(6);//Tipo de proyecto
-                        row[2] = (crs.getString(7) == null ? "-" : consultarNombreEmpleadoLider(crs.getString(7)));//Lider de proyecto
-                        cantidadTotatlUnidades += crs.getInt(2);
-                        //...
-//                        agregarNoperariosProceso();
-                        estadoProcesos(crs);
+
+                        row = organizarRowTabla(informacion_produccion, encabezado, cantidad_procesos);
+
+                        modelo_tabla.addRow(row);
+                        cantidad_proyectos++;
+                        cantidad_procesos=0;
+
+                        informacion_produccion.clear();
+
+                        // ...
+                        informacion_produccion.add(new Object[]{crs.getString("proyecto_numero_orden"), crs.getString("tipo_proyecto"), crs.getString("parada")});
+                        informacion_produccion.add(crs.getString("canitadad_total"));
+                        total_cantidades += crs.getInt("canitadad_total");
+                        informacion_produccion.add((crs.getString("lider_proyecto") == null ? "-" : modelo.consultarNombreLiderProyectoM(crs.getString("lider_proyecto"))));
+                        // ...
+                        proceso.setNombre(crs.getString("nombre_proceso"));
+                        proceso.setEstado(crs.getInt("estado"));
+                        proceso.setCantidad(crs.getString("cantidadProceso"));
+                        cantidad_procesos+= crs.getInt("cantidadProceso");
+                        // ...
+                        informacion_produccion.add(proceso);
+                        // ...
+                        oldNumOrden = crs.getString("proyecto_numero_orden");
+                        oldTipoProducto = crs.getString("idProducto");
                     }
+
                 }
+
             }
+
             if (rep == 1) {
-                //Calcular la cantidad terminada total del proyecto
-                row[names.length - 3] = cantTerminada != 0 ? (Integer.parseInt(String.valueOf(row[1])) - cantTerminada) : 0;
-                //Cantidad restante del proyecto
-                row[names.length - 1] = Integer.parseInt(String.valueOf(row[1])) - cantTerminada;
-                cantTerminada = 0;
-                //Agregar la fila al modelo de la tabla...
-                df.addRow(row);
-                totalProyectos++;
-                rep = 0;
+
+                row = organizarRowTabla(informacion_produccion, encabezado, cantidad_procesos);
+
+                modelo_tabla.addRow(row);
+                cantidad_proyectos++;
+
+                informacion_produccion.clear();
+
             }
-            vaciarVector();
-            row[0] = totalProyectos;
-            row[1] = cantidadTotatlUnidades;
-            df.addRow(row);
-            jTReporte.setModel(df);
+
+            pie_pagina[0] = cantidad_proyectos;
+            pie_pagina[2] = total_cantidades;
+            pie_pagina[3] = "*******";
+            pie_pagina[pie_pagina.length-1] = "*******";
+            pie_pagina[pie_pagina.length-2] = "*******";
+            // ...
+            modelo_tabla.addRow(pie_pagina);
+            // ...
+            jTReporte.setModel(modelo_tabla);
             jTReporte.setDefaultRenderer(Object.class, new Tabla());
             jTReporte.getTableHeader().setFont(new Font("Arial", 1, 18));
             jTReporte.getTableHeader().setForeground(Color.BLACK);
+            tamañoColumnasTabla();
+//            jTReporte.updateUI();
             jLContadorActualizaciones.setText(String.valueOf(Integer.parseInt(jLContadorActualizaciones.getText()) + 1));
-            // ...
-            ColumnasAOcultar();
-            row = null;
-            namesBeta = null;
-            nombreProcesos = null;
-            betaNames = "";
+
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "3-Error: " + e);
+
+            e.printStackTrace();
+
         }
+
     }
 
-    private void estadoProcesos(CachedRowSet crs) {//Calcular la cantidad pasada queda pendiente
-        try {
-            int pos = consultarPosicionProceso(crs.getString(3));// Posiciòn del proceso
-            row[pos - 1] = crs.getString(5);//Estado de proceso
-            row[pos] = crs.getString(9);//Cantidades terminadas del proceso
-            cantTerminada += crs.getInt(9);
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "4-Error: " + e);
-        }
-    }
+    private void tamañoColumnasTabla() {
 
-    private void inicializarVector() {
-        for (int i = 0; i < row.length; i++) {
-            row[i] = 0;
-        }
-    }
+        // Tipo de ejecución
+        jTReporte.getColumnModel().getColumn(1).setMinWidth(0);
+        jTReporte.getColumnModel().getColumn(1).setMaxWidth(0);
+        jTReporte.getTableHeader().getColumnModel().getColumn(1).setMaxWidth(0);
+        jTReporte.getTableHeader().getColumnModel().getColumn(1).setMinWidth(0);
+        // ...
 
-    private void vaciarVector() {
-        for (int i = 0; i < row.length; i++) {
-            row[i] = "*******";
-        }
-    }
+        for (int i = 4; i < jTReporte.getColumnCount() - 2; i++) {
 
-    private int consultarPosicionProceso(String nombreProceso) {
-        for (int i = 2; i <= names.length - 1; i++) {
-            if (names[i].equals(nombreProceso)) {
-                posProceso = i;
-                break;
-            }
-        }
-        return posProceso;
-    }
-
-    private String consultarNombreEmpleadoLider(String doc) {
-        String name = "";
-        try {
-            name = modelo.consultarNombreLiderProyectoM(doc);
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "5-Error:" + e);
-        }
-        return name;
-    }
-
-    private void ColumnasAOcultar() {
-        for (int i = 3; i <= (namesBeta.length * 2) + 5; i++) {
-            if (i % 2 == 1) {
+            if (i % 2 == 0) {
+                
                 jTReporte.getColumnModel().getColumn(i).setMinWidth(0);
                 jTReporte.getColumnModel().getColumn(i).setMaxWidth(0);
                 jTReporte.getTableHeader().getColumnModel().getColumn(i).setMaxWidth(0);
                 jTReporte.getTableHeader().getColumnModel().getColumn(i).setMinWidth(0);
+                
             }
+
         }
-        //...
-        //Numero de orden del proyecto...
-        jTReporte.getColumnModel().getColumn(0).setMinWidth(100);
-        jTReporte.getColumnModel().getColumn(0).setMaxWidth(100);
-        jTReporte.getTableHeader().getColumnModel().getColumn(0).setMaxWidth(100);
-        jTReporte.getTableHeader().getColumnModel().getColumn(0).setMinWidth(100);
-        //Nombre del lider de proyecto
-        jTReporte.getColumnModel().getColumn(2).setMinWidth(300);
-        jTReporte.getColumnModel().getColumn(2).setMaxWidth(300);
-        jTReporte.getTableHeader().getColumnModel().getColumn(2).setMaxWidth(300);
-        jTReporte.getTableHeader().getColumnModel().getColumn(2).setMinWidth(300);
-//...
+
     }
 
+    private Object[] organizarRowTabla(ArrayList<Object> informacionRow, Object[] encabezado, int cantidadProcesos) {
+
+        Object[] row = new Object[encabezado.length];// ((encabezado.length - 4) * 2) + 4
+        Object[] infoProyecto = (Object[]) informacionRow.get(0);// 0 = numero orden, 1 = tipo proyecto, 2 = Parada
+        int index = 0;
+        // ...
+        row[0] = infoProyecto[0];//Numero de orden
+        row[1] = infoProyecto[1];//Tipo Ejecución (Normal, Quik, RQT)
+        row[2] = informacionRow.get(1);//Cantidad Total
+        row[3] = informacionRow.get(2);//Lider de producción
+        int cantidad_terminada = 0;
+        cantidad_terminada = (cantidadProcesos!=0?Integer.parseInt(informacionRow.get(1).toString())-cantidadProcesos:0);
+        row[row.length-2] = cantidad_terminada;//cantidad terminada
+        row[row.length-1] = Integer.parseInt(informacionRow.get(1).toString()) - cantidad_terminada;//cantidad restante
+
+        // ...
+        for (int i = 5; i < encabezado.length - 1; i = i + 2) {
+
+            index = 0;
+
+            for (int j = 3; j < informacionRow.size(); j++) {// Buscar indice del proceso (ArrayList)
+
+                Proceso proceso = (Proceso) informacionRow.get(j);
+
+                if (encabezado[i].toString().equals(proceso.getNombre())) {
+
+                    index = j;
+
+                    break;
+
+                }
+
+            }
+
+            if (index > 0) {
+
+                Proceso proceso = (Proceso) informacionRow.get(index);
+                // ...
+                row[i - 1] = (infoProyecto[2].toString().equals("true") ? proceso.getEstado() : 0);// Estado del proceso 0=parado
+                row[i] = proceso.getCantidad();// Cantidad del proceso
+
+                if (pie_pagina[i] == null) {
+
+                    pie_pagina[i] = proceso.getCantidad();
+
+                } else {
+
+                    pie_pagina[i] = Integer.parseInt(pie_pagina[i].toString()) + Integer.parseInt(proceso.getCantidad());
+
+                }
+            }
+
+        }
+
+        return row;
+    }
+
+    // -------------------------------------------------------------------------
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -683,7 +712,7 @@ public class EN extends javax.swing.JFrame implements Runnable {
     }//GEN-LAST:event_formWindowClosing
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        consultarProcesosEncabezados();
+        consultarInformacionProduccion();
         consultarEstadoLectura();
         estadoConexionServidor();
     }//GEN-LAST:event_jButton2ActionPerformed
@@ -751,6 +780,46 @@ public class EN extends javax.swing.JFrame implements Runnable {
     public static javax.swing.JLabel jestadoConexionServer;
     public static javax.swing.JLabel jestadoConexionServer1;
     // End of variables declaration//GEN-END:variables
+
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize(); //To change body of generated methods, choose Tools | Templates.
+    }
+
+}
+
+class Proceso {
+
+    public Proceso() {
+    }
+
+    private String nombre;
+    private int estado;
+    private String cantidad;
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public int getEstado() {
+        return estado;
+    }
+
+    public void setEstado(int estado) {
+        this.estado = estado;
+    }
+
+    public String getCantidad() {
+        return cantidad;
+    }
+
+    public void setCantidad(String cantidad) {
+        this.cantidad = cantidad;
+    }
 
     @Override
     protected void finalize() throws Throwable {

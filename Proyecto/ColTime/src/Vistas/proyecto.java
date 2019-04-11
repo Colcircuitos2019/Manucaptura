@@ -2102,7 +2102,7 @@ public class proyecto extends javax.swing.JPanel {
                 //Mensaje de exito
                 new rojerusan.RSNotifyAnimated("Listo!!", ("El Proyecto con el numero de orden: " + jTNorden.getText() + " fue " + (accion == 2 ? "modificado" : "registrada") + " exitosamente."), 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.SUCCESS).setVisible(true);
                 
-                socketCliente clienteSocket = new socketCliente(0);
+                socketCliente clienteSocket = new socketCliente(new int[]{0});// cambiar por un vector
                 clienteSocket.enviarInformacionSocketserver(clienteSocket.consultarServerSockets(), "true");
                 
                 if (accion == 2) {

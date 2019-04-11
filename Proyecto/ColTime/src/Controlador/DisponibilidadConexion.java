@@ -9,7 +9,7 @@ public class DisponibilidadConexion implements Runnable {
     @Override
     public void run() {
         
-        Menu vista = new Menu();
+        Menu menu = new Menu();
         while (true) {
             
             Modelo.Conexion obj = new Modelo.Conexion(1);
@@ -17,22 +17,24 @@ public class DisponibilidadConexion implements Runnable {
             
             if (obj.getConexion() != null) {
                 
-                if (!vista.jLConexion.getText().equals("Linea")) {
+                if (!menu.jLConexion.getText().equals("Linea")) {
                     
-                    vista.jLConexion.setText("Linea");
-                    vista.jLConexion.setForeground(Color.GREEN);
-                    socketCliente clienteSocket = new socketCliente(3);
+                    menu.jLConexion.setText("Linea");
+                    menu.jLConexion.setForeground(Color.GREEN);
+                    // Cargos = 2= Encargado de FE y TE, 3 = encargado de EN
+                    socketCliente clienteSocket = new socketCliente(menu.cargo==2?new int[]{1,2}:new int[]{3});
                     clienteSocket.enviarInformacionSocketserver(clienteSocket.consultarServerSockets(), "1");// Actualizar estado DB de los reportes de produccion
                     
                 }
                 
             } else {
                 
-                if (!vista.jLConexion.getText().equals("Sin conexión")) {
+                if (!menu.jLConexion.getText().equals("Sin conexión")) {
                     
-                    vista.jLConexion.setText("Sin conexión");
-                    vista.jLConexion.setForeground(Color.RED);
-                    socketCliente clienteSocket = new socketCliente(3);
+                    menu.jLConexion.setText("Sin conexión");
+                    menu.jLConexion.setForeground(Color.RED);
+                    // Cargos = 2= Encargado de FE y TE, 3 = encargado de EN
+                    socketCliente clienteSocket = new socketCliente(menu.cargo==2?new int[]{1,2}:new int[]{3});
                     clienteSocket.enviarInformacionSocketserver(clienteSocket.consultarServerSockets(), "2");// Actualizar estado DB de los reportes de produccion
                     
                 }

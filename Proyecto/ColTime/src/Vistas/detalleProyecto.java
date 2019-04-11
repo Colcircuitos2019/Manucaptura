@@ -538,7 +538,7 @@ public class detalleProyecto extends javax.swing.JDialog {
                                 new rojerusan.RSNotifyAnimated("¡Listo!", "El proceso: " + TDetalleProduccion.getValueAt(row, 0) + " fue reinicializado corresctamente.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.SUCCESS).setVisible(true);
                                 cargarTabla();
                                 // ...
-                                socketCliente clienteSocket = new socketCliente(area);
+                                socketCliente clienteSocket = new socketCliente(new int[]{area});
                                 clienteSocket.enviarInformacionSocketserver(clienteSocket.consultarServerSockets(), "true");// Actualizar estado DB de los reportes de produccion
                                 // ...
                             } else {
@@ -558,7 +558,7 @@ public class detalleProyecto extends javax.swing.JDialog {
                     radioBoton.updateUI();
                     TDetalleProduccion.updateUI();
                     // ...
-                    socketCliente clienteSocket = new socketCliente(area);
+                    socketCliente clienteSocket = new socketCliente(new int[]{area});// cambiarlo por un vector
                     clienteSocket.enviarInformacionSocketserver(clienteSocket.consultarServerSockets(), "true");// Actualizar estado DB de los reportes de produccion
                     // ...
                 }
