@@ -207,6 +207,7 @@ public class Login extends javax.swing.JFrame {
                 sc.jDocumento.setVisible(false);
                 sc.jLCargo.setText(String.valueOf(car));
                 sc.jLNombreUsuario.setText(nombreUsario(jTUser.getText()));
+                System.gc();//Garbage collector
                 this.dispose();
             } else {
                 new rojerusan.RSNotifyAnimated("¡Error!", "El usuario o la contraseña es incorrecto, por favor intentelo nuevamente.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.ERROR).setVisible(true);

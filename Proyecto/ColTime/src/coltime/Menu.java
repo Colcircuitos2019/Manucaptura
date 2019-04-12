@@ -45,7 +45,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
     public static Color rojo = new Color(255, 0, 0);//Rojo
     //
     public static Producciones bp = null;
-    public static boolean estadoLecturaPuertoCOM = false;
+    public static boolean estadoLecturaPuertoCOM = false, estadoConexionDB = true;
     static int soloUnaVez = 0;
     private ConexionPS CPS = null;
     DetallesAreaInfo informacion = null;
@@ -64,7 +64,9 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
     public static PrintStream myPS;
     ButtonGroup grupoCom = null;
     public static String IP = "192.168.4.173:33066", user = "coluser", pass = "";
-
+    socketServidor server = null;
+    Thread conexion = null;
+    
     public Menu(int cargo, String nombre, String doc) {
         initComponents();
         this.cargo = cargo;
@@ -88,9 +90,10 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
         }
         
         puertoSerialActual = ConsultarPuertoGurdadoUsuario(doc);
-        DisponibilidadConexion dispo = new DisponibilidadConexion();// Hilo ejecucion 1
-        Thread conec = new Thread(dispo);
-        conec.start();
+        DisponibilidadConexion dispo = new DisponibilidadConexion(this);// Hilo ejecucion 1
+        conexion = new Thread(dispo);
+        conexion.setName("Disponibilidad Conexion DB");
+        conexion.start();
         
         soloUnaVez = 1;// Validar que el hilo de estado de lectura solo sea ejecutado una vez cuando se inica la aplicacion
         if (cargo == 2 || cargo == 3) { // Encargado de FE o TE y Encargado de EN
@@ -99,12 +102,14 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
                 
                 estadoLecturaPuertoCOM = true;
                 
-                HiloLectura lectura = new HiloLectura();// Hilo ejecucion 3
+                HiloLectura lectura = new HiloLectura(this);// Hilo ejecucion 3
                 tomaTiempo = new Thread(lectura);
+                tomaTiempo.setName("Luctura puerto serial");
                 tomaTiempo.start();
                 // ...
-                socketServidor server = new socketServidor(cargo); // Hilo ejecucion 2
+                server = new socketServidor(cargo); // Hilo ejecucion 2
                 serverSocket = new Thread(server);
+                serverSocket.setName("Server Socket");
                 serverSocket.start();
                 
             }
@@ -1456,8 +1461,18 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
                 try {
                     guardarImagenMenuUsuario();//Guarda la imagen del usuario
                     sesion(0, jDocumento.getText());//Cierra el estado del ususario
+                    // ...
+                    socketCliente clienteSocket = new socketCliente(cargo == 2 ? new int[]{1, 2} : new int[]{3});
+                    ArrayList<Object> serversSockets = clienteSocket.consultarServerSockets();
+                    clienteSocket.enviarInformacionSocketserver(serversSockets, "2");// Desactivar la conexión en los reportes
+                    if(server != null){
+                        server.cerrarServidorSocket();  
+                    }
+                    estadoConexionDB = false;
+                    // ...
                     Thread.sleep(290);
                     System.gc();//Garbaje collector #4
+                    this.dispose();
                     new Login().setVisible(true);
                 } catch (Exception e) {
                     JOptionPane.showMessageDialog(null, "Error: " + e);
@@ -1621,7 +1636,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
                     new Object[]{"SI", "NO"}, "SI") == 0) {
                 estadoLecturaPuertoCOM = true;
                 // ...
-                HiloLectura lectura = new HiloLectura();
+                HiloLectura lectura = new HiloLectura(this);
                 tomaTiempo = new Thread(lectura);
                 tomaTiempo.start();
                 // ...

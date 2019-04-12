@@ -15,7 +15,7 @@ public class screen extends javax.swing.JFrame implements Runnable {
     /**
      * Creates new form screen
      */
-    private Thread tiempo = null;
+    private Thread ScrenShot = null;
     
     public screen() {
         initComponents();
@@ -24,8 +24,9 @@ public class screen extends javax.swing.JFrame implements Runnable {
         this.setLocationRelativeTo(null);
         AWTUtilities.setWindowOpaque(this, false);
         this.setIconImage(new ImageIcon(getClass().getResource("/imagenesEmpresa/favicon.png")).getImage());
-        tiempo = new Thread(this);
-        tiempo.start();
+        ScrenShot = new Thread(this);
+        ScrenShot.setName("Sreen Splash");
+        ScrenShot.start();
     }
 
     @SuppressWarnings("unchecked")
@@ -176,7 +177,6 @@ public class screen extends javax.swing.JFrame implements Runnable {
 
     @Override
     public void run() {
-        while (tiempo != null) {
             try {
                 Thread.sleep(5000);//5000
                 this.dispose();
@@ -193,13 +193,7 @@ public class screen extends javax.swing.JFrame implements Runnable {
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(null, ex);
             }
-            tiempo = null;
-        }
-//        try {
-//            finalize();
-//        } catch (Throwable ex) {
-//            Logger.getLogger(screen.class.getName()).log(Level.SEVERE, null, ex);
-//        }
+            ScrenShot = null;
     }
     
     @Override

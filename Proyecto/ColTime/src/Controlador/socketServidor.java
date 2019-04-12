@@ -35,7 +35,7 @@ public class socketServidor implements Runnable {
     @Override
     public void run() {
        
-        while(true){
+//        while(true){
             
             if(soloUnaVez == 0){
                 
@@ -50,7 +50,7 @@ public class socketServidor implements Runnable {
                 
             }
             
-        }
+//        }
         
     }
     
@@ -92,6 +92,16 @@ public class socketServidor implements Runnable {
             Logger.getLogger(socketServidor.class.getName()).log(Level.SEVERE, null, ex);
         }
         
+    }
+    
+    public void cerrarServidorSocket(){
+        try {
+            
+            servidor.close();
+            
+        } catch (IOException ex) {
+            Logger.getLogger(socketServidor.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
     private boolean gestionDireccionServidor(String direccionIP, int programa, String puerto) {

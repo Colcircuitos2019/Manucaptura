@@ -69,7 +69,9 @@ public class socketCliente {
 
             if (crs != null) {
 
-                serverScoekts = new ArrayList<Object>();
+                if(serverScoekts == null){
+                    serverScoekts = new ArrayList<Object>();
+                }
 
                 try {
                     while (crs.next()) {

@@ -21,13 +21,9 @@ import javax.swing.table.DefaultTableModel;
 public class EN extends javax.swing.JFrame implements Runnable {
 
     //Variables
-    String names[] = null;
-    static String namesBeta[] = null, nombreProcesos[] = null;
-    String beta = "N°Orden;Cant;Lider de proyecto", betaNames = "";
     Modelo modelo;
-    Object row[];//Proyectos
-    int cantTerminada = 0;
-    static int posProceso = 0, rep = 0, canColumnas = 0, soloUnaVez = 0;
+    Object row[] = null;//Proyectos
+    static int soloUnaVez = 0;
     Thread innformacionProduccion = null;
     Object[] pie_pagina = null;
 

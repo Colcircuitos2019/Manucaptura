@@ -102,7 +102,7 @@ public class Modelo {
             String Query = "CALL PA_GestionDireccionServerSocketReporte(?,?,?,?,?)";
             ps = con.prepareStatement(Query);
             ps.setString(1, direccionIP); // Direccion IP del server socket
-            ps.setInt(2, 3); // Reporte del área --->el area tiene que ser versatil
+            ps.setInt(2, 3); // Área EN - Ensamble
             ps.setInt(3, estado); // Estado de lectura
             ps.setInt(4, puerto); // puerto
             ps.setInt(5, 0); // programa

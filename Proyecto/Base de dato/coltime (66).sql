@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1:33066
--- Tiempo de generación: 12-04-2019 a las 00:01:05
+-- Tiempo de generación: 12-04-2019 a las 23:22:45
 -- Versión del servidor: 10.1.29-MariaDB
 -- Versión de PHP: 7.2.0
 
@@ -795,7 +795,7 @@ IF area = 0 THEN
 ELSE
 # Consultar respectivamente por el reporte que se va acrualizar...
  
-	SELECT s.ipServidor, s.puerto FROM servidor_reporte s WHERE s.reporte=reporte AND s.estado = 1 AND s.programa is null;
+	SELECT s.ipServidor, s.puerto FROM servidor_reporte s WHERE s.reporte=area AND s.estado = 1 AND s.programa is null;
 
 END IF;
 
@@ -1392,7 +1392,7 @@ END$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `PA_InformeNTE` ()  NO SQL
 BEGIN
 
-SELECT dp.proyecto_numero_orden,dp.canitadad_total,p.nombre_proceso,t.noperarios,t.estado,pp.tipo_proyecto,t.cantidad_terminada,t.cantidadProceso,t.orden,pp.parada FROM detalle_teclados t LEFT JOIN detalle_proyecto dp ON t.idDetalle_proyecto=dp.idDetalle_proyecto LEFT JOIN procesos p ON t.idproceso=p.idproceso JOIN proyecto pp ON dp.proyecto_numero_orden=pp.numero_orden WHERE pp.estado!=3 AND dp.estado!=3 AND pp.eliminacion!=0 AND dp.idArea=2 ORDER BY dp.proyecto_numero_orden;
+SELECT dp.proyecto_numero_orden,dp.canitadad_total,p.nombre_proceso,t.noperarios,t.estado,pp.tipo_proyecto,t.cantidad_terminada,t.cantidadProceso,t.orden,pp.parada,dp.idProducto FROM detalle_teclados t LEFT JOIN detalle_proyecto dp ON t.idDetalle_proyecto=dp.idDetalle_proyecto LEFT JOIN procesos p ON t.idproceso=p.idproceso JOIN proyecto pp ON dp.proyecto_numero_orden=pp.numero_orden WHERE pp.estado!=3 AND dp.estado!=3 AND pp.eliminacion!=0 AND dp.idArea=2 ORDER BY dp.proyecto_numero_orden;
 
 END$$
 
@@ -3110,7 +3110,11 @@ INSERT INTO `detalle_ensamble` (`idDetalle_ensamble`, `tiempo_por_unidad`, `tiem
 (125, '00:00:00', '00:00:00', '0', NULL, NULL, 300, 15, 1, NULL, NULL, 0, 0, '0', 0, '0000-00-00'),
 (126, '00:00:00', '00:00:00', '0', NULL, NULL, 300, 16, 1, NULL, NULL, 0, 1, '5000', 0, '0000-00-00'),
 (127, '00:00:00', '00:00:00', '0', NULL, NULL, 300, 17, 1, NULL, NULL, 0, 0, '0', 0, '0000-00-00'),
-(128, '00:00:00', '00:00:00', '0', NULL, NULL, 300, 18, 1, NULL, NULL, 0, 0, '0', 1, '0000-00-00');
+(128, '00:00:00', '00:00:00', '0', NULL, NULL, 300, 18, 1, NULL, NULL, 0, 0, '0', 1, '0000-00-00'),
+(137, '00:00:00', '00:00:00', '0', NULL, NULL, 303, 15, 1, NULL, NULL, 0, 0, '0', 0, '0000-00-00'),
+(138, '00:00:00', '00:00:00', '0', NULL, NULL, 303, 16, 1, NULL, NULL, 0, 0, '0', 0, '0000-00-00'),
+(139, '00:00:00', '00:00:00', '0', NULL, NULL, 303, 17, 1, NULL, NULL, 0, 0, '0', 0, '0000-00-00'),
+(140, '00:00:00', '00:00:00', '0', NULL, NULL, 303, 18, 1, NULL, NULL, 0, 0, '0', 1, '0000-00-00');
 
 -- --------------------------------------------------------
 
@@ -3438,7 +3442,17 @@ INSERT INTO `detalle_formato_estandar` (`idDetalle_formato_estandar`, `tiempo_po
 (355, '00:00:00', '00:00:00', '0', NULL, NULL, 297, 6, 1, NULL, NULL, 0, 6, '0', '0000-00-00'),
 (356, '00:00:00', '00:00:00', '0', NULL, NULL, 297, 7, 1, NULL, NULL, 0, 7, '0', '0000-00-00'),
 (357, '00:00:00', '00:00:00', '0', NULL, NULL, 297, 8, 1, NULL, NULL, 0, 8, '0', '0000-00-00'),
-(358, '00:00:00', '00:00:00', '0', NULL, NULL, 297, 10, 1, NULL, NULL, 0, 9, '0', '0000-00-00');
+(358, '00:00:00', '00:00:00', '0', NULL, NULL, 297, 10, 1, NULL, NULL, 0, 9, '0', '0000-00-00'),
+(368, '00:00:00', '00:00:00', '0', NULL, NULL, 302, 1, 1, NULL, NULL, 0, 1, '1', '0000-00-00'),
+(369, '00:00:00', '00:00:00', '0', NULL, NULL, 302, 2, 1, NULL, NULL, 0, 2, '0', '0000-00-00'),
+(370, '00:00:00', '00:00:00', '0', NULL, NULL, 302, 3, 1, NULL, NULL, 0, 3, '0', '0000-00-00'),
+(371, '00:00:00', '00:00:00', '0', NULL, NULL, 302, 4, 1, NULL, NULL, 0, 4, '0', '0000-00-00'),
+(372, '00:00:00', '00:00:00', '0', NULL, NULL, 302, 5, 1, NULL, NULL, 0, 5, '0', '0000-00-00'),
+(373, '00:00:00', '00:00:00', '0', NULL, NULL, 302, 6, 1, NULL, NULL, 0, 6, '0', '0000-00-00'),
+(374, '00:00:00', '00:00:00', '0', NULL, NULL, 302, 7, 1, NULL, NULL, 0, 7, '0', '0000-00-00'),
+(375, '00:00:00', '00:00:00', '0', NULL, NULL, 302, 8, 1, NULL, NULL, 0, 8, '0', '0000-00-00'),
+(376, '00:00:00', '00:00:00', '0', NULL, NULL, 302, 9, 1, NULL, NULL, 0, 9, '0', '0000-00-00'),
+(377, '00:00:00', '00:00:00', '0', NULL, NULL, 302, 10, 1, NULL, NULL, 0, 10, '0', '0000-00-00');
 
 -- --------------------------------------------------------
 
@@ -3527,7 +3541,10 @@ INSERT INTO `detalle_proyecto` (`idDetalle_proyecto`, `idProducto`, `canitadad_t
 (296, 1, '17', NULL, 32400, 3, 1, 0, NULL, 4, 0, 0, 0, '00:00:00', '00:00:00', NULL, NULL, '0', 0, '0000-00-00', '0', NULL, 0),
 (297, 7, '10', 'TH', 32247, 1, 1, 0, NULL, 9, 0, 0, 0, '00:00:00', '00:00:00', NULL, NULL, '1', 0, '0000-00-00', '0', NULL, 1),
 (299, 1, '5', '', 32247, 3, 1, 0, NULL, 4, 0, 0, 0, '00:00:00', '00:00:00', NULL, NULL, '0', 0, '0000-00-00', '0', NULL, 0),
-(300, 1, '5000', NULL, 32399, 3, 1, 0, NULL, 4, 0, 0, 0, '00:00:00', '00:00:00', NULL, '1216727816', '0', 0, '0000-00-00', '0', NULL, 0);
+(300, 1, '5000', NULL, 32399, 3, 1, 0, NULL, 4, 0, 0, 0, '00:00:00', '00:00:00', NULL, '1216727816', '0', 0, '0000-00-00', '0', NULL, 0),
+(301, 5, '2', '', 32401, 2, 1, 0, NULL, 4, 0, 0, 0, '00:00:00', '00:00:00', NULL, NULL, '0', 0, '0000-00-00', '0', NULL, 0),
+(302, 1, '1', 'TH', 32401, 1, 1, 0, NULL, 10, 0, 0, 0, '00:00:00', '00:00:00', NULL, NULL, '1', 1, '0000-00-00', '0', NULL, 1),
+(303, 1, '3', '', 32401, 3, 1, 0, NULL, 4, 0, 0, 0, '00:00:00', '00:00:00', NULL, NULL, '0', 0, '0000-00-00', '0', NULL, 0);
 
 -- --------------------------------------------------------
 
@@ -3553,6 +3570,16 @@ CREATE TABLE `detalle_teclados` (
   `proceso_final` tinyint(1) NOT NULL DEFAULT '0',
   `mes_de_corte` varchar(10) NOT NULL DEFAULT '0000-00-00'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Volcado de datos para la tabla `detalle_teclados`
+--
+
+INSERT INTO `detalle_teclados` (`idDetalle_teclados`, `tiempo_por_unidad`, `tiempo_total_por_proceso`, `cantidad_terminada`, `fecha_inicio`, `fecha_fin`, `idDetalle_proyecto`, `idproceso`, `estado`, `hora_ejecucion`, `hora_terminacion`, `noperarios`, `orden`, `cantidadProceso`, `proceso_final`, `mes_de_corte`) VALUES
+(9, '00:00:00', '00:00:00', '0', NULL, NULL, 301, 11, 1, NULL, NULL, 0, 0, '0', 0, '0000-00-00'),
+(10, '00:00:00', '00:00:00', '0', NULL, NULL, 301, 12, 1, NULL, NULL, 0, 0, '0', 0, '0000-00-00'),
+(11, '00:00:00', '00:00:00', '0', NULL, NULL, 301, 13, 1, NULL, NULL, 0, 0, '0', 0, '0000-00-00'),
+(12, '00:00:00', '00:00:00', '0', NULL, NULL, 301, 14, 1, NULL, NULL, 0, 0, '0', 1, '0000-00-00');
 
 -- --------------------------------------------------------
 
@@ -3890,7 +3917,7 @@ INSERT INTO `proyecto` (`numero_orden`, `usuario_numero_documento`, `nombre_clie
 (32398, '1216714539', 'LEON VELASQUEZ C y CIA SAS ', 'INTERFACE RELAY ', 'Normal', '2019-03-04 10:41:14', '2019-03-11', NULL, 2, 1, 1, NULL, NULL, NULL, NULL, '', 'A tiempo', NULL),
 (32399, '1216714539', 'DISEÃ‘OS ELECTRICOS E INGENIERIA S.A.S   DISELECT S.A.S. ', ' PCB485 ', 'Normal', '2019-03-04 10:45:02', '2019-03-15', NULL, 2, 1, 1, NULL, NULL, NULL, NULL, '', 'A tiempo', NULL),
 (32400, '1216714539', 'DISEÃ‘OS ELECTRICOS E INGENIERIA S.A.S   DISELECT S.A.S. ', 'PCB420 ', 'Normal', '2019-03-04 10:47:46', '2019-03-15', NULL, 2, 1, 1, NULL, NULL, NULL, NULL, '', 'A tiempo', NULL),
-(32401, '1017156424', 'GERMAN DAVID SOSA RAMIREZ ', 'MICROTRACKPAD ', 'Normal', '2019-03-12 11:02:26', '2019-03-13', NULL, 1, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(32401, '1017156424', 'GERMAN DAVID SOSA RAMIREZ ', 'MICROTRACKPAD ', 'Quick', '2019-03-12 11:02:26', '2019-03-13', NULL, 1, 1, 1, '2019-04-05', '2019-04-13', NULL, NULL, '', NULL, NULL),
 (32402, '1216714539', 'GLOBUS SISTEMAS S.A.S ', 'CONV_TTL_RS232 ', 'RQT', '2019-03-04 11:36:15', '2019-03-11', NULL, 2, 1, 1, NULL, NULL, NULL, NULL, '', 'A tiempo', NULL),
 (32404, '1216714539', 'TECNOTIUM S.A.S ', 'ADC_PIC18F_PIC12 ', 'Normal', '2019-03-04 12:03:46', '2019-03-11', NULL, 2, 1, 1, NULL, NULL, NULL, NULL, NULL, 'A tiempo', NULL),
 (32405, '1216714539', 'TECNOTIUM S.A.S ', 'REG_GPS_ACOND ', 'Normal', '2019-03-04 12:06:46', '2019-03-11', NULL, 2, 1, 1, NULL, NULL, NULL, NULL, NULL, 'A tiempo', NULL),
@@ -4062,7 +4089,10 @@ CREATE TABLE `servidor_reporte` (
 
 INSERT INTO `servidor_reporte` (`idServidor_reporte`, `ipServidor`, `reporte`, `programa`, `puerto`, `estado`) VALUES
 (47, '192.168.4.173', 1, NULL, '5815', 0),
-(48, '192.168.4.173', NULL, 0, '5142', 1);
+(48, '192.168.4.173', NULL, 0, '5142', 1),
+(49, '192.168.4.173', NULL, 3, '5372', 1),
+(50, '192.168.4.173', 3, NULL, '5145', 0),
+(64, '192.168.4.173', 2, NULL, '5011', 0);
 
 -- --------------------------------------------------------
 
@@ -4195,7 +4225,7 @@ INSERT INTO `usuario` (`numero_documento`, `tipo_documento`, `nombres`, `apellid
 ('43263856', 'CC', 'Paula Andrea', 'Lopez Gutierrrez', 1, '', 1, '43263856', 0, 'cxcx03ñkf4'),
 ('43975208', 'CC', 'GLORIA ', 'JARAMILLO ', 2, '', 1, '43975208', 0, 'kbdnsdlciq'),
 ('71268332', 'CC', 'Adimaro', 'Montoya', 3, '', 0, '71268332', 0, '1vr8s4th-@'),
-('981130', 'CC', 'Juan David', 'Marulanda Paniagua', 4, '', 1, '98113053240juan', 0, '1u-hyppy60'),
+('981130', 'CC', 'Juan David', 'Marulanda Paniagua', 4, '', 1, '98113053240juan', 1, '1u-hyppy60'),
 ('98113053240', 'CC', 'Juan david', 'Marulanda Paniagua', 3, '', 1, '98113053240', 0, 'ue2282qgo1'),
 ('98699433', 'CC', 'ANDRES CAMILO', 'BUITRAGO GÓMEZ', 1, '', 1, '98699433', 0, 'ñkzrv7l@uh'),
 ('98765201', 'CC', 'EDISSON ANDRES', 'BARAHONA CASTRILLON', 6, '', 1, '98765201', 0, 'q1-4i3i99t');
@@ -4406,25 +4436,25 @@ ALTER TABLE `condicion_producto`
 -- AUTO_INCREMENT de la tabla `detalle_ensamble`
 --
 ALTER TABLE `detalle_ensamble`
-  MODIFY `idDetalle_ensamble` smallint(6) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=129;
+  MODIFY `idDetalle_ensamble` smallint(6) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=141;
 
 --
 -- AUTO_INCREMENT de la tabla `detalle_formato_estandar`
 --
 ALTER TABLE `detalle_formato_estandar`
-  MODIFY `idDetalle_formato_estandar` smallint(6) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=359;
+  MODIFY `idDetalle_formato_estandar` smallint(6) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=378;
 
 --
 -- AUTO_INCREMENT de la tabla `detalle_proyecto`
 --
 ALTER TABLE `detalle_proyecto`
-  MODIFY `idDetalle_proyecto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=301;
+  MODIFY `idDetalle_proyecto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=304;
 
 --
 -- AUTO_INCREMENT de la tabla `detalle_teclados`
 --
 ALTER TABLE `detalle_teclados`
-  MODIFY `idDetalle_teclados` smallint(6) NOT NULL AUTO_INCREMENT;
+  MODIFY `idDetalle_teclados` smallint(6) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT de la tabla `espesor`
@@ -4460,7 +4490,7 @@ ALTER TABLE `proyecto`
 -- AUTO_INCREMENT de la tabla `servidor_reporte`
 --
 ALTER TABLE `servidor_reporte`
-  MODIFY `idServidor_reporte` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
+  MODIFY `idServidor_reporte` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=65;
 
 --
 -- AUTO_INCREMENT de la tabla `tiempo_invertido_mes_proceso`

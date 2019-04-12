@@ -4,8 +4,13 @@ import coltime.Menu;
 
 public class HiloLectura implements Runnable {
 
-    Menu menu = new Menu();
 
+    Menu menu = null;
+    
+    public HiloLectura(Menu menu){
+       this.menu=menu; 
+    }
+    
     @Override
     public void run() {
         

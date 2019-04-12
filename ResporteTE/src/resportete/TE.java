@@ -1,17 +1,20 @@
 package resportete;
 
+import java.awt.Color;
+import java.awt.Font;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.sql.rowset.CachedRowSet;
 import javax.swing.ImageIcon;
-import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 //import javax.swing.JOptionPane;
 
@@ -26,29 +29,27 @@ public class TE extends javax.swing.JFrame implements Runnable {
             //...
             jTReporte.getTableHeader().setReorderingAllowed(false);
             //...
+            estadoConexionServidor();
+            consultarEstadoLectura();
             informacionReporte = new Thread(this);
             informacionReporte.start();
             //...
-            DisponibilidadConexion conexion = new DisponibilidadConexion();
-            Thread conc = new Thread(conexion);
-            conc.start();
         }
         unaSolaVez = 1;
     }
     //Variables
     CachedRowSet crs = null;
-    String names[] = null;
-    static String namesBeta[] = null, nombreProcesos[] = null;
-    String beta = "N°Orden;C.T;Tipo", betaNames = "";
-    Modelo obj = new Modelo();
+    Modelo modelo = new Modelo();
     Object row[] = null;//Proyectos
-    static int posProceso = 0, rep = 0, canColumnas = 0, unaSolaVez = 0;
-    int totalProyectos = 0, cantidadTotatlUnidades = 0;
+    Object[] pie_pagina = null;
+    static int unaSolaVez = 0;
     Thread informacionReporte = null;
+
 
     //Metodos
     // Server socket Inicio-----------------------------------------------------
-    private final int PUERTO = 7000; // FE= 6000, EN= 5000 y TE= 7000
+    private String direccionIP = consultarDireccionIPServer();
+    private final int PUERTO = consultarPuertoComunicacionServidor(direccionIP);
     private ServerSocket servidor = null;
     private Socket cliente = null;
 
@@ -58,176 +59,385 @@ public class TE extends javax.swing.JFrame implements Runnable {
 
     @Override
     public void run() {
-        try {
 
-            servidor = new ServerSocket(PUERTO);
+        while (true) {
+            try {
 
-            if (gestionDireccionServidor(String.valueOf(InetAddress.getLocalHost()).split("/")[1], 1)) {
-                consultarProcesosEncabezados();
-            }
+                servidor = new ServerSocket(PUERTO);
 
-            while (true) {
+                if (gestionDireccionServidor(direccionIP, PUERTO, 1)) {
+                    consultarInformacionProduccion();
+                }
 
-                cliente = servidor.accept();
+                while (true) {
 
-                input = new DataInputStream(cliente.getInputStream());
-                String mensaje = input.readUTF();
-
-                if (mensaje.equals("true")) {
-
-                    consultarProcesosEncabezados();
-                    jPanel1.updateUI();
-                    System.gc();//Garbaje collector
+//                    System.out.println(consultarDireccionIPServer()+":"+PUERTO);
+                    cliente = servidor.accept();
+                    // ...
+                    input = new DataInputStream(cliente.getInputStream());/*2*/
+                    String mensaje = input.readUTF();
+                    // ...
+                    switch (mensaje) {
+                        case "true":// Actualizar info reporte
+                            //Se genero alguna modificacion que afecta algun producto o se agregaron nuevas OP
+                            consultarInformacionProduccion();
+                            jPanel1.updateUI();
+                            System.gc();//Garbaje collector
+                            break;
+                        case "1":// Existe conexion con el servidor: Linea.
+                        case "2":// No existe conexion con el servidor: Sin conexión.
+                            // La conexion con el servidor se modifico (Actualiza el estado de conezion DB)
+                            if (mensaje.equals("1")) {
+                                jLConexion.setText("Linea");
+                                jLConexion.setForeground(new Color(0, 185, 0));// verde
+                            } else {
+                                jLConexion.setText("Sin conexión");
+                                jLConexion.setForeground(Color.RED);
+                            }
+                            break;
+                        case "act":// El estado de lectura esta activado.
+                        case "des":// El estado de lectura esta desactivado
+                            if (mensaje.equals("act")) {
+                                jLEstadoLectura.setText("Activado");
+                                jLEstadoLectura.setForeground(new Color(0, 185, 0));// verde
+                            } else {
+                                jLEstadoLectura.setText("Desactivado");
+                                jLEstadoLectura.setForeground(Color.RED);
+                            }
+                            break;
+                    }
 
                 }
 
+            } catch (IOException ex) {
+
+                Logger.getLogger(TE.class.getName()).log(Level.SEVERE, null, ex);
+
             }
+        }
 
-        } catch (IOException ex) {
+    }
 
-            Logger.getLogger(socketServidor.class.getName()).log(Level.SEVERE, null, ex);
+    private boolean gestionDireccionServidor(String direccionIP, int puerto, int estado) {
 
+        return modelo.gestionarDireccionServidor(direccionIP, puerto, estado);
+
+    }
+
+    private int consultarPuertoComunicacionServidor(String direccionIP) {
+        Modelo modelo = new Modelo();
+        int puerto = modelo.consultarPuertoComunicacionservidorM(direccionIP);
+        if (puerto != 0) {
+            return puerto;
+        } else {
+            return (int) (Math.random() * 1000) + 5000;
+        }
+
+    }
+
+    private String consultarDireccionIPServer() {
+
+        String direccionIP = "";
+        try {
+            direccionIP = String.valueOf(InetAddress.getLocalHost()).split("/")[1];
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return direccionIP;
+    }
+    
+    private void estadoConexionServidor() {
+        if (validarConexionServerSocket()) {
+            Conexion conexion = new Conexion();
+            conexion.establecerConexion();
+            if (conexion.getConexion() != null) {
+                jLConexion.setText("Linea");
+                jLConexion.setForeground(new Color(0, 185, 0));
+            } else {
+                jLConexion.setText("Sin conexión");
+                jLConexion.setForeground(Color.RED);
+            }
+            conexion.destruir();
+        } else {
+            jLConexion.setText("Sin conexión");
+            jLConexion.setForeground(Color.RED);
         }
     }
 
-    private boolean gestionDireccionServidor(String direccionIP, int estado) {
+    private void consultarEstadoLectura() {
+        if (validarConexionServerSocket()) {
+            if (modelo.consultarEstadoLecturaPuertoSerial()) {
+                jLEstadoLectura.setText("Activado");
+                jLEstadoLectura.setForeground(new Color(0, 185, 0));
+            } else {
+                jLEstadoLectura.setText("Desactivado");
+                jLEstadoLectura.setForeground(Color.RED);
+            }
+        } else {
+            jLEstadoLectura.setText("Desactivado");
+            jLEstadoLectura.setForeground(Color.RED);
+        }
+    }
+
+    private boolean validarConexionServerSocket() {
+
+        Socket cliente = new Socket();
+        Modelo modelo = new Modelo();
+        boolean respuesta = false;
+        CachedRowSet crs = modelo.consultarDireccionIPServerPrograma(3);// Area de ensamble - EN = 3
+
+        try {
+
+            while (crs.next()) {
+
+                cliente.connect(new InetSocketAddress(crs.getString("ipServidor"), crs.getInt("puerto")), 2000);
+
+                DataOutputStream output = new DataOutputStream(cliente.getOutputStream());
+                output.writeUTF("1");
+
+                cliente.close();
+                respuesta = true;
+
+            }
+
+        } catch (Exception ex) {
+
+            Logger.getLogger(TE.class.getName()).log(Level.SEVERE, null, ex);
+
+        }
+
+        return respuesta;
+    }
+    
+    // Nuevo forma de cargar formulario
+    //__________________________________________________________________________
+    private ArrayList<Object> encabezadoTabla() {
+
+        ArrayList<Object> encabezado = new <Object>ArrayList();
+        encabezado.add("N°Orden");
+        encabezado.add("Ejecución");
+        encabezado.add("Cant");
 
         Modelo modelo = new Modelo();
-        return modelo.gestionarDireccionServidor(direccionIP, estado);
+        CachedRowSet crs = modelo.consultarProcesosM(2);
 
-    }
-
-    private void consultarProcesosEncabezados() {
         try {
-            String nuevaCadena = "";
-            int count = 0;
-            crs = obj.consultarProcesosM(2);//Teclados=2
+
             while (crs.next()) {
-                betaNames += count == 0 ? crs.getString(2) : ";" + crs.getString(2);//Columna numero 2
-                count = 1;
+
+                encabezado.add("sub_" + crs.getString("nombre_proceso"));
+                encabezado.add(crs.getString("nombre_proceso"));
+
             }
-            namesBeta = betaNames.split(";");
-            for (int i = 0; i < namesBeta.length; i++) {
-                nuevaCadena += ";sub_" + namesBeta[i] + ";" + namesBeta[i];
-            }
-            names = (beta + nuevaCadena).split(";");//Encabezado de las columnas
-            //...
-            //Modelo de la tabla con encabezados
-            DefaultTableModel df = new DefaultTableModel(null, names);
-            //...
-            canColumnas = names.length;
-            //...
-            nuevaCadena = "";
-            consultarInformacionEnsamble(df);//Cuerpo del modelo...
+            // ...
+            encabezado.add("Terminado");
+            encabezado.add("Restantes");
+
+            pie_pagina = null;
+            pie_pagina = new Object[encabezado.size()];
+
         } catch (Exception e) {
-//            JOptionPane.showMessageDialog(null, "Error: " + e);
+
+            e.printStackTrace();
+
+            return new <Object>ArrayList();
+
         }
+
+        return encabezado;
     }
 
-    private void consultarInformacionEnsamble(DefaultTableModel df) {
+    private void consultarInformacionProduccion() {
+
         try {
-            crs = obj.consultarInformacionEnsambleM();
-            row = new Object[names.length];
-            inicializarVector();//Vector en estado inicial
+
+            Object encabezado[] = encabezadoTabla().toArray();
+            ArrayList<Object> informacion_produccion = new <Object>ArrayList();
+            Object[] row = null;
+            DefaultTableModel modelo_tabla = new DefaultTableModel(null, encabezado);
+            int rep = 0, cantidad_proyectos = 0, total_cantidades = 0, cantidad_procesos = 0;
+            String oldNumOrden = "", oldTipoProducto = "";
+            Modelo modelo = new Modelo();
+            CachedRowSet crs = modelo.consultarInformacionProduccionM();
+
             while (crs.next()) {
+
+                Proceso proceso = new Proceso();
+
                 if (rep == 0) {
-                    row[0] = crs.getString(1);//Numero de orden
-                    row[1] = crs.getString(2);//C.T
-                    row[2] = crs.getString(6);//Tipo de proyecto
-                    cantidadTotatlUnidades += crs.getInt(2);
-                    //...
-                    agregarNoperariosProceso();
+
+                    informacion_produccion.add(new Object[]{crs.getString("proyecto_numero_orden"), crs.getString("tipo_proyecto"), crs.getString("parada")});
+                    informacion_produccion.add(crs.getString("canitadad_total"));
+                    total_cantidades += crs.getInt("canitadad_total");
+                    // ...
+                    proceso.setNombre(crs.getString("nombre_proceso"));
+                    proceso.setEstado(crs.getInt("estado"));
+                    proceso.setCantidad(crs.getString("cantidadProceso"));
+                    cantidad_procesos += crs.getInt("cantidadProceso");
+                    // ...
+                    informacion_produccion.add(proceso);
+                    // ...
+                    oldNumOrden = crs.getString("proyecto_numero_orden");
+                    oldTipoProducto = crs.getString("idProducto");
                     rep = 1;
+
                 } else {
-                    if (row[0].toString().equals(crs.getString(1))) {
-                        //...
-                        agregarNoperariosProceso();
+                    // Pendiente revisar la validacion (campo de PNC)
+                    if (oldNumOrden.equals(crs.getString("proyecto_numero_orden")) && oldTipoProducto.equals(crs.getString("idProducto"))) {
+
+                        proceso.setNombre(crs.getString("nombre_proceso"));
+                        proceso.setEstado(crs.getInt("estado"));
+                        proceso.setCantidad(crs.getString("cantidadProceso"));
+                        cantidad_procesos += crs.getInt("cantidadProceso");
+                        // ...
+                        informacion_produccion.add(proceso);
+
                     } else {
-                        //Añade la fila al modelo de la tabla...
-                        df.addRow(row);
-                        totalProyectos++;
-                        inicializarVector();//Vector en estado inicial
-                        //...
-                        row[0] = crs.getString(1);//Numero de orden
-                        row[1] = crs.getString(2);//C.T
-                        row[2] = crs.getString(6);//Tipo de proyecto
-                        cantidadTotatlUnidades += crs.getInt(2);
-                        //...
-                        agregarNoperariosProceso();
+
+                        row = organizarRowTabla(informacion_produccion, encabezado, cantidad_procesos);
+
+                        modelo_tabla.addRow(row);
+                        cantidad_proyectos++;
+                        cantidad_procesos = 0;
+
+                        informacion_produccion.clear();
+
+                        // ...
+                        informacion_produccion.add(new Object[]{crs.getString("proyecto_numero_orden"), crs.getString("tipo_proyecto"), crs.getString("parada")});
+                        informacion_produccion.add(crs.getString("canitadad_total"));
+                        total_cantidades += crs.getInt("canitadad_total");
+                        // ...
+                        proceso.setNombre(crs.getString("nombre_proceso"));
+                        proceso.setEstado(crs.getInt("estado"));
+                        proceso.setCantidad(crs.getString("cantidadProceso"));
+                        cantidad_procesos += crs.getInt("cantidadProceso");
+                        // ...
+                        informacion_produccion.add(proceso);
+                        // ...
+                        oldNumOrden = crs.getString("proyecto_numero_orden");
+                        oldTipoProducto = crs.getString("idProducto");
                     }
+
                 }
+
             }
+
             if (rep == 1) {
-                df.addRow(row);
-                totalProyectos++;
-                rep = 0;
+
+                row = organizarRowTabla(informacion_produccion, encabezado, cantidad_procesos);
+
+                modelo_tabla.addRow(row);
+                cantidad_proyectos++;
+
+                informacion_produccion.clear();
+
             }
-            vaciarVector();
-            row[0] = totalProyectos;
-            row[1] = cantidadTotatlUnidades;
-            df.addRow(row);
-            jTReporte.setModel(df);
+
+            pie_pagina[0] = cantidad_proyectos;
+            pie_pagina[2] = total_cantidades;
+            pie_pagina[3] = "*******";
+            pie_pagina[pie_pagina.length - 1] = "*******";
+            pie_pagina[pie_pagina.length - 2] = "*******";
+            // ...
+            modelo_tabla.addRow(pie_pagina);
+            // ...
+            jTReporte.setModel(modelo_tabla);
             jTReporte.setDefaultRenderer(Object.class, new Tabla());
-            ColumnasAOcultar();
-            namesBeta = null;
-            nombreProcesos = null;
-            betaNames = "";
-            row = null;
-            totalProyectos = 0;
-            cantidadTotatlUnidades = 0;
+            jTReporte.getTableHeader().setFont(new Font("Arial", 1, 18));
+            jTReporte.getTableHeader().setForeground(Color.BLACK);
+            tamañoColumnasTabla();
+//            jTReporte.updateUI();
+            jLContadorActualizaciones.setText(String.valueOf(Integer.parseInt(jLContadorActualizaciones.getText()) + 1));
+
         } catch (Exception e) {
-//            JOptionPane.showMessageDialog(null, "Error: " + e);
+
+            e.printStackTrace();
+
         }
+
     }
 
-    private void agregarNoperariosProceso() {
-        try {
-            row[consultarPosicionProceso(crs.getString(3))] = crs.getString(4);//Numero de operarios
-            row[consultarPosicionProceso(crs.getString(3)) - 1] = crs.getString(5);//Estado de proceso
-        } catch (Exception e) {
-//            JOptionPane.showMessageDialog(null, "Error: " + e);
-        }
-    }
+    private void tamañoColumnasTabla() {
 
-    private void inicializarVector() {
-        for (int i = 0; i < row.length; i++) {
-            row[i] = 0;
-        }
-    }
+        // Tipo de ejecución
+        jTReporte.getColumnModel().getColumn(1).setMinWidth(0);
+        jTReporte.getColumnModel().getColumn(1).setMaxWidth(0);
+        jTReporte.getTableHeader().getColumnModel().getColumn(1).setMaxWidth(0);
+        jTReporte.getTableHeader().getColumnModel().getColumn(1).setMinWidth(0);
+        // ...
 
-    private void vaciarVector() {
-        for (int i = 0; i < row.length; i++) {
-            row[i] = "*******";
-        }
-    }
+        for (int i = 3; i < jTReporte.getColumnCount() - 2; i++) {
 
-    private int consultarPosicionProceso(String nombreProceso) {
-        for (int i = 2; i <= names.length; i++) {
-            if (names[i].equals(nombreProceso)) {
-                posProceso = i;
-                break;
-            }
-        }
-        return posProceso;
-    }
-
-    private void ColumnasAOcultar() {
-        for (int i = 3; i <= namesBeta.length + namesBeta.length + 1; i++) {
             if (i % 2 == 1) {
+
                 jTReporte.getColumnModel().getColumn(i).setMinWidth(0);
                 jTReporte.getColumnModel().getColumn(i).setMaxWidth(0);
                 jTReporte.getTableHeader().getColumnModel().getColumn(i).setMaxWidth(0);
                 jTReporte.getTableHeader().getColumnModel().getColumn(i).setMinWidth(0);
+
             }
+
         }
-//        ...
-//Tipo de proyecto=2
-        jTReporte.getColumnModel().getColumn(2).setMinWidth(0);
-        jTReporte.getColumnModel().getColumn(2).setMaxWidth(0);
-        jTReporte.getTableHeader().getColumnModel().getColumn(2).setMaxWidth(0);
-        jTReporte.getTableHeader().getColumnModel().getColumn(2).setMinWidth(0);
+
     }
 
+    private Object[] organizarRowTabla(ArrayList<Object> informacionRow, Object[] encabezado, int cantidadProcesos) {
+
+        Object[] row = new Object[encabezado.length];// ((encabezado.length - 4) * 2) + 4
+        Object[] infoProyecto = (Object[]) informacionRow.get(0);// 0 = numero orden, 1 = tipo proyecto, 2 = Parada
+        int index = 0;
+        // ...
+        row[0] = infoProyecto[0];//Numero de orden
+        row[1] = infoProyecto[1];//Tipo Ejecución (Normal, Quik, RQT)
+        row[2] = informacionRow.get(1);//Cantidad Total
+        int cantidad_terminada = 0;
+        cantidad_terminada = (cantidadProcesos != 0 ? Integer.parseInt(informacionRow.get(1).toString()) - cantidadProcesos : 0);
+        row[row.length - 2] = cantidad_terminada;//cantidad terminada
+        row[row.length - 1] = Integer.parseInt(informacionRow.get(1).toString()) - cantidad_terminada;//cantidad restante
+
+        // ...
+        for (int i = 4; i < encabezado.length - 1; i = i + 2) {
+
+            index = 0;
+
+            for (int j = 2; j < informacionRow.size(); j++) {// Buscar indice del proceso (ArrayList)
+
+                Proceso proceso = (Proceso) informacionRow.get(j);
+
+                if (encabezado[i].toString().equals(proceso.getNombre())) {
+
+                    index = j;
+
+                    break;
+
+                }
+
+            }
+
+            if (index > 0) {
+
+                Proceso proceso = (Proceso) informacionRow.get(index);
+                // ...
+                row[i - 1] = (infoProyecto[2].toString().equals("true") ? proceso.getEstado() : 0);// Estado del proceso 0=parado
+                row[i] = proceso.getCantidad();// Cantidad del proceso
+
+                if (pie_pagina[i] == null) {
+
+                    pie_pagina[i] = proceso.getCantidad();
+
+                } else {
+
+                    pie_pagina[i] = Integer.parseInt(pie_pagina[i].toString()) + Integer.parseInt(proceso.getCantidad());
+
+                }
+            }
+
+        }
+
+        return row;
+    }
+
+    //__________________________________________________________________________
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -235,14 +445,19 @@ public class TE extends javax.swing.JFrame implements Runnable {
         jPanel1 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTReporte = new resportete.MyRenderEN();
-        jTtipo2 = new javax.swing.JLabel();
-        jTtipo3 = new javax.swing.JLabel();
-        jTtipo4 = new javax.swing.JLabel();
-        jTtipo5 = new javax.swing.JLabel();
         jTtipo7 = new javax.swing.JLabel();
         jTtipo8 = new javax.swing.JLabel();
         jTtipo9 = new javax.swing.JLabel();
+        jestadoConexionServer = new javax.swing.JLabel();
         jLConexion = new javax.swing.JLabel();
+        jestadoConexionServer1 = new javax.swing.JLabel();
+        jLEstadoLectura = new javax.swing.JLabel();
+        jLContadorActualizaciones = new javax.swing.JLabel();
+        jButton2 = new javax.swing.JButton();
+        jTtipo3 = new javax.swing.JLabel();
+        jTtipo4 = new javax.swing.JLabel();
+        jTtipo5 = new javax.swing.JLabel();
+        jTtipo2 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         addWindowListener(new java.awt.event.WindowAdapter() {
@@ -263,6 +478,7 @@ public class TE extends javax.swing.JFrame implements Runnable {
 
             }
         ));
+        jTReporte.setEnabled(false);
         jTReporte.setFocusable(false);
         jTReporte.setGridColor(new java.awt.Color(153, 153, 153));
         jTReporte.setIntercellSpacing(new java.awt.Dimension(0, 1));
@@ -271,30 +487,6 @@ public class TE extends javax.swing.JFrame implements Runnable {
         jTReporte.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         jTReporte.setShowVerticalLines(false);
         jScrollPane1.setViewportView(jTReporte);
-
-        jTtipo2.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        jTtipo2.setForeground(new java.awt.Color(128, 128, 131));
-        jTtipo2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jTtipo2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/iconmonstr-shape-19-16 (5).png"))); // NOI18N
-        jTtipo2.setText("Por iniciar");
-
-        jTtipo3.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        jTtipo3.setForeground(new java.awt.Color(128, 128, 131));
-        jTtipo3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jTtipo3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/iconmonstr-shape-19-16 (3).png"))); // NOI18N
-        jTtipo3.setText("Terminado");
-
-        jTtipo4.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        jTtipo4.setForeground(new java.awt.Color(128, 128, 131));
-        jTtipo4.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jTtipo4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/iconmonstr-shape-19-16 (2).png"))); // NOI18N
-        jTtipo4.setText("Pausado");
-
-        jTtipo5.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        jTtipo5.setForeground(new java.awt.Color(128, 128, 131));
-        jTtipo5.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jTtipo5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/iconmonstr-shape-19-16 (1).png"))); // NOI18N
-        jTtipo5.setText("Ejecución");
 
         jTtipo7.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         jTtipo7.setForeground(new java.awt.Color(128, 128, 131));
@@ -314,10 +506,62 @@ public class TE extends javax.swing.JFrame implements Runnable {
         jTtipo9.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/iconmonstr-shape-19-16 (5).png"))); // NOI18N
         jTtipo9.setText("Normal");
 
-        jLConexion.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+        jestadoConexionServer.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        jestadoConexionServer.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jestadoConexionServer.setText("Estado DB:");
+
+        jLConexion.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         jLConexion.setForeground(new java.awt.Color(0, 185, 0));
         jLConexion.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLConexion.setText("Linea");
+
+        jestadoConexionServer1.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        jestadoConexionServer1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jestadoConexionServer1.setText("Estado Lectura:");
+
+        jLEstadoLectura.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        jLEstadoLectura.setForeground(new java.awt.Color(0, 185, 0));
+        jLEstadoLectura.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLEstadoLectura.setText("Activado");
+
+        jLContadorActualizaciones.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        jLContadorActualizaciones.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLContadorActualizaciones.setText("0");
+
+        jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/update.png"))); // NOI18N
+        jButton2.setBorderPainted(false);
+        jButton2.setContentAreaFilled(false);
+        jButton2.setFocusPainted(false);
+        jButton2.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/img/update1.png"))); // NOI18N
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
+        jTtipo3.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        jTtipo3.setForeground(new java.awt.Color(128, 128, 131));
+        jTtipo3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jTtipo3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/iconmonstr-shape-19-16 (3).png"))); // NOI18N
+        jTtipo3.setText("Terminado");
+
+        jTtipo4.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        jTtipo4.setForeground(new java.awt.Color(128, 128, 131));
+        jTtipo4.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jTtipo4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/iconmonstr-shape-19-16 (2).png"))); // NOI18N
+        jTtipo4.setText("Pausado");
+
+        jTtipo5.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        jTtipo5.setForeground(new java.awt.Color(128, 128, 131));
+        jTtipo5.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jTtipo5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/iconmonstr-shape-19-16 (1).png"))); // NOI18N
+        jTtipo5.setText("Ejecución");
+
+        jTtipo2.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        jTtipo2.setForeground(new java.awt.Color(128, 128, 131));
+        jTtipo2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jTtipo2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/iconmonstr-shape-19-16 (5).png"))); // NOI18N
+        jTtipo2.setText("Por iniciar");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -326,43 +570,63 @@ public class TE extends javax.swing.JFrame implements Runnable {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 1262, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jTtipo9, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jTtipo9, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(6, 6, 6)
+                        .addComponent(jTtipo8, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(6, 6, 6)
+                        .addComponent(jTtipo7, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(108, 108, 108)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jestadoConexionServer, javax.swing.GroupLayout.PREFERRED_SIZE, 204, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLConexion, javax.swing.GroupLayout.PREFERRED_SIZE, 204, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(2, 2, 2)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGap(4, 4, 4)
+                                .addComponent(jestadoConexionServer1, javax.swing.GroupLayout.PREFERRED_SIZE, 204, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jLEstadoLectura, javax.swing.GroupLayout.PREFERRED_SIZE, 204, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(6, 6, 6)
+                        .addComponent(jLContadorActualizaciones, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(30, 30, 30)
+                        .addComponent(jTtipo3)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTtipo8, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jTtipo4)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTtipo7, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(127, 127, 127)
-                        .addComponent(jLConexion, javax.swing.GroupLayout.PREFERRED_SIZE, 204, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jTtipo3, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTtipo4, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTtipo5, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTtipo2, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(jTtipo5)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jTtipo2)
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 479, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 473, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jTtipo2, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jTtipo9, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jTtipo8, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jTtipo7, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jestadoConexionServer)
+                        .addGap(0, 0, 0)
+                        .addComponent(jLConexion, javax.swing.GroupLayout.PREFERRED_SIZE, 19, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jestadoConexionServer1)
+                        .addGap(0, 0, 0)
+                        .addComponent(jLEstadoLectura, javax.swing.GroupLayout.PREFERRED_SIZE, 19, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jLContadorActualizaciones, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jTtipo4, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jTtipo2, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(jTtipo5, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jTtipo3, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jTtipo7, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jLConexion, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jTtipo8, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jTtipo9, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addComponent(jTtipo4, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jTtipo3, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -381,11 +645,17 @@ public class TE extends javax.swing.JFrame implements Runnable {
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
         try {
-            gestionDireccionServidor(String.valueOf(InetAddress.getLocalHost()).split("/")[1], 0);
+            gestionDireccionServidor(String.valueOf(InetAddress.getLocalHost()).split("/")[1], PUERTO, 0);
         } catch (UnknownHostException ex) {
             Logger.getLogger(TE.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_formWindowClosing
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        consultarInformacionProduccion();
+        consultarEstadoLectura();
+        estadoConexionServidor();
+    }//GEN-LAST:event_jButton2ActionPerformed
 
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
@@ -423,7 +693,10 @@ public class TE extends javax.swing.JFrame implements Runnable {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButton2;
     public static javax.swing.JLabel jLConexion;
+    private javax.swing.JLabel jLContadorActualizaciones;
+    public static javax.swing.JLabel jLEstadoLectura;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTReporte;
@@ -434,6 +707,53 @@ public class TE extends javax.swing.JFrame implements Runnable {
     private javax.swing.JLabel jTtipo7;
     private javax.swing.JLabel jTtipo8;
     private javax.swing.JLabel jTtipo9;
+    public static javax.swing.JLabel jestadoConexionServer;
+    public static javax.swing.JLabel jestadoConexionServer1;
     // End of variables declaration//GEN-END:variables
+
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize(); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+}
+
+class Proceso {
+
+    public Proceso() {
+    }
+
+    private String nombre;
+    private int estado;
+    private String cantidad;
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public int getEstado() {
+        return estado;
+    }
+
+    public void setEstado(int estado) {
+        this.estado = estado;
+    }
+
+    public String getCantidad() {
+        return cantidad;
+    }
+
+    public void setCantidad(String cantidad) {
+        this.cantidad = cantidad;
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize(); //To change body of generated methods, choose Tools | Templates.
+    }
 
 }

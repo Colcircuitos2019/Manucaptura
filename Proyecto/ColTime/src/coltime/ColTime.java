@@ -10,9 +10,6 @@ public class ColTime {
         Login log = new Login();
         log.setLocationRelativeTo(null);
         log.setVisible(true);
-        
-//        Conexion obj=new Conexion();
-//        obj.establecerConexion();
         //Finaliza el proyecto
     }
 

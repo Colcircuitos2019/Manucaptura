@@ -30,12 +30,8 @@ public class Conexion {
         try {
             Class.forName("com.mysql.jdbc.Driver");
             conexion = DriverManager.getConnection(server, user, password);
-//            if (conexion != null) {
-//                JOptionPane.showMessageDialog(null, "Conexion exitosa");
-//            }
         } catch (Exception e) {
-//            JOptionPane.showMessageDialog(null, "Imposible realizar conexion con la BD" + e);
-//            e.printStackTrace();
+            e.printStackTrace();
         }
     }
 //Traer conexión a la base de datos.
@@ -48,7 +44,7 @@ public class Conexion {
             try {
                 rs.close();
             } catch (Exception e) {
-//                System.out.print("No es posible cerrar la Conexion");
+                e.printStackTrace();
             }
         }
     }
@@ -60,6 +56,7 @@ public class Conexion {
             try {
                 conexion.close();
             } catch (Exception e) {
+                e.printStackTrace();
             }
         }
     }

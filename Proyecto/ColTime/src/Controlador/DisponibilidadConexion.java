@@ -2,15 +2,19 @@ package Controlador;
 
 import coltime.Menu;
 import java.awt.Color;
-import java.util.ArrayList;
 
 public class DisponibilidadConexion implements Runnable {
 
+    Menu menu = null;
+
+    public DisponibilidadConexion(Menu menu) {
+        this.menu = menu;
+    }    
+    
     @Override
     public void run() {
         
-        Menu menu = new Menu();
-        while (true) {
+        while (menu.estadoConexionDB) {
             
             Modelo.Conexion obj = new Modelo.Conexion(1);
             obj.establecerConexion();
@@ -21,10 +25,11 @@ public class DisponibilidadConexion implements Runnable {
                     
                     menu.jLConexion.setText("Linea");
                     menu.jLConexion.setForeground(Color.GREEN);
-                    // Cargos = 2= Encargado de FE y TE, 3 = encargado de EN
-                    socketCliente clienteSocket = new socketCliente(menu.cargo==2?new int[]{1,2}:new int[]{3});
-                    clienteSocket.enviarInformacionSocketserver(clienteSocket.consultarServerSockets(), "1");// Actualizar estado DB de los reportes de produccion
-                    
+                    if(menu.cargo==2 || menu.cargo==3 ){
+                        // Cargos = 2= Encargado de FE y TE, 3 = encargado de EN
+                        socketCliente clienteSocket = new socketCliente(menu.cargo == 2 ? new int[]{1, 2} : new int[]{3});
+                        clienteSocket.enviarInformacionSocketserver(clienteSocket.consultarServerSockets(), "1");// Actualizar estado DB de los reportes de produccion
+                    }
                 }
                 
             } else {
@@ -33,10 +38,11 @@ public class DisponibilidadConexion implements Runnable {
                     
                     menu.jLConexion.setText("Sin conexión");
                     menu.jLConexion.setForeground(Color.RED);
-                    // Cargos = 2= Encargado de FE y TE, 3 = encargado de EN
-                    socketCliente clienteSocket = new socketCliente(menu.cargo==2?new int[]{1,2}:new int[]{3});
-                    clienteSocket.enviarInformacionSocketserver(clienteSocket.consultarServerSockets(), "2");// Actualizar estado DB de los reportes de produccion
-                    
+                    if (menu.cargo == 2 || menu.cargo == 3) {
+                        // Cargos = 2= Encargado de FE y TE, 3 = encargado de EN
+                        socketCliente clienteSocket = new socketCliente(menu.cargo == 2 ? new int[]{1, 2} : new int[]{3});
+                        clienteSocket.enviarInformacionSocketserver(clienteSocket.consultarServerSockets(), "2");// Actualizar estado DB de los reportes de produccion
+                    }
                 }
                 
             }
@@ -44,7 +50,9 @@ public class DisponibilidadConexion implements Runnable {
             obj.destruir();
             
             try {
+                
                 Thread.sleep(1000);
+                
             } catch (InterruptedException ex) {
                 ex.printStackTrace();
             }

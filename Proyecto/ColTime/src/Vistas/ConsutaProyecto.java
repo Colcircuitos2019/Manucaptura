@@ -939,6 +939,7 @@ public class ConsutaProyecto extends javax.swing.JFrame {
             fecha = formato.format(jDFecha.getDate());
         }
         consultarProyectos(jTNumerOrden.getText(), jTNombreCliente.getText(), jTNombreProyecto.getText(), fecha, 0);
+        estadoIniciasSubTablas();
     }
 
     private void consultarProyectos(String numerOrden, String nombrecliente, String nombreProyecto, String fecha, int eliminados) {
@@ -1124,10 +1125,14 @@ public class ConsutaProyecto extends javax.swing.JFrame {
         return respuesta;
     }
     
-    private void estadoInicialTabla(int estadoSeleccionado){
-        consultarProyectos("", "", "", "", estadoSeleccionado);
+    private void estadoIniciasSubTablas(){
         jTDetalleProductos.setModel(new DefaultTableModel(null, encabezadosTBProductos));
         jTProcesoProducto.setModel(new DefaultTableModel(null, encabezadosTBProcesos));
+    }
+    
+    private void estadoInicialTabla(int estadoSeleccionado){
+        consultarProyectos("", "", "", "", estadoSeleccionado);
+        estadoIniciasSubTablas();
         tamañoColumnasTabla(jTDetalleProductos,new Objeto_tabla[]{new Objeto_tabla(7,0), new Objeto_tabla(8,0)});
         limpiarCampos();
         jTNumerOrden.setEnabled(estadoSeleccionado==0);

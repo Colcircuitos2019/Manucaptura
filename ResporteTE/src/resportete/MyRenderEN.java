@@ -19,67 +19,61 @@ public class MyRenderEN extends JTable {
     public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
         Component cell = super.prepareRenderer(renderer, row, column); //To change body of generated methods, choose Tools | Templates.
 
-//        cell.setBackground(Color.white);
-//        cell.setForeground(Color.BLACK);
-        if (column != 1 && column != 0 && column >= 2) {
-            if (column % 2 == 0) {//pares son los sub_procesos *******
-                switch (getValueAt(row, column-1).toString()) {
-                    case "1"://Por iniciar
-                    case "":
-                    case "0":
-                        cell.setBackground(Color.WHITE);//white
-                        break;
-                    case "2"://Pausado
-                        cell.setBackground(red);//Red
-                        break;
-                    case "3"://Terminado
-                        cell.setBackground(green);//green
-                        break;
-                    case "4"://Ejecución
-                        cell.setBackground(orange);//Orange
-                        break;
-                    case "*******":
-                        cell.setBackground(new Color(34, 137, 254));//Orange
-                        break;
+        cell.setBackground(Color.white);
+        cell.setForeground(Color.BLACK);
+        
+        try {
+
+            if (row < this.getRowCount() - 1) {
+
+                if (column == 0) {// Tipo de ejecucion del producto
+                    switch (this.getValueAt(row, 1).toString()) {
+                        case "Normal":
+                            cell.setBackground(Color.white);
+                            cell.setForeground(Color.BLACK);
+                            break;
+                        case "Quick":
+                            cell.setBackground(new Color(1, 174, 240));//Azul
+                            cell.setForeground(Color.WHITE);
+                            break;
+                        case "RQT":
+                            cell.setBackground(Color.PINK);//Rosado
+                            cell.setForeground(Color.BLACK);
+                            break;
+                    }
                 }
-            }
-        } else {
-            if (column == 0) {
-                switch (getValueAt(row, 2).toString()) {
-                    case "Normal":
-                        cell.setBackground(Color.WHITE);//white
-                        break;
-                    case "Quick":
-                        cell.setBackground(blueligth);//Blueligth
-                        break;
-                    case "RQT":
-                        cell.setBackground(Color.PINK);//Pink
-                        break;
-                    default:
-                        cell.setBackground(Color.WHITE);//white
-                        break;
+
+                if (column >= 5 && column % 2 == 1) {
+
+                    switch (getValueAt(row, column - 1).toString()) {
+                        case "-1":
+                            cell.setBackground(Color.GRAY);// Parada
+                            break;
+                        case "1":// Por iniciar
+                            cell.setBackground(Color.WHITE);
+                            break;
+                        case "2":// Pausada
+                            cell.setBackground(Color.RED);
+                            break;
+                        case "3":// Terminada
+                            cell.setBackground(Color.GREEN);
+                            break;
+                        case "4": // En ejecucion
+                            cell.setBackground(Color.ORANGE);
+                            break;
+                    }
+
                 }
-            } else {
-                //Colores por defecto
-                cell.setBackground(Color.white);
-                cell.setForeground(Color.BLACK);
+
             }
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
         }
 
         return cell;
-    }
-
-    @Override
-    public boolean isCellEditable(int row, int column) {
-        return false; //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public JTableHeader getTableHeader() {
-        JTableHeader cabeza = super.getTableHeader(); //To change body of generated methods, choose Tools | Templates.
-        cabeza.setFont(new Font("Arial", 1, 20));
-        cabeza.setForeground(Color.BLACK);
-        return cabeza;
     }
 
     @Override

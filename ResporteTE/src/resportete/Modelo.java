@@ -5,7 +5,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import javax.sql.rowset.CachedRowSet;
-import javax.swing.JOptionPane;
 
 public class Modelo {
 
@@ -40,12 +39,12 @@ public class Modelo {
             ps.close();
             con.close();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Erro: " + e);
+            e.printStackTrace();
         }
         return crs;
     }
 
-    public CachedRowSet consultarInformacionEnsambleM() {
+    public CachedRowSet consultarInformacionProduccionM() {
         try {
             //Establecer la conexión
             Conexion obj = new Conexion();
@@ -63,12 +62,12 @@ public class Modelo {
             ps.close();
             con.close();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Erro: " + e);
+            e.printStackTrace();
         }
         return crs;
     }
     
-    public boolean gestionarDireccionServidor(String direccionIP, int estado) {
+    public boolean consultarEstadoLecturaPuertoSerial() {
         boolean respuesta = false;
         try {
             //Establecer la conexión
@@ -76,11 +75,39 @@ public class Modelo {
             conexion.establecerConexion();
             con = conexion.getConexion();
             //Preparar la consulata
-            Query = "CALL PA_GestionDireccionServerSocketReporte(?,?,?)";// pendiente procedure
+            Query = "CALL PA_ConsultarEstadoLecturaFacilitador(?)";
+            ps = con.prepareStatement(Query);
+            ps.setString(1, "43975208");
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                respuesta = rs.getBoolean("estadoLectura");
+            }
+            //Cierre de conexiones
+            conexion.cerrar(rs);
+            conexion.destruir();
+            ps.close();
+            con.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return respuesta;
+    }
+    
+    public boolean gestionarDireccionServidor(String direccionIP, int puerto, int estado) {
+        boolean respuesta = false;
+        try {
+            //Establecer la conexión
+            conexion = new Conexion();//Base de datos de SGN
+            conexion.establecerConexion();
+            con = conexion.getConexion();
+            //Preparar la consulata
+            String Query = "CALL PA_GestionDireccionServerSocketReporte(?,?,?,?,?)";
             ps = con.prepareStatement(Query);
             ps.setString(1, direccionIP); // Direccion IP del server socket
-            ps.setInt(2, 2); // Reporte del área
+            ps.setInt(2, 2); // Area TE - Teclados
             ps.setInt(3, estado); // Estado de lectura
+            ps.setInt(4, puerto); // puerto
+            ps.setInt(5, 0); // programa
             ps.execute();
             respuesta = true;
             //Cierre de conexiones
@@ -93,4 +120,57 @@ public class Modelo {
         }
         return respuesta;
     }
+    
+    public int consultarPuertoComunicacionservidorM(String direccionIP) {
+        int puerto = 0;
+        try {
+            //Establecer la conexión
+            conexion = new Conexion();//Base de datos de SGN
+            conexion.establecerConexion();
+            con = conexion.getConexion();
+            //Preparar la consulata
+            Query = "SELECT FU_ConsultarPuertoComunicacionServidorSocket(?,?,?)";
+            ps = con.prepareStatement(Query);
+            ps.setString(1, direccionIP); // Direccion IP del server socket
+            ps.setInt(2, 2); // Área TE - teclados
+            ps.setInt(3, 0); // programa
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                puerto = rs.getInt(1);
+            }
+            //Cierre de conexiones
+            conexion.cerrar(rs);
+            conexion.destruir();
+            ps.close();
+            con.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return puerto;
+    }
+    
+    public CachedRowSet consultarDireccionIPServerPrograma(int area) {
+        try {
+            //Establecer la conexión
+            conexion = new Conexion();//Base de datos de SGN
+            conexion.establecerConexion();
+            con = conexion.getConexion();
+            //Preparar la consulata
+            Query = "CALL PA_ConsultarDireccionIPServidorSocketPrograma(?)";
+            ps = con.prepareStatement(Query);
+            ps.setInt(1, area); // Area del programa...
+            rs = ps.executeQuery();
+            crs = new CachedRowSetImpl();
+            crs.populate(rs);
+            //Cierre de conexiones
+            conexion.cerrar(rs);
+            conexion.destruir();
+            ps.close();
+            con.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return crs;
+    }
+    
 }
