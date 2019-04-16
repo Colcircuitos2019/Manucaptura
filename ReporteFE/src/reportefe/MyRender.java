@@ -26,6 +26,7 @@ public class MyRender extends JTable {
 //            }
 //        }
         // ...
+//        System.out.println(this.getColumnCount());
         try {
             
             if(row < this.getRowCount()){

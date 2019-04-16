@@ -34,28 +34,29 @@ public class socketCliente {
  
     public void enviarInformacionSocketserver(ArrayList infoSocketServer, String mensaje) {
         
-        try {
             if (infoSocketServer != null) {
                 for (int i = 0; i < infoSocketServer.size(); i++) {
 
                     String servidor[] = (String[]) infoSocketServer.get(i);
-
-                    cliente = new Socket();//Establecer conexion con el serversocket
-                    cliente.connect(new InetSocketAddress(servidor[0], Integer.parseInt(servidor[1])), 2000);//Ruta de conexion(IP y puerto) y tiempo de espera
-                    // ...
-                    outPut = new DataOutputStream(cliente.getOutputStream());// Enviar mensaje
-                    outPut.writeUTF(mensaje);
-                    // ...
-                    cliente.close();
                     
+                    try {
+                        
+                        cliente = new Socket();//Establecer conexion con el serversocket
+                        cliente.connect(new InetSocketAddress(servidor[0], Integer.parseInt(servidor[1])), 5000);//Ruta de conexion(IP y puerto) y tiempo de espera
+                        // ...
+                        outPut = new DataOutputStream(cliente.getOutputStream());// Enviar mensaje
+                        outPut.writeUTF(mensaje);
+                        // ...
+                        cliente.close();
+                        
+                    } catch (Exception e) {
+                        
+                        e.printStackTrace();
+                        
+                        gestionarDireccionServidor(servidor[0], Integer.parseInt(servidor[2]), 0, 0, servidor[1]);// Desactivar estado del server socket
+                    }
                 }
             }
-        } catch (Exception e) {
-            
-            e.printStackTrace();
-            
-        }
-        
     }
     
     public ArrayList<Object> consultarServerSockets() {// Son todos los server sockets de los reportes en general independientemente del área
@@ -76,7 +77,7 @@ public class socketCliente {
                 try {
                     while (crs.next()) {
 
-                        serverScoekts.add(new String[]{crs.getString("ipServidor"), (crs.getString("puerto"))});
+                        serverScoekts.add(new String[]{crs.getString("ipServidor"), crs.getString("puerto"), crs.getString("area")});
 
                     }
                 } catch (Exception ex) {

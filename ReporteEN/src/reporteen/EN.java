@@ -38,6 +38,7 @@ public class EN extends javax.swing.JFrame implements Runnable {
             // ...
             estadoConexionServidor();
             consultarEstadoLectura();
+            // ...
             innformacionProduccion = new Thread(this);
             innformacionProduccion.start();//Hilo de consulta de la información
             //...
@@ -121,61 +122,69 @@ public class EN extends javax.swing.JFrame implements Runnable {
     @Override
     public void run() {
 
-        while (true) {
-            try {
+//        while (true) {
+        try {
 
-                servidor = new ServerSocket(PUERTO);
+            servidor = new ServerSocket(PUERTO);
+            boolean respuesta = gestionDireccionServidor(direccionIP, PUERTO, 1);
+            if (respuesta) {
+                consultarInformacionProduccion();
+            } else {
+                jDMensaje mensaje_alerta = new jDMensaje(this, true);
+                mensaje_alerta.setLocationRelativeTo(null);
+                mensaje_alerta.setVisible(true);
+            }
 
-                if (gestionDireccionServidor(direccionIP, PUERTO, 1)) {
-                    consultarInformacionProduccion();
+            while (true) {
+
+                cliente = servidor.accept();
+                if (!respuesta) {
+                    respuesta = gestionDireccionServidor(direccionIP, PUERTO, 1);
                 }
-
-                while (true) {
-
-//                    System.out.println(consultarDireccionIPServer()+":"+PUERTO);
-                    cliente = servidor.accept();
-                    // ...
-                    input = new DataInputStream(cliente.getInputStream());/*2*/
-                    String mensaje = input.readUTF();
-                    // ...
-                    switch (mensaje) {
-                        case "true":// Actualizar info reporte
-                            //Se genero alguna modificacion que afecta algun producto o se agregaron nuevas OP
-                            consultarInformacionProduccion();
-                            jPanel1.updateUI();
-                            System.gc();//Garbaje collector
-                            break;
-                        case "1":// Existe conexion con el servidor: Linea.
-                        case "2":// No existe conexion con el servidor: Sin conexión.
-                            // La conexion con el servidor se modifico (Actualiza el estado de conezion DB)
-                            if (mensaje.equals("1")) {
-                                jLConexion.setText("Linea");
-                                jLConexion.setForeground(new Color(0, 185, 0));// verde
-                            } else {
-                                jLConexion.setText("Sin conexión");
-                                jLConexion.setForeground(Color.RED);
-                            }
-                            break;
-                        case "act":// El estado de lectura esta activado.
-                        case "des":// El estado de lectura esta desactivado
-                            if (mensaje.equals("act")) {
-                                jLEstadoLectura.setText("Activado");
-                                jLEstadoLectura.setForeground(new Color(0, 185, 0));// verde
-                            } else {
-                                jLEstadoLectura.setText("Desactivado");
-                                jLEstadoLectura.setForeground(Color.RED);
-                            }
-                            break;
-                    }
-
+                // ...
+                input = new DataInputStream(cliente.getInputStream());/*2*/
+                String mensaje = input.readUTF();
+                // ...
+                System.out.println(mensaje);
+                // ...
+                switch (mensaje) {
+                    case "true":// Actualizar info reporte
+                        //Se genero alguna modificacion que afecta algun producto o se agregaron nuevas OP
+                        consultarInformacionProduccion();
+                        jPanel1.updateUI();
+                        System.gc();//Garbaje collector
+                        break;
+                    case "1":// Existe conexion con el servidor: Linea.
+                    case "2":// No existe conexion con el servidor: Sin conexión.
+                        // La conexion con el servidor se modifico (Actualiza el estado de conezion DB)
+                        if (mensaje.equals("1")) {
+                            jLConexion.setText("Linea");
+                            jLConexion.setForeground(new Color(0, 185, 0));// verde
+                        } else {
+                            jLConexion.setText("Sin conexión");
+                            jLConexion.setForeground(Color.RED);
+                        }
+                        break;
+                    case "act":// El estado de lectura esta activado.
+                    case "des":// El estado de lectura esta desactivado
+                        if (mensaje.equals("act")) {
+                            jLEstadoLectura.setText("Activado");
+                            jLEstadoLectura.setForeground(new Color(0, 185, 0));// verde
+                        } else {
+                            jLEstadoLectura.setText("Desactivado");
+                            jLEstadoLectura.setForeground(Color.RED);
+                        }
+                        break;
                 }
-
-            } catch (IOException ex) {
-
-                Logger.getLogger(EN.class.getName()).log(Level.SEVERE, null, ex);
 
             }
+
+        } catch (IOException ex) {
+
+            Logger.getLogger(EN.class.getName()).log(Level.SEVERE, null, ex);
+
         }
+//        }
 
     }
 
@@ -259,50 +268,14 @@ public class EN extends javax.swing.JFrame implements Runnable {
             Modelo modelo = new Modelo();
             CachedRowSet crs = modelo.consultarInformacionProduccionM();
 
-            while (crs.next()) {
+            if (crs != null) {
 
-                Proceso proceso = new Proceso();
+                while (crs.next()) {
 
-                if (rep == 0) {
+                    Proceso proceso = new Proceso();
 
-                    informacion_produccion.add(new Object[]{crs.getString("proyecto_numero_orden"), crs.getString("tipo_proyecto"), crs.getString("parada")});
-                    informacion_produccion.add(crs.getString("canitadad_total"));
-                    total_cantidades += crs.getInt("canitadad_total");
-                    informacion_produccion.add((crs.getString("lider_proyecto")==null ? "-" : modelo.consultarNombreLiderProyectoM(crs.getString("lider_proyecto"))));
-                    // ...
-                    proceso.setNombre(crs.getString("nombre_proceso"));
-                    proceso.setEstado(crs.getInt("estado"));
-                    proceso.setCantidad(crs.getString("cantidadProceso"));
-                    cantidad_procesos+= crs.getInt("cantidadProceso");
-                    // ...
-                    informacion_produccion.add(proceso);
-                    // ...
-                    oldNumOrden = crs.getString("proyecto_numero_orden");
-                    oldTipoProducto = crs.getString("idProducto");
-                    rep = 1;
+                    if (rep == 0) {
 
-                } else {
-                    // Pendiente revisar la validacion (campo de PNC)
-                    if (oldNumOrden.equals(crs.getString("proyecto_numero_orden")) && oldTipoProducto.equals(crs.getString("idProducto"))) {
-
-                        proceso.setNombre(crs.getString("nombre_proceso"));
-                        proceso.setEstado(crs.getInt("estado"));
-                        proceso.setCantidad(crs.getString("cantidadProceso"));
-                        cantidad_procesos+= crs.getInt("cantidadProceso");
-                        // ...
-                        informacion_produccion.add(proceso);
-
-                    } else {
-
-                        row = organizarRowTabla(informacion_produccion, encabezado, cantidad_procesos);
-
-                        modelo_tabla.addRow(row);
-                        cantidad_proyectos++;
-                        cantidad_procesos=0;
-
-                        informacion_produccion.clear();
-
-                        // ...
                         informacion_produccion.add(new Object[]{crs.getString("proyecto_numero_orden"), crs.getString("tipo_proyecto"), crs.getString("parada")});
                         informacion_produccion.add(crs.getString("canitadad_total"));
                         total_cantidades += crs.getInt("canitadad_total");
@@ -311,44 +284,90 @@ public class EN extends javax.swing.JFrame implements Runnable {
                         proceso.setNombre(crs.getString("nombre_proceso"));
                         proceso.setEstado(crs.getInt("estado"));
                         proceso.setCantidad(crs.getString("cantidadProceso"));
-                        cantidad_procesos+= crs.getInt("cantidadProceso");
+                        cantidad_procesos += crs.getInt("cantidadProceso");
                         // ...
                         informacion_produccion.add(proceso);
                         // ...
                         oldNumOrden = crs.getString("proyecto_numero_orden");
                         oldTipoProducto = crs.getString("idProducto");
+                        rep = 1;
+
+                    } else {
+                        // Pendiente revisar la validacion (campo de PNC)
+                        if (oldNumOrden.equals(crs.getString("proyecto_numero_orden")) && oldTipoProducto.equals(crs.getString("idProducto"))) {
+
+                            proceso.setNombre(crs.getString("nombre_proceso"));
+                            proceso.setEstado(crs.getInt("estado"));
+                            proceso.setCantidad(crs.getString("cantidadProceso"));
+                            cantidad_procesos += crs.getInt("cantidadProceso");
+                            // ...
+                            informacion_produccion.add(proceso);
+
+                        } else {
+
+                            row = organizarRowTabla(informacion_produccion, encabezado, cantidad_procesos);
+
+                            modelo_tabla.addRow(row);
+                            cantidad_proyectos++;
+                            cantidad_procesos = 0;
+
+                            informacion_produccion.clear();
+
+                            // ...
+                            informacion_produccion.add(new Object[]{crs.getString("proyecto_numero_orden"), crs.getString("tipo_proyecto"), crs.getString("parada")});
+                            informacion_produccion.add(crs.getString("canitadad_total"));
+                            total_cantidades += crs.getInt("canitadad_total");
+                            informacion_produccion.add((crs.getString("lider_proyecto") == null ? "-" : modelo.consultarNombreLiderProyectoM(crs.getString("lider_proyecto"))));
+                            // ...
+                            proceso.setNombre(crs.getString("nombre_proceso"));
+                            proceso.setEstado(crs.getInt("estado"));
+                            proceso.setCantidad(crs.getString("cantidadProceso"));
+                            cantidad_procesos += crs.getInt("cantidadProceso");
+                            // ...
+                            informacion_produccion.add(proceso);
+                            // ...
+                            oldNumOrden = crs.getString("proyecto_numero_orden");
+                            oldTipoProducto = crs.getString("idProducto");
+                        }
+
                     }
 
                 }
 
+                if (rep == 1) {
+
+                    row = organizarRowTabla(informacion_produccion, encabezado, cantidad_procesos);
+
+                    modelo_tabla.addRow(row);
+                    cantidad_proyectos++;
+
+                    informacion_produccion.clear();
+
+                }
+
+                pie_pagina[0] = cantidad_proyectos;
+                pie_pagina[2] = total_cantidades;
+                pie_pagina[3] = "*******";
+                pie_pagina[pie_pagina.length - 1] = "*******";
+                pie_pagina[pie_pagina.length - 2] = "*******";
+                // ...
+                modelo_tabla.addRow(pie_pagina);
+                // ...
+                jTReporte.setModel(modelo_tabla);
+                jTReporte.setDefaultRenderer(Object.class, new Tabla());
+                jTReporte.getTableHeader().setFont(new Font("Arial", 1, 18));
+                jTReporte.getTableHeader().setForeground(Color.BLACK);
+                tamañoColumnasTabla();
+                jLContadorActualizaciones.setText(String.valueOf(Integer.parseInt(jLContadorActualizaciones.getText()) + 1));
+
+            } else {
+
+//                jDMensaje = new jDMensaje();
+                jDMensaje mensaje_alerta = new jDMensaje(this, true);
+                mensaje_alerta.setLocationRelativeTo(null);
+                mensaje_alerta.setVisible(true);
+
             }
-
-            if (rep == 1) {
-
-                row = organizarRowTabla(informacion_produccion, encabezado, cantidad_procesos);
-
-                modelo_tabla.addRow(row);
-                cantidad_proyectos++;
-
-                informacion_produccion.clear();
-
-            }
-
-            pie_pagina[0] = cantidad_proyectos;
-            pie_pagina[2] = total_cantidades;
-            pie_pagina[3] = "*******";
-            pie_pagina[pie_pagina.length-1] = "*******";
-            pie_pagina[pie_pagina.length-2] = "*******";
-            // ...
-            modelo_tabla.addRow(pie_pagina);
-            // ...
-            jTReporte.setModel(modelo_tabla);
-            jTReporte.setDefaultRenderer(Object.class, new Tabla());
-            jTReporte.getTableHeader().setFont(new Font("Arial", 1, 18));
-            jTReporte.getTableHeader().setForeground(Color.BLACK);
-            tamañoColumnasTabla();
-//            jTReporte.updateUI();
-            jLContadorActualizaciones.setText(String.valueOf(Integer.parseInt(jLContadorActualizaciones.getText()) + 1));
 
         } catch (Exception e) {
 
@@ -370,12 +389,12 @@ public class EN extends javax.swing.JFrame implements Runnable {
         for (int i = 4; i < jTReporte.getColumnCount() - 2; i++) {
 
             if (i % 2 == 0) {
-                
+
                 jTReporte.getColumnModel().getColumn(i).setMinWidth(0);
                 jTReporte.getColumnModel().getColumn(i).setMaxWidth(0);
                 jTReporte.getTableHeader().getColumnModel().getColumn(i).setMaxWidth(0);
                 jTReporte.getTableHeader().getColumnModel().getColumn(i).setMinWidth(0);
-                
+
             }
 
         }
@@ -393,9 +412,9 @@ public class EN extends javax.swing.JFrame implements Runnable {
         row[2] = informacionRow.get(1);//Cantidad Total
         row[3] = informacionRow.get(2);//Lider de producción
         int cantidad_terminada = 0;
-        cantidad_terminada = (cantidadProcesos!=0?Integer.parseInt(informacionRow.get(1).toString())-cantidadProcesos:0);
-        row[row.length-2] = cantidad_terminada;//cantidad terminada
-        row[row.length-1] = Integer.parseInt(informacionRow.get(1).toString()) - cantidad_terminada;//cantidad restante
+        cantidad_terminada = (cantidadProcesos != 0 ? Integer.parseInt(informacionRow.get(1).toString()) - cantidadProcesos : 0);
+        row[row.length - 2] = cantidad_terminada;//cantidad terminada
+        row[row.length - 1] = Integer.parseInt(informacionRow.get(1).toString()) - cantidad_terminada;//cantidad restante
 
         // ...
         for (int i = 5; i < encabezado.length - 1; i = i + 2) {
@@ -444,10 +463,6 @@ public class EN extends javax.swing.JFrame implements Runnable {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jDMensaje = new javax.swing.JDialog();
-        jPanel2 = new javax.swing.JPanel();
-        jLMensaje = new javax.swing.JButton();
-        jLabel1 = new javax.swing.JLabel();
         jPanel1 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTReporte = new reporteen.MyRenderEN();
@@ -464,56 +479,6 @@ public class EN extends javax.swing.JFrame implements Runnable {
         jestadoConexionServer = new javax.swing.JLabel();
         jestadoConexionServer1 = new javax.swing.JLabel();
         jLContadorActualizaciones = new javax.swing.JLabel();
-
-        jDMensaje.setTitle("Alerta!");
-        jDMensaje.setMaximumSize(new java.awt.Dimension(480, 165));
-        jDMensaje.setMinimumSize(new java.awt.Dimension(480, 165));
-        jDMensaje.setResizable(false);
-
-        jPanel2.setBackground(new java.awt.Color(204, 220, 226));
-
-        jLMensaje.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        jLMensaje.setText("El reporte no pudo ser actualizado, por favor intentalo nuevamente.");
-        jLMensaje.setBorderPainted(false);
-        jLMensaje.setContentAreaFilled(false);
-        jLMensaje.setDebugGraphicsOptions(javax.swing.DebugGraphics.FLASH_OPTION);
-        jLMensaje.setFocusPainted(false);
-
-        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/warning_icon.png"))); // NOI18N
-
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jLMensaje)
-                .addGap(18, 18, 18))
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(210, 210, 210)
-                .addComponent(jLabel1)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jLMensaje, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(19, 19, 19))
-        );
-
-        javax.swing.GroupLayout jDMensajeLayout = new javax.swing.GroupLayout(jDMensaje.getContentPane());
-        jDMensaje.getContentPane().setLayout(jDMensajeLayout);
-        jDMensajeLayout.setHorizontalGroup(
-            jDMensajeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        );
-        jDMensajeLayout.setVerticalGroup(
-            jDMensajeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-        );
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Informe de ensamble");
@@ -756,14 +721,10 @@ public class EN extends javax.swing.JFrame implements Runnable {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton2;
-    private javax.swing.JDialog jDMensaje;
     public static javax.swing.JLabel jLConexion;
     private javax.swing.JLabel jLContadorActualizaciones;
     public static javax.swing.JLabel jLEstadoLectura;
-    private javax.swing.JButton jLMensaje;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTReporte;
     private javax.swing.JLabel jTtipo2;

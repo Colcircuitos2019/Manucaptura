@@ -2,9 +2,7 @@ package resportete;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Font;
 import javax.swing.JTable;
-import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 
 public class MyRenderEN extends JTable {
@@ -43,7 +41,7 @@ public class MyRenderEN extends JTable {
                     }
                 }
 
-                if (column >= 5 && column % 2 == 1) {
+                if (column >= 2 && column % 2 == 0) {
 
                     switch (getValueAt(row, column - 1).toString()) {
                         case "-1":

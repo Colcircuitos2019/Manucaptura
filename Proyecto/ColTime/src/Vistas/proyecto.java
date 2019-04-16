@@ -20,14 +20,19 @@ import com.itextpdf.text.pdf.PdfWriter;
 import com.toedter.calendar.JTextFieldDateEditor;
 import elaprendiz.gui.textField.TextFieldRoundBackground;
 import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.sql.rowset.CachedRowSet;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
+import javax.swing.Timer;
 import rojerusan.RSNotifyAnimated;
 
 public class proyecto extends javax.swing.JPanel {
@@ -1268,6 +1273,10 @@ public class proyecto extends javax.swing.JPanel {
                 limpiarID();
                 estadoInicialBotonesFormulario();
                 estadoInicialComponentesFormulario();
+                // ...
+                socketCliente clienteSocket = new socketCliente(new int[]{0});// cambiar por un vector
+                clienteSocket.enviarInformacionSocketserver(clienteSocket.consultarServerSockets(), "true");
+                // ...
             } else {
                 //Error al realizar la eliminación del proyecto.
                 //Mensaje
@@ -1290,6 +1299,10 @@ public class proyecto extends javax.swing.JPanel {
                 limpiarID();
                 estadoInicialBotonesFormulario();
                 estadoInicialComponentesFormulario();
+                // ...
+                socketCliente clienteSocket = new socketCliente(new int[]{0});// cambiar por un vector
+                clienteSocket.enviarInformacionSocketserver(clienteSocket.consultarServerSockets(), "true");                
+                // ...
             } else {
                 //Error al realizar la eliminación del proyecto.
                 //Mensaje
@@ -1503,6 +1516,10 @@ public class proyecto extends javax.swing.JPanel {
                     estadoInicialComponentesFormulario();
                     estadoInicialBotonesFormulario();
                     ocultarFechas();
+                    // ...
+                    socketCliente clienteSocket = new socketCliente(new int[]{0});// cambiar por un vector
+                    clienteSocket.enviarInformacionSocketserver(clienteSocket.consultarServerSockets(), "true");                    
+                    // ...
                 }
 //            } else {
 //                new rojerusan.RSNotifyAnimated("Alerta!", "No se puede cambiar el estado del proyecto porque esta en ejecución.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.WARNING).setVisible(true);
@@ -2101,6 +2118,12 @@ public class proyecto extends javax.swing.JPanel {
             if (RegistrarModificarDetalle(jTNorden.getText(), accion)) {
                 //Mensaje de exito
                 new rojerusan.RSNotifyAnimated("Listo!!", ("El Proyecto con el numero de orden: " + jTNorden.getText() + " fue " + (accion == 2 ? "modificado" : "registrada") + " exitosamente."), 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.SUCCESS).setVisible(true);
+                
+                try {
+                    Thread.sleep(150);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(proyecto.class.getName()).log(Level.SEVERE, null, ex);
+                }
                 
                 socketCliente clienteSocket = new socketCliente(new int[]{0});// cambiar por un vector
                 clienteSocket.enviarInformacionSocketserver(clienteSocket.consultarServerSockets(), "true");

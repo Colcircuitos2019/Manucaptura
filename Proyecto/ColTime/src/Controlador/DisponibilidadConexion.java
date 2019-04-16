@@ -28,7 +28,8 @@ public class DisponibilidadConexion implements Runnable {
                     if(menu.cargo==2 || menu.cargo==3 ){
                         // Cargos = 2= Encargado de FE y TE, 3 = encargado de EN
                         socketCliente clienteSocket = new socketCliente(menu.cargo == 2 ? new int[]{1, 2} : new int[]{3});
-                        clienteSocket.enviarInformacionSocketserver(clienteSocket.consultarServerSockets(), "1");// Actualizar estado DB de los reportes de produccion
+                        menu.serversSocketsReportes = clienteSocket.consultarServerSockets();
+                        clienteSocket.enviarInformacionSocketserver(menu.serversSocketsReportes, "1");// Actualizar estado DB de los reportes de produccion
                     }
                 }
                 
@@ -41,7 +42,7 @@ public class DisponibilidadConexion implements Runnable {
                     if (menu.cargo == 2 || menu.cargo == 3) {
                         // Cargos = 2= Encargado de FE y TE, 3 = encargado de EN
                         socketCliente clienteSocket = new socketCliente(menu.cargo == 2 ? new int[]{1, 2} : new int[]{3});
-                        clienteSocket.enviarInformacionSocketserver(clienteSocket.consultarServerSockets(), "2");// Actualizar estado DB de los reportes de produccion
+                        clienteSocket.enviarInformacionSocketserver(menu.serversSocketsReportes, "2");// Actualizar estado DB de los reportes de produccion
                     }
                 }
                 

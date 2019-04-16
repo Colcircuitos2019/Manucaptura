@@ -21,7 +21,7 @@ public class Conexion {
         this.user=obj.user;
         this.password=obj.pass;
         //...
-        bd=(opData==1?"coltime":"sgn");
+        bd=(opData==1?"prueba_coltime":"sgn");
         server = "jdbc:mysql://"+obj.IP+"/" + bd;//Servicio de mysql
     }
     

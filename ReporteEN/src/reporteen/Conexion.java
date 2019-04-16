@@ -6,15 +6,15 @@ import java.sql.*;
 public class Conexion {
 
     private Connection conexion;
-    static String user = "coluser";
-    static String password = "";
+    static String user = "juanDavidM";
+    static String password = "123";
     static String puerto = "";
     static String server;
 
     public Conexion(int dataBase) {
        
 //        server = "jdbc:mysql://"+(dataBase == 1?"192.168.4.1:":"192.168.4.173:")+(dataBase == 1 ?"3306":"33066")+"/" + (dataBase==1?"coltime":"sgn");
-        server = "jdbc:mysql://"+(dataBase == 1?"192.168.4.173:":"192.168.4.173:")+(dataBase == 1 ?"33066":"33066")+"/" + (dataBase==1?"coltime":"sgn");
+        server = "jdbc:mysql://"+(dataBase == 1?"192.168.4.1:":"192.168.4.1:")+(dataBase == 1 ?"3306":"3306")+"/" + (dataBase==1?"prueba_coltime":"sgn");
         
     }
 

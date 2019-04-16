@@ -49,8 +49,9 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
     static int soloUnaVez = 0;
     private ConexionPS CPS = null;
     DetallesAreaInfo informacion = null;
-    Thread tomaTiempo = null;
-    Thread serverSocket = null;
+//    Thread tomaTiempo = null;
+//    Thread serverSocket = null;
+//    Thread conexion = null;
     public static String puertoSerialActual = "COM6";//Por defecto va a ser el Puerto COM6
     proyecto pro = null;
     rutaQR controlador = null;
@@ -63,14 +64,13 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
     public static CambiarContraseña viewCambiarContraseña = null;
     public static PrintStream myPS;
     ButtonGroup grupoCom = null;
-    public static String IP = "192.168.4.173:33066", user = "coluser", pass = "";
+    public static String IP = "192.168.4.1:3306", user = "juanDavidM", pass = "123";
     socketServidor server = null;
-    Thread conexion = null;
     
     public Menu(int cargo, String nombre, String doc) {
         initComponents();
         this.cargo = cargo;
-        consultarImagenUsuario(doc);// Pendiente por implementar...
+//        consultarImagenUsuario(doc);// Pendiente por implementar...
         Animacion.Animacion.mover_derecha(935, 1135, 0, 2, jPanel3);
         new CambiaPanel(jPContenido, new Inicio(cargo));
         btnInicio.setColorHover(cor);
@@ -90,8 +90,10 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
         }
         
         puertoSerialActual = ConsultarPuertoGurdadoUsuario(doc);
+        estadoConexionDB = true;
+        jLConexion.setText("-");
         DisponibilidadConexion dispo = new DisponibilidadConexion(this);// Hilo ejecucion 1
-        conexion = new Thread(dispo);
+        Thread conexion = new Thread(dispo);
         conexion.setName("Disponibilidad Conexion DB");
         conexion.start();
         
@@ -103,12 +105,12 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
                 estadoLecturaPuertoCOM = true;
                 
                 HiloLectura lectura = new HiloLectura(this);// Hilo ejecucion 3
-                tomaTiempo = new Thread(lectura);
+                Thread tomaTiempo = new Thread(lectura);
                 tomaTiempo.setName("Luctura puerto serial");
                 tomaTiempo.start();
                 // ...
                 server = new socketServidor(cargo); // Hilo ejecucion 2
-                serverSocket = new Thread(server);
+                Thread serverSocket = new Thread(server);
                 serverSocket.setName("Server Socket");
                 serverSocket.start();
                 
@@ -1637,7 +1639,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
                 estadoLecturaPuertoCOM = true;
                 // ...
                 HiloLectura lectura = new HiloLectura(this);
-                tomaTiempo = new Thread(lectura);
+                Thread tomaTiempo = new Thread(lectura);
                 tomaTiempo.start();
                 // ...
             } else {
@@ -1893,7 +1895,21 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
             
             socketCliente clienteSocket = new socketCliente(cargo==2?new int[]{1,2}:new int[]{3});// Consultar todos los servers socket de los reportes de producción
             clienteSocket.enviarInformacionSocketserver(clienteSocket.consultarServerSockets(),"true");
-        
+            
+        }else{
+            
+            switch(area){
+                case 1:// Formato estandar
+                    view = producF;
+                    break;
+                case 2:// Teclados
+                    view = producT;
+                    break;
+                case 3:// Ensamble
+                    view = producE;
+                    break;
+            }
+            
         }
 
         return view;

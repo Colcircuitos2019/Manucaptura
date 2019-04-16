@@ -65,8 +65,13 @@ public class TE extends javax.swing.JFrame implements Runnable {
 
                 servidor = new ServerSocket(PUERTO);
 
-                if (gestionDireccionServidor(direccionIP, PUERTO, 1)) {
+                boolean respuesta = gestionDireccionServidor(direccionIP, PUERTO, 1);
+                if (respuesta) {
                     consultarInformacionProduccion();
+                } else {
+                    jDMensaje mensaje_alerta = new jDMensaje(this, true);
+                    mensaje_alerta.setLocationRelativeTo(null);
+                    mensaje_alerta.setVisible(true);
                 }
 
                 while (true) {
@@ -76,6 +81,8 @@ public class TE extends javax.swing.JFrame implements Runnable {
                     // ...
                     input = new DataInputStream(cliente.getInputStream());/*2*/
                     String mensaje = input.readUTF();
+                    // ...
+                    System.out.println(mensaje);
                     // ...
                     switch (mensaje) {
                         case "true":// Actualizar info reporte
@@ -184,7 +191,7 @@ public class TE extends javax.swing.JFrame implements Runnable {
         Socket cliente = new Socket();
         Modelo modelo = new Modelo();
         boolean respuesta = false;
-        CachedRowSet crs = modelo.consultarDireccionIPServerPrograma(3);// Area de ensamble - EN = 3
+        CachedRowSet crs = modelo.consultarDireccionIPServerPrograma(0);// Area de ensamble - EN = 3
 
         try {
 
@@ -259,50 +266,15 @@ public class TE extends javax.swing.JFrame implements Runnable {
             String oldNumOrden = "", oldTipoProducto = "";
             Modelo modelo = new Modelo();
             CachedRowSet crs = modelo.consultarInformacionProduccionM();
+            
+            if(crs != null){
 
-            while (crs.next()) {
+                while (crs.next()) {
 
-                Proceso proceso = new Proceso();
+                    Proceso proceso = new Proceso();
 
-                if (rep == 0) {
+                    if (rep == 0) {
 
-                    informacion_produccion.add(new Object[]{crs.getString("proyecto_numero_orden"), crs.getString("tipo_proyecto"), crs.getString("parada")});
-                    informacion_produccion.add(crs.getString("canitadad_total"));
-                    total_cantidades += crs.getInt("canitadad_total");
-                    // ...
-                    proceso.setNombre(crs.getString("nombre_proceso"));
-                    proceso.setEstado(crs.getInt("estado"));
-                    proceso.setCantidad(crs.getString("cantidadProceso"));
-                    cantidad_procesos += crs.getInt("cantidadProceso");
-                    // ...
-                    informacion_produccion.add(proceso);
-                    // ...
-                    oldNumOrden = crs.getString("proyecto_numero_orden");
-                    oldTipoProducto = crs.getString("idProducto");
-                    rep = 1;
-
-                } else {
-                    // Pendiente revisar la validacion (campo de PNC)
-                    if (oldNumOrden.equals(crs.getString("proyecto_numero_orden")) && oldTipoProducto.equals(crs.getString("idProducto"))) {
-
-                        proceso.setNombre(crs.getString("nombre_proceso"));
-                        proceso.setEstado(crs.getInt("estado"));
-                        proceso.setCantidad(crs.getString("cantidadProceso"));
-                        cantidad_procesos += crs.getInt("cantidadProceso");
-                        // ...
-                        informacion_produccion.add(proceso);
-
-                    } else {
-
-                        row = organizarRowTabla(informacion_produccion, encabezado, cantidad_procesos);
-
-                        modelo_tabla.addRow(row);
-                        cantidad_proyectos++;
-                        cantidad_procesos = 0;
-
-                        informacion_produccion.clear();
-
-                        // ...
                         informacion_produccion.add(new Object[]{crs.getString("proyecto_numero_orden"), crs.getString("tipo_proyecto"), crs.getString("parada")});
                         informacion_produccion.add(crs.getString("canitadad_total"));
                         total_cantidades += crs.getInt("canitadad_total");
@@ -316,39 +288,82 @@ public class TE extends javax.swing.JFrame implements Runnable {
                         // ...
                         oldNumOrden = crs.getString("proyecto_numero_orden");
                         oldTipoProducto = crs.getString("idProducto");
+                        rep = 1;
+
+                    } else {
+                        // Pendiente revisar la validacion (campo de PNC)
+                        if (oldNumOrden.equals(crs.getString("proyecto_numero_orden")) && oldTipoProducto.equals(crs.getString("idProducto"))) {
+
+                            proceso.setNombre(crs.getString("nombre_proceso"));
+                            proceso.setEstado(crs.getInt("estado"));
+                            proceso.setCantidad(crs.getString("cantidadProceso"));
+                            cantidad_procesos += crs.getInt("cantidadProceso");
+                            // ...
+                            informacion_produccion.add(proceso);
+
+                        } else {
+
+                            row = organizarRowTabla(informacion_produccion, encabezado, cantidad_procesos);
+
+                            modelo_tabla.addRow(row);
+                            cantidad_proyectos++;
+                            cantidad_procesos = 0;
+
+                            informacion_produccion.clear();
+
+                            // ...
+                            informacion_produccion.add(new Object[]{crs.getString("proyecto_numero_orden"), crs.getString("tipo_proyecto"), crs.getString("parada")});
+                            informacion_produccion.add(crs.getString("canitadad_total"));
+                            total_cantidades += crs.getInt("canitadad_total");
+                            // ...
+                            proceso.setNombre(crs.getString("nombre_proceso"));
+                            proceso.setEstado(crs.getInt("estado"));
+                            proceso.setCantidad(crs.getString("cantidadProceso"));
+                            cantidad_procesos += crs.getInt("cantidadProceso");
+                            // ...
+                            informacion_produccion.add(proceso);
+                            // ...
+                            oldNumOrden = crs.getString("proyecto_numero_orden");
+                            oldTipoProducto = crs.getString("idProducto");
+                        }
+
                     }
 
                 }
 
+                if (rep == 1) {
+
+                    row = organizarRowTabla(informacion_produccion, encabezado, cantidad_procesos);
+
+                    modelo_tabla.addRow(row);
+                    cantidad_proyectos++;
+
+                    informacion_produccion.clear();
+
+                }
+
+                pie_pagina[0] = cantidad_proyectos;
+                pie_pagina[2] = total_cantidades;
+                pie_pagina[3] = "*******";
+                pie_pagina[pie_pagina.length - 1] = "*******";
+                pie_pagina[pie_pagina.length - 2] = "*******";
+                // ...
+                modelo_tabla.addRow(pie_pagina);
+                // ...
+                jTReporte.setModel(modelo_tabla);
+                jTReporte.setDefaultRenderer(Object.class, new Tabla());
+                jTReporte.getTableHeader().setFont(new Font("Arial", 1, 18));
+                jTReporte.getTableHeader().setForeground(Color.BLACK);
+                tamañoColumnasTabla();
+                jLContadorActualizaciones.setText(String.valueOf(Integer.parseInt(jLContadorActualizaciones.getText()) + 1));
+
+                
+            }else{
+                jDMensaje mensaje_alerta = new jDMensaje(this, true);
+                mensaje_alerta.setLocationRelativeTo(null);
+                mensaje_alerta.setVisible(true);
             }
-
-            if (rep == 1) {
-
-                row = organizarRowTabla(informacion_produccion, encabezado, cantidad_procesos);
-
-                modelo_tabla.addRow(row);
-                cantidad_proyectos++;
-
-                informacion_produccion.clear();
-
-            }
-
-            pie_pagina[0] = cantidad_proyectos;
-            pie_pagina[2] = total_cantidades;
-            pie_pagina[3] = "*******";
-            pie_pagina[pie_pagina.length - 1] = "*******";
-            pie_pagina[pie_pagina.length - 2] = "*******";
-            // ...
-            modelo_tabla.addRow(pie_pagina);
-            // ...
-            jTReporte.setModel(modelo_tabla);
-            jTReporte.setDefaultRenderer(Object.class, new Tabla());
-            jTReporte.getTableHeader().setFont(new Font("Arial", 1, 18));
-            jTReporte.getTableHeader().setForeground(Color.BLACK);
-            tamañoColumnasTabla();
-//            jTReporte.updateUI();
-            jLContadorActualizaciones.setText(String.valueOf(Integer.parseInt(jLContadorActualizaciones.getText()) + 1));
-
+            
         } catch (Exception e) {
 
             e.printStackTrace();

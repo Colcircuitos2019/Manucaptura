@@ -86,6 +86,7 @@ public class socketServidor implements Runnable {
                 input = new DataInputStream(cliente.getInputStream());
                 mensaje = input.readUTF();
                 
+                cliente.close();
             }
             
         } catch (IOException ex) {

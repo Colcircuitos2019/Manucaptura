@@ -217,7 +217,7 @@ public class ControlDelTiempo extends javax.swing.JFrame implements ActionListen
             new rojerusan.RSNotifyAnimated("¡Alerta!", "No tienes permiso de leer el QR", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.WARNING).setVisible(true);
             // ...
             vista.dispose();
-            reinicializarObjetoVista();
+//            reinicializarObjetoVista();
         }
         
         validarExitenciadeBotones(Integer.parseInt(datos[2]), vista);

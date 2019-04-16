@@ -20,7 +20,9 @@ public class MyRenderEN extends JTable {
 
         cell.setBackground(Color.WHITE);
         cell.setForeground(Color.BLACK);
-
+        
+//        System.out.println(this.getColumnCount());
+        
         try {
 
             if (row < this.getRowCount() - 1) {
