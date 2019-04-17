@@ -49,10 +49,10 @@ public class screen extends javax.swing.JFrame implements Runnable {
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jDocumento.setText("Documento");
-        getContentPane().add(jDocumento, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 20, 120, -1));
+        getContentPane().add(jDocumento, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 20, 120, 0));
 
         jLCargo.setText("Cargo");
-        getContentPane().add(jLCargo, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 30, -1, -1));
+        getContentPane().add(jLCargo, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 30, -1, 0));
 
         jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenesEmpresa/logotipo3.png"))); // NOI18N
         getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, 640, 220));
@@ -64,7 +64,7 @@ public class screen extends javax.swing.JFrame implements Runnable {
 
         jLabel4.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel4.setForeground(new java.awt.Color(102, 102, 102));
-        jLabel4.setText("Versión 2.0 ");
+        jLabel4.setText("Versión 2.1 ");
 
         jLabel3.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         jLabel3.setForeground(new java.awt.Color(83, 83, 83));
@@ -75,7 +75,7 @@ public class screen extends javax.swing.JFrame implements Runnable {
         jLabel5.setBackground(new java.awt.Color(102, 102, 102));
         jLabel5.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel5.setForeground(new java.awt.Color(102, 102, 102));
-        jLabel5.setText("Última actualización: 29-03-2019");
+        jLabel5.setText("Última actualización: 17-04-2019");
 
         jLabel6.setBackground(new java.awt.Color(102, 102, 102));
         jLabel6.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
@@ -106,8 +106,8 @@ public class screen extends javax.swing.JFrame implements Runnable {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addGap(30, 30, 30)
-                .addComponent(jLNombreUsuario)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 183, Short.MAX_VALUE)
+                .addComponent(jLNombreUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, 0, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 197, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE))

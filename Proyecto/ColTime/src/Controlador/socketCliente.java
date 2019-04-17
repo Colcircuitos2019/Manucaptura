@@ -42,7 +42,7 @@ public class socketCliente {
                     try {
                         
                         cliente = new Socket();//Establecer conexion con el serversocket
-                        cliente.connect(new InetSocketAddress(servidor[0], Integer.parseInt(servidor[1])), 5000);//Ruta de conexion(IP y puerto) y tiempo de espera
+                        cliente.connect(new InetSocketAddress(servidor[0], Integer.parseInt(servidor[1])), 2000);//Ruta de conexion(IP y puerto) y tiempo de espera
                         // ...
                         outPut = new DataOutputStream(cliente.getOutputStream());// Enviar mensaje
                         outPut.writeUTF(mensaje);

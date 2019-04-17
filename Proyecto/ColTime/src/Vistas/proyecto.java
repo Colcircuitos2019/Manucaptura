@@ -2116,17 +2116,13 @@ public class proyecto extends javax.swing.JPanel {
             
             //accion = 1 (Registrar), accion = 2 (Modificar)
             if (RegistrarModificarDetalle(jTNorden.getText(), accion)) {
-                //Mensaje de exito
-                new rojerusan.RSNotifyAnimated("Listo!!", ("El Proyecto con el numero de orden: " + jTNorden.getText() + " fue " + (accion == 2 ? "modificado" : "registrada") + " exitosamente."), 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.SUCCESS).setVisible(true);
-                
-                try {
-                    Thread.sleep(150);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(proyecto.class.getName()).log(Level.SEVERE, null, ex);
-                }
                 
                 socketCliente clienteSocket = new socketCliente(new int[]{0});// cambiar por un vector
                 clienteSocket.enviarInformacionSocketserver(clienteSocket.consultarServerSockets(), "true");
+                
+                //Mensaje de exito
+                new rojerusan.RSNotifyAnimated("Listo!!", ("El Proyecto con el numero de orden: " + jTNorden.getText() + " fue " + (accion == 2 ? "modificado" : "registrada") + " exitosamente."), 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.SUCCESS).setVisible(true);
+
                 
                 if (accion == 2) {
                     
