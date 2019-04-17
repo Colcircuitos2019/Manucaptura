@@ -64,7 +64,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
     public static CambiarContraseña viewCambiarContraseña = null;
     public static PrintStream myPS;
     ButtonGroup grupoCom = null;
-    public static String IP = "192.168.4.1:3306", user = "juanDavidM", pass = "123";
+    public static String IP = "192.168.4.173:33066", user = "coluser", pass = "";
     socketServidor server = null;
     
     public Menu(int cargo, String nombre, String doc) {

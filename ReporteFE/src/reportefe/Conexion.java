@@ -6,7 +6,7 @@ import java.sql.*;
 public class Conexion{
 
     private Connection conexion;
-    static String bd = "prueba_coltime";
+    static String bd = "coltime";
     static String user = "juanDavidM";
     static String password = "123";
     static String server = "jdbc:mysql://192.168.4.1:3306/" + bd;

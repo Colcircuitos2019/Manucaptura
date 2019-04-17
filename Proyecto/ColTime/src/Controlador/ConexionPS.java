@@ -37,6 +37,7 @@ public class ConexionPS {
 //Falta validar que el puerto este abierto y disponible para poder mandar informacion, y de no ser asì se va a notificar al usuario que no puede realizar la toma de tiempo correspondiente a si àrea de producciòn.
 //Composición del código: Orden;nDetalle;Negocio;IDlector;cantidadProductos;cantidadOperarios;idProceso paso
 //NOTA: Las IP a la cual se va a enviar informacion son las siguiente: EN = 192.168.0.101 con Router y AP; FE y TE = 192.168.1.101 con Router y para Comercial Interno = 192.168.4.1 siin router 
+
     public void enlacePuertos(Menu menu) {//Ese metodo lo utilizan los roles de encargados de FE, EN y TE
         Menu obj = new Menu();
         CommPort puerto = null;
@@ -64,9 +65,9 @@ public class ConexionPS {
                     //Se selecciona el item Activado de: Menu Principal>Configuración>Lectura>Activado.
                     menu.jRLActivado.setSelected(true);
                     // Cargos = 2 - Encargado de FE y TE, Encargado de EN
-                    socketCliente clienteSocket = new socketCliente(menu.cargo==2?new int[]{1,2}:new int[]{3});
+                    socketCliente clienteSocket = new socketCliente(menu.cargo == 2 ? new int[]{1, 2} : new int[]{3});
                     clienteSocket.enviarInformacionSocketserver(clienteSocket.consultarServerSockets(), "act");// Actualizar estado DB de los reportes de produccion
-                    
+
                     //Cambio de la etiqueta del estado de lectura en la vista de menu ubicada en el menu lateral.
                     menu.estadoDeLectura();
                     //Guardar estado de lectura del puerto serial del usuario
@@ -99,17 +100,15 @@ public class ConexionPS {
                             //...
                             //La longitud del vector del codigo QR tiene que ser de 6 o 7 espacios, tambien el proceso que recibe tiene que ser diferente a 0 si el proceso no es 18="Empaque"
                             String infoP[] = valorBeta.split(";");//Validar Código QR
-//                            if (infoP.length == 6 || (infoP.length == 7 && ((!infoP[6].equals("0") && !infoP[3].equals("18")) || ((infoP[6].equals("0") || !infoP[6].equals("18")) && infoP[3].equals("18"))))) {
-                            //El codigo de operario siempre va a contener una longitud del vecto de 6 espaciós en la memoria EEPROM
+                            // ...
+                            escribirEnArchivoPlanoRecepcionDeDatos(valorBeta, "0");
+                            //...
+                            if (Character.isDigit(valorBeta.charAt(0))) {//Valida que el valor de entrada sea el correcto//Funcionamiento con wifi
                                 //...
-                                if (Character.isDigit(valorBeta.charAt(0))) {//Valida que el valor de entrada sea el correcto//Funcionamiento con wifi
-                                    // ...
-                                    escribirEnArchivoPlanoRecepcionDeDatos(valorBeta, infoP[2]);
-                                    //...
-                                    obj.LecturaCodigoQR(valorBeta);//Se encargara de ler el codigo QR
-                                    //--------------------------------------------------
-                                    System.gc();//Garbage collector.
-                                }
+                                obj.LecturaCodigoQR(valorBeta);//Se encargara de ler el codigo QR
+                                //--------------------------------------------------
+                                System.gc();//Garbage collector.
+                            }
 //                            }
                             //...
                         }
@@ -163,9 +162,9 @@ public class ConexionPS {
             //Si la variable ErrorConexionPuerto es igual a 1 significa que se pudo establecer conexion pero se presento algune problema con el puerto.
             if (ErrorConexionPuerto == 0) {
                 JOptionPane.showMessageDialog(null, "El puerto " + obj.puertoSerialActual + " esta abierto, por favor cierrelo para poder realizar la operación.");
-            }else{
+            } else {
                 puerto.close();
-            } 
+            }
             menu.estadoLecturaPuertoCOM = false;
             //Cambio de la etiqueta del estado de lectura en la vista de menu ubicada en el menu lateral.
             menu.estadoDeLectura();//Desactivado
@@ -174,7 +173,7 @@ public class ConexionPS {
         }
     }
     // ...
-    
+
     public String[] puertosDisponibles() {
         int pos = 0;
         try {
@@ -212,11 +211,11 @@ public class ConexionPS {
             }
             //---
             File archivo = new File("C:\\Toma_Tiempo\\" + formato.format(fecha) + "_" + area + ".txt");
-            
+
             if (!archivo.exists()) {
-                
+
                 archivo.createNewFile();
-                
+
             }
             //---
             int hora = calendario.get(Calendar.HOUR_OF_DAY);
@@ -229,9 +228,9 @@ public class ConexionPS {
             pw.close();
             // ...
         } catch (Exception e) {
-            
+
             e.printStackTrace();
-            
+
         }
     }
 

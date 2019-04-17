@@ -2,15 +2,13 @@ package Modelo;
 
 import coltime.Menu;
 import java.sql.*;
-import javax.swing.JOptionPane;
-//import javax.swing.JOptionPane;
 
 public class Conexion {
 
     private Connection conexion;
     private static String bd;//Base de datos actual
-    private static String user = "root";//Usuario de mysql
-    private static String password = "SaAFjmXIMRvppyqW";//contraseña
+    private static String user = "juanDavidM";//Usuario de mysql
+    private static String password = "123";//contraseña
     private static String server;//Servicio de mysql   
     //El puerto por el cual el servidor apache es el <9090>
     //El puerto 3306 es por el cual se hace la comunicacion con el motor de bases de datos.
@@ -21,7 +19,7 @@ public class Conexion {
         this.user=obj.user;
         this.password=obj.pass;
         //...
-        bd=(opData==1?"prueba_coltime":"sgn");
+        bd=(opData==1?"coltime":"sgn");
         server = "jdbc:mysql://"+obj.IP+"/" + bd;//Servicio de mysql
     }
     
