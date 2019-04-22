@@ -467,6 +467,13 @@ public class FE extends javax.swing.JFrame implements Runnable {
 
     }
     
+    private void refrescarEstadoReporte() {
+
+        Modelo modelo = new Modelo();
+        modelo.refrescarEstadoReporte(direccionIP, String.valueOf(puerto));
+
+    }
+    
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -683,6 +690,7 @@ public class FE extends javax.swing.JFrame implements Runnable {
         consultarInformacionProduccion();
         consultarEstadoLectura();
         estadoConexionServidor();
+        refrescarEstadoReporte();
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing

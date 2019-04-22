@@ -75,7 +75,7 @@ public class Modelo {
             //Preparar la consulata
             Query = "CALL PA_ConsultarEstadoLecturaFacilitador(?)";
             ps = con.prepareStatement(Query);
-            ps.setString(1,"1017156424");
+            ps.setString(1,"1037587834");
             rs = ps.executeQuery();
             if(rs.next()){
                 respuesta =rs.getBoolean("estadoLectura");
@@ -145,6 +145,28 @@ public class Modelo {
             e.printStackTrace();
         }
         return puerto;
+    }
+    
+    public void refrescarEstadoReporte(String direccionIP, String puerto) {
+        try {
+            conexion=new Conexion(1);
+            conexion.establecerConexion();
+            con=conexion.getConexion();
+            // ...
+            Query = "CALL PA_RefrescarEstadoServerSocketReporteProduccion(?,?)";
+            ps = con.prepareStatement(Query);
+            ps.setString(1, direccionIP);
+            ps.setString(2, puerto);
+            ps.execute();
+            //Cierre de conexiones
+            conexion.destruir();
+            ps.close();
+            con.close();
+        } catch (Exception e) {
+            
+            e.printStackTrace();
+            
+        }
     }
     
     public CachedRowSet consultarDireccionIPServerPrograma(int area) {

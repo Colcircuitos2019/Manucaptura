@@ -458,6 +458,13 @@ public class EN extends javax.swing.JFrame implements Runnable {
         return row;
     }
 
+    private void refrescarEstadoReporte(){
+        
+        Modelo modelo = new Modelo();
+        modelo.refrescarEstadoReporte(direccionIP, String.valueOf(PUERTO));
+        
+    }
+    
     // -------------------------------------------------------------------------
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -676,6 +683,7 @@ public class EN extends javax.swing.JFrame implements Runnable {
         consultarInformacionProduccion();
         consultarEstadoLectura();
         estadoConexionServidor();
+        refrescarEstadoReporte();
     }//GEN-LAST:event_jButton2ActionPerformed
 
     public static void main(String args[]) {

@@ -141,6 +141,28 @@ public class Modelo {
         return puerto;
     }
     
+    public void refrescarEstadoReporte(String direccionIP, String puerto) {
+        try {
+            Conexion conexion = new Conexion();
+            conexion.establecerConexion();
+            con = conexion.getConexion();
+            // ...
+            String Query = "CALL PA_RefrescarEstadoServerSocketReporteProduccion(?,?)";
+            ps = con.prepareStatement(Query);
+            ps.setString(1, direccionIP);
+            ps.setString(2, puerto);
+            ps.execute();
+            //Cierre de conexiones
+            conexion.destruir();
+            ps.close();
+            con.close();
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+        }
+    }
+    
     public boolean gestionarDireccionServidor(String direccionIP, int puerto, int estado) {
         boolean respuesta = false;
         try {
