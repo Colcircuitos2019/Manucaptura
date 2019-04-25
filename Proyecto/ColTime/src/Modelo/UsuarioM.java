@@ -314,8 +314,9 @@ public class UsuarioM {
             ps = con.prepareCall(Qry);
             ps.setString(1, documento);
             rs = ps.executeQuery();
-            rs.next();
-            puerto = rs.getString(1);
+            if(rs.next()){
+                puerto = rs.getString(1) == null?"":rs.getString(1);
+            }
             //Destrucción de conexiones
             con.close();
             conexion.cerrar(rs);

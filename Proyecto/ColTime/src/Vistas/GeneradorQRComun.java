@@ -3,7 +3,6 @@ package Vistas;
 import Controlador.DetalleProyecto;
 import Controlador.FormatoTabla;
 import Controlador.rutaQR;
-import static Vistas.proyecto.jTNorden;
 import coltime.Menu;
 import com.barcodelib.barcode.QRCode;
 import com.itextpdf.text.Document;
@@ -563,7 +562,7 @@ public class GeneradorQRComun extends javax.swing.JPanel {
             //...
             if (path != null && !path.equals("")) {
                 //...
-                if (path.codePointAt(path.length() - 1) == 92) {//92= Código ASCII de \
+                if (path.codePointAt(path.length() - 1) == 92) {//92= Código ASCII del \
                     //...
                     File folder = new File(path + "ImágenesQR");//Nombre de la carpeta
                     if (!folder.exists()) {
@@ -631,6 +630,10 @@ public class GeneradorQRComun extends javax.swing.JPanel {
                     Paragraph orden = new Paragraph("Ordenes: " + name_PDF, tall);
                     orden.setAlignment(1);
                     celda.addElement(orden);
+                    //Producto
+                    Paragraph Producto = new Paragraph("FE - " + jTDetalleProductosSeleccionados.getValueAt(0, 3), tall);
+                    Producto.setAlignment(1);
+                    celda.addElement(Producto);
                     // Referencia de área y producto
                     Paragraph tipo = new Paragraph();
                     tipo.setSpacingAfter(8);
@@ -642,9 +645,17 @@ public class GeneradorQRComun extends javax.swing.JPanel {
                     Fecha.setAlignment(1);
                     celda.addElement(Fecha);
                     // Nombre del proyecto
-                    Paragraph proyecto = new Paragraph("Espesor: " + (jTDetalleProductosSeleccionados.getValueAt(0,10)==null?"": jTDetalleProductosSeleccionados.getValueAt(0,10).toString()), tall);
+                    Paragraph proyecto = new Paragraph("Espesor: " + (jTDetalleProductosSeleccionados.getValueAt(0,10)==null?"-": jTDetalleProductosSeleccionados.getValueAt(0,10).toString()), tall);
                     proyecto.setAlignment(1);
                     celda.addElement(proyecto);
+                    // Color antisolder
+                    Paragraph antisolder = new Paragraph("Antisolder: " + (jTDetalleProductosSeleccionados.getValueAt(0,8)==null?"-": jTDetalleProductosSeleccionados.getValueAt(0,8).toString()), tall);
+                    antisolder.setAlignment(1);
+                    celda.addElement(antisolder);
+                    // Lleva ruteo
+                    Paragraph ruteo = new Paragraph("¿Ruteo?: " + (jTDetalleProductosSeleccionados.getValueAt(0,9)==null?"": (jTDetalleProductosSeleccionados.getValueAt(0,9).toString().equals("true")?"SI":"NO")), tall);
+                    ruteo.setAlignment(1);
+                    celda.addElement(ruteo);
                     // Cantidad Total de equipos
                     Paragraph cantidad = new Paragraph("Cantidad: " + jTDetalleProductosSeleccionados.getValueAt(0,4).toString(), tall);
                     cantidad.setAlignment(1);

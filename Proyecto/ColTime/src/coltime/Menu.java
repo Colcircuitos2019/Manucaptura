@@ -49,9 +49,6 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
     static int soloUnaVez = 0;
     private ConexionPS CPS = null;
     DetallesAreaInfo informacion = null;
-//    Thread tomaTiempo = null;
-//    Thread serverSocket = null;
-//    Thread conexion = null;
     public static String puertoSerialActual = "COM6";//Por defecto va a ser el Puerto COM6
     proyecto pro = null;
     rutaQR controlador = null;
@@ -64,7 +61,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
     public static CambiarContraseña viewCambiarContraseña = null;
     public static PrintStream myPS;
     ButtonGroup grupoCom = null;
-    public static String IP = "192.168.4.1:3306", user = "coluser", pass = "";
+    public static String IP = "192.168.5.222:3306", user = "root", pass = "qblrENqllNIMvqHL";
     socketServidor server = null;
     public Menu(int cargo, String nombre, String doc) {
         initComponents();
@@ -1181,7 +1178,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
                 btnProyectos.setEnabled(false);
                 //ItemMenu de Estado de lectura.
                 jMLectura.setVisible(false);
-                rutaQR.setVisible(false);
+                rutaQR.setVisible(true);
                 jLEstadoLectura.setVisible(false);
                 jLabel14.setVisible(false);
                 break;
