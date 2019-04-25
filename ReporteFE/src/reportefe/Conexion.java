@@ -8,8 +8,8 @@ public class Conexion{
     private Connection conexion;
     static String bd = "coltime";
     static String user = "root";
-    static String password = "qblrENqllNIMvqHL";
-    static String server = "jdbc:mysql://192.168.5.222:3306/" + bd;
+    static String password = "SaAFjmXlMRvppyqW";// qblrENqllNIMvqHL
+    static String server = "jdbc:mysql://192.168.4.173:33066/" + bd;
     //192.168.0.103
 
     public Conexion() {

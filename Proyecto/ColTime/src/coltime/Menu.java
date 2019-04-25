@@ -45,7 +45,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
     public static Color rojo = new Color(255, 0, 0);//Rojo
     //
     public static Producciones bp = null;
-    public static boolean estadoLecturaPuertoCOM = false, estadoConexionDB = true;
+    public static boolean estadoLecturaPuertoCOM = false, estadoConexionDB= true, conexionServidor;
     static int soloUnaVez = 0;
     private ConexionPS CPS = null;
     DetallesAreaInfo informacion = null;
@@ -61,7 +61,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
     public static CambiarContraseña viewCambiarContraseña = null;
     public static PrintStream myPS;
     ButtonGroup grupoCom = null;
-    public static String IP = "192.168.5.222:3306", user = "root", pass = "qblrENqllNIMvqHL";
+    public static String IP = "192.168.4.173:33066", user = "root", pass = "SaAFjmXlMRvppyqW";
     socketServidor server = null;
     public Menu(int cargo, String nombre, String doc) {
         initComponents();
@@ -86,7 +86,6 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
         }
         
         puertoSerialActual = ConsultarPuertoGurdadoUsuario(doc);
-        estadoConexionDB = true;
         jLConexion.setText("-");
         DisponibilidadConexion dispo = new DisponibilidadConexion(this);// Hilo ejecucion 1
         Thread conexion = new Thread(dispo);
@@ -1954,6 +1953,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
                     new Object[]{"SI", "NO"}, "SI") == 0) {
                 // ...
                 sesion(0, jDocumento.getText());// Cerrar Session
+                
                 if(cargo==2 || cargo==3){
                     
                     socketCliente clienteSocket = new socketCliente(cargo==2?new int[]{1,2}:new int[]{3});

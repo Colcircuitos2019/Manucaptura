@@ -25,12 +25,12 @@ public class FE_TE_INM {
 //    String Tiempo_Total = "";
     int cantidadAntigua = 0;
     int estado = 0;
-    boolean accion=true;
+    boolean accion = true;
 
     //Metodos------------------------------------------------->
     //No se te olvide tener en cuenta el id del lector y concatenar a la informacion despues de leer el código QR***
     //Depurar esta seccion de còdigo para optimizarlo...
-public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetalle, int area, int idLector, int cantidadTerminada, int operarios, PrintStream myPS, int procesoPasoCantidades, int cantiProductosQR) {
+    public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetalle, int area, int idLector, int cantidadTerminada, int operarios, PrintStream myPS, int procesoPasoCantidades, int cantiProductosQR) {
         // Queda pendiente la toma de tiempos del área de almacen
         try {
             conexion = new Conexion(1);
@@ -48,7 +48,7 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
             if (rs.getBoolean(1)) {//Pausar O IniciarToma de tiempos
                 //-------------------------------------------------------------->
                 // Queda pendiente la forma de realizar la toma de tiempos del área del almacen!!!!
-                if(area != 4){
+                if (area != 4) {
                     //Validar que la cantidad ingresada por el operario sea igual o menor a la cantidad que tiene disponible este proceso para trabajar
                     Qry = "SELECT FU_ValidarCantidadProcesoAreasProduccion(?,?,?);";
                     ps = con.prepareStatement(Qry);
@@ -62,10 +62,10 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
                         } else {
                             accion = false;
                         }
-                    }   
+                    }
                 }
                 //...
-                int cantidadProceso=0;
+                int cantidadProceso = 0;
                 //...
                 //Validar que el proceso si tenga cantidades para pasar...
                 if (accion) {
@@ -80,8 +80,8 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
                     rs.next();
                     // ...
                     //Si el proceso que pasa la cantidades es igual al proceso que recibe las cantidades entonces el proceso al que pasa las cantidades va a ser 0
-                    if(idLector == procesoPasoCantidades){//Se hace para evitar que me coloque las cantidades terminadas en el mismo proceso
-                       procesoPasoCantidades = 0;   
+                    if (idLector == procesoPasoCantidades) {//Se hace para evitar que me coloque las cantidades terminadas en el mismo proceso
+                        procesoPasoCantidades = 0;
                     }
                     // ...
                     Qry = "CALL PA_PausarTomaDeTiempoDeProcesos(?,?,?,?,?,?,?,?,?)";// <- Revisar procedimiento almacenado para eliminar el parametro de estado.
@@ -96,7 +96,7 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
                     ps.setInt(8, cantidadProceso);
                     ps.setInt(9, procesoPasoCantidades);
                     ps.execute();//Respuesta es igual a True para poder agregar los botones, Ya no es necesario esta respuesta para buscar los botones
-                    res=true;
+                    res = true;
                     // ...
                     calcularPromedioProductoPorMinuto(idDetalle, area, idLector);// Terminado <- pendiente probar correciones
                     // ...
@@ -113,16 +113,16 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
             } else {
                 //Si no existe se ejecutara el procedimiento para iniciar o renaudar el tiempo
                 //...
-                if(area!=4){//El área tiene que ser diferente al "4"=Almacen
+                if (area != 4) {//El área tiene que ser diferente al "4"=Almacen
                     //Validar que el procesos que se quiere iniciar tenca cantidades para procesar
                     Qry = "SELECT FU_ValidarCantidadProcesoAreasProduccion(?,?,?);";
                     ps = con.prepareStatement(Qry);
                     ps.setInt(1, idDetalle);
                     ps.setInt(2, idLector);
-                    ps.setInt(3 ,area);
+                    ps.setInt(3, area);
                     rs = ps.executeQuery();
                     if (rs.next()) {
-                        if (Integer.parseInt(rs.getString(1)!=null?rs.getString(1):"0") > 0) {
+                        if (Integer.parseInt(rs.getString(1) != null ? rs.getString(1) : "0") > 0) {
                             accion = true;
                         } else {
                             accion = false;
@@ -130,7 +130,7 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
                     }
                 }
                 //...
-                if(accion){
+                if (accion) {
                     Qry = "CALL PA_IniciarRenaudarTomaDeTiempoProcesos(?,?,?,?,?)";
                     ps = con.prepareStatement(Qry);
                     ps.setInt(1, numeroOrden);
@@ -139,8 +139,8 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
                     ps.setInt(4, area);
                     ps.setInt(5, operarios);
                     res = ps.execute();// retorna true si la funcion fue ejecutada correctamente  
-                }else{
-                    res=false;
+                } else {
+                    res = false;
                 }
                 //...
             }
@@ -155,6 +155,7 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
         }
         return res;
     }
+
     // Esto va a cambiar <-- Pendiente
     public boolean pararTiempoAlmacen(int orden, int detalle, int cantidad, int detalleproducto, int proceso) {
         try {
@@ -212,10 +213,11 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
             con.close();
         } catch (Exception e) {
 //            JOptionPane.showMessageDialog(null, "Error! " + e);
+            e.printStackTrace();
         }
         return res;//Falta asignarle este true a una variable
     }
-    
+
     public void calcularTiempoTotalPorUnidad(int idDetalleProducto, int area) {
         ResultSet rs = null;
         try {
@@ -227,27 +229,27 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
             // ...
             String tiempoTotalProducto = sumarTiempos(rs);//
             // ...
-            if(!tiempoTotalProducto.equals("00:00:00")){
+            if (!tiempoTotalProducto.equals("00:00:00")) {
                 Qry = "CALL PA_ActualizarTiempoTotalPorUnidad(?,?)";
                 ps = con.prepareStatement(Qry);
                 ps.setInt(1, idDetalleProducto);
                 ps.setString(2, tiempoTotalProducto);
-                ps.executeQuery(); 
+                ps.executeQuery();
             }
             // ...
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-    
+
 ////  Esto lo puede realizar la base de datos
     private String sumarTiempos(ResultSet rsTiempos) {
         ResultSet rs = null;
-        String tiempo="00:00:00";
+        String tiempo = "00:00:00";
         //...
         try {
-            if(rsTiempos.next()){
-                do {                    
+            if (rsTiempos.next()) {
+                do {
                     ps = con.prepareStatement("CALL PA_SumarTiempos(?,?);");
                     ps.setString(1, tiempo);
                     ps.setString(2, rsTiempos.getString(1));
@@ -260,7 +262,7 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
                 } while (rsTiempos.next());
             }
         } catch (Exception e) {
-//            e.printStackTrace();
+            e.printStackTrace();
         }
         // ...
         return tiempo;
@@ -365,7 +367,6 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
 //         Tiempo convertido a Minutos y segundos    
 //        return ((m <= 9) ? "0" : "") + m + ":" + ((s <= 9) ? "0" : "") + s;
 //    }
-
     public CachedRowSet consultarProyectosEnEjecucion(int negocio) {
         try {
             conexion = new Conexion(1);
@@ -384,6 +385,7 @@ public boolean iniciar_Pausar_Reiniciar_Toma_Tiempo(int numeroOrden, int idDetal
             ps.close();
         } catch (Exception e) {
 //            JOptionPane.showMessageDialog(null, "Error! " + e);
+            e.printStackTrace();
         }
         return crsP;
     }

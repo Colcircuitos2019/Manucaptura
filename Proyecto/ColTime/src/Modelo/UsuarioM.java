@@ -36,7 +36,8 @@ public class UsuarioM {
             conexion.destruir();
             ps.close();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "¡Error!" + e);
+//            JOptionPane.showMessageDialog(null, "¡Error!" + e);
+            e.printStackTrace();
         }
         return crs;
     }
@@ -58,7 +59,8 @@ public class UsuarioM {
             conexion.destruir();
             ps.close();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "¡Error!" + e);
+//            JOptionPane.showMessageDialog(null, "¡Error!" + e);
+            e.printStackTrace();
         }
     }
 
@@ -90,7 +92,8 @@ public class UsuarioM {
             conexion.cerrar(rs);
             ps.close();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "¡Error!" + e);
+//            JOptionPane.showMessageDialog(null, "¡Error!" + e);
+            e.printStackTrace();
         }
         return res;
     }
@@ -119,7 +122,8 @@ public class UsuarioM {
             conexion.cerrar(rs);
             conexion.destruir();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Error: " + e);
+//            JOptionPane.showMessageDialog(null, "Error: " + e);
+            e.printStackTrace();
         }
         return crs;
     }
@@ -146,7 +150,8 @@ public class UsuarioM {
             conexion.cerrar(rs);
             ps.close();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "¡Error!" + e);
+//            JOptionPane.showMessageDialog(null, "¡Error!" + e);
+            e.printStackTrace();
         }
         return res;
     }
@@ -157,7 +162,7 @@ public class UsuarioM {
             conexion = new Conexion(1);
             conexion.establecerConexion();
             con = conexion.getConexion();
-            
+
             //Query y ejecución------------------------------------------------------------>
             String Qry = "SELECT FU_IniciarSesion(?,?)";
             ps = con.prepareCall(Qry);
@@ -175,7 +180,9 @@ public class UsuarioM {
             conexion.cerrar(rs);
             ps.close();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "¡Error!" + e);
+//            JOptionPane.showMessageDialog(null, "¡Error!" + e);
+            cargo = -1;
+            e.printStackTrace();
         }
         return cargo;
     }
@@ -203,7 +210,8 @@ public class UsuarioM {
             conexion.cerrar(rs);
             ps.close();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "¡Error!" + e);
+//            JOptionPane.showMessageDialog(null, "¡Error!" + e);
+            e.printStackTrace();
         }
         return res;
     }
@@ -229,7 +237,8 @@ public class UsuarioM {
             conexion.cerrar(rs);
             ps.close();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "¡Error!" + e);
+//            JOptionPane.showMessageDialog(null, "¡Error!" + e);
+            e.printStackTrace();
         }
         return res;
     }
@@ -253,12 +262,13 @@ public class UsuarioM {
             conexion.cerrar(rs);
             ps.close();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "¡Error!" + e);
+//            JOptionPane.showMessageDialog(null, "¡Error!" + e);
+            e.printStackTrace();
         }
         return nombre;
     }
 
-    public void imagenUsuariM(String ruta, String doc) {
+    public void imagenUsuariM(String ruta, String doc) {//Pendiente por implementar
         try {
             conexion = new Conexion(1);
             conexion.establecerConexion();
@@ -275,7 +285,8 @@ public class UsuarioM {
             conexion.destruir();
             ps.close();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "¡Error!" + e);
+//            JOptionPane.showMessageDialog(null, "¡Error!" + e);
+            e.printStackTrace();
         }
     }
 
@@ -298,7 +309,8 @@ public class UsuarioM {
             conexion.destruir();
             ps.close();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "¡Error!" + e);
+//            JOptionPane.showMessageDialog(null, "¡Error!" + e);
+            e.printStackTrace();
         }
         return ruta;
     }
@@ -314,8 +326,8 @@ public class UsuarioM {
             ps = con.prepareCall(Qry);
             ps.setString(1, documento);
             rs = ps.executeQuery();
-            if(rs.next()){
-                puerto = rs.getString(1) == null?"":rs.getString(1);
+            if (rs.next()) {
+                puerto = rs.getString(1) == null ? "" : rs.getString(1);
             }
             //Destrucción de conexiones
             con.close();
@@ -323,7 +335,8 @@ public class UsuarioM {
             conexion.destruir();
             ps.close();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "¡Error!" + e);
+//            JOptionPane.showMessageDialog(null, "¡Error!" + e);
+            e.printStackTrace();
         }
         return puerto;
     }
@@ -344,7 +357,8 @@ public class UsuarioM {
             conexion.destruir();
             ps.close();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "¡Error!" + e);
+//            JOptionPane.showMessageDialog(null, "¡Error!" + e);
+            e.printStackTrace();
         }
     }
 

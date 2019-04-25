@@ -198,20 +198,29 @@ public class Login extends javax.swing.JFrame {
     private void btnIniciarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnIniciarActionPerformed
         if (!(jTUser.getText().equals("") && jTPassword.getText().equals(""))) {
             int car = iniciarSesion(jTUser.getText(), jTPassword.getText());//Falta hacer la encriptacion de la contraseña
-            if (car != 0) {
-                sesion(1, jTUser.getText());
-                screen sc = new screen();//Screen splas del sistema
-                sc.setVisible(true);
-                sc.setLocationRelativeTo(null);
-                sc.jDocumento.setText(jTUser.getText());
-                sc.jDocumento.setVisible(false);
-                sc.jLCargo.setText(String.valueOf(car));
-                sc.jLNombreUsuario.setText(nombreUsario(jTUser.getText()));
-                System.gc();//Garbage collector
-                this.dispose();
-            } else {
-                new rojerusan.RSNotifyAnimated("¡Error!", "El usuario o la contraseña es incorrecto, por favor intentelo nuevamente.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.ERROR).setVisible(true);
+            if(car !=- 1){//No hay conexion con el servidor
+
+                if (car != 0) {
+                    sesion(1, jTUser.getText());
+                    screen sc = new screen();//Screen splas del sistema
+                    sc.setVisible(true);
+                    sc.setLocationRelativeTo(null);
+                    sc.jDocumento.setText(jTUser.getText());
+                    sc.jDocumento.setVisible(false);
+                    sc.jLCargo.setText(String.valueOf(car));
+                    sc.jLNombreUsuario.setText(nombreUsario(jTUser.getText()));
+                    System.gc();//Garbage collector
+                    this.dispose();
+                } else {
+                    new rojerusan.RSNotifyAnimated("¡Error!", "El usuario o la contraseña es incorrecto, por favor intentelo nuevamente.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.ERROR).setVisible(true);
+                }
+                
+            }else{
+                
+                new rojerusan.RSNotifyAnimated("Alerta!!", "No hay conexión con el servidor.", 6, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.WARNING).setVisible(true);
+                
             }
+
         } else {
             new rojerusan.RSNotifyAnimated("Alerta!!", "debes llenar los dos campos que son obligatorios.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.ERROR).setVisible(true);
             jTUser.requestFocus();

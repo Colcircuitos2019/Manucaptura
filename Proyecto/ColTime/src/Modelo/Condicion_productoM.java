@@ -238,6 +238,7 @@ public class Condicion_productoM {
             con.close();
             conexion.destruir();
         } catch (Exception e) {//Errores
+            e.printStackTrace();
         }
         return crs;
     }

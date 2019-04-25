@@ -12,7 +12,7 @@ public class Conexion {
 
     public Conexion(int dataBase) {
        
-        server = "jdbc:mysql://192.168.5.222:3306/" + (dataBase==1?"coltime":"sgh");
+        server = "jdbc:mysql://192.168.4.173:33066/" + (dataBase==1?"coltime":"sgn");
         
     }
 

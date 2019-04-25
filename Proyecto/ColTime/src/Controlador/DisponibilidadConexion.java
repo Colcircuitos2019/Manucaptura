@@ -25,6 +25,7 @@ public class DisponibilidadConexion implements Runnable {
                     
                     menu.jLConexion.setText("Linea");
                     menu.jLConexion.setForeground(Color.GREEN);
+                    menu.conexionServidor = true;
                     if(menu.cargo==2 || menu.cargo==3 ){
                         // Cargos = 2= Encargado de FE y TE, 3 = encargado de EN
                         socketCliente clienteSocket = new socketCliente(menu.cargo == 2 ? new int[]{1, 2} : new int[]{3});
@@ -39,6 +40,7 @@ public class DisponibilidadConexion implements Runnable {
                     
                     menu.jLConexion.setText("Sin conexión");
                     menu.jLConexion.setForeground(Color.RED);
+                    menu.conexionServidor = false;
                     if (menu.cargo == 2 || menu.cargo == 3) {
                         // Cargos = 2= Encargado de FE y TE, 3 = encargado de EN
                         socketCliente clienteSocket = new socketCliente(menu.cargo == 2 ? new int[]{1, 2} : new int[]{3});

@@ -16,6 +16,7 @@ import java.util.Enumeration;
 import java.util.Scanner;
 import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
+import rojerusan.RSNotifyAnimated;
 
 public class ConexionPS {
 
@@ -30,8 +31,7 @@ public class ConexionPS {
     Date fecha = new Date();
     SimpleDateFormat formato = new SimpleDateFormat("dd_MM_YYYY");
 
-    public ConexionPS() {//Constructos
-    }
+    public ConexionPS() {}
 
     int conexion = 0;
 //Falta validar que el puerto este abierto y disponible para poder mandar informacion, y de no ser asì se va a notificar al usuario que no puede realizar la toma de tiempo correspondiente a si àrea de producciòn.
@@ -105,9 +105,19 @@ public class ConexionPS {
                             //...
                             if (Character.isDigit(valorBeta.charAt(0))) {//Valida que el valor de entrada sea el correcto//Funcionamiento con wifi
                                 //...
-                                obj.LecturaCodigoQR(valorBeta);//Se encargara de ler el codigo QR
-                                //--------------------------------------------------
-                                System.gc();//Garbage collector.
+                                
+                                if(obj.conexionServidor){
+                                
+                                    obj.LecturaCodigoQR(valorBeta);//Se encargara de ler el codigo QR
+                                    //--------------------------------------------------
+                                    System.gc();//Garbage collector.
+                                    
+                                }else{
+                                    
+                                    new rojerusan.RSNotifyAnimated("Alerta!", "No se puede efectuar una captura de tiempo del producto porque no se tiene conexion con el servidor." , 4, RSNotifyAnimated.PositionNotify.BottomLeft, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.WARNING).setVisible(true);
+                                    
+                                }
+                                
                             }
 //                            }
                             //...

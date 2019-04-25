@@ -42,6 +42,7 @@ public class DetalleProyectoM {
             con.close();
         } catch (Exception e) {
 //            JOptionPane.showMessageDialog(null, "¡Error!" + e);
+            e.printStackTrace();
         }
         return crs;
     }
@@ -104,12 +105,12 @@ public class DetalleProyectoM {
                 rs = ps.executeQuery();
                 rs.next();
                 if (rs.getInt(1) != 0) {
-                    
+
                     //Se modifica siempre y cuando el proyecto tenga un PNC ya registrado en la misma ubicacion <-- modificacion de los productos no conformes...
                     modificarDetalleProyectos(numerOrden, rs.getInt(1), cantidad, material, area, tipoProducto, procesoPNC);// Pendiente actualizar<----
-                    
+
                 } else {
-                    
+
                     //Si no se registra el producto no conforme desde 0 
                     Qry = "SELECT FU_RegistrarDetalleProyecto(?,?,?,?,?,?,?,?,?,?,?)";
                     ps = con.prepareStatement(Qry);
@@ -128,7 +129,7 @@ public class DetalleProyectoM {
                     ps.setString(2, tipoProducto);
                     ps.setString(3, cantidad);
                     ps.setString(4, area);
-                    ps.setInt(5, (material.equals("GF")?3:estado));// Esto es momentanea hasta que se decida que se va hacer con los GF
+                    ps.setInt(5, (material.equals("GF") ? 3 : estado));// Esto es momentanea hasta que se decida que se va hacer con los GF
                     ps.setString(6, material);
                     ps.setInt(7, pnc);
                     ps.setString(8, procesoPNC);
@@ -147,7 +148,7 @@ public class DetalleProyectoM {
 //                    }}
                     int idTipoProducto = numeroDelTipo(tipoProducto);
                     //...
-                    switch(area){
+                    switch (area) {
                         case "FE": // Formato estandar
                             // ...
                             //Registro de Procesos del producto del área de formato estandar - FE
@@ -333,9 +334,9 @@ public class DetalleProyectoM {
 //                    }
                 }
             } else if (accion == 2) {
-                
-                modificarInformacionProductosProyectoM(numerOrden, idDetalleProducto, cantidad, material, (area.equals("FE")?1:(area.equals("TE")?2:3)), tipoProducto, procesoPNC, idColor_antisolder, ruteo, idEspesor);
-            
+
+                modificarInformacionProductosProyectoM(numerOrden, idDetalleProducto, cantidad, material, (area.equals("FE") ? 1 : (area.equals("TE") ? 2 : 3)), tipoProducto, procesoPNC, idColor_antisolder, ruteo, idEspesor);
+
             }
             //Cierre de conexiones
             conexion.cerrar(rs);
@@ -343,14 +344,16 @@ public class DetalleProyectoM {
             ps.close();
             con.close();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "¡Error!" + e);
+//            JOptionPane.showMessageDialog(null, "¡Error!" + e);
+            e.printStackTrace();
         }
         return res;
     }
 //    // Actualizar y agregarle los dos parametros de antisolder y ruteo para la validacion de campos
-    private void registrarProcesosAreaProducto(String numerOrden, int idTipoProducto, String procesoPNC, String material, int area, String idColor_antisolder, int ruteo){
+
+    private void registrarProcesosAreaProducto(String numerOrden, int idTipoProducto, String procesoPNC, String material, int area, String idColor_antisolder, int ruteo) {
         // ...
-        String Qry="";
+        String Qry = "";
         try {
             Qry = "SELECT FU_ConsultarelIDDetalledelproductoArea(?,?,?,?) as idDetalleProducto;";
             ps = con.prepareStatement(Qry);
@@ -362,8 +365,8 @@ public class DetalleProyectoM {
             rs.next();
             int idDetalleProducto = rs.getInt(1);
             // Validar que el idDetalle producto sea mayor 0
-            if(idDetalleProducto > 0){
-                
+            if (idDetalleProducto > 0) {
+
                 //Consultar el ID de la condicion que se cumple para la asignacion de los procesos del producto...
                 Qry = "SELECT FU_ClasificarCondicionProducto(?,?,?,?,?,?,?) as idCondicional";
                 ps = con.prepareStatement(Qry);
@@ -379,14 +382,14 @@ public class DetalleProyectoM {
                 // ...
                 int idCondicional = rs.getInt("idCondicional");
                 // Validar el consultar ID de la condicion sea mayor a 0
-                if(idCondicional > 0){
-                    
+                if (idCondicional > 0) {
+
                     // Consultar los procesos del producto que cumplio con la condición.
                     Qry = "CALL PA_ConsultarProcesosProducto(?);";
                     ps = con.prepareStatement(Qry);
                     ps.setInt(1, idCondicional);
                     rs = ps.executeQuery();
-                    
+
                     // ...
                     while (rs.next()) { //Registrar los proceso que tendra el producto
                         Qry = "CALL PA_RegistrarProcesosProductos(?,?,?,?,?);";
@@ -398,7 +401,7 @@ public class DetalleProyectoM {
                         ps.setInt(5, rs.getInt("procesoFinal"));
                         ps.execute();
                     }
-                    
+
                     // ...
                     Qry = "SELECT FU_CantidadProcesosProducto(?,?);";
                     ps = con.prepareStatement(Qry);
@@ -406,7 +409,7 @@ public class DetalleProyectoM {
                     ps.setInt(2, area);
                     ps.execute();
                 }
-                
+
             }
             // ...
         } catch (Exception e) {
@@ -414,7 +417,7 @@ public class DetalleProyectoM {
         }
         // ...
     }
-    
+
     private int numeroDelTipo(String tipoNegocio) {
         int tipo = 0;
         switch (tipoNegocio) {
@@ -510,18 +513,20 @@ public class DetalleProyectoM {
             con.close();
         } catch (Exception e) {
 //            JOptionPane.showMessageDialog(null, e);
+            e.printStackTrace();
         }
         return res;
     }
 //----------------------------------------------
 // Modificar este procedimiento para que me permita modificar unicamente los procesos de los productos a los cuales se les cambio algo en la condición <- esto se puede modificar o eliminar
+
     private void modificarDetalleProyectos(String numerOrden, int idDetalleProyecto, String cantidad, String material, String area, String tipoProducto, String procesoPNC) {
         //PreparedSteamate y detalle----------------------------------->
         try {
             String Qry = "";
             int idTipoProducto = numeroDelTipo(tipoProducto);
             //0- Validar que la informacion que se va a mandar sea diferente para poder modificar
-            
+
             //1- Modificar la informacion del producto detalle del proyecto
             Qry = "SELECT FU_ModificarDetalleProyecto(?,?,?,?,?,?)";
             ps = con.prepareStatement(Qry);
@@ -546,9 +551,9 @@ public class DetalleProyectoM {
             rs.next();
             res = rs.getBoolean(1);
             // 2- Eliminar los procesos del producto del proyecto siempre y cuando <-Pendiente
-            Qry="CALL PA_EliminarProcesosProducto(?);"; // <-Pendiente continuar
+            Qry = "CALL PA_EliminarProcesosProducto(?);"; // <-Pendiente continuar
             ps = con.prepareStatement(Qry);
-            ps.setInt(1 ,idDetalleProyecto);
+            ps.setInt(1, idDetalleProyecto);
             rs = ps.executeQuery();
             // ...
             Qry = "SELECT FU_ClasificarCondicionProductoFE(?,?,?,?) as idCondicional";//
@@ -576,13 +581,13 @@ public class DetalleProyectoM {
                 ps.execute();
             }
             // ...................................................................................................
-            
+
             if (!material.equals("GF")) {
                 // ...
                 if (area.equals("FE") && (tipoProducto.equals("Circuito") || tipoProducto.equals("PCB"))) {
                     //Modificar procesos de formato estandar
                     //Consultar condicion que aplica para esta modificación
-                    
+
                     //Validar que procesos se van a modificar
                     Qry = "CALL PA_ModificarDetalleFormatoEstandar(?,?,?)";
                     ps = con.prepareStatement(Qry);
@@ -597,12 +602,13 @@ public class DetalleProyectoM {
             ps.close();
             con.close();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null,"Error: " + e);
+//            JOptionPane.showMessageDialog(null,"Error: " + e);
+            e.printStackTrace();
         }
     }
     // ...
-    
-    private void modificarInformacionProductosProyectoM(String numerOrden,int idDetalleProyecto, String cantidad, String material, int area, String tipoProducto, String procesoPNC, String idColor_antisolder, int ruteo, int idEspesor) {
+
+    private void modificarInformacionProductosProyectoM(String numerOrden, int idDetalleProyecto, String cantidad, String material, int area, String tipoProducto, String procesoPNC, String idColor_antisolder, int ruteo, int idEspesor) {
         //PreparedSteamate y detalle----------------------------------->
         try {
             String Qry = "";
@@ -633,8 +639,8 @@ public class DetalleProyectoM {
             rs = ps.executeQuery();
             rs.next();
             res = rs.getBoolean(1);
-            if(res){
-                
+            if (res) {
+
                 //Eliminar proceso del producto...
                 Qry = "CALL PA_EliminarProcesosProductoProyecto(?,?);";
                 ps = con.prepareStatement(Qry);
@@ -642,20 +648,20 @@ public class DetalleProyectoM {
                 ps.setInt(2, area);
                 rs = ps.executeQuery();
                 rs.next();
-                if(rs.getBoolean("respuesta")){
-                    
+                if (rs.getBoolean("respuesta")) {
+
                     //Registrar nuevamente los procesos de acuerdo a la condicion que se cumpla...
                     registrarProcesosAreaProducto(numerOrden, idTipoProducto, procesoPNC, material, area, idColor_antisolder, ruteo);
-                    
+
                 }
-                
-            }else{
-                
+
+            } else {
+
                 // No se actualizo la informacion del producto por que no se le realizo ninguna modificacion a la información...
                 res = true;
-                
+
             }
-            
+
             // ...................................................................................................
             // Esto se va a eliminar...
 //            if (!material.equals("GF")) {
@@ -678,10 +684,11 @@ public class DetalleProyectoM {
             ps.close();
             con.close();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Error: " + e);
+//            JOptionPane.showMessageDialog(null, "Error: " + e);
+            e.printStackTrace();
         }
     }
-    
+
     // ...
     public CachedRowSet generar_ReportesM() {//
         try {
@@ -701,23 +708,24 @@ public class DetalleProyectoM {
             con.close();
         } catch (Exception e) {
 //            JOptionPane.showMessageDialog(null, "¡Error!" + e);
+            e.printStackTrace();
         }
         return crs;
     }
-    
-    public CachedRowSet generarReporteAreaTiemposM(int area, String fechaI, String fechaF){
+
+    public CachedRowSet generarReporteAreaTiemposM(int area, String fechaI, String fechaF) {
         try {
-            conexion =new Conexion(1);
+            conexion = new Conexion(1);
             conexion.establecerConexion();
-            con=conexion.getConexion();
+            con = conexion.getConexion();
             //Quey------------------------------------------------------------->
-            String Qry= "CALL PA_ReporteTiemposAreaProduccion(?,?,?)";
-            ps=con.prepareStatement(Qry);
+            String Qry = "CALL PA_ReporteTiemposAreaProduccion(?,?,?)";
+            ps = con.prepareStatement(Qry);
             ps.setInt(1, area);
             ps.setString(2, fechaI);
             ps.setString(3, fechaF);
-            rs=ps.executeQuery();
-            crs=new CachedRowSetImpl();
+            rs = ps.executeQuery();
+            crs = new CachedRowSetImpl();
             crs.populate(rs);
             //Cirre de conexiones
             ps.close();
@@ -726,6 +734,7 @@ public class DetalleProyectoM {
             conexion.destruir();
         } catch (Exception e) {
 //            JOptionPane.showMessageDialog(null,e);
+            e.printStackTrace();
         }
         return crs;
     }
@@ -752,6 +761,7 @@ public class DetalleProyectoM {
         }
         return crs;
     }
+
     // 
     public CachedRowSet consultarProcesosProductoM(String numeOrden, String area) {
         try {
@@ -800,12 +810,11 @@ public class DetalleProyectoM {
         return crs;
     }
 
-    public boolean cambiar_Estado_Detalle() {
-
-        return true;
-    }
+//    public boolean cambiar_Estado_Detalle() {
+//
+//        return true;
+//    }
 //Este es el detalle del la orden deacuerdo en donde se encuentren los detalles
-
     public CachedRowSet consultarDetalleProyectoProduccion(int orden, int negocio, int vistaC) {
         try {
             conexion = new Conexion(1);
@@ -846,6 +855,7 @@ public class DetalleProyectoM {
         return crs;
     }
 // Esto se puede eliminar
+
     public boolean eliminarDetallersProyecto(int idDetalle, int numeOrden, String area, String tipoProducto, int accion) {
         //Eliminar detalle del proyecto, detalle de formato estandar, detalle de teclado y detalle de ensamble
         String Qry = null;
@@ -961,7 +971,7 @@ public class DetalleProyectoM {
         }
         return crs;
     }
-    
+
     public boolean consultarEstadoDetalleProyectoM(int detalle) {
         try {
             conexion = new Conexion(1);
@@ -973,7 +983,7 @@ public class DetalleProyectoM {
             ps.setInt(1, detalle);
             rs = ps.executeQuery();
             rs.next();
-            res=rs.getBoolean(1);
+            res = rs.getBoolean(1);
             //Cierre de conexiones
             conexion.cerrar(rs);
             conexion.destruir();
@@ -981,6 +991,7 @@ public class DetalleProyectoM {
             con.close();
         } catch (Exception e) {
 //            JOptionPane.showMessageDialog(null, "¡Error!" + e);
+            e.printStackTrace();
         }
         return res;
     }
@@ -999,7 +1010,7 @@ public class DetalleProyectoM {
             rs = ps.executeQuery();
             rs.next();
             // ...
-            if(rs.getBoolean("respuesta")){
+            if (rs.getBoolean("respuesta")) {
 
                 FE_TE_INM produccion = new FE_TE_INM();
                 //Se actualiza la suma total de tiempos totales de procesos
@@ -1039,11 +1050,12 @@ public class DetalleProyectoM {
             con.close();
         } catch (Exception e) {
 //            JOptionPane.showMessageDialog(null, "¡Error!" + e);
+            e.printStackTrace();
         }
         return crs;
     }
-    
-    public boolean seleccionPrimerProcesoENoTEM(int detalle, int idProceso, int area){
+
+    public boolean seleccionPrimerProcesoENoTEM(int detalle, int idProceso, int area) {
         try {
             conexion = new Conexion(1);
             conexion.establecerConexion();
@@ -1062,6 +1074,7 @@ public class DetalleProyectoM {
             con.close();
         } catch (Exception e) {
 //            JOptionPane.showMessageDialog(null, "¡Error!" + e);
+            e.printStackTrace();
         }
         return res;
     }
