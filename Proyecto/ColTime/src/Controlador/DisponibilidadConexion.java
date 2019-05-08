@@ -6,6 +6,7 @@ import java.awt.Color;
 public class DisponibilidadConexion implements Runnable {
 
     Menu menu = null;
+    
 
     public DisponibilidadConexion(Menu menu) {
         this.menu = menu;
@@ -64,6 +65,11 @@ public class DisponibilidadConexion implements Runnable {
         
     }
 
+    
+    private void notificacionCambiarEstadoPuertoSerial(){
+        
+    }
+    
     @Override
     protected void finalize() throws Throwable {
         super.finalize(); //To change body of generated methods, choose Tools | Templates.

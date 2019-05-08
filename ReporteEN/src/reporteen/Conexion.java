@@ -7,7 +7,7 @@ public class Conexion {
 
     private Connection conexion;
     static String user = "root";
-    static String password = "qblrENqllNIMvqHL";
+    static String password = "SaAFjmXlMRvppyqW";
     static String server;
 
     public Conexion(int dataBase) {

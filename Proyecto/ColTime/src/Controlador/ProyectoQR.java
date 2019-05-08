@@ -262,7 +262,7 @@ public class ProyectoQR implements Runnable {
                     
                 }
                 //Me va a guardar directamente la informacion del proyecto
-//                viewProyecto.accionBtnGuardarProyecto(); //
+                    viewProyecto.accionBtnGuardarProyecto();
                 //...
             } else {
                 //Al QR del proyecto le falta información para poder realizar el registro

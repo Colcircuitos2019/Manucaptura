@@ -19,7 +19,7 @@ public class Condicion_productoM {
     public Condicion_productoM(){
         
     }
-    
+        
     public CachedRowSet consultarCondicionesProductosM(int idCondicion){
         try{
             conexion = new Conexion(1);// DB coltime

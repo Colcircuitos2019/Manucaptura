@@ -61,6 +61,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
     public static CambiarContraseña viewCambiarContraseña = null;
     public static PrintStream myPS;
     ButtonGroup grupoCom = null;
+//    public static String IP = "192.168.5.222:3306", user = "root", pass = "qblrENqllNIMvqHL";
     public static String IP = "192.168.4.173:33066", user = "root", pass = "SaAFjmXlMRvppyqW";
     socketServidor server = null;
     public Menu(int cargo, String nombre, String doc) {
@@ -87,6 +88,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
         
         puertoSerialActual = ConsultarPuertoGurdadoUsuario(doc);
         jLConexion.setText("-");
+        estadoConexionDB= true;
         DisponibilidadConexion dispo = new DisponibilidadConexion(this);// Hilo ejecucion 1
         Thread conexion = new Thread(dispo);
         conexion.setName("Disponibilidad Conexion DB");

@@ -7,6 +7,8 @@ import gnu.io.CommPortIdentifier;
 import gnu.io.SerialPort;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -25,11 +27,17 @@ public class ConexionPS {
     private String v[] = null;
     private static String puertoCOM = "COM6";//Por defecto va a ser el puerto serial COM6
     private static String usuariodoc = "";
+    private static SerialPort mySPCopia = null;
+    OutputStream ops;
     UsuarioM model = new UsuarioM();
     //Escribir archibo plano
     int hora, minutos, segundos;
     Date fecha = new Date();
     SimpleDateFormat formato = new SimpleDateFormat("dd_MM_YYYY");
+
+    public static SerialPort getMySPCopia() {
+        return mySPCopia;
+    }
 
     public ConexionPS() {}
 
@@ -43,13 +51,14 @@ public class ConexionPS {
         CommPort puerto = null;
         String valorBeta = "";
         int ErrorConexionPuerto = 0;
+        PrintStream myPS = null;
         try {
             //Presenta problemas en la enumeration o en el getPortIdentifiers
             Enumeration commports;//Se traen todos los puertos disponibles
             commports = CommPortIdentifier.getPortIdentifiers();
-//            JOptionPane.showMessageDialog(null, "Esta en estado de lectura");
             CommPortIdentifier myCPI = null;
             Scanner mySC;
+            // ...
             while (commports.hasMoreElements()) {//Se valida que el puerto que necesito este disponible
                 existePuerto = 1;//Si ingreso es porque existe un puerto.
                 myCPI = (CommPortIdentifier) commports.nextElement();//...
@@ -59,8 +68,17 @@ public class ConexionPS {
                     //                       Baudios           Data bits               stopBists                  Parity
                     mySP.setSerialPortParams(115200, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);//Configuracion del puerto serial: Velocidad de bits, Data bits, stopbits y Paridad
                     //
+                    
+//                    ops = mySP.getOutputStream();//Forma de datos de salida del puerto serial
+//                    ops.write("P&-1".getBytes());
+//                    ops.close();
+
+                    myPS = new PrintStream(mySP.getOutputStream());//Datos de salia del puertoS
+                    myPS.print("P&-1");//Estado de lectura activado.
+                    myPS.close();
+                    //
                     mySC = new Scanner(mySP.getInputStream());//Datos de entrada al puerto
-                    //obj.myPS = new PrintStream(mySP.getOutputStream());//Datos de salia del puertoS
+                    
                     conexion = 1;
                     //Se selecciona el item Activado de: Menu Principal>Configuración>Lectura>Activado.
                     menu.jRLActivado.setSelected(true);
@@ -76,6 +94,7 @@ public class ConexionPS {
                     ErrorConexionPuerto = 1;
                     // ...
                     while (true) {//Valida el mismo puerto que se abrio!!
+                        
                         while (!mySC.hasNext()) {//Valida que en el puerto serial exista alguna linea de información...
                             // ...
                             mySP.isReceiveTimeoutEnabled();
@@ -85,12 +104,16 @@ public class ConexionPS {
                             mySC = new Scanner(mySP.getInputStream());
                             //Se va a cerrar la conexion del puerto si el usuario se salio de la sesión.
                             if (!menu.estadoLecturaPuertoCOM) {
+                                myPS = new PrintStream(mySP.getOutputStream());//Datos de salia del puertoS
+                                myPS.print("P&-0");// Estado de lectura desactivado
+                                myPS.close();
                                 puerto.close();
                                 //Guardar estado de lectura del puerto serial del usuario
                                 menu.estadoPertoSerialOperarios();//Estado del puerto serial Desactivado
                                 break;
                             }
                         }
+                        
                         if (!menu.estadoLecturaPuertoCOM) {//Si se cierra la sesion del encargado de algun area de producción tambien se tiene que cerrar el puerto, de lo contrario se seguira trabajando con el puerto. 
                             break;
                         } else {
@@ -171,10 +194,19 @@ public class ConexionPS {
         } catch (Exception e) {
             //Si la variable ErrorConexionPuerto es igual a 1 significa que se pudo establecer conexion pero se presento algune problema con el puerto.
             if (ErrorConexionPuerto == 0) {
+                
                 JOptionPane.showMessageDialog(null, "El puerto " + obj.puertoSerialActual + " esta abierto, por favor cierrelo para poder realizar la operación.");
+            
             } else {
+                
+                if(myPS != null){
+                    myPS.print("P&-0");// Estado de lectura desactivado
+                    myPS.close();   
+                }
+                
                 puerto.close();
             }
+            
             menu.estadoLecturaPuertoCOM = false;
             //Cambio de la etiqueta del estado de lectura en la vista de menu ubicada en el menu lateral.
             menu.estadoDeLectura();//Desactivado
