@@ -2,10 +2,8 @@ package Vistas;
 
 import Controlador.DetalleProyecto;
 import Controlador.Empleado;
-import Controlador.FE_TE_IN;
 import Controlador.Tabla;
 import Controlador.socketCliente;
-import coltime.Menu;
 import javax.sql.rowset.CachedRowSet;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -15,38 +13,32 @@ import rojerusan.RSNotifyAnimated;
 
 public class detalleProyecto extends javax.swing.JDialog {
 
-    public detalleProyecto(java.awt.Frame parent, boolean modal, int detalle, int area, String orden, int permiso, int cargo) {//Falta organizar la variable "tipo" para que traiga el valor correspondiente
+    public detalleProyecto(java.awt.Frame parent, boolean modal, int detalle, int area, String orden, int permiso, int cargo, String producto) {//Falta organizar la variable "tipo" para que traiga el valor correspondiente
+        // El parametro Permiso va a desaparecer...
         super(parent, modal);
         initComponents();
-        if (area == 1) {
-            this.setTitle(orden + " - " + "Formato estándar");
-        } else if (area == 2) {
-            this.setTitle(orden + " - " + "Teclados");
-        } else if (area == 3) {
-            this.setTitle(orden + " - " + "Ensamble");
-        } else {
-            this.setTitle(orden + " - " + "Almacen");// Esto va a desaparecer...
+        
+        switch(area){
+            case 1:
+                this.setTitle(orden + " - " + producto + " - " + "Formato estándar");
+                break;
+            case 2:
+                this.setTitle(orden + " - " + producto + " - " + "Teclados");
+                break;
+            case 3:
+                this.setTitle(orden + " - " + producto + " - " + "Ensamble");
+                break; 
         }
 
         this.idDetalleProducto = detalle;
         this.area = area;
-        this.setLocationRelativeTo(null);
+        this.setLocationRelativeTo(this);
         this.permiso = permiso;
         this.cargo = cargo;
         jLiderProyecto.setText(" ");
+        
         cargarTabla();
-        jTNombreCliente.setEditable(false);
-        jTNombreProyecto.setEditable(false);
-        jTFechaEntrega.setEditable(false);
-        jTFechaIngreso.setEditable(false);
-        jTCantidadTotal.setEditable(false);
-        jTTimepoTotal.setEditable(false);
-        jTTimepoTotalUnidad.setEditable(false);
-        jTFechaIngreso1.setEditable(false);
-        jTFechaIngreso2.setEditable(false);
-        jTFechaIngreso3.setEditable(false);
-        jTFechaIngreso4.setEditable(false);
-        jLiderProyecto.setEditable(false);
+        
         TDetalleProduccion.getTableHeader().setReorderingAllowed(false);
         if(cargo==3 && area==3){
            jLiderProyecto.setVisible(true);
@@ -174,6 +166,7 @@ public class detalleProyecto extends javax.swing.JDialog {
         jPInformacion.setBackground(new java.awt.Color(255, 255, 255));
         jPInformacion.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Información del detalle"));
 
+        jTNombreCliente.setEditable(false);
         jTNombreCliente.setBorder(null);
         jTNombreCliente.setColorDeBorde(new java.awt.Color(204, 204, 204));
         jTNombreCliente.setColorDeTextoBackground(new java.awt.Color(255, 255, 255));
@@ -183,6 +176,7 @@ public class detalleProyecto extends javax.swing.JDialog {
         jLabel5.setForeground(new java.awt.Color(128, 128, 131));
         jLabel5.setText("Nombre del cliente:");
 
+        jTNombreProyecto.setEditable(false);
         jTNombreProyecto.setBorder(null);
         jTNombreProyecto.setColorDeBorde(new java.awt.Color(204, 204, 204));
         jTNombreProyecto.setColorDeTextoBackground(new java.awt.Color(255, 255, 255));
@@ -192,6 +186,7 @@ public class detalleProyecto extends javax.swing.JDialog {
         jLabel4.setForeground(new java.awt.Color(128, 128, 131));
         jLabel4.setText("Nombre del proyecto:");
 
+        jTFechaEntrega.setEditable(false);
         jTFechaEntrega.setBorder(null);
         jTFechaEntrega.setColorDeBorde(new java.awt.Color(204, 204, 204));
         jTFechaEntrega.setColorDeTextoBackground(new java.awt.Color(255, 255, 255));
@@ -205,11 +200,13 @@ public class detalleProyecto extends javax.swing.JDialog {
         jLabel7.setForeground(new java.awt.Color(128, 128, 131));
         jLabel7.setText("Fecha de ingreso:");
 
+        jTFechaIngreso.setEditable(false);
         jTFechaIngreso.setBorder(null);
         jTFechaIngreso.setColorDeBorde(new java.awt.Color(204, 204, 204));
         jTFechaIngreso.setColorDeTextoBackground(new java.awt.Color(255, 255, 255));
         jTFechaIngreso.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
 
+        jTCantidadTotal.setEditable(false);
         jTCantidadTotal.setBorder(null);
         jTCantidadTotal.setColorDeBorde(new java.awt.Color(204, 204, 204));
         jTCantidadTotal.setColorDeTextoBackground(new java.awt.Color(255, 255, 255));
@@ -219,6 +216,7 @@ public class detalleProyecto extends javax.swing.JDialog {
         jLabel8.setForeground(new java.awt.Color(128, 128, 131));
         jLabel8.setText("Cantidad:");
 
+        jTTimepoTotal.setEditable(false);
         jTTimepoTotal.setBorder(null);
         jTTimepoTotal.setColorDeBorde(new java.awt.Color(204, 204, 204));
         jTTimepoTotal.setColorDeTextoBackground(new java.awt.Color(255, 255, 255));
@@ -232,6 +230,7 @@ public class detalleProyecto extends javax.swing.JDialog {
         jLabel10.setForeground(new java.awt.Color(128, 128, 131));
         jLabel10.setText("Tiempo total por unidad :");
 
+        jTFechaIngreso1.setEditable(false);
         jTFechaIngreso1.setBorder(null);
         jTFechaIngreso1.setColorDeBorde(new java.awt.Color(204, 204, 204));
         jTFechaIngreso1.setColorDeTextoBackground(new java.awt.Color(255, 255, 255));
@@ -241,6 +240,7 @@ public class detalleProyecto extends javax.swing.JDialog {
         jLabel11.setForeground(new java.awt.Color(128, 128, 131));
         jLabel11.setText("Fecha de entrega Circuito FE o GF");
 
+        jTFechaIngreso2.setEditable(false);
         jTFechaIngreso2.setBorder(null);
         jTFechaIngreso2.setColorDeBorde(new java.awt.Color(204, 204, 204));
         jTFechaIngreso2.setColorDeTextoBackground(new java.awt.Color(255, 255, 255));
@@ -250,6 +250,7 @@ public class detalleProyecto extends javax.swing.JDialog {
         jLabel12.setForeground(new java.awt.Color(128, 128, 131));
         jLabel12.setText("Fecha de entrega COM Circuito FE o GF");
 
+        jTFechaIngreso3.setEditable(false);
         jTFechaIngreso3.setBorder(null);
         jTFechaIngreso3.setColorDeBorde(new java.awt.Color(204, 204, 204));
         jTFechaIngreso3.setColorDeTextoBackground(new java.awt.Color(255, 255, 255));
@@ -264,6 +265,7 @@ public class detalleProyecto extends javax.swing.JDialog {
         jLabel13.setForeground(new java.awt.Color(128, 128, 131));
         jLabel13.setText("Fecha de entrega PCB FE o GF:");
 
+        jTFechaIngreso4.setEditable(false);
         jTFechaIngreso4.setBorder(null);
         jTFechaIngreso4.setColorDeBorde(new java.awt.Color(204, 204, 204));
         jTFechaIngreso4.setColorDeTextoBackground(new java.awt.Color(255, 255, 255));
@@ -273,6 +275,7 @@ public class detalleProyecto extends javax.swing.JDialog {
         jLabel14.setForeground(new java.awt.Color(128, 128, 131));
         jLabel14.setText("Fecha de entrega COM PCB FE o GF:");
 
+        jTTimepoTotalUnidad.setEditable(false);
         jTTimepoTotalUnidad.setBorder(null);
         jTTimepoTotalUnidad.setText(" ");
         jTTimepoTotalUnidad.setColorDeBorde(new java.awt.Color(204, 204, 204));
@@ -297,6 +300,7 @@ public class detalleProyecto extends javax.swing.JDialog {
             }
         });
 
+        jLiderProyecto.setEditable(false);
         jLiderProyecto.setBorder(null);
         jLiderProyecto.setText("   ");
         jLiderProyecto.setColorDeBorde(new java.awt.Color(204, 204, 204));
@@ -470,6 +474,8 @@ public class detalleProyecto extends javax.swing.JDialog {
             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 484, Short.MAX_VALUE)
         );
 
+        getAccessibleContext().setAccessibleParent(null);
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
@@ -593,6 +599,7 @@ public class detalleProyecto extends javax.swing.JDialog {
     }//GEN-LAST:event_jBAgregarLiderActionPerformed
 
     private void TDetalleProduccionPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_TDetalleProduccionPropertyChange
+        // Pendiente eliminar...
     }//GEN-LAST:event_TDetalleProduccionPropertyChange
 
     
@@ -627,21 +634,23 @@ public class detalleProyecto extends javax.swing.JDialog {
             e.printStackTrace();
         }
         // ...
-        if (permiso == 1 || area == 4) {
-            if (area == 4) {
-                //Tiempo por unidad
-                TDetalleProduccion.getColumnModel().getColumn(6).setMinWidth(0);
-                TDetalleProduccion.getColumnModel().getColumn(6).setMaxWidth(0);
-                TDetalleProduccion.getTableHeader().getColumnModel().getColumn(6).setMaxWidth(0);
-                TDetalleProduccion.getTableHeader().getColumnModel().getColumn(6).setMinWidth(0);
-            }
-        }
+//        if (permiso == 1 || area == 4) {// Esto por el momento no se va a utilizar 
+//            if (area == 4) {
+//                //Tiempo por unidad
+//                TDetalleProduccion.getColumnModel().getColumn(6).setMinWidth(0);
+//                TDetalleProduccion.getColumnModel().getColumn(6).setMaxWidth(0);
+//                TDetalleProduccion.getTableHeader().getColumnModel().getColumn(6).setMaxWidth(0);
+//                TDetalleProduccion.getTableHeader().getColumnModel().getColumn(6).setMinWidth(0);
+//            }
+//        }
+
         //Boton reiniciar
         if(cargo!=4){
             editarTamañoColumnas();
         }
-        //Seleccion de orden de proceso inicial
-        if(cargo!=3 && (cargo != 2 && (area == 2 || area == 3))){
+        
+        //Seleccion de orden de proceso inicial área de EN
+        if(cargo!=3 && (cargo != 2 && (area == 2 || area == 3))){// Aplica uniamente para las área de EN y TE
             //orden de ejecucion de los procesos
             TDetalleProduccion.getColumnModel().getColumn(12).setMinWidth(0);
             TDetalleProduccion.getColumnModel().getColumn(12).setMaxWidth(0);
@@ -650,13 +659,14 @@ public class detalleProyecto extends javax.swing.JDialog {
         }
         
         //Boton parar toma de tiempo para almacen
-        if (area != 4 || cargo !=5) {
+        if (area != 4 || cargo !=5) {// Esto ya no se va a utilizar
             TDetalleProduccion.getColumnModel().getColumn(15).setMinWidth(0);
             TDetalleProduccion.getColumnModel().getColumn(15).setMaxWidth(0);
             TDetalleProduccion.getTableHeader().getColumnModel().getColumn(15).setMaxWidth(0);
             TDetalleProduccion.getTableHeader().getColumnModel().getColumn(15).setMinWidth(0);
         }
-        //ID detalle del almacen
+        
+        //ID detalle del almacen->Por el momento no se esta utilizando
         TDetalleProduccion.getColumnModel().getColumn(14).setMinWidth(0);
         TDetalleProduccion.getColumnModel().getColumn(14).setMaxWidth(0);
         TDetalleProduccion.getTableHeader().getColumnModel().getColumn(14).setMaxWidth(0);
@@ -700,7 +710,7 @@ public class detalleProyecto extends javax.swing.JDialog {
         /* Create and display the dialog */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                detalleProyecto dialog = new detalleProyecto(new javax.swing.JFrame(), true, 0, 0, "", 0, 0);
+                detalleProyecto dialog = new detalleProyecto(new javax.swing.JFrame(), true, 0, 0, "", 0, 0, "");
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override
                     public void windowClosing(java.awt.event.WindowEvent e) {

@@ -27,9 +27,9 @@ public class Render extends DefaultTableCellRenderer {
         if (table.getValueAt(row, columna_patron).equals("Por iniciar")) {
             setBackground(Color.white);
         } else if (table.getValueAt(row, columna_patron).equals("Pausado")) {
-            setBackground(Color.RED);
+            setBackground(new Color(251, 83, 83));// Rojo
         } else if (table.getValueAt(row, columna_patron).equals("Terminado")) {
-            setBackground(Color.GREEN);
+            setBackground(new Color(116, 251, 83));// verde
         } else if (table.getValueAt(row, columna_patron).equals("Ejecucion")) {
             setBackground(new Color(255, 168, 27));//Orange
         }

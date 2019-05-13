@@ -10,7 +10,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import javax.sql.rowset.CachedRowSet;
-import javax.swing.JOptionPane;
 
 /**
  *
@@ -74,7 +73,9 @@ public class socketServerM {
             con.close();
             conexion.destruir();
         } catch (Exception e) {
+            
             e.printStackTrace();
+            
         }
         return respuesta;
     }
@@ -102,7 +103,9 @@ public class socketServerM {
             ps.close();
             con.close();
         } catch (Exception e) {
+            
             e.printStackTrace();
+            
         }
         return puerto;
     }

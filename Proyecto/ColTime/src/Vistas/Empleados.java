@@ -7,7 +7,6 @@ package Vistas;
 
 import Controlador.Empleado;
 import Controlador.socketCliente;
-import coltime.Menu;
 import java.awt.Font;
 import javax.sql.rowset.CachedRowSet;
 import javax.swing.JOptionPane;
@@ -51,7 +50,7 @@ public class Empleados extends javax.swing.JDialog {
             sizeColumnas();
             //...
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, e);
+            JOptionPane.showMessageDialog(null,"Error: " + e);
         }
     }
     

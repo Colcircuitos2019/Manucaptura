@@ -42,6 +42,7 @@ public class ConexionPS {
     public ConexionPS() {}
 
     int conexion = 0;
+    
 //Falta validar que el puerto este abierto y disponible para poder mandar informacion, y de no ser asì se va a notificar al usuario que no puede realizar la toma de tiempo correspondiente a si àrea de producciòn.
 //Composición del código: Orden;nDetalle;Negocio;IDlector;cantidadProductos;cantidadOperarios;idProceso paso
 //NOTA: Las IP a la cual se va a enviar informacion son las siguiente: EN = 192.168.0.101 con Router y AP; FE y TE = 192.168.1.101 con Router y para Comercial Interno = 192.168.4.1 siin router 
@@ -51,7 +52,7 @@ public class ConexionPS {
         CommPort puerto = null;
         String valorBeta = "";
         int ErrorConexionPuerto = 0;
-        PrintStream myPS = null;
+        SerialPort mySP = null;
         try {
             //Presenta problemas en la enumeration o en el getPortIdentifiers
             Enumeration commports;//Se traen todos los puertos disponibles
@@ -64,19 +65,18 @@ public class ConexionPS {
                 myCPI = (CommPortIdentifier) commports.nextElement();//...
                 if (myCPI.getName().equals(obj.puertoSerialActual)) {//&& myCPI.PORT_SERIAL
                     puerto = myCPI.open("Puerto Serial Operario", 1200);//Abro el puerto y le mando dos parametros que son el nombre de la apertura y el tiempo de respuesta
-                    SerialPort mySP = (SerialPort) puerto;
+                    mySP = (SerialPort) puerto;
                     //                       Baudios           Data bits               stopBists                  Parity
                     mySP.setSerialPortParams(115200, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);//Configuracion del puerto serial: Velocidad de bits, Data bits, stopbits y Paridad
                     //
-                    
+                    mySPCopia = mySP;
 //                    ops = mySP.getOutputStream();//Forma de datos de salida del puerto serial
 //                    ops.write("P&-1".getBytes());
 //                    ops.close();
-
-                    myPS = new PrintStream(mySP.getOutputStream());//Datos de salia del puertoS
-                    myPS.print("P&-1");//Estado de lectura activado.
-                    myPS.close();
-                    //
+                    if(menu.conexionServidor){
+                        cambiarEstadoESP8266(mySP, "P&-1");// -> De esto se encargara la disponibilidad de conexion
+                    }
+//
                     mySC = new Scanner(mySP.getInputStream());//Datos de entrada al puerto
                     
                     conexion = 1;
@@ -104,13 +104,15 @@ public class ConexionPS {
                             mySC = new Scanner(mySP.getInputStream());
                             //Se va a cerrar la conexion del puerto si el usuario se salio de la sesión.
                             if (!menu.estadoLecturaPuertoCOM) {
-                                myPS = new PrintStream(mySP.getOutputStream());//Datos de salia del puertoS
-                                myPS.print("P&-0");// Estado de lectura desactivado
-                                myPS.close();
+                                
+                                mySPCopia = null;
+                                cambiarEstadoESP8266(mySP,"P&-0");
                                 puerto.close();
+                                
                                 //Guardar estado de lectura del puerto serial del usuario
                                 menu.estadoPertoSerialOperarios();//Estado del puerto serial Desactivado
                                 break;
+                                
                             }
                         }
                         
@@ -120,29 +122,45 @@ public class ConexionPS {
                             //Procedimiento de toma de tiempo
                             //La trama es:"N°Orden;DetalleSistema;Área;LectorID;Cantidad;N°Operarios;Proceso-Envio-Cantidades".
                             valorBeta = mySC.next();//Valor de entrada
-                            //...
-                            //La longitud del vector del codigo QR tiene que ser de 6 o 7 espacios, tambien el proceso que recibe tiene que ser diferente a 0 si el proceso no es 18="Empaque"
-                            String infoP[] = valorBeta.split(";");//Validar Código QR
                             // ...
                             escribirEnArchivoPlanoRecepcionDeDatos(valorBeta, "0");
-                            //...
-                            if (Character.isDigit(valorBeta.charAt(0))) {//Valida que el valor de entrada sea el correcto//Funcionamiento con wifi
-                                //...
+                            // ...
+                            if(valorBeta.split("�").length > 1){
+
+                                cambiarEstadoESP8266(mySP,"P&-0");
+                                puerto.close();
                                 
-                                if(obj.conexionServidor){
+                                mySPCopia = null;
+
+                                menu.estadoLecturaPuertoCOM = false;
+                                //Cambio de la etiqueta del estado de lectura en la vista de menu ubicada en el menu lateral.
+                                menu.estadoDeLectura();//Desactivado
+                                //Guardar estado de lectura del puerto serial
+                                menu.estadoPertoSerialOperarios();//Estado de lectura del puerto es desactivado
                                 
-                                    obj.LecturaCodigoQR(valorBeta);//Se encargara de ler el codigo QR
-                                    //--------------------------------------------------
-                                    System.gc();//Garbage collector.
-                                    
-                                }else{
-                                    
-                                    new rojerusan.RSNotifyAnimated("Alerta!", "No se puede efectuar una captura de tiempo del producto porque no se tiene conexion con el servidor." , 4, RSNotifyAnimated.PositionNotify.BottomLeft, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.WARNING).setVisible(true);
-                                    
+                            }else{
+                                
+                                if (valorBeta.split(";").length >= 6) {
+                                    //Valida que el valor de entrada sea el correcto//
+                                    if (Character.isDigit(valorBeta.charAt(0))) {//->Cambiar esta validacion por algo mas veridico
+                                        //...
+
+                                        if (obj.conexionServidor) {
+
+                                            obj.LecturaCodigoQR(valorBeta);//Se encargara de ler el codigo QR
+                                            //--------------------------------------------------
+                                            System.gc();//Garbage collector.
+
+                                        } else {
+
+                                            new rojerusan.RSNotifyAnimated("Alerta!", "No se puede efectuar una captura de tiempo del producto porque no se tiene conexion con el servidor.", 4, RSNotifyAnimated.PositionNotify.BottomLeft, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.WARNING).setVisible(true);
+
+                                        }
+
+                                    }
                                 }
                                 
                             }
-//                            }
                             //...
                         }
                         if (!menu.estadoLecturaPuertoCOM) {
@@ -185,37 +203,86 @@ public class ConexionPS {
                 menu.estadoPertoSerialOperarios();//Estado de lectuera del puerto serial desactivado
             }
             // ...
-            if (existePuerto == 0) {//Se mostrara un mensaje diciendo que no existe ningun puerto serial disponible
+            if (existePuerto == 0) {
+                
+                //Se mostrara un mensaje diciendo que no existe ningun puerto serial disponible
                 JOptionPane.showMessageDialog(null, "No existe ningun puerto serial disponible, por favor conecte el dispotitivo");
+                
             } else {
+                
                 existePuerto = 0;
+                
             }
             // ...
         } catch (Exception e) {
+            
             //Si la variable ErrorConexionPuerto es igual a 1 significa que se pudo establecer conexion pero se presento algune problema con el puerto.
             if (ErrorConexionPuerto == 0) {
                 
                 JOptionPane.showMessageDialog(null, "El puerto " + obj.puertoSerialActual + " esta abierto, por favor cierrelo para poder realizar la operación.");
-            
+                
             } else {
                 
-                if(myPS != null){
-                    myPS.print("P&-0");// Estado de lectura desactivado
-                    myPS.close();   
-                }
+                cambiarEstadoESP8266(mySP,"P&-0");
                 
                 puerto.close();
             }
+            
+            mySPCopia = null;
             
             menu.estadoLecturaPuertoCOM = false;
             //Cambio de la etiqueta del estado de lectura en la vista de menu ubicada en el menu lateral.
             menu.estadoDeLectura();//Desactivado
             //Guardar estado de lectura del puerto serial
             menu.estadoPertoSerialOperarios();//Estado de lectura del puerto es desactivado
+            
         }
     }
     // ...
 
+    public void cambiarEstadoESP8266(SerialPort mySP, String mensaje){
+        try {
+
+            if (mySP != null) {
+                
+                PrintStream myPS = new PrintStream(mySP.getOutputStream());//Datos de salia del puertoS
+                myPS.print(mensaje);// Estado de lectura desactivado
+                myPS.close();
+                
+            } else {
+                
+                //Abrir -> Escribir -> cerrar puerto serial...
+                Enumeration commports;
+                commports = CommPortIdentifier.getPortIdentifiers();
+                CommPortIdentifier myCPI = null;
+                Menu obj = new Menu();
+                CommPort puerto = null;
+                
+                while (commports.hasMoreElements()) {
+                
+                    if (myCPI.getName().equals(obj.puertoSerialActual)) {
+                        
+                        puerto = myCPI.open("Puerto Serial Operario", 1200);
+                        mySP = (SerialPort) puerto;
+                        //...
+                        mySP.setSerialPortParams(115200, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);//Configuracion del puerto serial: Velocidad de bits, Data bits, stopbits y Paridad
+                        // ...                        
+                        cambiarEstadoESP8266(mySP, "P&-0");// -> De esto se encargara la disponibilidad de conexion
+                        // ...
+                        
+                    }
+                    
+                }
+                
+            }
+            
+        } catch (Exception e) {
+            
+            e.printStackTrace();
+            
+        }
+    }
+    
     public String[] puertosDisponibles() {
         int pos = 0;
         try {

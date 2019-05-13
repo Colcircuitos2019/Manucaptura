@@ -6,7 +6,7 @@ import java.awt.Color;
 public class DisponibilidadConexion implements Runnable {
 
     Menu menu = null;
-    
+    ConexionPS puertoSerial = new ConexionPS();
 
     public DisponibilidadConexion(Menu menu) {
         this.menu = menu;
@@ -24,9 +24,17 @@ public class DisponibilidadConexion implements Runnable {
                 
                 if (!menu.jLConexion.getText().equals("Linea")) {
                     
+                    if(menu.jLConexion.getText().equals("Sin conexión")){
+                        
+                        // Activar el estado de lectura del ESP8266
+                        puertoSerial.cambiarEstadoESP8266(puertoSerial.getMySPCopia(), "P&-1");
+                        
+                    }
+                    
                     menu.jLConexion.setText("Linea");
                     menu.jLConexion.setForeground(Color.GREEN);
                     menu.conexionServidor = true;
+                    
                     if(menu.cargo==2 || menu.cargo==3 ){
                         // Cargos = 2= Encargado de FE y TE, 3 = encargado de EN
                         socketCliente clienteSocket = new socketCliente(menu.cargo == 2 ? new int[]{1, 2} : new int[]{3});
@@ -42,6 +50,10 @@ public class DisponibilidadConexion implements Runnable {
                     menu.jLConexion.setText("Sin conexión");
                     menu.jLConexion.setForeground(Color.RED);
                     menu.conexionServidor = false;
+                    
+                    // Desactivar el estado de lectura del ESP8266
+                    puertoSerial.cambiarEstadoESP8266(puertoSerial.getMySPCopia(), "P&-0");
+
                     if (menu.cargo == 2 || menu.cargo == 3) {
                         // Cargos = 2= Encargado de FE y TE, 3 = encargado de EN
                         socketCliente clienteSocket = new socketCliente(menu.cargo == 2 ? new int[]{1, 2} : new int[]{3});
@@ -63,10 +75,8 @@ public class DisponibilidadConexion implements Runnable {
             
         }
         
-    }
-
-    
-    private void notificacionCambiarEstadoPuertoSerial(){
+        // Desactivar el estado de lectura del ESP8266
+        puertoSerial.cambiarEstadoESP8266(puertoSerial.getMySPCopia(), "P&-0");
         
     }
     

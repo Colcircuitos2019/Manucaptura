@@ -5,7 +5,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import javax.sql.rowset.CachedRowSet;
-import javax.swing.JOptionPane;
 
 public class DetalleProyectoM {
 
@@ -815,7 +814,7 @@ public class DetalleProyectoM {
 //        return true;
 //    }
 //Este es el detalle del la orden deacuerdo en donde se encuentren los detalles
-    public CachedRowSet consultarDetalleProyectoProduccion(int orden, int negocio, int vistaC) {
+    public CachedRowSet consultarDetalleProyectoProduccion(int orden, int area, int vistaC) {
         try {
             conexion = new Conexion(1);
             conexion.establecerConexion();
@@ -835,7 +834,7 @@ public class DetalleProyectoM {
             //----------------------------------------------------------------->
             ps = con.prepareStatement(Qry);
             ps.setInt(1, orden);
-            ps.setInt(2, negocio);
+            ps.setInt(2, area);
             if (vistaC == 1 || vistaC == 3 || vistaC == 4) {
                 ps.setInt(3, 0);//Negativo para productos no conforme
             } else {

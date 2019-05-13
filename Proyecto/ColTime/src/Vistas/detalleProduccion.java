@@ -1,44 +1,46 @@
 package Vistas;
 
 import Controlador.DetalleProyecto;
-import coltime.Menu;
-import java.awt.Color;
-import java.awt.Dimension;
+import Controlador.renderProduccion;
 import java.awt.Font;
-import java.awt.Image;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import javax.sql.rowset.CachedRowSet;
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JOptionPane;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
 
-public class detalleProduccion extends javax.swing.JDialog implements ActionListener {
+public class detalleProduccion extends javax.swing.JDialog {
 
 
-    public detalleProduccion(java.awt.Frame parent, boolean modal, int orden, int negocio, int vistaC, int cargo) {
+    public detalleProduccion(java.awt.Frame parent, boolean modal, int orden, int area, int vistaC, int cargo) {
         super(parent, modal);
         initComponents();
         this.setIconImage(new ImageIcon(getClass().getResource("/imagenesEmpresa/favicon.png")).getImage());
         this.orden = orden;
-        this.negocio = negocio;
+        this.area = area;
         this.vistaC = vistaC;
-        this.cargo=cargo;
-        if (vistaC == 1 || vistaC == 3) {
-            //Detalles del proyecto
-            this.setTitle(String.valueOf(orden));
-        } else if (vistaC == 2) {
-            //Productos no conformes
+        this.cargo = cargo;
+        
+        switch(vistaC){
+            case 1:
+            case 3:
+                //Detalles del proyecto
+                this.setTitle(String.valueOf(orden));
+                break;
+            case 2:
+                //Productos no conformes
             this.setTitle(String.valueOf(orden) + " - PNC");
-        } else if (vistaC == 4) {
-            //Proyecto en produccion
-            this.setTitle(String.valueOf(orden) + " - Terminado");
+                break;
+            case 4:
+                //Proyecto en produccion
+                this.setTitle(String.valueOf(orden) + " - Terminado");
+                break;
         }
+        
         consultarDetalleProyectoProduccion(vistaC);
     }
     //Variables
-    static int orden = 0, negocio = 0, cargo = 0;
+    static int orden = 0, area = 0, cargo = 0;
     static CachedRowSet crs = null;
     int x = 0, y = 0, cantidad = 1;
     static boolean res = false;
@@ -51,6 +53,14 @@ public class detalleProduccion extends javax.swing.JDialog implements ActionList
         jScrollPane1 = new javax.swing.JScrollPane();
         jDetalle = new javax.swing.JPanel();
         btnPNC = new elaprendiz.gui.button.ButtonColoredAction();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        jTInfoProyectoProduccion = new javax.swing.JTable(){
+
+            public boolean isCellEditable(int row, int column){
+                return false;
+            }
+
+        };
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setMaximumSize(new java.awt.Dimension(632, 276));
@@ -71,6 +81,34 @@ public class detalleProduccion extends javax.swing.JDialog implements ActionList
             }
         });
 
+        jTInfoProyectoProduccion.setFont(new java.awt.Font("Tahoma", 1, 13)); // NOI18N
+        jTInfoProyectoProduccion.setForeground(new java.awt.Color(128, 128, 131));
+        jTInfoProyectoProduccion.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null}
+            },
+            new String [] {
+                "N° Orden", "Nombre Proyecto", "Estado", "Cantidad", "Parada"
+            }
+        ));
+        jTInfoProyectoProduccion.setFillsViewportHeight(true);
+        jTInfoProyectoProduccion.setFocusTraversalPolicyProvider(true);
+        jTInfoProyectoProduccion.setFocusable(false);
+        jTInfoProyectoProduccion.setIntercellSpacing(new java.awt.Dimension(0, 0));
+        jTInfoProyectoProduccion.setRequestFocusEnabled(false);
+        jTInfoProyectoProduccion.setRowHeight(21);
+        jTInfoProyectoProduccion.setSelectionBackground(new java.awt.Color(63, 179, 255));
+        jTInfoProyectoProduccion.setShowVerticalLines(false);
+        jTInfoProyectoProduccion.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jTInfoProyectoProduccionMouseClicked(evt);
+            }
+        });
+        jScrollPane2.setViewportView(jTInfoProyectoProduccion);
+
         javax.swing.GroupLayout jDetalleLayout = new javax.swing.GroupLayout(jDetalle);
         jDetalle.setLayout(jDetalleLayout);
         jDetalleLayout.setHorizontalGroup(
@@ -79,6 +117,11 @@ public class detalleProduccion extends javax.swing.JDialog implements ActionList
                 .addContainerGap(510, Short.MAX_VALUE)
                 .addComponent(btnPNC, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(30, 30, 30))
+            .addGroup(jDetalleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jDetalleLayout.createSequentialGroup()
+                    .addContainerGap()
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 607, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap(39, Short.MAX_VALUE)))
         );
         jDetalleLayout.setVerticalGroup(
             jDetalleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -86,6 +129,11 @@ public class detalleProduccion extends javax.swing.JDialog implements ActionList
                 .addContainerGap(228, Short.MAX_VALUE)
                 .addComponent(btnPNC, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
+            .addGroup(jDetalleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jDetalleLayout.createSequentialGroup()
+                    .addContainerGap()
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 213, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap(52, Short.MAX_VALUE)))
         );
 
         jScrollPane1.setViewportView(jDetalle);
@@ -101,13 +149,17 @@ public class detalleProduccion extends javax.swing.JDialog implements ActionList
             .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 276, Short.MAX_VALUE)
         );
 
+        getAccessibleContext().setAccessibleParent(null);
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnPNCActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPNCActionPerformed
         Producciones obj1 = new Producciones();
         res = false;
-        detalleProduccion obj = new detalleProduccion(obj1, true, orden, negocio, 2, cargo);
+        
+        detalleProduccion obj = new detalleProduccion(obj1, true, orden, area, 2, cargo);
+        
         if (res) {
             obj.btnPNC.setVisible(false);
             obj.setLocationRelativeTo(null);
@@ -115,98 +167,176 @@ public class detalleProduccion extends javax.swing.JDialog implements ActionList
         }
     }//GEN-LAST:event_btnPNCActionPerformed
 
+    private void jTInfoProyectoProduccionMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTInfoProyectoProduccionMouseClicked
+        if(!evt.isPopupTrigger() && evt.getClickCount() == 2){
+            
+            // Consultar detalles del proyecto
+            int indexRowSelected = jTInfoProyectoProduccion.getSelectedRow();
+            int idDetalle = Integer.parseInt(jTInfoProyectoProduccion.getValueAt(indexRowSelected, 0).toString());
+            String producto = jTInfoProyectoProduccion.getValueAt(indexRowSelected, 1).toString();
+            int area = Integer.parseInt(jTInfoProyectoProduccion.getValueAt(indexRowSelected, 4).toString());
+
+            detalleProyecto infoProducto = new detalleProyecto(null, true, idDetalle, area, String.valueOf(orden), 0, cargo, producto);
+            infoProducto.setLocationRelativeTo(null);
+            infoProducto.setVisible(true);
+            
+
+        }
+    }//GEN-LAST:event_jTInfoProyectoProduccionMouseClicked
+
     //Metodos
     private void consultarDetalleProyectoProduccion(int vistaC) {
         try {
             DetalleProyecto obj = new DetalleProyecto();
-            crs = obj.consultarDetalleProyectoProduccion(orden, negocio, vistaC);
-            agregarBotones(crs, vistaC);
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Error!" + e);
-        }
-    }
+            crs = obj.consultarDetalleProyectoProduccion(orden, area, vistaC);
+            
+            String[] rowProyecto = new String[5];
+            DefaultTableModel areaProduccion = new DefaultTableModel(null, new String[]{"ID Detalle", "Producto", "Estado","Cantidad", "idArea"}) {
 
-    private void agregarBotones(CachedRowSet crs, int vistaC) {
-        try {
+                Class[] types = new Class[]{
+                    java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class
+                };
+
+                public Class getColumnClass(int columIndex) {
+                    return types[columIndex];
+                }
+
+            };
+
             while (crs.next()) {
-                res = true;
-                JButton detalle = new JButton(crs.getString(2));
-                detalle.setBounds(x, y, 126, 100);
-                detalle.addActionListener(this);
-                //Icono del boton
-                ImageIcon icono = null;
-                //No se esta utilizando la columna del tipo de producto
-                switch (crs.getInt(3)) {
-                    case 1:
-                        //Por iniciar
-                        icono = new ImageIcon(getClass().getResource("/produccion/DetalleBegin.png"));
-                        break;
-                    case 2:
-                        //Pausado
-                        icono = new ImageIcon(getClass().getResource("/produccion/DetallePause.png"));
-                        break;
-                    case 3:
-                        //Terminado
-                        icono = new ImageIcon(getClass().getResource("/produccion/DetalleCheck.png"));
-                        break;
-                    case 4:
-                        //Ejecucion
-                        icono = new ImageIcon(getClass().getResource("/produccion/DetalleTime.png"));
-                        break;
-                    default:
-                        break;
-                }
-                Icon imagen = new ImageIcon(icono.getImage().getScaledInstance(detalle.getWidth() - 3, detalle.getHeight() - 3, Image.SCALE_DEFAULT));
-                detalle.setIcon(imagen);
-                //Texto del boton
-                detalle.setActionCommand(crs.getString(1) + "-" + crs.getInt(4));
-                detalle.setHorizontalTextPosition(JButton.CENTER);
-                detalle.setFont(new Font("Tahoma", 1, 14));
-                detalle.setForeground(Color.black);
-                detalle.setContentAreaFilled(false);
-                detalle.setBackground(Color.white);
-                jDetalle.add(detalle);
-                if (cantidad == 5) {//----------------------------------------->
-                    y = 99;
-                    x = 0;
-                    jDetalle.setPreferredSize(new Dimension(633, jDetalle.getHeight() + x));
-                } else {
-                    x += 127;
-                }
-                cantidad += 1;
-            }
-            if (vistaC == 2 && res == false) {
-                JOptionPane.showMessageDialog(null, " Este proyecto no tiene PNC ");
-            } else {
-                jDetalle.updateUI();
-            }
-            crs.close();
 
+                rowProyecto[0] = crs.getString("idDetalle_proyecto");
+                rowProyecto[1] = crs.getString("nombre");
+                rowProyecto[2] = estado_ejecucion_proyecto(crs.getInt("estado"));// Crear una clase con todas las funcienes que se reutilizan en todas las clases...Pendiente
+                rowProyecto[3] = crs.getString("canitadad_total");
+                rowProyecto[4] = crs.getString("idArea");
+
+                areaProduccion.addRow(rowProyecto);
+            }
+
+            jTInfoProyectoProduccion.getTableHeader().setFont(new Font("Arial", 1, 15));
+            jTInfoProyectoProduccion.setDefaultRenderer(Object.class, new renderProduccion(2, -1));
+            jTInfoProyectoProduccion.setModel(areaProduccion);
+            tamañoColumnasTabla(jTInfoProyectoProduccion, new Objeto_tabla[]{new Objeto_tabla(0,0),new Objeto_tabla(4,0)});
+            
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Error!" + e);
+            JOptionPane.showMessageDialog(null, "Error: " + e);
         }
     }
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        String detalle[] = e.getActionCommand().split("-");
-        int id = Integer.parseInt(detalle[0]);
-        int negocio = Integer.parseInt(detalle[1]);
-        Producciones obj1 = new Producciones();
-        int permiso;
-        if ((Menu.cargo == 3 || Menu.cargo == 2)) {
-            permiso = 1;
-        } else {
-            if (this.vistaC != 4) {
-                permiso = 0;
-            } else {
-                permiso = 1;
-            }
+    private void tamañoColumnasTabla(JTable tabla,Objeto_tabla[] columnas) {
+        // ...
+        for (Objeto_tabla columna : columnas) {
+            tabla.getColumnModel().getColumn(columna.indexColumn).setMinWidth(columna.width);
+            tabla.getColumnModel().getColumn(columna.indexColumn).setMaxWidth(columna.width);
+            tabla.getTableHeader().getColumnModel().getColumn(columna.indexColumn).setMaxWidth(columna.width);
+            tabla.getTableHeader().getColumnModel().getColumn(columna.indexColumn).setMinWidth(columna.width);
         }
-        detalleProyecto obj = new detalleProyecto(obj1, true, id, negocio, String.valueOf(orden), permiso,cargo);
-        obj.setVisible(true);
-        obj.setLocationRelativeTo(this);
+        // ...
     }
+    
+    private String estado_ejecucion_proyecto(int estado) {
+        String nombre_estado = "";
+
+        switch (estado) {
+            case 1:
+                nombre_estado = "Por iniciar";
+                break;
+            case 2:
+                nombre_estado = "Pausado";
+                break;
+            case 3:
+                nombre_estado = "Terminado";
+                break;
+            case 4:
+                nombre_estado = "Ejecucion";
+                break;
+        }
+
+        return nombre_estado;
+    }
+    
+//    private void agregarBotones(CachedRowSet crs, int vistaC) {// Esto se va a eliminar
+//        try {
+//            while (crs.next()) {
+//                res = true;
+//                JButton detalle = new JButton(crs.getString(2));
+//                detalle.setBounds(x, y, 126, 100);
+//                detalle.addActionListener(this);
+//                //Icono del boton
+//                ImageIcon icono = null;
+//                //No se esta utilizando la columna del tipo de producto
+//                switch (crs.getInt(3)) {
+//                    case 1:
+//                        //Por iniciar
+//                        icono = new ImageIcon(getClass().getResource("/produccion/DetalleBegin.png"));
+//                        break;
+//                    case 2:
+//                        //Pausado
+//                        icono = new ImageIcon(getClass().getResource("/produccion/DetallePause.png"));
+//                        break;
+//                    case 3:
+//                        //Terminado
+//                        icono = new ImageIcon(getClass().getResource("/produccion/DetalleCheck.png"));
+//                        break;
+//                    case 4:
+//                        //Ejecucion
+//                        icono = new ImageIcon(getClass().getResource("/produccion/DetalleTime.png"));
+//                        break;
+//                    default:
+//                        break;
+//                }
+//                Icon imagen = new ImageIcon(icono.getImage().getScaledInstance(detalle.getWidth() - 3, detalle.getHeight() - 3, Image.SCALE_DEFAULT));
+//                detalle.setIcon(imagen);
+//                //Texto del boton
+//                detalle.setActionCommand(crs.getString(1) + "-" + crs.getInt(4));
+//                detalle.setHorizontalTextPosition(JButton.CENTER);
+//                detalle.setFont(new Font("Tahoma", 1, 14));
+//                detalle.setForeground(Color.black);
+//                detalle.setContentAreaFilled(false);
+//                detalle.setBackground(Color.white);
+//                jDetalle.add(detalle);
+//                if (cantidad == 5) {//----------------------------------------->
+//                    y = 99;
+//                    x = 0;
+//                    jDetalle.setPreferredSize(new Dimension(633, jDetalle.getHeight() + x));
+//                } else {
+//                    x += 127;
+//                }
+//                cantidad += 1;
+//            }
+//            if (vistaC == 2 && res == false) {
+//                JOptionPane.showMessageDialog(null, " Este proyecto no tiene PNC ");
+//            } else {
+//                jDetalle.updateUI();
+//            }
+//            crs.close();
+//
+//        } catch (Exception e) {
+//            JOptionPane.showMessageDialog(null, "Error!" + e);
+//        }
+//    }
+
+//    @Override
+//    public void actionPerformed(ActionEvent e) {
+//        String detalle[] = e.getActionCommand().split("-");
+//        int id = Integer.parseInt(detalle[0]);
+//        int negocio = Integer.parseInt(detalle[1]);
+//        Producciones obj1 = new Producciones();
+//        int permiso;
+//        if ((Menu.cargo == 3 || Menu.cargo == 2)) {
+//            permiso = 1;
+//        } else {
+//            if (this.vistaC != 4) {
+//                permiso = 0;
+//            } else {
+//                permiso = 1;
+//            }
+//        }
+//        detalleProyecto obj = new detalleProyecto(obj1, true, id, negocio, String.valueOf(orden), permiso,cargo);
+//        obj.setVisible(true);
+//        obj.setLocationRelativeTo(this);
+//    }
 
     /**
      * @param args the command line arguments
@@ -254,6 +384,8 @@ public class detalleProduccion extends javax.swing.JDialog implements ActionList
     public static elaprendiz.gui.button.ButtonColoredAction btnPNC;
     public static javax.swing.JPanel jDetalle;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    public static javax.swing.JTable jTInfoProyectoProduccion;
     // End of variables declaration//GEN-END:variables
 @Override
     protected void finalize() throws Throwable {

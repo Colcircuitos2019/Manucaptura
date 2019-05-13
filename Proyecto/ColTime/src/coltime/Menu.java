@@ -1807,9 +1807,13 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
 
             String infoProductoQR[] = null;
             if (sub_trama.length == 2) {
+                
                 infoProductoQR = (trama_QR[i] + sub_trama[1]).split(";");
+                
             } else {
+                
                 infoProductoQR = trama_QR[i].split(";");
+                
             }
             // ...
 
@@ -1840,6 +1844,10 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
                                 // ...
                                 break;
                         }
+                    }else{
+                        
+                        new rojerusan.RSNotifyAnimated("¡Alerta!", "No se pudo procesar la información del QR.", 7, RSNotifyAnimated.PositionNotify.BottomRight, RSNotifyAnimated.AnimationNotify.BottomUp, RSNotifyAnimated.TypeNotify.WARNING).setVisible(true);
+                        
                     }
 
                 } else {
@@ -1885,7 +1893,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
             view.setArea(area);
             view.setVista(view);
         }
-
+        
         boolean respuesta = view.RegistrarTomaTiempoProductoProceso(infoProductoQR, cargo, view, myPS, cantidadProductosQR);
 
         if (respuesta) {
@@ -1893,20 +1901,11 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
             socketCliente clienteSocket = new socketCliente(cargo==2?new int[]{1,2}:new int[]{3});// Consultar todos los servers socket de los reportes de producción
             clienteSocket.enviarInformacionSocketserver(clienteSocket.consultarServerSockets(),"true");
             
-        }else{
-            
-            switch(area){
-                case 1:// Formato estandar
-                    view = producF;
-                    break;
-                case 2:// Teclados
-                    view = producT;
-                    break;
-                case 3:// Ensamble
-                    view = producE;
-                    break;
-            }
-            
+        }
+        
+        if (view.contenido.getComponentCount() == 0) {
+            view.dispose();
+            view = null;
         }
 
         return view;
@@ -1963,8 +1962,16 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
                     clienteSocket.enviarInformacionSocketserver(serversSockets, "des");// Estado de lectura desactivado
                     clienteSocket.enviarInformacionSocketserver(serversSockets, "2");// Conexion con el servidor perdida
                     
+                    ConexionPS puertoSerial = new ConexionPS();
+                    if(puertoSerial.getMySPCopia() != null){
+
+                        puertoSerial.cambiarEstadoESP8266(puertoSerial.getMySPCopia(), "P&-0");
+                        
+                    }
+                    
                     Proyecto controlador = new Proyecto();
-                    controlador.actualizarEstadoLecturaPuertoSerial(0, jDocumento.getText()); 
+                    controlador.actualizarEstadoLecturaPuertoSerial(0, jDocumento.getText());
+                    
                 }
                 //Esto ezsta pendiente para la proxima actualización
 //              guardarImagenMenuUsuario(); <--- pendiente para futuras versiones...

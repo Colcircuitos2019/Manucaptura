@@ -218,7 +218,7 @@ public class FE_TE_INM {
         return res;//Falta asignarle este true a una variable
     }
 
-    public void calcularTiempoTotalPorUnidad(int idDetalleProducto, int area) {
+    public void calcularTiempoTotalPorUnidad(int idDetalleProducto, int area) {// Esto genera un error
         ResultSet rs = null;
         try {
             String Qry = "CALL PA_ConsultarTiempoPorUnidadProcesosTerminados(?,?)";
@@ -230,11 +230,13 @@ public class FE_TE_INM {
             String tiempoTotalProducto = sumarTiempos(rs);//
             // ...
             if (!tiempoTotalProducto.equals("00:00:00")) {
+                
                 Qry = "CALL PA_ActualizarTiempoTotalPorUnidad(?,?)";
                 ps = con.prepareStatement(Qry);
                 ps.setInt(1, idDetalleProducto);
                 ps.setString(2, tiempoTotalProducto);
                 ps.executeQuery();
+                
             }
             // ...
         } catch (Exception e) {

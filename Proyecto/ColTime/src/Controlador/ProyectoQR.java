@@ -74,8 +74,6 @@ public class ProyectoQR implements Runnable {
                             break;
                         } else {
                             valorQR = mySC.next();
-//                            String sub = valor.substring(0, 1);
-//                            System.out.println(valorQR);
                             //...
                             if (Character.isDigit(valorQR.charAt(0))) {
                                 //Procesar informacion QR
@@ -102,12 +100,16 @@ public class ProyectoQR implements Runnable {
             this.pro.disponibilidad=false;
 //            puerto.close();
             if (ErrorConexionPuerto == 0) {
+                
                 JOptionPane.showMessageDialog(null, "El puerto " + menu.puertoSerialActual + " esta abierto, por favor cierrelo para poder realizar la operación.");
+                
             } else {
+                
                 puerto.close();
                 viewProyecto.jLEstado.setText("Desactivado");
                 viewProyecto.jLEstado.setForeground(new Color(255, 0, 51));//red
                 viewProyecto.lector = null;
+                
             } 
         }
 //        return valorQR;

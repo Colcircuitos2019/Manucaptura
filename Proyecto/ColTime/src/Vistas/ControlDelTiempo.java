@@ -163,7 +163,7 @@ public class ControlDelTiempo extends javax.swing.JFrame implements ActionListen
         validarExitenciadeBotones(area, vista);//Actualizar la vista
     }//GEN-LAST:event_jButton1ActionPerformed
     //Metodos para la campura del tiempo--------------------------------------->
-//    validarExitenciadeBotones(3,vista); Actualizar autimaticamente la vista, esta pendiente para una futura versión...
+//   validarExitenciadeBotones(3,vista); Actualizar autimaticamente la vista, esta pendiente para una futura versión...
     //
     //Se valida que el bono no exista en el panle para no reprtirlo***  
     public void validarExitenciadeBotones(int area, ControlDelTiempo vista) {
@@ -194,7 +194,8 @@ public class ControlDelTiempo extends javax.swing.JFrame implements ActionListen
 //                reinicializarObjetoVista();
 //            }
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, e);
+            JOptionPane.showMessageDialog(null,"Error" +e);
+            e.printStackTrace();
         }
     }
 

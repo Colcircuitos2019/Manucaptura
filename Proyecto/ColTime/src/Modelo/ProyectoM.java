@@ -595,7 +595,7 @@ public class ProyectoM {
         return crsP;
     }
 
-    public CachedRowSet proyectosNegocio(int negocio, String orden, String cliente, String proyecto, String tipo) {
+    public CachedRowSet proyectosAreaProduccion(int area, String orden, String cliente, String proyecto, String tipo) {
         try {
             conexion = new Conexion(1);
             conexion.establecerConexion();
@@ -603,7 +603,7 @@ public class ProyectoM {
             //Query------------------------------------------------------------>
             String Qry = "CALL PA_InformacionProyectosProduccion(?,?,?,?,?)";
             ps = con.prepareStatement(Qry);
-            ps.setInt(1, negocio);
+            ps.setInt(1, area);
             if (!orden.equals("")) {
                 ps.setInt(2, Integer.parseInt(orden));
             } else {

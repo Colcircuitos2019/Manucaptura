@@ -1,2 +1,0 @@
-Vistas.Procesos_Condicion
-Vistas.Objeto_tabla

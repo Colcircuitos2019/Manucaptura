@@ -169,9 +169,9 @@ public class Proyecto {
         return obj.fechaYdatosProduccion();
     }
 
-    public CachedRowSet proyectosNegocio(int area, String orden, String cliente, String proyecto, String tipo) {
+    public CachedRowSet proyectosAreaProduccion(int area, String orden, String cliente, String proyecto, String tipo) {
         ProyectoM obj = new ProyectoM();
-        return obj.proyectosNegocio(area, orden, cliente, proyecto, tipo);
+        return obj.proyectosAreaProduccion(area, orden, cliente, proyecto, tipo);
     }
 
     public boolean validarEliminacion(int orden) {

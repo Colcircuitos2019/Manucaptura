@@ -52,6 +52,7 @@ public class FormatoTabla extends DefaultTableCellRenderer {
                 }
             // ...
             if(column == 8){
+                
                 switch(String.valueOf(table.getValueAt(row, column))){
                     case "Quick":
                         setBackground(new Color(1, 174, 240));//Azul
@@ -60,6 +61,7 @@ public class FormatoTabla extends DefaultTableCellRenderer {
                         setBackground(new Color(255, 175, 175));//Rosado
                         break;
                 }
+                
             }
         } else {
             switch(table.getValueAt(row, columna_patron).toString()){

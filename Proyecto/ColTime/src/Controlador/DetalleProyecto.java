@@ -134,9 +134,9 @@ public class DetalleProyecto {
     }
 
     //Consultar los procesos que tiene un detalle del proyecto.
-    public CachedRowSet consultarDetalleProyectoProduccion(int orden, int negocio, int vistaC) {
+    public CachedRowSet consultarDetalleProyectoProduccion(int orden, int area, int vistaC) {
         DetalleProyectoM obj = new DetalleProyectoM();
-        return obj.consultarDetalleProyectoProduccion(orden, negocio, vistaC);
+        return obj.consultarDetalleProyectoProduccion(orden, area, vistaC);
     }
 
     //Consulta los detalles del proyecto que estan en producción.    

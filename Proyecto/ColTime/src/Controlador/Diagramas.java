@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Locale;
 import javax.sql.rowset.CachedRowSet;
 import javax.swing.ImageIcon;
-import javax.swing.JOptionPane;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartFrame;
 import org.jfree.chart.JFreeChart;

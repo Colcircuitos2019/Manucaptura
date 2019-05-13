@@ -249,8 +249,10 @@ public class generarXlsx {
             woorBook.close();
            return true;     
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, e);
+            
+            JOptionPane.showMessageDialog(null,"Error: " + e);
             return false;
+            
         }
     }
     

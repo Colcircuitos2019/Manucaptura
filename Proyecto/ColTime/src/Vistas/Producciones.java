@@ -1,20 +1,17 @@
 package Vistas;
 
 import Controlador.Proyecto;
+import Controlador.renderProduccion;
 import coltime.Menu;
-import com.itextpdf.text.Image;
 import java.awt.Color;
-import java.awt.Cursor;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.sql.rowset.CachedRowSet;
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 import paneles.CambiaPanel;
 
 public class Producciones extends javax.swing.JFrame implements ActionListener {
@@ -31,12 +28,13 @@ public class Producciones extends javax.swing.JFrame implements ActionListener {
     public Producciones() {
 
     }
+    
     int posX = 0, rep = 0,multiplicador=2;
     int posY = 0;
     int panel = 0;
     CachedRowSet crs = null;
     int x = 0, y = 0, cantidad = 0, filas = 1, unidad = 11, conta = 5;
-    static int negocio = 0, cargo = 0;
+    static int area = 0, cargo = 0;
     public Color cor = new Color(53, 124, 165);
     public Color corF = new Color(60,141,188);
     private static ProduccionArea obj = new ProduccionArea();
@@ -180,6 +178,7 @@ public class Producciones extends javax.swing.JFrame implements ActionListener {
         btn4.setColorHover(new java.awt.Color(53, 124, 165));
         btn4.setColorNormal(new java.awt.Color(60, 141, 188));
         btn4.setColorPressed(new java.awt.Color(38, 86, 186));
+        btn4.setEnabled(false);
         btn4.setFocusPainted(false);
         btn4.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
@@ -417,28 +416,30 @@ public class Producciones extends javax.swing.JFrame implements ActionListener {
         switch (op) {
             case 1:
                 nombreArea = "FE";
-                negocio = 1;
+                area = 1;
                 break;
             case 2:
                 //Vista de teclados
                 nombreArea = "TE";
-                negocio = 2;
+                area = 2;
                 break;
             case 3:
                 //Vista de Ensamble
                 nombreArea = "EN";
-                negocio = 3;
+                area = 3;
                 break;
             case 4:
                 //Vista de almacen
-                nombreArea = "Almacen";
-                negocio = 4;
+                nombreArea = "Almacen";// Este ya no se esta utilizando por el momento...
+                area = 4;
                 break;
         }
         //Vistas de la produccion de Areas 
         if (!Contenido.getComponent(0).getName().equals(nombreArea)) {
             obj.setName(nombreArea);
-            agregarProyectoEnTabla(negocio, "", "", "", "");
+            
+            agregarProyectoEnTabla(area, "", "", "", "");
+            
             if (rep == 0) {
                 new CambiaPanel(Contenido, obj);//Actualiza
                 rep = 1;
@@ -491,19 +492,19 @@ public class Producciones extends javax.swing.JFrame implements ActionListener {
         String nombre = Contenido.getComponent(0).getName();
         switch (nombre) {
             case "FE":
-                negocio = 1;
+                area = 1;
                 break;
             case "TE":
-                negocio = 2;
+                area = 2;
                 break;
             case "EN":
-                negocio = 3;
+                area = 3;
                 break;
             case "Almacen":
-                negocio = 4;
+                area = 4;
                 break;
         }
-        agregarProyectoEnTabla(negocio, "", "", "", "");
+        agregarProyectoEnTabla(area, "", "", "", "");
     }//GEN-LAST:event_jBActualizarActionPerformed
 
     private void formWindowClosed(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosed
@@ -613,138 +614,193 @@ public class Producciones extends javax.swing.JFrame implements ActionListener {
 
 //Metodos
     private void busqueda() {
-        agregarProyectoEnTabla(negocio, jTOrden.getText(), jTNombre.getText(), jTProyecto.getText(), cbTipo.getSelectedItem().toString());
+        agregarProyectoEnTabla(area, jTOrden.getText(), jTNombre.getText(), jTProyecto.getText(), cbTipo.getSelectedItem().toString());
     }
 
-    public void agregarProyectoEnTabla(int negocio, String orden, String cliente, String proyecto, String tipo) {
+    public void agregarProyectoEnTabla(int area, String orden, String cliente, String proyecto, String tipo) {
         try {
             //Se realiza la consulta para traer en numero de orden de todos los proyectos registrados
             Proyecto obj = new Proyecto();
-            crs = obj.proyectosNegocio(negocio, orden, cliente, proyecto, tipo);
-            reinicializarVariables();
-            ProduccionArea.contenido.removeAll();
-            ProduccionArea.contenido.updateUI();
-//            ProduccionArea.contenido.setPreferredSize(new Dimension(1128, /*ProduccionFE.contenidoFE.getHeight()->*/ 530));
-            while (crs.next()) {
-                JButton jp = new JButton(String.valueOf(crs.getInt(1)));
-                jp.setBounds(0 + x, 0 + y, 98, 98);
-                jp.addActionListener(this);
-                jp.setFont(new Font("Tahoma", 1, 15));
-                jp.setFocusPainted(false);
-                //Icono del boton
-                ImageIcon icon = null;
-                if (crs.getBoolean(4)) {//Si la orden no esta parada va hacer esto, sino va hacer lo otro.
-                    switch (crs.getInt(2)) {
-                        case 1://---------------------------------------------->
-                            //Por iniciar
-                            switch (crs.getString(3)) {
-                                case "Normal":
-                                    //Proyecto normal
-                                    icon = new ImageIcon(getClass().getResource("/produccion/ProyectBegin.png"));
-                                    break;
-                                case "Quick":
-                                    //Proyecto Quick
-                                    icon = new ImageIcon(getClass().getResource("/produccion/ProyectBeginQuick.png"));
-                                    break;
-                                case "RQT":
-                                    //Proyecto RQT
-                                    icon = new ImageIcon(getClass().getResource("/produccion/ProyectBeginRQT.png"));
-                                    break;
-                            }
-                            break;//------------------------------------------->
-                        case 2:
-                            //Pausado------------------------------------------>
-                            switch (crs.getString(3)) {
-                                case "Normal":
-                                    //Proyecto normal
-                                    icon = new ImageIcon(getClass().getResource("/produccion/ProyectPause.png"));
-                                    break;
-                                case "Quick":
-                                    //Proyecto Quick
-                                    icon = new ImageIcon(getClass().getResource("/produccion/ProyectPauseQuick.png"));
-                                    break;
-                                case "RQT":
-                                    //Proyecto RQT
-                                    icon = new ImageIcon(getClass().getResource("/produccion/ProyectPauseRQT.png"));
-                                    break;
-                            }
-                            break;//------------------------------------------->
-                        case 4:
-                            //Ejecucion---------------------------------------->
-                            switch (crs.getString(3)) {
-                                case "Normal":
-                                    //Proyecto normal
-                                    icon = new ImageIcon(getClass().getResource("/produccion/ProyectTime.png"));
-                                    break;
-                                case "Quick":
-                                    //Proyecto Quick
-                                    icon = new ImageIcon(getClass().getResource("/produccion/ProyectTimeQuick.png"));
-                                    break;
-                                case "RQT":
-                                    //Proyecto RQT
-                                    icon = new ImageIcon(getClass().getResource("/produccion/ProyectTimeRQT.png"));
-                                    break;
-                            }
-                            break;//------------------------------------------->
-                    }
-                } else {
-                    //Estado parado
-                    switch (crs.getString(3)) {//---------------------------------------------->
-                        case "Normal":
-                            //Proyecto normal
-                            icon = new ImageIcon(getClass().getResource("/produccion/proyectStop.png"));
-                            break;
-                        case "Quick":
-                            //Proyecto Quick
-                            icon = new ImageIcon(getClass().getResource("/produccion/proyectStopQuick.png"));
-                            break;
-                        case "RQT":
-                            //Proyecto RQT
-                            icon = new ImageIcon(getClass().getResource("/produccion/proyectStopRQT.png"));
-                            break;
-                    }
+            crs = obj.proyectosAreaProduccion(area, orden, cliente, proyecto, tipo);
+            //...
+            String[] rowProyecto = new String[5]; 
+            DefaultTableModel areaProduccion = new DefaultTableModel(null, new String[]{"N°Orden", "Nombre Proyecto", "Estado Ejecución", "Status", "Tipo proyecto"}){
+                
+                Class[] types = new Class[]{
+                    java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class
+                };
+                
+                public Class getColumnClass(int columIndex){
+                    return types[columIndex];
                 }
-                Icon image = new ImageIcon(icon.getImage().getScaledInstance(jp.getWidth(), jp.getHeight(), Image.SECTION));
-                jp.setIcon(image);
-                this.repaint();
-                //Texto del boton//-------------------------------------------->
-                jp.setText(String.valueOf(crs.getInt(1)));
-                jp.setHorizontalTextPosition(JButton.CENTER);
-                jp.setContentAreaFilled(false);
-                jp.setForeground(Color.BLACK);
-                jp.setActionCommand(String.valueOf(crs.getInt(1)));
-                jp.setCursor(Cursor.getPredefinedCursor(12));
-                //------------------------------------------------------------->
-                x += 99;
-                cantidad++;
-                if (cantidad == unidad * filas) {
-                    y += 100;
-                    x = 0;
-                    filas++;
-                    if (cantidad == unidad * conta) {
-                        //---
-                        ProduccionArea.contenido.setPreferredSize(new Dimension(1128, /*ProduccionFE.contenidoFE.getHeight()->*/ 530*multiplicador));
-                        //---
-                        conta += 5;
-                        multiplicador+=1;
-                    }
-                    this.Contenido.updateUI();
-                }
-                jp.setBackground(Color.WHITE);
-                //...
-                ProduccionArea.contenido.add(jp);
-                //...
-                jp = null;
+                
+            };
+            
+            ProduccionArea.setArea(area);
+            ProduccionArea.setCargo(cargo);
+            
+            while(crs.next()){
+                
+                rowProyecto[0] = crs.getString("proyecto_numero_orden");
+                rowProyecto[1] = crs.getString("nombre_proyecto");
+                rowProyecto[2] = estado_ejecucion_proyecto(crs.getInt("estado"));
+                rowProyecto[3] = crs.getString("parada");
+                rowProyecto[4] = crs.getString("tipo_proyecto");
+
+                areaProduccion.addRow(rowProyecto);
+                
             }
+            
+            ProduccionArea.jTInfoAreaProduccion.getTableHeader().setFont(new Font("Arial", 1, 15));
+            ProduccionArea.jTInfoAreaProduccion.setDefaultRenderer(Object.class, new renderProduccion(2, 4));
+            ProduccionArea.jTInfoAreaProduccion.setModel(areaProduccion);
+            
+            
+//            reinicializarVariables();
+//            ProduccionArea.contenido.removeAll();
+//            ProduccionArea.contenido.updateUI();
+//            ProduccionArea.contenido.setPreferredSize(new Dimension(1128, /*ProduccionFE.contenidoFE.getHeight()->*/ 530));
+//            while (crs.next()) {
+//                JButton jp = new JButton(String.valueOf(crs.getInt(1)));
+//                jp.setBounds(0 + x, 0 + y, 98, 98);
+//                jp.addActionListener(this);
+//                jp.setFont(new Font("Tahoma", 1, 15));
+//                jp.setFocusPainted(false);
+//                //Icono del boton
+//                ImageIcon icon = null;
+//                if (crs.getBoolean(4)) {//Si la orden no esta parada va hacer esto, sino va hacer lo otro.
+//                    switch (crs.getInt(2)) {
+//                        case 1://---------------------------------------------->
+//                            //Por iniciar
+//                            switch (crs.getString(3)) {
+//                                case "Normal":
+//                                    //Proyecto normal
+//                                    icon = new ImageIcon(getClass().getResource("/produccion/ProyectBegin.png"));
+//                                    break;
+//                                case "Quick":
+//                                    //Proyecto Quick
+//                                    icon = new ImageIcon(getClass().getResource("/produccion/ProyectBeginQuick.png"));
+//                                    break;
+//                                case "RQT":
+//                                    //Proyecto RQT
+//                                    icon = new ImageIcon(getClass().getResource("/produccion/ProyectBeginRQT.png"));
+//                                    break;
+//                            }
+//                            break;//------------------------------------------->
+//                        case 2:
+//                            //Pausado------------------------------------------>
+//                            switch (crs.getString(3)) {
+//                                case "Normal":
+//                                    //Proyecto normal
+//                                    icon = new ImageIcon(getClass().getResource("/produccion/ProyectPause.png"));
+//                                    break;
+//                                case "Quick":
+//                                    //Proyecto Quick
+//                                    icon = new ImageIcon(getClass().getResource("/produccion/ProyectPauseQuick.png"));
+//                                    break;
+//                                case "RQT":
+//                                    //Proyecto RQT
+//                                    icon = new ImageIcon(getClass().getResource("/produccion/ProyectPauseRQT.png"));
+//                                    break;
+//                            }
+//                            break;//------------------------------------------->
+//                        case 4:
+//                            //Ejecucion---------------------------------------->
+//                            switch (crs.getString(3)) {
+//                                case "Normal":
+//                                    //Proyecto normal
+//                                    icon = new ImageIcon(getClass().getResource("/produccion/ProyectTime.png"));
+//                                    break;
+//                                case "Quick":
+//                                    //Proyecto Quick
+//                                    icon = new ImageIcon(getClass().getResource("/produccion/ProyectTimeQuick.png"));
+//                                    break;
+//                                case "RQT":
+//                                    //Proyecto RQT
+//                                    icon = new ImageIcon(getClass().getResource("/produccion/ProyectTimeRQT.png"));
+//                                    break;
+//                            }
+//                            break;//------------------------------------------->
+//                    }
+//                } else {
+//                    //Estado parado
+//                    switch (crs.getString(3)) {//---------------------------------------------->
+//                        case "Normal":
+//                            //Proyecto normal
+//                            icon = new ImageIcon(getClass().getResource("/produccion/proyectStop.png"));
+//                            break;
+//                        case "Quick":
+//                            //Proyecto Quick
+//                            icon = new ImageIcon(getClass().getResource("/produccion/proyectStopQuick.png"));
+//                            break;
+//                        case "RQT":
+//                            //Proyecto RQT
+//                            icon = new ImageIcon(getClass().getResource("/produccion/proyectStopRQT.png"));
+//                            break;
+//                    }
+//                }
+//                Icon image = new ImageIcon(icon.getImage().getScaledInstance(jp.getWidth(), jp.getHeight(), Image.SECTION));
+//                jp.setIcon(image);
+//                this.repaint();
+//                //Texto del boton//-------------------------------------------->
+//                jp.setText(String.valueOf(crs.getInt(1)));
+//                jp.setHorizontalTextPosition(JButton.CENTER);
+//                jp.setContentAreaFilled(false);
+//                jp.setForeground(Color.BLACK);
+//                jp.setActionCommand(String.valueOf(crs.getInt(1)));
+//                jp.setCursor(Cursor.getPredefinedCursor(12));
+//                //------------------------------------------------------------->
+//                x += 99;
+//                cantidad++;
+//                if (cantidad == unidad * filas) {
+//                    y += 100;
+//                    x = 0;
+//                    filas++;
+//                    if (cantidad == unidad * conta) {
+//                        //---
+//                        ProduccionArea.contenido.setPreferredSize(new Dimension(1128, /*ProduccionFE.contenidoFE.getHeight()->*/ 530*multiplicador));
+//                        //---
+//                        conta += 5;
+//                        multiplicador+=1;
+//                    }
+//                    this.Contenido.updateUI();
+//                }
+//                jp.setBackground(Color.WHITE);
+//                //...
+//                ProduccionArea.contenido.add(jp);
+//                //...
+//                jp = null;
+//            }
             //...      
             ProduccionArea.contenido.updateUI();
             //...
             crs.close();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Error!!! " + e);
+            JOptionPane.showMessageDialog(null, "Error: " + e);
         }
     }
 
+    private String estado_ejecucion_proyecto(int estado){
+        String nombre_estado = "";
+        
+        switch(estado){
+            case 1:
+                nombre_estado = "Por iniciar";
+                break;
+            case 2:
+                nombre_estado = "Pausado";
+                break;
+            case 3:
+                nombre_estado = "Terminado";
+                break;
+            case 4:
+                nombre_estado = "Ejecucion";
+                break;
+        }
+        
+        return  nombre_estado;
+    }
+    
     private void reinicializarVariables() {
         x = 0;
         y = 0;
@@ -766,10 +822,12 @@ public class Producciones extends javax.swing.JFrame implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {//Estas lines me van a mostrar todos los detalles del proyecto sin importar se estan en ejecucion o no "1"
         int orden = Integer.parseInt(e.getActionCommand());
-        detalleProduccion obj = new detalleProduccion(this, true, orden, negocio, 1, cargo);
-        if (negocio == 4) {
+        detalleProduccion obj = new detalleProduccion(this, true, orden, area, 1, cargo);
+        
+        if (area == 4) {// Esto aun no se esta utilizando ...
             obj.btnPNC.setVisible(false);
         }
+        
         obj.setLocationRelativeTo(null);
         obj.setVisible(true);
         obj.dispose();

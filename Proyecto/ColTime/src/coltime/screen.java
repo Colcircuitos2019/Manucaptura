@@ -64,7 +64,7 @@ public class screen extends javax.swing.JFrame implements Runnable {
 
         jLabel4.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel4.setForeground(new java.awt.Color(102, 102, 102));
-        jLabel4.setText("Versión 2.1 ");
+        jLabel4.setText("Versión 2.2 ");
 
         jLabel3.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         jLabel3.setForeground(new java.awt.Color(83, 83, 83));
@@ -75,7 +75,7 @@ public class screen extends javax.swing.JFrame implements Runnable {
         jLabel5.setBackground(new java.awt.Color(102, 102, 102));
         jLabel5.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel5.setForeground(new java.awt.Color(102, 102, 102));
-        jLabel5.setText("Última actualización: 17-04-2019");
+        jLabel5.setText("Última actualización: 09-05-2019");
 
         jLabel6.setBackground(new java.awt.Color(102, 102, 102));
         jLabel6.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N

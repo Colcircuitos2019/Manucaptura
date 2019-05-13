@@ -28,6 +28,11 @@
       <Dimension value="[1348, 432]"/>
     </Property>
   </Properties>
+  <AccessibilityProperties>
+    <Property name="AccessibleContext.accessibleParent" type="javax.accessibility.Accessible" editor="org.netbeans.modules.form.ComponentChooserEditor">
+      <ComponentRef name="null"/>
+    </Property>
+  </AccessibilityProperties>
   <SyntheticProperties>
     <SyntheticProperty name="formSizePolicy" type="int" value="1"/>
     <SyntheticProperty name="generateCenter" type="boolean" value="false"/>
@@ -354,6 +359,7 @@
           <SubComponents>
             <Component class="elaprendiz.gui.textField.TextFieldRoundBackground" name="jTNombreCliente">
               <Properties>
+                <Property name="editable" type="boolean" value="false"/>
                 <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                   <Border info="null"/>
                 </Property>
@@ -384,6 +390,7 @@
             </Component>
             <Component class="elaprendiz.gui.textField.TextFieldRoundBackground" name="jTNombreProyecto">
               <Properties>
+                <Property name="editable" type="boolean" value="false"/>
                 <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                   <Border info="null"/>
                 </Property>
@@ -414,6 +421,7 @@
             </Component>
             <Component class="elaprendiz.gui.textField.TextFieldRoundBackground" name="jTFechaEntrega">
               <Properties>
+                <Property name="editable" type="boolean" value="false"/>
                 <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                   <Border info="null"/>
                 </Property>
@@ -455,6 +463,7 @@
             </Component>
             <Component class="elaprendiz.gui.textField.TextFieldRoundBackground" name="jTFechaIngreso">
               <Properties>
+                <Property name="editable" type="boolean" value="false"/>
                 <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                   <Border info="null"/>
                 </Property>
@@ -474,6 +483,7 @@
             </Component>
             <Component class="elaprendiz.gui.textField.TextFieldRoundBackground" name="jTCantidadTotal">
               <Properties>
+                <Property name="editable" type="boolean" value="false"/>
                 <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                   <Border info="null"/>
                 </Property>
@@ -504,6 +514,7 @@
             </Component>
             <Component class="elaprendiz.gui.textField.TextFieldRoundBackground" name="jTTimepoTotal">
               <Properties>
+                <Property name="editable" type="boolean" value="false"/>
                 <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                   <Border info="null"/>
                 </Property>
@@ -545,6 +556,7 @@
             </Component>
             <Component class="elaprendiz.gui.textField.TextFieldRoundBackground" name="jTFechaIngreso1">
               <Properties>
+                <Property name="editable" type="boolean" value="false"/>
                 <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                   <Border info="null"/>
                 </Property>
@@ -575,6 +587,7 @@
             </Component>
             <Component class="elaprendiz.gui.textField.TextFieldRoundBackground" name="jTFechaIngreso2">
               <Properties>
+                <Property name="editable" type="boolean" value="false"/>
                 <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                   <Border info="null"/>
                 </Property>
@@ -605,6 +618,7 @@
             </Component>
             <Component class="elaprendiz.gui.textField.TextFieldRoundBackground" name="jTFechaIngreso3">
               <Properties>
+                <Property name="editable" type="boolean" value="false"/>
                 <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                   <Border info="null"/>
                 </Property>
@@ -638,6 +652,7 @@
             </Component>
             <Component class="elaprendiz.gui.textField.TextFieldRoundBackground" name="jTFechaIngreso4">
               <Properties>
+                <Property name="editable" type="boolean" value="false"/>
                 <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                   <Border info="null"/>
                 </Property>
@@ -668,6 +683,7 @@
             </Component>
             <Component class="elaprendiz.gui.textField.TextFieldRoundBackground" name="jTTimepoTotalUnidad">
               <Properties>
+                <Property name="editable" type="boolean" value="false"/>
                 <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                   <Border info="null"/>
                 </Property>
@@ -711,6 +727,7 @@
             </Component>
             <Component class="elaprendiz.gui.textField.TextFieldRoundBackground" name="jLiderProyecto">
               <Properties>
+                <Property name="editable" type="boolean" value="false"/>
                 <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                   <Border info="null"/>
                 </Property>

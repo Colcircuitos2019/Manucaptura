@@ -141,7 +141,7 @@ public class RecuperarContraseña extends javax.swing.JDialog {
                 }
             } catch (Exception e) {
                 //Mensaje de erro en la recuperación de contraseña.
-                JOptionPane.showMessageDialog(null, "Error! " + e);
+                JOptionPane.showMessageDialog(null, "Error: " + e);
             }
         } else {
             //Mensaje del código de recuperación no cumple con la longitud establecida para el ingreso del código de recuperación.

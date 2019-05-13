@@ -2,7 +2,6 @@ package Controlador;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Font;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 
@@ -13,12 +12,12 @@ public class TablaRenderUsuario extends DefaultTableCellRenderer {
         setForeground(Color.BLACK);
         if (table.getValueAt(row, 6).toString().equals("Activo")) {
             if (table.getValueAt(row, 8).toString().equals("true")) {
-                setBackground(new Color(116, 251, 83));
+                setBackground(new Color(116, 251, 83));// verde
             } else {
                 setBackground(Color.WHITE);
             }
         } else if (table.getValueAt(row, 6).toString().equals("Inactivo")) {
-            setBackground(new Color(251, 83, 83));
+            setBackground(new Color(251, 83, 83));// rojo
         }
 //        table.getTableHeader().setFont(new Font("Arial", 1, 16));
         
