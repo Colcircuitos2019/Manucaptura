@@ -62,7 +62,7 @@ public class Menu extends javax.swing.JFrame implements ActionListener {
     public static PrintStream myPS;
     ButtonGroup grupoCom = null;
 //    public static String IP = "192.168.5.222:3306", user = "root", pass = "qblrENqllNIMvqHL";
-    public static String IP = "192.168.4.173:33066", user = "root", pass = "SaAFjmXlMRvppyqW";
+    public static String IP = "192.168.5.222:3306", user = "root", pass = "qblrENqllNIMvqHL";
     socketServidor server = null;
     public Menu(int cargo, String nombre, String doc) {
         initComponents();

@@ -42,7 +42,10 @@ public class ConexionPS {
     public ConexionPS() {}
 
     int conexion = 0;
-    
+    //Manual = 3
+    //Control calidad = 2
+    //Empaque = 1
+    //Automatico = 1
 //Falta validar que el puerto este abierto y disponible para poder mandar informacion, y de no ser asì se va a notificar al usuario que no puede realizar la toma de tiempo correspondiente a si àrea de producciòn.
 //Composición del código: Orden;nDetalle;Negocio;IDlector;cantidadProductos;cantidadOperarios;idProceso paso
 //NOTA: Las IP a la cual se va a enviar informacion son las siguiente: EN = 192.168.0.101 con Router y AP; FE y TE = 192.168.1.101 con Router y para Comercial Interno = 192.168.4.1 siin router 

@@ -117,13 +117,11 @@ void loop() {
     
     setup();
     
-  }
-  //else{
-  // FE y TE -> 192.168.1.101
+  }else{
+  // FE y TE -> 192.168.1.102
   // EN -> 192.168.0.101
-    //if(!WiFi.localIP().equals("192.168.1.101")){ // La dirección IP del modulo
-      //setup();
-    //}
-    
+    if(!WiFi.localIP().equals("192.168.1.102")){ // La dirección IP del modulo
+      setup();
+    }
   //}
 }
